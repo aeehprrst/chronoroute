@@ -1,0 +1,54 @@
+# Continuous integration: the Python test suite and the golden-vector check.
+#
+# ns-3 is NOT built here (the build is about 1 GB and slow on a shared runner);
+# run `make ns3-test` locally before pushing protocol changes.
+
+name: ci
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  python:
+    name: pytest + golden vectors (Python 3.14)
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      MPLBACKEND: Agg
+      PYTHONDONTWRITEBYTECODE: "1"
+    steps:
+      - name: Check out the repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.14
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.14"
+          allow-prereleases: true
+          cache: pip
+          cache-dependency-path: pyproject.toml
+
+      - name: Install chronoroute with test extras
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -e ".[test]"
+
+      - name: Show versions
+        run: |
+          python --version
+          python -m pip freeze
+
+      - name: Run pytest
+        run: make test PYTHON=python
+
+      - name: Regenerate golden vectors, check they match git and the ns-3 .inc is current
+        run: make golden PYTHON=python

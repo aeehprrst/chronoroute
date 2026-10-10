@@ -1,0 +1,196 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "ChronoRoute run manifest, version 1",
+  "description": "Written next to every set of results by sim/chronoroute/provenance.py (write_manifest). It records how the results were made: commit, config, seeds, orbit snapshot, library versions, host, timing, the output files with their sha256, and the REAL/DERIVED/MODELLED label map. Only a small subset of JSON Schema is used, because the project validates it with its own validator (provenance.SUPPORTED_KEYWORDS); jsonschema is not a dependency.",
+  "type": "object",
+  "required": [
+    "schema",
+    "run_id",
+    "tool",
+    "tool_version",
+    "git_sha",
+    "dirty",
+    "command",
+    "config",
+    "config_sha256",
+    "seeds",
+    "snapshot",
+    "versions",
+    "host",
+    "started_utc",
+    "ended_utc",
+    "wall_seconds",
+    "written_utc",
+    "outputs",
+    "labels",
+    "extra"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "schema": {
+      "description": "Schema identifier. Bump the trailing number on any incompatible change.",
+      "const": "chronoroute.manifest/1"
+    },
+    "run_id": {
+      "description": "First 16 hex digits of sha256 over the canonical JSON of {config, git_sha, seeds}. The same config and seeds at the same commit always give the same run_id.",
+      "type": "string",
+      "pattern": "^[0-9a-f]{16}$"
+    },
+    "tool": {
+      "description": "What produced the run, e.g. python-sim, legacy-python, ns-3, pipeline.",
+      "type": "string",
+      "minLength": 1
+    },
+    "tool_version": {
+      "type": "string",
+      "minLength": 1
+    },
+    "git_sha": {
+      "description": "HEAD commit of the chronoroute repository, or null when the code is not inside a git checkout (or git is missing).",
+      "type": ["string", "null"],
+      "pattern": "^([0-9a-f]{40}|[0-9a-f]{64})$"
+    },
+    "dirty": {
+      "description": "True when the working tree differs from git_sha (tracked or untracked files), ignoring results/ and the run's own declared outputs. Null when git_sha is null.",
+      "type": ["boolean", "null"]
+    },
+    "command": {
+      "description": "The command line, shell-quoted (shlex.join).",
+      "type": "string",
+      "minLength": 1
+    },
+    "config": {
+      "description": "The full run configuration exactly as it was hashed.",
+      "type": "object"
+    },
+    "config_sha256": {
+      "description": "sha256 of the canonical JSON of config (sorted keys, separators ',' and ':', UTF-8).",
+      "$ref": "#/$defs/sha256"
+    },
+    "seeds": {
+      "description": "Random seeds in the order they were used. Empty for fully deterministic tools.",
+      "type": "array",
+      "items": {
+        "type": "integer",
+        "minimum": 0
+      }
+    },
+    "snapshot": {
+      "description": "The orbit-data snapshot the run used, or null when it used none (e.g. a synthetic Walker shell).",
+      "type": ["object", "null"],
+      "required": ["id", "sha256"],
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "sha256": {
+          "$ref": "#/$defs/sha256"
+        },
+        "sha256_of": {
+          "description": "Which file the sha256 was computed over, e.g. SHA256SUMS for a data/pinned/ directory.",
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "additionalProperties": true
+    },
+    "versions": {
+      "description": "Interpreter and library versions; null means the package is not installed. Tools may add more entries (e.g. ns-3).",
+      "type": "object",
+      "required": ["python", "chronoroute", "numpy", "networkx", "sgp4", "matplotlib"],
+      "additionalProperties": {
+        "type": ["string", "null"]
+      }
+    },
+    "host": {
+      "description": "The machine the run executed on. RAM is what the OS reports (inside WSL that is the WSL VM's limit).",
+      "type": "object",
+      "required": ["cpu_model", "logical_cores", "ram_bytes", "platform", "machine"],
+      "additionalProperties": false,
+      "properties": {
+        "cpu_model": {
+          "type": ["string", "null"]
+        },
+        "logical_cores": {
+          "type": ["integer", "null"],
+          "minimum": 1
+        },
+        "ram_bytes": {
+          "type": ["integer", "null"],
+          "minimum": 0
+        },
+        "platform": {
+          "type": "string"
+        },
+        "machine": {
+          "type": "string"
+        }
+      }
+    },
+    "started_utc": {
+      "description": "When the run started (from RunTimer), or null if no timer was given.",
+      "$ref": "#/$defs/utc_or_null"
+    },
+    "ended_utc": {
+      "description": "When the run ended (from RunTimer), or null if no timer was given.",
+      "$ref": "#/$defs/utc_or_null"
+    },
+    "wall_seconds": {
+      "description": "Elapsed wall-clock time from a monotonic clock, or null if no timer was given.",
+      "type": ["number", "null"],
+      "minimum": 0
+    },
+    "written_utc": {
+      "description": "When this manifest was written.",
+      "type": "string",
+      "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}(\\.[0-9]+)?Z$"
+    },
+    "outputs": {
+      "description": "Every file the run produced, sorted by path. Paths are POSIX and relative to the directory holding manifest.json.",
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["path", "sha256", "size_bytes"],
+        "additionalProperties": false,
+        "properties": {
+          "path": {
+            "type": "string",
+            "minLength": 1
+          },
+          "sha256": {
+            "$ref": "#/$defs/sha256"
+          },
+          "size_bytes": {
+            "type": "integer",
+            "minimum": 0
+          }
+        }
+      }
+    },
+    "labels": {
+      "description": "Honesty labels: each named input or quantity is REAL (public/measured data, real physics, or the real output of our code), DERIVED (computed by our code from REAL inputs) or MODELLED (chosen by us because the truth is not public).",
+      "type": "object",
+      "propertyNames": {
+        "minLength": 1
+      },
+      "additionalProperties": {
+        "enum": ["REAL", "DERIVED", "MODELLED"]
+      }
+    },
+    "extra": {
+      "description": "Tool-specific additions (e.g. ns-3 base SHA, build profile, skipped-satellite counts).",
+      "type": "object"
+    }
+  },
+  "$defs": {
+    "sha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "utc_or_null": {
+      "type": ["string", "null"],
+      "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}(\\.[0-9]+)?Z$"
+    }
+  }
+}

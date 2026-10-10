@@ -1,13 +1,7 @@
-contourpy==1.3.3
-cycler==0.12.1
-fonttools==4.64.0
-kiwisolver==1.5.1
-matplotlib==3.11.1
-networkx==3.6.1
-numpy==2.5.3
-packaging==26.3
-pillow==12.3.0
-pyparsing==3.3.2
-python-dateutil==2.9.0.post0
-sgp4==2.27
-six==1.17.0
+# Kept for old instructions only. The project is installed from pyproject.toml,
+# which pins sgp4, networkx, numpy and matplotlib and adds pytest + hypothesis:
+#
+#     venv/bin/pip install -e ".[test]"
+#
+# `pip install -r requirements.txt` (from the repository root) does exactly that.
+-e .[test]

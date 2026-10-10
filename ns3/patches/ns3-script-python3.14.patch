@@ -1,0 +1,54 @@
+diff --git a/ns3 b/ns3
+index 60d3d44..41b6c2d 100755
+--- a/ns3
++++ b/ns3
+@@ -109,7 +109,7 @@ def parse_args(argv):
+     )
+     parser_help = sub_parser.add_parser("help", help="Print a summary of available commands")
+     parser_help.add_argument(
+-        "help", help="Print a summary of available commands", action="store_true", default=False
++        "help", help="Print a summary of available commands", nargs="?", default=True
+     )
+     # parser.add_argument('--docset',
+     #               help=(
+@@ -142,7 +142,7 @@ def parse_args(argv):
+     parser_configure = sub_parser.add_parser(
+         "configure", help='Try "./ns3 configure --help" for more configuration options'
+     )
+-    parser_configure.add_argument("configure", action="store_true", default=False)
++    parser_configure.add_argument("configure", nargs="?", default=True)
+     parser_configure.add_argument(
+         "-d",
+         "--build-profile",
+@@ -299,18 +299,18 @@ def parse_args(argv):
+     )
+ 
+     parser_clean = sub_parser.add_parser("clean", help="Removes files created by ns3")
+-    parser_clean.add_argument("clean", action="store_true", default=False)
++    parser_clean.add_argument("clean", nargs="?", default=True)
+ 
+     parser_distclean = sub_parser.add_parser(
+         "distclean", help="Removes files created by ns3, tests and documentation"
+     )
+-    parser_distclean.add_argument("distclean", action="store_true", default=False)
++    parser_distclean.add_argument("distclean", nargs="?", default=True)
+ 
+     parser_install = sub_parser.add_parser("install", help="Install ns-3")
+-    parser_install.add_argument("install", action="store_true", default=False)
++    parser_install.add_argument("install", nargs="?", default=False)
+ 
+     parser_uninstall = sub_parser.add_parser("uninstall", help="Uninstall ns-3")
+-    parser_uninstall.add_argument("uninstall", action="store_true", default=False)
++    parser_uninstall.add_argument("uninstall", nargs="?", default=False)
+ 
+     parser_run = sub_parser.add_parser(
+         "run",
+@@ -409,7 +409,7 @@ def parse_args(argv):
+     parser_shell.add_argument(
+         "shell",
+         help="Export necessary environment variables and open a shell",
+-        action="store_true",
++        nargs="?",
+         default=False,
+     )
+ 

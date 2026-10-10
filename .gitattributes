@@ -1,0 +1,19 @@
+# Line endings. Text files are stored and checked out with LF everywhere, so a
+# Git-for-Windows checkout (core.autocrlf=true by default) gives the same
+# bytes as WSL/Linux.
+* text=auto eol=lf
+
+# Files whose exact bytes are hashed or compared must never be converted at
+# all: the pinned orbit snapshots (SHA256SUMS), the golden vectors (compared
+# byte-for-byte with the generator) and the results (sha256 in every
+# manifest.json). A CRLF checkout of data/pinned/ made the snapshot check fail.
+data/** -text
+spec/golden/** -text
+results/** -text
+ns3/contrib/chronoroute/test/golden-vectors.inc -text
+# the stored Assessment 8 CSV (its sha256 is pinned in ns3/run_tcrh_sweep.py)
+ns3/legacy/v0_tcrh_sweep.csv -text
+
+# Binary outputs
+*.png binary
+*.pdf binary

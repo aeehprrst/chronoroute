@@ -1,0 +1,40 @@
+[build-system]
+# 77: first setuptools that accepts the PEP 639 SPDX string `license = "MIT"`
+# and `license-files`
+requires = ["setuptools>=77"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "chronoroute"
+version = "1.0.0.dev0"
+description = "ChronoRoute: deadline-based source routing for LEO satellite constellations (T-CRH)"
+readme = "README.md"
+requires-python = ">=3.12"
+license = "MIT"
+license-files = ["LICENSE"]
+authors = [{ name = "Arshpreet Gaba" }]
+dependencies = [
+    "sgp4==2.27",
+    "networkx==3.6.1",
+    "numpy==2.5.3",
+    "matplotlib==3.11.1",
+]
+
+[project.optional-dependencies]
+test = ["pytest", "hypothesis"]
+
+[project.scripts]
+cr = "chronoroute.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["sim"]
+include = ["chronoroute*"]
+
+# The manifest schema is read at run time (chronoroute.provenance), so it must
+# be inside the installed package, not only in spec/schemas/.
+[tool.setuptools.package-data]
+chronoroute = ["schemas/*.json"]
+
+[tool.pytest.ini_options]
+testpaths = ["sim/tests"]
+addopts = "-q"
