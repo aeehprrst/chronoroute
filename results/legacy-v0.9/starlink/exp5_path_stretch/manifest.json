@@ -1,0 +1,99 @@
+{
+  "command": "run_scaled.py starlink",
+  "config": {
+    "constellation": {
+      "altitude_km": 550.0,
+      "inclination_deg": 53.0,
+      "phasing_f": 1,
+      "planes": 72,
+      "sats_per_plane": 22
+    },
+    "duration_s": 120,
+    "epoch_utc": "2026-09-10T00:00:00Z",
+    "experiment": "exp5_path_stretch",
+    "hop_limit": 40,
+    "latency_optimal_rule": "latency stretch <= 1 + 1e-09",
+    "num_pairs": 400,
+    "pair_rule": "random.Random(seed): snapshot, src, dst per pair; src == dst and unreachable pairs skipped",
+    "preset": "starlink",
+    "quantile_rule": "nearest rank, losses = +inf",
+    "quantiles": [
+      0.5,
+      0.9,
+      0.95,
+      0.99
+    ],
+    "queueing_mean_ms": 0.4,
+    "schedule_interval_s": 15,
+    "seed": 7,
+    "step_s": 1
+  },
+  "config_sha256": "ad23ec180c9740fce9d4ffdbfcd06cd8f25e01c9b7b3f49d80e95cb2c4d0140b",
+  "dirty": false,
+  "ended_utc": "2026-10-10T19:26:26.278356Z",
+  "extra": {
+    "effective_latency_stretch": {
+      "p50": 1.7400160145869314,
+      "p90": "inf",
+      "p95": "inf",
+      "p99": "inf"
+    },
+    "pairs_same_node": 0,
+    "pairs_unreachable": 0,
+    "propagation": {
+      "error_codes": {},
+      "samples": 190080,
+      "skipped": 0,
+      "skipped_sats": 0
+    }
+  },
+  "git_sha": "3391d61c69bf03ba8a305c536e383ebb01ad50e2",
+  "host": {
+    "cpu_model": "13th Gen Intel(R) Core(TM) i9-13900H",
+    "logical_cores": 20,
+    "machine": "x86_64",
+    "platform": "Linux-6.18.33.2-microsoft-standard-WSL2-x86_64-with-glibc2.43",
+    "ram_bytes": 8131350528
+  },
+  "labels": {
+    "constellation": "MODELLED",
+    "pairs": "MODELLED",
+    "stretch": "DERIVED"
+  },
+  "outputs": [
+    {
+      "path": "exp5_path_stretch.csv",
+      "sha256": "8c09aa4ce2189a968bf6a8585186ae0e77bc2090d60f3ab781b25ee1fe792ce1",
+      "size_bytes": 37946
+    },
+    {
+      "path": "exp5_path_stretch.png",
+      "sha256": "181ef68a4cd0e9965704c016f2a13d8c6113a37fb6be18f6a54c9dd66109cb92",
+      "size_bytes": 152265
+    },
+    {
+      "path": "exp5_summary.csv",
+      "sha256": "5be911e64b75856bc2ff103b164bc58a26b48f87ed4c6f2f3c0489e9e95dfc6e",
+      "size_bytes": 783
+    }
+  ],
+  "run_id": "00c92261ea0b60b8",
+  "schema": "chronoroute.manifest/1",
+  "seeds": [
+    7
+  ],
+  "snapshot": null,
+  "started_utc": "2026-10-10T19:26:25.476040Z",
+  "tool": "legacy-python",
+  "tool_version": "1.0.0.dev0",
+  "versions": {
+    "chronoroute": "1.0.0.dev0",
+    "matplotlib": "3.11.1",
+    "networkx": "3.6.1",
+    "numpy": "2.5.3",
+    "python": "3.14.4",
+    "sgp4": "2.27"
+  },
+  "wall_seconds": 0.802309,
+  "written_utc": "2026-10-10T19:26:26.648363Z"
+}

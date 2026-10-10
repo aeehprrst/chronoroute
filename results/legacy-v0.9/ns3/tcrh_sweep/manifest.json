@@ -1,0 +1,156 @@
+{
+  "command": "ns3/run_tcrh_sweep.py",
+  "config": {
+    "ci_headline": "Student-t 95% over RngRun 1-5 (the run is the unit); per-packet Wilson intervals in the sweep CSVs are per-run diagnostics",
+    "experiment": "ns3_tcrh_slack_sweep_rescored",
+    "fault": "n3-n4 delay 20 -> 45 ms (main), 20 -> 25 ms (degraded25), 20 -> 20 ms (nullfault)",
+    "header": "v0 T-CRH, 1 ms units, ceil-cumulative deltas",
+    "jitter": "Exp(mean 2 ms) per sending hop, drawn once per packet",
+    "operating_point_rule": "highest paired detection with false alarms <= 1 % and detection >= 1 % (as Python exp1); Youden J printed for continuity only",
+    "packets_per_slack": 1000,
+    "scoring": "paired counterfactual (healthy / fault / null-fault copies)",
+    "slacks": [
+      1.0,
+      1.1,
+      1.2,
+      1.3,
+      1.5,
+      1.75,
+      2.0,
+      2.5,
+      3.0
+    ],
+    "topology": "7-node linear IPv4/UDP, 20 ms links"
+  },
+  "config_sha256": "562c4aeb0e726f71dc81583388367f5554a7ab3ebf7513242b239abb613f6d9e",
+  "dirty": false,
+  "ended_utc": "2026-10-10T19:30:49.808542Z",
+  "extra": {
+    "binaries": {
+      "ns3.44-tcrh-experiment-a8-default": "86fd966e4aa67862a0930c6f1dd1584fb9c7352fd081cc594b10a5fbb38b4eff",
+      "ns3.44-tcrh-experiment-default": "73aaa357f8015646669fc6abbfbd90a2e2a5cf11d9f0e5dabfc442b94db3ed60"
+    },
+    "ns3_base": "ns-3.44 (43dce6710b8d) + ChronoRoute Assessment 6-8 snapshot 6314c8a76c21",
+    "ns3_dir": "/home/aeehprrst/ns-3-dev",
+    "ns3_rescore_v09.md": "hand-written notes; not produced by this run",
+    "programs": {
+      "ns3/plots/plot_tcrh.py": "eef7f11b87d0b3493f1189b2390694303424d22163c2480d82dfe402998fee3d",
+      "ns3/scratch/tcrh-experiment-a8.cc": "5513fed2db5de95f5d79088c108100bdbe0cea2433ae8fb4dca9ec0a91a59154",
+      "ns3/scratch/tcrh-experiment.cc": "24990aa12e3c603e42bd1a420f9dae6bbca0f47a65e2eaea96041e86117a851e"
+    },
+    "rng_runs": {
+      "tcrh_sweep_v09.csv": 1,
+      "tcrh_sweep_v09_degraded25.csv": 1,
+      "tcrh_sweep_v09_n60.csv": 1,
+      "tcrh_sweep_v09_nullfault.csv": 1,
+      "tcrh_sweep_v09_oldcode_nullfault.csv": 1,
+      "tcrh_sweep_v09_runs1-5.csv": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ]
+    },
+    "v0_tcrh_sweep.csv": "ns3/legacy/v0_tcrh_sweep.csv (sha256 63cb2ef58521), = git show 6314c8a:tcrh_sweep.csv in the original ns-3 tree (Assessment 8, confounded score)"
+  },
+  "git_sha": "3391d61c69bf03ba8a305c536e383ebb01ad50e2",
+  "host": {
+    "cpu_model": "13th Gen Intel(R) Core(TM) i9-13900H",
+    "logical_cores": 20,
+    "machine": "x86_64",
+    "platform": "Linux-6.18.33.2-microsoft-standard-WSL2-x86_64-with-glibc2.43",
+    "ram_bytes": 8131350528
+  },
+  "labels": {
+    "header_bytes": "REAL",
+    "jitter": "MODELLED",
+    "link_fault": "MODELLED",
+    "topology": "MODELLED"
+  },
+  "outputs": [
+    {
+      "path": "fig1_tcrh_size_v09.png",
+      "sha256": "5ac4f87f88f4b066dd705c52064014a6bf3bceccb117d908557da8ec76a10392",
+      "size_bytes": 157898
+    },
+    {
+      "path": "fig2_tcrh_sweep_v09.png",
+      "sha256": "4772c08510a5575d8dc36f55f44931b57f3a3e39bcace1a7ae8400852718990f",
+      "size_bytes": 167630
+    },
+    {
+      "path": "tcrh_sizes_v09.csv",
+      "sha256": "a927740c6af863462f825759bd7a4b2ac6aa10daaf62c38660728d4f31ecc79d",
+      "size_bytes": 282
+    },
+    {
+      "path": "tcrh_sweep_v09.csv",
+      "sha256": "36d47f25db28d1093f84bc9f5f88d720cbf57586d7df14e825081ee9039fa7c6",
+      "size_bytes": 1494
+    },
+    {
+      "path": "tcrh_sweep_v09.log",
+      "sha256": "87cfb66db5a711871743743ad69f58996d48b6a442cba6dd56fc109519cbd4e6",
+      "size_bytes": 4142
+    },
+    {
+      "path": "tcrh_sweep_v09_degraded25.csv",
+      "sha256": "e4e51efb65e5764ec885aba0e80b7fb83210926dc61465cd60b29d17d5805429",
+      "size_bytes": 1480
+    },
+    {
+      "path": "tcrh_sweep_v09_n60.csv",
+      "sha256": "b16e7e7ebd86e5bb66b72d1eb07a261cfeca47d156dbb048290c2f653ee5718c",
+      "size_bytes": 1436
+    },
+    {
+      "path": "tcrh_sweep_v09_nullfault.csv",
+      "sha256": "ca1ae186f50f9e3f30142f93c2a3ea95d53f62341912c2cff3dc5def2bbb088d",
+      "size_bytes": 1432
+    },
+    {
+      "path": "tcrh_sweep_v09_oldcode_nullfault.csv",
+      "sha256": "7329a4370bda1617cf8e961be847dd5f7368385187ed2251bb4740000b026f9a",
+      "size_bytes": 191
+    },
+    {
+      "path": "tcrh_sweep_v09_runs1-5.csv",
+      "sha256": "d9914d639a3d4cf8be893816060de989ffb9c9d2a0b280a5901b3932dba7cb4c",
+      "size_bytes": 5646
+    },
+    {
+      "path": "tcrh_sweep_v09_runs1-5_summary.csv",
+      "sha256": "cf4f06627c0dc6e7935977af2d43e7d8641e3df0e9a5b58c53ef7fdbca22b937",
+      "size_bytes": 1173
+    },
+    {
+      "path": "v0_tcrh_sweep.csv",
+      "sha256": "63cb2ef58521dcae87e1bd2c5776eed7484b7f4b7057d0a83e478685276311e9",
+      "size_bytes": 185
+    }
+  ],
+  "run_id": "303337b7174d4f44",
+  "schema": "chronoroute.manifest/1",
+  "seeds": [
+    1,
+    2,
+    3,
+    4,
+    5
+  ],
+  "snapshot": null,
+  "started_utc": "2026-10-10T19:30:03.219607Z",
+  "tool": "ns-3 scratch/tcrh-experiment.cc (via ns3/run_tcrh_sweep.py)",
+  "tool_version": "1.0.0.dev0",
+  "versions": {
+    "chronoroute": "1.0.0.dev0",
+    "matplotlib": "3.11.1",
+    "networkx": "3.6.1",
+    "numpy": "2.5.3",
+    "python": "3.14.4",
+    "sgp4": "2.27"
+  },
+  "wall_seconds": 46.588911,
+  "written_utc": "2026-10-10T19:30:49.860001Z"
+}

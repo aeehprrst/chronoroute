@@ -1,0 +1,78 @@
+
+=== PART A: T-CRH header conformance self-test ===
+
+  encoded : 1102fd0300030000000003e8000708000307000206000000
+  expected: 1102fd0300030000000003e8000708000307000206000000
+  byte-for-byte match: PASS
+
+  round trip: PASS
+
+  cumulative arrival deadlines (epoch = 1000 ms):
+    at the source            : 1000 ms
+    after hop to SID  2       : 1006 ms   (correct)
+    after hop to SID  3       : 1013 ms   (correct)
+    after hop to SID  7       : 1021 ms   (correct)
+    Budgets accumulate, so time lost at one hop can be made
+    up at a later, faster hop.
+
+  Deviation_Flag:
+    before : flags=0x0  deviated=no
+    after  : flags=0x1  deviated=yes
+
+  exact deadline arithmetic (no ms truncation):
+    sent at 1000.7 ms -> Epoch_Base 1001 (rounded up)   (correct)
+    sent at exactly 1000 ms -> Epoch_Base 1000   (correct)
+    0.5 ms after a 1006 ms deadline is late   (correct)
+    1 ns after the deadline is late   (correct)
+    exactly at the deadline is on time   (correct)
+    3 hops of 20.4 ms -> deltas 21,20,21 (deadlines 21/41/62 >= 20.4/40.8/61.2)   (correct)
+    20 ms x 1.1 -> 22 ms per hop, not 23 (22.000000000000004 is 22000 us)   (correct)
+
+=== PART B: the byte cost of adding time ===
+
+    hops    CRH-16     T-CRH  cost of time    SRv6 SRH   T-CRH vs SRv6
+       1        8B       16B         + 8B         24B            1.5x
+       2        8B       24B         +16B         40B            1.7x
+       3       16B       24B         + 8B         56B            2.3x
+       4       16B       24B         + 8B         72B            3.0x
+       5       16B       32B         +16B         88B            2.8x
+       6       16B       32B         +16B        104B            3.2x
+       7       24B       40B         +16B        120B            3.0x
+       8       24B       40B         +16B        136B            3.4x
+       9       24B       40B         +16B        152B            3.8x
+      10       24B       48B         +24B        168B            3.5x
+      15       40B       64B         +24B        248B            3.9x
+      20       48B       72B         +24B        328B            4.6x
+
+  wrote tcrh_sizes_v09.csv
+
+  [t=0.5s] fault network: link n3-n4 set to 45.0 ms (still up, still forwarding)
+
+  [t=0.5s] null-fault network: link n3-n4 set to 20.0 ms (still up, still forwarding)
+
+=== PART C: does the deadline catch a slow link? ===
+
+  Same packets, same jitter, three networks (RngRun 1, 1000 packets per S,
+  n3-n4 slowed from 20.0 to 45.0 ms in the fault network).
+  false alarms : flagged in the healthy network
+  detections   : flagged WITH the fault and NOT without it, out of the
+                 packets the healthy network did not flag
+  old score    : every flag in the fault network (the v0 metric, confounded)
+  null control : detections when the 'fault' changes nothing (must be 0)
+
+       S  false alarms         detections [95% CI]   old score  null control   delivered
+    1.00       100.0 %            nan % [nan, nan]     100.0 %         0.0 %     100.0 %
+    1.10        71.8 %       100.0 % [98.7, 100.0]     100.0 %         0.0 %     100.0 %
+    1.20        21.3 %       100.0 % [99.5, 100.0]     100.0 %         0.0 %     100.0 %
+    1.30         7.0 %       100.0 % [99.6, 100.0]     100.0 %         0.0 %     100.0 %
+    1.50         0.7 %         57.9 % [54.8, 60.9]      58.2 %         0.0 %     100.0 %
+    1.75         0.0 %            0.5 % [0.2, 1.2]       0.5 %         0.0 %     100.0 %
+    2.00         0.1 %            0.0 % [0.0, 0.4]       0.1 %         0.0 %     100.0 %
+    2.50         0.0 %            0.0 % [0.0, 0.4]       0.0 %         0.0 %     100.0 %
+    3.00         0.0 %            0.0 % [0.0, 0.4]       0.0 %         0.0 %     100.0 %
+
+  wrote tcrh_sweep_v09.csv
+
+  Operating point for this fault (highest paired detection with false alarms <= 1.00 % and detection >= 1.00 %): S = 1.50 (detection 57.9 %, false alarms 0.7 %)
+  (one 7-node path, one jitter model, one fault size: not a general answer; the slack must be chosen per fault size)
+  Youden J (detections minus false alarms), for continuity with Assessment 8 only, NOT a recommendation: S = 1.30

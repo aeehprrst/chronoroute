@@ -1,0 +1,205 @@
+{
+  "command": "run_scaled.py starlink",
+  "config": {
+    "ci": "Student-t 95% over flows (unit of analysis: the flow; each flow is the mean of its seeds), truncated to [0, 100]%",
+    "constellation": {
+      "altitude_km": 550.0,
+      "inclination_deg": 53.0,
+      "phasing_f": 1,
+      "planes": 72,
+      "sats_per_plane": 22
+    },
+    "crn_seed_rule": "seed * 1000 + flow_index",
+    "degradations": [
+      1.0001,
+      1.2,
+      1.5,
+      2.0,
+      3.0
+    ],
+    "degraded_link_rule": "random ISL of the flow path at t=0, random.Random(crn_seed).choice",
+    "detection": "flagged with the fault and not without it (same CRN seed), among packets that crossed the degraded link",
+    "duration_s": 120,
+    "epoch_utc": "2026-09-10T00:00:00Z",
+    "experiment": "exp1_slack_sweep",
+    "flows": [
+      [
+        "GS:Chennai",
+        "GS:London"
+      ],
+      [
+        "GS:NewYork",
+        "GS:Sydney"
+      ],
+      [
+        "GS:SaoPaulo",
+        "GS:Tokyo"
+      ]
+    ],
+    "fpr": "deadline-check flags on the healthy network / its packets",
+    "fpr_max": 0.01,
+    "hop_limit": 40,
+    "null_fault": 1.0,
+    "num_packets": 400,
+    "operating_point_rule": "max mean detection at the reference degradation with mean FPR <= fpr_max and mean detection >= fpr_max; none otherwise",
+    "packet_interval_ms": 250,
+    "preset": "starlink",
+    "queueing_mean_ms": 0.4,
+    "reference_degradation": 1.5,
+    "schedule_interval_s": 15,
+    "seeds": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10
+    ],
+    "slacks": [
+      1.0,
+      1.05,
+      1.1,
+      1.15,
+      1.2,
+      1.25,
+      1.3,
+      1.4,
+      1.5,
+      1.75,
+      2.0,
+      2.5,
+      3.0
+    ],
+    "step_s": 1,
+    "unit_codes": [
+      0,
+      1
+    ]
+  },
+  "config_sha256": "1f4d4baa6a1a9c65f53b58d867a5734e13e8f51f3e919f81676b83034936b051",
+  "dirty": false,
+  "ended_utc": "2026-10-10T19:26:01.062272Z",
+  "extra": {
+    "null_fault_attributed": 0,
+    "operating_points": [
+      {
+        "criterion": "max detection at 1.5x subject to mean FPR <= 1% and mean detection >= 1%",
+        "slack": 1.3,
+        "unit_code": 0
+      },
+      {
+        "criterion": "Youden J = detection - FPR (continuity only)",
+        "slack": 1.1,
+        "unit_code": 0
+      },
+      {
+        "criterion": "max detection at 1.5x subject to mean FPR <= 1% and mean detection >= 1%",
+        "slack": null,
+        "unit_code": 1
+      },
+      {
+        "criterion": "Youden J = detection - FPR (continuity only)",
+        "slack": 1.2,
+        "unit_code": 1
+      }
+    ],
+    "propagation": {
+      "error_codes": {},
+      "samples": 190080,
+      "skipped": 0,
+      "skipped_sats": 0
+    },
+    "runs": 780,
+    "workers": 12
+  },
+  "git_sha": "3391d61c69bf03ba8a305c536e383ebb01ad50e2",
+  "host": {
+    "cpu_model": "13th Gen Intel(R) Core(TM) i9-13900H",
+    "logical_cores": 20,
+    "machine": "x86_64",
+    "platform": "Linux-6.18.33.2-microsoft-standard-WSL2-x86_64-with-glibc2.43",
+    "ram_bytes": 8131350528
+  },
+  "labels": {
+    "constellation": "MODELLED",
+    "ground_stations": "REAL",
+    "header_bytes": "REAL",
+    "link_fault": "MODELLED",
+    "propagation_delay": "DERIVED",
+    "queueing_delay": "MODELLED"
+  },
+  "outputs": [
+    {
+      "path": "exp1_operating_points.csv",
+      "sha256": "caf0bed10f353667a69119fb4d24c7dba72bd33701f4e5fc87d2a63b38b6d447",
+      "size_bytes": 599
+    },
+    {
+      "path": "exp1_runs.csv",
+      "sha256": "1f9299a19e95c3da07f6ff408138ed3cb09a093ca645706ed6cb08c57d1e168f",
+      "size_bytes": 453083
+    },
+    {
+      "path": "exp1_slack_sweep.csv",
+      "sha256": "4e3d82e9d90572c0786c986e36499025cae940097dc3e15663b911ec75fa0a0e",
+      "size_bytes": 36395
+    },
+    {
+      "path": "exp1_slack_sweep.png",
+      "sha256": "15c6e701545a60547147326901c5eec364e32931e4f9cf9aae8376f7fe9bd439",
+      "size_bytes": 494343
+    }
+  ],
+  "run_id": "ff5c25c9e1552699",
+  "schema": "chronoroute.manifest/1",
+  "seeds": [
+    1000,
+    2000,
+    3000,
+    4000,
+    5000,
+    6000,
+    7000,
+    8000,
+    9000,
+    10000,
+    1001,
+    2001,
+    3001,
+    4001,
+    5001,
+    6001,
+    7001,
+    8001,
+    9001,
+    10001,
+    1002,
+    2002,
+    3002,
+    4002,
+    5002,
+    6002,
+    7002,
+    8002,
+    9002,
+    10002
+  ],
+  "snapshot": null,
+  "started_utc": "2026-10-10T19:24:11.828101Z",
+  "tool": "legacy-python",
+  "tool_version": "1.0.0.dev0",
+  "versions": {
+    "chronoroute": "1.0.0.dev0",
+    "matplotlib": "3.11.1",
+    "networkx": "3.6.1",
+    "numpy": "2.5.3",
+    "python": "3.14.4",
+    "sgp4": "2.27"
+  },
+  "wall_seconds": 109.234153,
+  "written_utc": "2026-10-10T19:26:01.975809Z"
+}

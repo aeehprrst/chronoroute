@@ -1,0 +1,231 @@
+{
+  "command": "run_scaled.py starlink",
+  "config": {
+    "ci": "Student-t 95% over flows (each flow the mean of its seeds)",
+    "constellation": {
+      "altitude_km": 550.0,
+      "inclination_deg": 53.0,
+      "phasing_f": 1,
+      "planes": 72,
+      "sats_per_plane": 22
+    },
+    "crn_seed_rule": "seed * 1000 + flow_index",
+    "degradation": 1.5,
+    "duration_s": 120,
+    "epoch_utc": "2026-09-10T00:00:00Z",
+    "experiment": "exp6_scale_validation",
+    "floor_slack": 5.0,
+    "floor_unit_code": 0,
+    "flows": [
+      [
+        "GS:Chennai",
+        "GS:London"
+      ],
+      [
+        "GS:NewYork",
+        "GS:Sydney"
+      ],
+      [
+        "GS:SaoPaulo",
+        "GS:Tokyo"
+      ]
+    ],
+    "fpr_max": 0.01,
+    "hop_limit": 40,
+    "num_packets": 250,
+    "packet_interval_ms": 300,
+    "preset": "starlink",
+    "presets": [
+      "telesat",
+      "dev",
+      "kuiper",
+      "starlink"
+    ],
+    "presets_detail": {
+      "dev": {
+        "altitude_km": 550.0,
+        "inclination_deg": 53.0,
+        "name": "Development shell",
+        "planes": 24,
+        "sats_per_plane": 20,
+        "source": "scaled-down for fast iteration"
+      },
+      "kuiper": {
+        "altitude_km": 630.0,
+        "inclination_deg": 51.9,
+        "name": "Kuiper Shell 1",
+        "planes": 34,
+        "sats_per_plane": 34,
+        "source": "FCC filing / Hypatia IMC 2020"
+      },
+      "starlink": {
+        "altitude_km": 550.0,
+        "inclination_deg": 53.0,
+        "name": "Starlink Shell 1",
+        "planes": 72,
+        "sats_per_plane": 22,
+        "source": "FCC filing / Hypatia IMC 2020"
+      },
+      "telesat": {
+        "altitude_km": 1015.0,
+        "inclination_deg": 98.98,
+        "name": "Telesat Lightspeed polar",
+        "planes": 27,
+        "sats_per_plane": 13,
+        "source": "FCC filing / Hypatia IMC 2020"
+      }
+    },
+    "queueing_mean_ms": 0.4,
+    "restored_constellation": {
+      "altitude_km": 550.0,
+      "inclination_deg": 53.0,
+      "phasing_f": 1,
+      "planes": 72,
+      "sats_per_plane": 22
+    },
+    "schedule_interval_s": 15,
+    "scoring": "as exp1_slack_sweep (counterfactual, CRN, null-fault control)",
+    "seeds": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10
+    ],
+    "slacks": [
+      1.0,
+      1.1,
+      1.15,
+      1.2,
+      1.25,
+      1.3,
+      1.5,
+      2.0,
+      3.0
+    ],
+    "step_s": 1,
+    "unit_codes": [
+      0,
+      1
+    ]
+  },
+  "config_sha256": "20ffa2a9ee00b7b4541b567bc6597c31a969f7071d5bfb0d2f3b8961c7636a57",
+  "dirty": false,
+  "ended_utc": "2026-10-10T19:30:00.902952Z",
+  "extra": {
+    "null_fault_attributed": 0,
+    "propagation": {
+      "dev": {
+        "error_codes": {},
+        "samples": 57600,
+        "skipped": 0,
+        "skipped_sats": 0
+      },
+      "kuiper": {
+        "error_codes": {},
+        "samples": 138720,
+        "skipped": 0,
+        "skipped_sats": 0
+      },
+      "starlink": {
+        "error_codes": {},
+        "samples": 190080,
+        "skipped": 0,
+        "skipped_sats": 0
+      },
+      "telesat": {
+        "error_codes": {},
+        "samples": 42120,
+        "skipped": 0,
+        "skipped_sats": 0
+      }
+    },
+    "workers": 11
+  },
+  "git_sha": "3391d61c69bf03ba8a305c536e383ebb01ad50e2",
+  "host": {
+    "cpu_model": "13th Gen Intel(R) Core(TM) i9-13900H",
+    "logical_cores": 20,
+    "machine": "x86_64",
+    "platform": "Linux-6.18.33.2-microsoft-standard-WSL2-x86_64-with-glibc2.43",
+    "ram_bytes": 8131350528
+  },
+  "labels": {
+    "constellation": "MODELLED",
+    "ground_stations": "REAL",
+    "header_bytes": "REAL",
+    "link_fault": "MODELLED",
+    "propagation_delay": "DERIVED",
+    "queueing_delay": "MODELLED"
+  },
+  "outputs": [
+    {
+      "path": "exp6_scale_validation.csv",
+      "sha256": "2f1ce9ad09160634c039b83ac0675a75424aeb6630d607eac5ffeb8b09bd7541",
+      "size_bytes": 835
+    },
+    {
+      "path": "exp6_scale_validation.png",
+      "sha256": "af219af54d58e9a3fc6bc204f301ce0cb88cba61903311512bcd3bbcca710e91",
+      "size_bytes": 282158
+    },
+    {
+      "path": "exp6_slack_curves.csv",
+      "sha256": "3cb71f5cfa4d630eea19f324f2a4decddc47f13930a1826011d4248fe8dc4700",
+      "size_bytes": 41901
+    }
+  ],
+  "run_id": "808c80b3fa2d0d91",
+  "schema": "chronoroute.manifest/1",
+  "seeds": [
+    1000,
+    2000,
+    3000,
+    4000,
+    5000,
+    6000,
+    7000,
+    8000,
+    9000,
+    10000,
+    1001,
+    2001,
+    3001,
+    4001,
+    5001,
+    6001,
+    7001,
+    8001,
+    9001,
+    10001,
+    1002,
+    2002,
+    3002,
+    4002,
+    5002,
+    6002,
+    7002,
+    8002,
+    9002,
+    10002
+  ],
+  "snapshot": null,
+  "started_utc": "2026-10-10T19:28:26.684604Z",
+  "tool": "legacy-python",
+  "tool_version": "1.0.0.dev0",
+  "versions": {
+    "chronoroute": "1.0.0.dev0",
+    "matplotlib": "3.11.1",
+    "networkx": "3.6.1",
+    "numpy": "2.5.3",
+    "python": "3.14.4",
+    "sgp4": "2.27"
+  },
+  "wall_seconds": 94.218343,
+  "written_utc": "2026-10-10T19:30:01.749922Z"
+}

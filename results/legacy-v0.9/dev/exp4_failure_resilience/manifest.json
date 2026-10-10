@@ -1,0 +1,144 @@
+{
+  "command": "run_all.py",
+  "config": {
+    "ci": "Student-t 95% over trials (mean over flows per trial), truncated to [0, 100]%",
+    "constellation": {
+      "altitude_km": 550.0,
+      "inclination_deg": 53.0,
+      "phasing_f": 1,
+      "planes": 24,
+      "sats_per_plane": 20
+    },
+    "crn_seed_rule": "trial * 1000 + flow_index",
+    "duration_s": 120,
+    "epoch_utc": "2026-09-10T00:00:00Z",
+    "experiment": "exp4_failure_resilience",
+    "failure_rates": [
+      0.0,
+      0.01,
+      0.02,
+      0.05,
+      0.1,
+      0.15,
+      0.2
+    ],
+    "failure_seed_rule": "random.Random(1000 + trial)",
+    "flows": [
+      [
+        "GS:Chennai",
+        "GS:London"
+      ],
+      [
+        "GS:NewYork",
+        "GS:Sydney"
+      ],
+      [
+        "GS:SaoPaulo",
+        "GS:Tokyo"
+      ]
+    ],
+    "hop_limit": 40,
+    "num_packets": 200,
+    "oracle": "Dijkstra on the true faulted graph of the send-time step; delivered iff a path exists",
+    "packet_interval_ms": 500,
+    "preset": "dev",
+    "queueing_mean_ms": 0.4,
+    "schedule_interval_s": 15,
+    "slack": 1.2,
+    "step_s": 1,
+    "trials": 10,
+    "unit_code": 0
+  },
+  "config_sha256": "2d8449140d9360fcd38ef527e1692e6d78eadd747c60f3e07cb433f221f17f6b",
+  "dirty": false,
+  "ended_utc": "2026-10-10T19:24:09.823979Z",
+  "extra": {
+    "propagation": {
+      "error_codes": {},
+      "samples": 57600,
+      "skipped": 0,
+      "skipped_sats": 0
+    },
+    "workers": 12
+  },
+  "git_sha": "3391d61c69bf03ba8a305c536e383ebb01ad50e2",
+  "host": {
+    "cpu_model": "13th Gen Intel(R) Core(TM) i9-13900H",
+    "logical_cores": 20,
+    "machine": "x86_64",
+    "platform": "Linux-6.18.33.2-microsoft-standard-WSL2-x86_64-with-glibc2.43",
+    "ram_bytes": 8131350528
+  },
+  "labels": {
+    "constellation": "MODELLED",
+    "ground_stations": "REAL",
+    "link_failures": "MODELLED",
+    "oracle": "DERIVED",
+    "queueing_delay": "MODELLED"
+  },
+  "outputs": [
+    {
+      "path": "exp4_failure_resilience.csv",
+      "sha256": "6222ee4466666aebd393fca60b5e41c96b5fd6bb88c59f49418333daf599084f",
+      "size_bytes": 1710
+    },
+    {
+      "path": "exp4_failure_resilience.png",
+      "sha256": "9a80fcf65bba1e91c8cb97716f8dab63bced23aae5051d10769d8ce7bd63f364",
+      "size_bytes": 170017
+    },
+    {
+      "path": "exp4_per_flow.csv",
+      "sha256": "0976586b4eaae6c496585a0389d7c3d1b858e0290f25ad2435e794a68e224a82",
+      "size_bytes": 42616
+    }
+  ],
+  "run_id": "76a4a346e810b398",
+  "schema": "chronoroute.manifest/1",
+  "seeds": [
+    0,
+    1,
+    2,
+    1000,
+    1001,
+    1002,
+    2000,
+    2001,
+    2002,
+    3000,
+    3001,
+    3002,
+    4000,
+    4001,
+    4002,
+    5000,
+    5001,
+    5002,
+    6000,
+    6001,
+    6002,
+    7000,
+    7001,
+    7002,
+    8000,
+    8001,
+    8002,
+    9000,
+    9001,
+    9002
+  ],
+  "snapshot": null,
+  "started_utc": "2026-10-10T19:24:01.533191Z",
+  "tool": "legacy-python",
+  "tool_version": "1.0.0.dev0",
+  "versions": {
+    "chronoroute": "1.0.0.dev0",
+    "matplotlib": "3.11.1",
+    "networkx": "3.6.1",
+    "numpy": "2.5.3",
+    "python": "3.14.4",
+    "sgp4": "2.27"
+  },
+  "wall_seconds": 8.290781,
+  "written_utc": "2026-10-10T19:24:10.158057Z"
+}

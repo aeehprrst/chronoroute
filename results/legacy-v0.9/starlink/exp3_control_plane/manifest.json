@@ -1,0 +1,90 @@
+{
+  "command": "run_scaled.py starlink",
+  "config": {
+    "avg_hops": null,
+    "avg_hops_measured": 13.25,
+    "avg_hops_used": 13,
+    "constellation_sizes": [
+      120,
+      240,
+      480,
+      960,
+      1584,
+      3200,
+      6400
+    ],
+    "duration_s": 120,
+    "experiment": "exp3_control_plane",
+    "fib_entry_bytes": 8,
+    "flows_per_gateway": 5,
+    "highlight_sats": 1584,
+    "isls_per_sat": 4,
+    "lsa_bytes": 32,
+    "model": "ANALYTIC MODEL (formula) — superseded by E3 in the new campaign",
+    "num_destinations": 6,
+    "num_gateways": 6,
+    "packets_per_s_per_flow": 100,
+    "preset": "starlink",
+    "refresh_intervals_s": [
+      15,
+      3
+    ],
+    "step_s": 1
+  },
+  "config_sha256": "56dc5bd0b14af8405ffd7b47d878ce56ad63b1e15072267e4efc63b3c887b31c",
+  "dirty": false,
+  "ended_utc": "2026-10-10T19:26:02.490301Z",
+  "extra": {
+    "measured_paths": 24,
+    "propagation": {
+      "error_codes": {},
+      "samples": 190080,
+      "skipped": 0,
+      "skipped_sats": 0
+    }
+  },
+  "git_sha": "3391d61c69bf03ba8a305c536e383ebb01ad50e2",
+  "host": {
+    "cpu_model": "13th Gen Intel(R) Core(TM) i9-13900H",
+    "logical_cores": 20,
+    "machine": "x86_64",
+    "platform": "Linux-6.18.33.2-microsoft-standard-WSL2-x86_64-with-glibc2.43",
+    "ram_bytes": 8131350528
+  },
+  "labels": {
+    "avg_hops": "DERIVED",
+    "fib_and_lsa_sizes": "MODELLED",
+    "header_bytes": "REAL",
+    "model": "MODELLED",
+    "packet_rate": "MODELLED"
+  },
+  "outputs": [
+    {
+      "path": "exp3_control_plane.csv",
+      "sha256": "82338244e33bfbab462e9a77c1dd94f329ad0d25f15db828ccb5b101708c9e88",
+      "size_bytes": 6291
+    },
+    {
+      "path": "exp3_control_plane.png",
+      "sha256": "36766276ccc785d1ccf28624f59046c08b89c3fffb8674a9f84a284c29267ca7",
+      "size_bytes": 187717
+    }
+  ],
+  "run_id": "55d8a1d1abdd09b3",
+  "schema": "chronoroute.manifest/1",
+  "seeds": [],
+  "snapshot": null,
+  "started_utc": "2026-10-10T19:26:02.434006Z",
+  "tool": "legacy-python",
+  "tool_version": "1.0.0.dev0",
+  "versions": {
+    "chronoroute": "1.0.0.dev0",
+    "matplotlib": "3.11.1",
+    "networkx": "3.6.1",
+    "numpy": "2.5.3",
+    "python": "3.14.4",
+    "sgp4": "2.27"
+  },
+  "wall_seconds": 0.056289,
+  "written_utc": "2026-10-10T19:26:03.053198Z"
+}

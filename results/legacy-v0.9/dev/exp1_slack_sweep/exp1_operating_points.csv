@@ -1,0 +1,5 @@
+unit_code,unit_ms,criterion,reference_degradation,slack,detection_pct,detection_ci95_lo_pct,fpr_deadline_pct,fpr_ci95_hi_pct
+0,1.0,max detection at 1.5x subject to mean FPR <= 1% and mean detection >= 1%,1.5,1.2,17.194427615768586,0.0,0.7,1.022698954731213
+0,1.0,Youden J = detection - FPR (continuity only),1.5,1.1,74.89285173380404,32.165610155707434,5.6499999999999995,13.144473034735476
+1,0.1,max detection at 1.5x subject to mean FPR <= 1% and mean detection >= 1%,1.5,,,,,
+1,0.1,Youden J = detection - FPR (continuity only),1.5,1.15,56.28687477757545,0.0,23.491666666666667,41.73891512255263

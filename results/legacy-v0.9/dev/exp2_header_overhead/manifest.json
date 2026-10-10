@@ -1,0 +1,94 @@
+{
+  "command": "run_all.py",
+  "config": {
+    "experiment": "exp2_header_overhead",
+    "hmac_tlv_bytes": 40,
+    "hop_counts": [
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14,
+      15,
+      16,
+      17,
+      18,
+      19,
+      20
+    ],
+    "ipv6_header_bytes": 40,
+    "payload_sizes": [
+      40,
+      64,
+      128,
+      256,
+      512,
+      1024,
+      1400
+    ],
+    "reference_hops": 10,
+    "size_source": "chronoroute.proto.sizes (spec/tcrh-v1.md)"
+  },
+  "config_sha256": "0a7839c4b7736854ff00c19cab25b8029036d9432d3dd9171f9ed8c0a6c94987",
+  "dirty": false,
+  "ended_utc": "2026-10-10T19:24:00.544189Z",
+  "extra": {
+    "at_reference_hops": {
+      "crh16": 24,
+      "srh": 168,
+      "tcrh": 48,
+      "tcrh_encap": 88,
+      "tcrh_hmac": 88
+    },
+    "tcrh_minus_crh16_at_ref": 24
+  },
+  "git_sha": "3391d61c69bf03ba8a305c536e383ebb01ad50e2",
+  "host": {
+    "cpu_model": "13th Gen Intel(R) Core(TM) i9-13900H",
+    "logical_cores": 20,
+    "machine": "x86_64",
+    "platform": "Linux-6.18.33.2-microsoft-standard-WSL2-x86_64-with-glibc2.43",
+    "ram_bytes": 8131350528
+  },
+  "labels": {
+    "header_sizes": "REAL",
+    "payload_sizes": "MODELLED"
+  },
+  "outputs": [
+    {
+      "path": "exp2_header_overhead.csv",
+      "sha256": "c478991010d9e62c4c513ef40f35a2aa968c187a974d5476dfddb6469c0829f1",
+      "size_bytes": 4468
+    },
+    {
+      "path": "exp2_header_overhead.png",
+      "sha256": "955958634804d99f44345f02f5b858567b5c04b5d10e05ccb8924d62c5d35701",
+      "size_bytes": 234914
+    }
+  ],
+  "run_id": "49019f562753dde4",
+  "schema": "chronoroute.manifest/1",
+  "seeds": [],
+  "snapshot": null,
+  "started_utc": "2026-10-10T19:24:00.514816Z",
+  "tool": "legacy-python",
+  "tool_version": "1.0.0.dev0",
+  "versions": {
+    "chronoroute": "1.0.0.dev0",
+    "matplotlib": "3.11.1",
+    "networkx": "3.6.1",
+    "numpy": "2.5.3",
+    "python": "3.14.4",
+    "sgp4": "2.27"
+  },
+  "wall_seconds": 0.029362,
+  "written_utc": "2026-10-10T19:24:00.968802Z"
+}
