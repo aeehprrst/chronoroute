@@ -6,17 +6,27 @@
  *   --accent    orbital blue: links, focus, the active route
  *   --deadline  deadline amber: ONLY for timing and deadline concepts
  *   --real / --derived / --modelled / --unknown: provenance labels (with a shape, never colour alone)
- *   --bad       errors and late packets
+ *   --bad       errors, late packets and "where ChronoRoute loses"
+ *   --mixed     verdict status "mixed" only (always shown with its word and its own icon shape)
+ *
+ * Depth
+ *   Surfaces step up from --bg to --surface-3. Panels get a faint top highlight
+ *   (--panel-sheen) and a soft drop shadow (--shadow-*); glow (--glow-accent) is kept for
+ *   the primary action and the hero figure only.
  */
 :root {
   color-scheme: dark;
 
   /* Palette */
   --bg: #070d18;
+  --bg-deep: #050a13;
   --surface: #0e1726;
   --surface-2: #13203a;
+  --surface-3: #192a49;
   --line: #22324d;
+  --line-strong: #31476b;
   --ink: #e6edf7;
+  --ink-2: #c3cfe0;
   --muted: #9aa9bf;
   --accent: #7aaeff;
   --deadline: #f2aa4c;
@@ -25,15 +35,35 @@
   --modelled: #f2aa4c;
   --unknown: #a5afbf;
   --bad: #ff7d72;
+  --mixed: #c3a6ff;
+
+  /* Chart series (results explorer): distinct hue and lightness, always paired with a line
+     pattern or label so a series is never told apart by colour alone. */
+  --series-1: #7aaeff;
+  --series-2: #f2aa4c;
+  --series-3: #d6a2f0;
+  --series-4: #e6edf7;
 
   /* Translucent helpers derived from the palette */
   --line-soft: rgb(34 50 77 / 0.55);
   /* Form-field borders: at least 3:1 against --bg, --surface and --surface-2 (WCAG 1.4.11). */
   --line-input: #5a7096;
   --accent-soft: rgb(122 174 255 / 0.12);
+  --accent-faint: rgb(122 174 255 / 0.06);
+  --accent-line: rgb(122 174 255 / 0.45);
   --deadline-soft: rgb(242 170 76 / 0.12);
+  --bad-soft: rgb(255 125 114 / 0.1);
+  --bad-line: rgb(255 125 114 / 0.5);
   --accent-strong: #9cc3ff;
   --on-accent: #06101f;
+
+  /* Depth */
+  --panel-sheen: linear-gradient(180deg, rgb(156 195 255 / 0.045), rgb(156 195 255 / 0) 9rem);
+  --shadow-1: 0 1px 2px rgb(0 0 0 / 0.35);
+  --shadow-2: 0 1px 2px rgb(0 0 0 / 0.3), 0 10px 28px -12px rgb(0 0 0 / 0.7);
+  --shadow-3: 0 2px 4px rgb(0 0 0 / 0.3), 0 30px 70px -28px rgb(0 0 0 / 0.85);
+  --glow-accent: 0 0 0 1px rgb(122 174 255 / 0.28), 0 14px 40px -14px rgb(122 174 255 / 0.45);
+  --highlight-top: inset 0 1px 0 rgb(255 255 255 / 0.04);
 
   /* Typefaces (self-hosted through @fontsource; no third-party font requests) */
   --font-display: 'Archivo Variable', 'Archivo', 'Arial Narrow', system-ui, sans-serif;
@@ -69,6 +99,8 @@
   --space-7: 3rem;
   --space-8: 4.5rem;
   --space-9: 6.5rem;
+  /* Vertical rhythm between page sections */
+  --section-pad: clamp(3.25rem, 2.4rem + 3.6vw, 5.5rem);
 
   /* Layout */
   --gutter: 1rem;
@@ -78,12 +110,15 @@
   --radius-1: 4px;
   --radius-2: 8px;
   --radius-3: 12px;
+  --radius-4: 16px;
+  --radius-pill: 999px;
 
   /* Focus ring: visible on every surface */
   --focus-ring: 0 0 0 2px var(--bg), 0 0 0 4px var(--accent);
 
   --ease: cubic-bezier(0.2, 0.7, 0.2, 1);
   --dur: 160ms;
+  --dur-slow: 320ms;
 }
 
 @media (min-width: 48em) {
@@ -96,5 +131,6 @@
 @media (prefers-reduced-motion: reduce) {
   :root {
     --dur: 0ms;
+    --dur-slow: 0ms;
   }
 }

@@ -199,6 +199,18 @@
   white-space: normal;
 }
 
+/* Numbers line up on the right, with their column headings (the hop index stays left). */
+.rp-table td.num:not(:first-child) {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.rp-table:not(.rp-table--narrow) thead th:nth-child(3),
+.rp-table:not(.rp-table--narrow) thead th:nth-child(n + 5),
+.rp-table--narrow thead th:nth-child(3) {
+  text-align: right;
+}
+
 .rp-hexbox {
   margin: 0;
   display: grid;

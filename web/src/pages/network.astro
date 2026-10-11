@@ -41,11 +41,17 @@ const grid = {
 const hexBytes = (hex: string | null) => (hex ? hex.match(/../g) ?? [] : []);
 const fieldOf = (i: number) =>
   i < 4 ? ['nh', 'len', 'type', 'sl'][i] : i < 8 ? ['flags', 'hops', 'devhop', 'res'][i - 4] : i < 12 ? 'epoch' : 'entry';
+// Entries end at 12 + 3 x Num Hops (byte 5); the bytes after that pad the header to a multiple of 8.
+const entriesEnd = (bytes: string[]) => 12 + 3 * Number.parseInt(bytes[5] ?? '0', 16);
+// Byte boundaries between the header's field groups, for spacing in the byte rows.
+const groupStart = (i: number, bytes: string[]) => i === 4 || i === 8 || i === 12 || i === entriesEnd(bytes);
 const lateHop = w.fault_run.hops[lateIdx];
 const twinAtLate = w.nofault_run.hops[lateIdx];
 const lateName = w.path[lateIdx]?.name ?? '';
-const data = JSON.stringify({ w, lateIdx, faultA, faultB, pts: pts.map((p) => [p.x, p.y]) });
+const data = JSON.stringify({ w, lateIdx, faultA, faultB, pts: pts.map((p) => [p.x, p.y]), vw: W });
 const det = w.detection;
+const resultOf = (i: number, dev: boolean) =>
+  i === 0 ? 'created' : i === lateIdx ? 'late' : dev ? 'dev' : 'ontime';
 ---
 
 <BaseLayout
@@ -70,73 +76,116 @@ const det = w.detection;
     </p>
   </header>
 
-  <section class="section">
+  <section class="section section--flush sim-section" aria-labelledby="sim-title">
     <div class="container">
-      <div class="controls" data-controls hidden>
-        <button type="button" data-act="play">Play</button>
-        <button type="button" data-act="step">Next hop</button>
-        <button type="button" data-act="reset">Reset</button>
-        <label><input type="radio" name="variant" value="fault" checked /> With the slowed link</label>
-        <label><input type="radio" name="variant" value="nofault" /> Same packet, no fault</label>
-        <span class="status" data-status aria-live="polite"></span>
-      </div>
+      <div class="panel sim">
+        <div class="panel__bar">
+          <h2 id="sim-title" class="panel__title">
+            <span class="sim__led" aria-hidden="true"></span>
+            Path of the probe: {w.flow.src} → {w.flow.dst}
+          </h2>
+          <dl class="sim__facts">
+            <div><dt>Satellites</dt><dd class="num">{w.path.length - 2}</dd></div>
+            <div><dt>Slowed link</dt><dd class="num">{w.fault.nominal_rate_bps / 1e9} Gb/s → {w.fault.rate_bps / 1000} kb/s</dd></div>
+            <div><dt>Link state</dt><dd>{w.fault.link_state}</dd></div>
+          </dl>
+        </div>
 
-      <figure class="map">
-        <svg viewBox={`0 0 ${W} ${H}`} role="img" aria-label={`Path of the probe from ${w.flow.src} to ${w.flow.dst}`}>
-          <rect x="0" y="0" width={W} height={H} class="map__bg" />
-          {grid.lon.map((lon) => <line x1={X(lon)} x2={X(lon)} y1="0" y2={H} class="map__grid" />)}
-          {grid.lat.map((lat) => <line x1="0" x2={W} y1={Y(lat)} y2={Y(lat)} class="map__grid" />)}
-          {grid.lon.map((lon) => <text x={X(lon) + 4} y={H - 6} class="map__tick">{lon}&deg;</text>)}
-          {grid.lat.map((lat) => <text x="4" y={Y(lat) - 4} class="map__tick">{lat}&deg;</text>)}
-          <polyline points={pts.map((p) => `${p.x},${p.y}`).join(' ')} class="map__path" />
-          {segA && segB && (
-            <line x1={segA.x} y1={segA.y} x2={segB.x} y2={segB.y} class="map__slow">
-              <title>{`Slowed laser link: ${w.fault.names.join(' - ')} (still up)`}</title>
-            </line>
-          )}
-          {pts.map((p, i) => (
-            p.kind === 'gs'
-              ? <rect x={p.x - 9} y={p.y - 9} width="18" height="18" class="map__gs" data-node={i}><title>{p.name}</title></rect>
-              : <circle cx={p.x} cy={p.y} r="8" class:list={['map__sat', i === lateIdx && 'map__sat--late']} data-node={i}><title>{`${p.name} (SID ${p.sid})`}</title></circle>
-          ))}
-          {pts.map((p, i) => {
-            // ground stations: label below; points near the right edge: label to the left
-            const right = p.x > W - 220;
-            const x = p.kind === 'gs' ? p.x : right ? p.x - 12 : p.x + 12;
-            const y = p.kind === 'gs' ? p.y + 32 : p.y + (i % 2 ? 20 : -12);
-            return (
-              <text x={x} y={y} text-anchor={right ? 'end' : 'start'} class:list={['map__label', p.kind === 'gs' && 'map__label--gs']}>
-                {p.kind === 'gs' ? p.name : `${i}. ${p.name}`}
-              </text>
-            );
-          })}
-          <circle cx={start.x} cy={start.y} r="7" class="map__packet" data-packet />
-        </svg>
-        <figcaption>
-          Positions of the path's nodes at the send time, drawn on a latitude/longitude grid (a drawing aid;
-          the simulation uses 3D positions). The orange segment is the slowed laser link
-          ({w.fault.names.join(' to ')}).
-        </figcaption>
-      </figure>
+        <div class="panel__body">
+          <div class="controls" data-controls hidden>
+            <div class="controls__buttons" role="group" aria-label="Replay">
+              <button type="button" class="button button--sm button--primary" data-act="play">
+                <svg viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M4.5 3v10l8-5-8-5Z" fill="currentColor"></path></svg>
+                Play
+              </button>
+              <button type="button" class="button button--sm" data-act="step">
+                <svg viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M3.5 3.5v9l6.5-4.5-6.5-4.5Z" fill="currentColor"></path><path d="M12 3.5v9" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"></path></svg>
+                Next hop
+              </button>
+              <button type="button" class="button button--sm" data-act="reset">
+                <svg viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M3.5 8a4.5 4.5 0 1 0 1.4-3.3M3.5 2.5v2.7h2.7" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+                Reset
+              </button>
+            </div>
+            <div class="seg" role="radiogroup" aria-label="Which run">
+              <label><input type="radio" name="variant" value="fault" checked /> With the slowed link</label>
+              <label><input type="radio" name="variant" value="nofault" /> Same packet, no fault</label>
+            </div>
+            <span class="status" data-status aria-live="polite"></span>
+          </div>
+
+          <figure class="map">
+            <div class="map__frame" data-map-frame tabindex="0" role="region" aria-label="Map of the probe's path (scrolls sideways on small screens)">
+              <svg viewBox={`0 0 ${W} ${H}`} role="img" aria-label={`Path of the probe from ${w.flow.src} to ${w.flow.dst}`}>
+                <rect x="0" y="0" width={W} height={H} class="map__bg" />
+                {grid.lon.map((lon) => <line x1={X(lon)} x2={X(lon)} y1="0" y2={H} class="map__grid" />)}
+                {grid.lat.map((lat) => <line x1="0" x2={W} y1={Y(lat)} y2={Y(lat)} class="map__grid" />)}
+                {grid.lon.map((lon) => <text x={X(lon) + 4} y={H - 6} class="map__tick">{lon}&deg;</text>)}
+                {grid.lat.map((lat) => <text x="4" y={Y(lat) - 4} class="map__tick">{lat}&deg;</text>)}
+                <polyline points={pts.map((p) => `${p.x},${p.y}`).join(' ')} class="map__path-glow" />
+                <polyline points={pts.map((p) => `${p.x},${p.y}`).join(' ')} class="map__path" />
+                {segA && segB && (
+                  <line x1={segA.x} y1={segA.y} x2={segB.x} y2={segB.y} class="map__slow">
+                    <title>{`Slowed laser link: ${w.fault.names.join(' - ')} (still up)`}</title>
+                  </line>
+                )}
+                {pts.map((p, i) => (
+                  p.kind === 'gs'
+                    ? <rect x={p.x - 9} y={p.y - 9} width="18" height="18" class="map__gs" data-node={i}><title>{p.name}</title></rect>
+                    : <circle cx={p.x} cy={p.y} r="8" class:list={['map__sat', i === lateIdx && 'map__sat--late']} data-node={i}><title>{`${p.name} (SID ${p.sid})`}</title></circle>
+                ))}
+                {pts.map((p, i) => {
+                  // ground stations: label below; points near the right edge: label to the left
+                  const right = p.x > W - 220;
+                  const x = p.kind === 'gs' ? p.x : right ? p.x - 12 : p.x + 12;
+                  const y = p.kind === 'gs' ? p.y + 32 : p.y + (i % 2 ? 20 : -12);
+                  return (
+                    <text x={x} y={y} text-anchor={right ? 'end' : 'start'} class:list={['map__label', p.kind === 'gs' && 'map__label--gs']}>
+                      {p.kind === 'gs' ? p.name : `${i}. ${p.name}`}
+                    </text>
+                  );
+                })}
+                <circle cx={start.x} cy={start.y} r="13" class="map__packet-halo" data-packet-halo />
+                <circle cx={start.x} cy={start.y} r="7" class="map__packet" data-packet />
+              </svg>
+            </div>
+            <ul class="map__legend" aria-label="Map key">
+              <li><svg viewBox="0 0 16 16" aria-hidden="true" focusable="false"><rect x="3" y="3" width="10" height="10" class="key-gs"></rect></svg>Ground station</li>
+              <li><svg viewBox="0 0 16 16" aria-hidden="true" focusable="false"><circle cx="8" cy="8" r="5" class="key-sat"></circle></svg>Satellite</li>
+              <li><svg viewBox="0 0 16 16" aria-hidden="true" focusable="false"><circle cx="8" cy="8" r="5" class="key-late"></circle></svg>Hop where the probe was late</li>
+              <li><svg viewBox="0 0 24 16" aria-hidden="true" focusable="false"><line x1="2" y1="8" x2="22" y2="8" class="key-slow"></line></svg>Slowed laser link (still up)</li>
+              <li><svg viewBox="0 0 16 16" aria-hidden="true" focusable="false"><circle cx="8" cy="8" r="4" class="key-packet"></circle></svg>The probe</li>
+            </ul>
+            <figcaption>
+              Positions of the path's nodes at the send time, drawn on a latitude/longitude grid (a drawing aid;
+              the simulation uses 3D positions). The orange segment is the slowed laser link
+              ({w.fault.names.join(' to ')}).
+            </figcaption>
+          </figure>
+        </div>
+      </div>
     </div>
   </section>
 
-  <section class="section">
+  <section class="section" aria-labelledby="hops-title">
     <div class="container">
-      <h2>What each node saw</h2>
-      <p class="prose">
-        At every hop the node reads the deadline for itself from the header (Epoch_Base plus the
-        per-hop budgets) and compares it with its own clock (unit {unitMs} ms, GPS time). Arrival and
-        deadline are shown in milliseconds after the packet entered the network.
-      </p>
-      <div class="table-wrap">
+      <div class="section__head">
+        <p class="eyebrow">Hop by hop</p>
+        <h2 id="hops-title">What each node saw</h2>
+        <p>
+          At every hop the node reads the deadline for itself from the header (Epoch_Base plus the
+          per-hop budgets) and compares it with its own clock (unit {unitMs} ms, GPS time). Arrival and
+          deadline are shown in milliseconds after the packet entered the network.
+        </p>
+      </div>
+      <div class="table-wrap" tabindex="0" role="region" aria-labelledby="hops-title">
         <table class="hops">
           <thead>
             <tr>
               <th scope="col">Hop</th><th scope="col">Node</th><th scope="col">SID</th>
-              <th scope="col">Segments Left</th><th scope="col">Deadline (ms)</th>
-              <th scope="col">Arrival (ms)</th><th scope="col">Margin (ms)</th>
-              <th scope="col">No-fault arrival (ms)</th><th scope="col">Result</th>
+              <th scope="col" class="col-num">Segments Left</th><th scope="col" class="col-num">Deadline (ms)</th>
+              <th scope="col" class="col-num">Arrival (ms)</th><th scope="col" class="col-num">Margin (ms)</th>
+              <th scope="col" class="col-num">No-fault arrival (ms)</th><th scope="col">Result</th>
             </tr>
           </thead>
           <tbody>
@@ -145,24 +194,35 @@ const det = w.detection;
               const f = w.fault_run.hops[i]!;
               const n = w.nofault_run.hops[i]!;
               const dev = decodeFlags(f.flags).dev;
+              const result = resultOf(i, dev);
               return (
                 <tr data-row={i} class:list={[i === lateIdx && 'is-late']}>
-                  <td>{i === 0 ? 'ingress' : i}</td>
+                  <td class="mono">{i === 0 ? 'ingress' : i}</td>
                   <td>{p.name}</td>
-                  <td>{`0x${p.sid.toString(16).toUpperCase().padStart(4, '0')}`}</td>
-                  <td>{f.sl}</td>
-                  <td>{fmt(f.deadline_ms)}</td>
-                  <td>{fmt(f.elapsed_ms)}</td>
-                  <td>{fmt(f.margin_ms)}</td>
-                  <td>{fmt(n.elapsed_ms)}</td>
-                  <td class="hops__result">{i === 0 ? 'header created' : i === lateIdx ? `LATE: DEV set, Dev Hop ${i}` : dev ? 'DEV already set' : 'on time'}</td>
+                  <td class="mono">{`0x${p.sid.toString(16).toUpperCase().padStart(4, '0')}`}</td>
+                  <td class="col-num">{f.sl}</td>
+                  <td class="col-num">{fmt(f.deadline_ms)}</td>
+                  <td class="col-num">{fmt(f.elapsed_ms)}</td>
+                  <td class:list={['col-num', f.margin_ms !== null && f.margin_ms < 0 && 'is-negative']}>{fmt(f.margin_ms)}</td>
+                  <td class="col-num">{fmt(n.elapsed_ms)}</td>
+                  <td class="hops__result">
+                    <span class:list={['result', `result--${result}`]}>
+                      <svg viewBox="0 0 12 12" aria-hidden="true" focusable="false">
+                        {result === 'created' && <rect x="2.5" y="2.5" width="7" height="7" rx="1" fill="none" stroke="currentColor" stroke-width="1.4" />}
+                        {result === 'ontime' && <path d="M2.5 6.3 5 8.6l4.5-5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" />}
+                        {result === 'late' && <path d="M6 1.5 11 10.5H1L6 1.5ZM6 5v2.4M6 8.9v.1" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" />}
+                        {result === 'dev' && <circle cx="6" cy="6" r="3" fill="currentColor" />}
+                      </svg>
+                      {i === 0 ? 'header created' : i === lateIdx ? `LATE: DEV set, Dev Hop ${i}` : dev ? 'DEV already set' : 'on time'}
+                    </span>
+                  </td>
                 </tr>
               );
             })}
           </tbody>
         </table>
       </div>
-      <p class="prose">
+      <p class="prose hops__note">
         Hop {lateIdx} ({lateName}) is the far end of the slowed link: the probe
         arrived {lateHop ? fmt(-(lateHop.margin_ms ?? 0)) : ''} ms after its deadline there, so that node set
         the DEV flag and wrote its hop number into Dev Hop. The same probe in the paired run without the
@@ -173,53 +233,122 @@ const det = w.detection;
     </div>
   </section>
 
-  <section class="section">
+  <section class="section" aria-labelledby="bytes-title">
     <div class="container">
-      <h2>The header bytes, as they arrived</h2>
-      <p class="prose">
-        Only three bytes change in flight: <strong>Segments Left</strong> (counts down at every hop),
-        <strong>Flags</strong> (the DEV bit 0x01 is set at the late hop) and <strong>Dev Hop</strong>.
-        Everything else, including Epoch_Base and the per-hop budgets, is fixed at the ingress.
-      </p>
-      <div class="bytes" data-bytes>
-        {w.fault_run.hops.map((h, i) => (
-          <div class="bytes__row" data-bytes-row={i}>
-            <span class="bytes__hop">{i === 0 ? 'ingress' : `hop ${i}`}</span>
-            <code>
-              {hexBytes(h.hex).map((b, j) => <span class={`b b--${fieldOf(j)}`}>{b}</span>)}
-            </code>
-            <span class="bytes__note">SL {h.sl}, Flags 0x{h.flags.toString(16).padStart(2, '0')}{decodeFlags(h.flags).dev ? ' (DEV)' : ''}</span>
-          </div>
-        ))}
+      <div class="section__head">
+        <p class="eyebrow">On the wire</p>
+        <h2 id="bytes-title">The header bytes, as they arrived</h2>
+        <p>
+          Only three bytes change in flight: <strong>Segments Left</strong> (counts down at every hop),
+          <strong>Flags</strong> (the DEV bit 0x01 is set at the late hop) and <strong>Dev Hop</strong>.
+          Everything else, including Epoch_Base and the per-hop budgets, is fixed at the ingress.
+        </p>
+      </div>
+      <div class="panel bytes-panel">
+        <div class="bytes" data-bytes>
+          {w.fault_run.hops.map((h, i) => {
+            const bytes = hexBytes(h.hex);
+            const prev = i > 0 ? hexBytes(w.fault_run.hops[i - 1]!.hex) : null;
+            const end = entriesEnd(bytes);
+            return (
+              <div class="bytes__row" data-bytes-row={i}>
+                <div class="bytes__meta">
+                  <span class="bytes__hop">{i === 0 ? 'ingress' : `hop ${i}`}</span>
+                  <span class="bytes__note">SL {h.sl}, Flags 0x{h.flags.toString(16).padStart(2, '0')}{decodeFlags(h.flags).dev ? ' (DEV)' : ''}</span>
+                </div>
+                <code class="bytes__hex">
+                  {bytes.map((b, j) => (
+                    <span
+                      class:list={[
+                        'b',
+                        `b--${j >= end ? 'pad' : fieldOf(j)}`,
+                        groupStart(j, bytes) && 'b--group',
+                        prev !== null && prev[j] !== b && 'is-changed',
+                      ]}
+                    >{b}</span>
+                  ))}
+                </code>
+              </div>
+            );
+          })}
+        </div>
       </div>
       <p class="legend">
-        <span class="b b--sl">SL</span> Segments Left <span class="b b--flags">Flags</span> (DEV = 0x01, unit code in 0x30)
-        <span class="b b--devhop">Dev Hop</span> <span class="b b--epoch">Epoch_Base</span> <span class="b b--entry">SID + budget entries</span>
+        <span class="legend__item"><span class="b b--sl">SL</span> Segments Left</span>
+        <span class="legend__item"><span class="b b--flags">Flags</span> (DEV = 0x01, unit code in 0x30)</span>
+        <span class="legend__item"><span class="b b--devhop">Dev Hop</span></span>
+        <span class="legend__item"><span class="b b--epoch">Epoch_Base</span></span>
+        <span class="legend__item"><span class="b b--entry">SID + budget entries</span></span>
+        <span class="legend__item"><span class="b b--pad">00</span> Padding to a multiple of 8 bytes</span>
+        <span class="legend__item"><span class="b b--entry is-changed">ab</span> Changed since the previous hop</span>
       </p>
     </div>
   </section>
 
-  <section class="section">
-    <div class="container prose">
-      <h2>Before and after</h2>
-      <ul>
-        <li><strong>Hop-by-hop link-state routing (OSPF-style hellos):</strong> the slowed link answers hellos, so it stays "up" and keeps carrying traffic; nobody is told it has become slow.</li>
-        <li><strong>A compact source route without time (CRH-16, RFC 9631):</strong> the packet follows the same path, but no node can tell that it is behind schedule.</li>
-        <li><strong>T-CRH (ours):</strong> the same path plus one budget byte per hop. The first node after the slow link sees the miss from the packet itself, with no extra control traffic, and can switch to a fallback.</li>
+  <section class="section" aria-labelledby="compare-title">
+    <div class="container">
+      <div class="section__head">
+        <p class="eyebrow">Why it matters</p>
+        <h2 id="compare-title">Before and after</h2>
+      </div>
+      <ul class="compare" role="list">
+        <li class="card compare__item">
+          <span class="icon-tile compare__icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M3 12s3.3-6 9-6c1.6 0 3 .5 4.2 1.1M21 12s-3.3 6-9 6c-1.6 0-3-.5-4.2-1.1"/><path d="M4 20 20 4"/></svg>
+          </span>
+          <p><strong>Hop-by-hop link-state routing (OSPF-style hellos):</strong> the slowed link answers hellos, so it stays "up" and keeps carrying traffic; nobody is told it has become slow.</p>
+        </li>
+        <li class="card compare__item">
+          <span class="icon-tile compare__icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><circle cx="5" cy="12" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="19" cy="12" r="2"/><path d="M7 12h3M14 12h3"/></svg>
+          </span>
+          <p><strong>A compact source route without time (CRH-16, RFC 9631):</strong> the packet follows the same path, but no node can tell that it is behind schedule.</p>
+        </li>
+        <li class="card compare__item compare__item--ours">
+          <span class="icon-tile compare__icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><circle cx="12" cy="13" r="7.5"/><path d="M12 9v4l2.5 1.5M9.5 2.5h5"/></svg>
+          </span>
+          <p><strong>T-CRH (ours):</strong> the same path plus one budget byte per hop. The first node after the slow link sees the miss from the packet itself, with no extra control traffic, and can switch to a fallback.</p>
+        </li>
       </ul>
-      <p>
-        In this run, {det.flagged_late} of the {det.probes_crossing_slowed_link} probes that crossed the slowed link
-        were flagged late, and {det.baseline_flagged} of the same probes were flagged in the paired run without
-        the fault. The first flag came {fmt(det.first_detection_after_fault_start_ms, 1)} ms after the slow-down began.
-        This shows a strong overload; the <a href={pageHref('experiments/e1')}>E1 experiment</a> shows the limits:
-        smaller delays fit inside the deadline slack and are not detected at the registered false-alarm limit, and a
-        local queue monitor detects several fault types more often.
-      </p>
-      <p class="source">
-        Source: <a href={`${REPO_URL}/blob/main/${ev.manifestPath}`}>{ev.manifestPath}</a> (commit <code>{ev.gitSha.slice(0, 7)}</code>),
-        extracted by <code>{ev.tool}</code> from <code>{w.run}</code>; walk.json SHA-256 <code>{ev.walkSha.slice(0, 16)}&hellip;</code>.
-        Starlink does not use T-CRH; its real routing is not public.
-      </p>
+
+      <div class="callout run-result">
+        <p class="callout__head">
+          <svg viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M2 13.5h12M4 11V7M8 11V3.5M12 11V8.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"></path></svg>
+          In this run, and its limits
+        </p>
+        <dl class="stats">
+          <div class="stat">
+            <dt>Probes that crossed the slowed link, flagged late</dt>
+            <dd class="num">{det.flagged_late}<span class="stat__of"> of {det.probes_crossing_slowed_link}</span></dd>
+          </div>
+          <div class="stat">
+            <dt>Same probes flagged in the paired run without the fault</dt>
+            <dd class="num">{det.baseline_flagged}</dd>
+          </div>
+          <div class="stat">
+            <dt>First flag after the slow-down began</dt>
+            <dd class="num">{fmt(det.first_detection_after_fault_start_ms, 1)}<span class="stat__of"> ms</span></dd>
+          </div>
+        </dl>
+        <p>
+          In this run, {det.flagged_late} of the {det.probes_crossing_slowed_link} probes that crossed the slowed link
+          were flagged late, and {det.baseline_flagged} of the same probes were flagged in the paired run without
+          the fault. The first flag came {fmt(det.first_detection_after_fault_start_ms, 1)} ms after the slow-down began.
+          This shows a strong overload; the <a href={pageHref('experiments/e1')}>E1 experiment</a> shows the limits:
+          smaller delays fit inside the deadline slack and are not detected at the registered false-alarm limit, and a
+          local queue monitor detects several fault types more often.
+        </p>
+      </div>
+
+      <div class="source">
+        <p class="kicker">Evidence</p>
+        <p>
+          Source: <a href={`${REPO_URL}/blob/main/${ev.manifestPath}`}>{ev.manifestPath}</a> (commit <code>{ev.gitSha.slice(0, 7)}</code>),
+          extracted by <code>{ev.tool}</code> from <code>{w.run}</code>; walk.json SHA-256 <code>{ev.walkSha.slice(0, 16)}&hellip;</code>.
+          Starlink does not use T-CRH; its real routing is not public.
+        </p>
+      </div>
     </div>
   </section>
 
@@ -228,10 +357,13 @@ const det = w.detection;
     const el = document.getElementById('walk-data');
     const root = document.querySelector<HTMLElement>('[data-controls]');
     if (el && root) {
-      const { w, pts } = JSON.parse(el.textContent || '{}');
+      const { w, pts, vw } = JSON.parse(el.textContent || '{}');
       root.hidden = false;
+      const frame = document.querySelector<HTMLElement>('[data-map-frame]');
+      let moved = false;
       const packet = document.querySelector('[data-packet]');
-      const status = document.querySelector('[data-status]');
+      const halo = document.querySelector('[data-packet-halo]');
+      const status = document.querySelector<HTMLElement>('[data-status]');
       const rows = Array.from(document.querySelectorAll('tr[data-row]'));
       const byteRows = Array.from(document.querySelectorAll('[data-bytes-row]'));
       let hop = 0, timer = 0;
@@ -239,22 +371,35 @@ const det = w.detection;
       function show(i: number) {
         hop = i;
         const [x, y] = pts[i];
-        packet?.setAttribute('cx', String(x));
-        packet?.setAttribute('cy', String(y));
+        for (const dot of [packet, halo]) {
+          dot?.setAttribute('cx', String(x));
+          dot?.setAttribute('cy', String(y));
+        }
         const h = variant().hops[i];
         const late = h.margin_ms !== null && h.margin_ms < 0;
         packet?.classList.toggle('is-late', (h.flags & 1) === 1);
+        halo?.classList.toggle('is-late', (h.flags & 1) === 1);
         rows.forEach((r, j) => r.classList.toggle('is-current', j === i));
         byteRows.forEach((r, j) => r.classList.toggle('is-current', j === i));
+        // Small screens: the map scrolls sideways, so keep the packet in view.
+        if (frame && frame.scrollWidth > frame.clientWidth + 1) {
+          const smooth = moved && !window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+          frame.scrollTo({ left: (x / vw) * frame.scrollWidth - frame.clientWidth / 2, behavior: smooth ? 'smooth' : 'auto' });
+        }
+        moved = true;
         const name = w.path[i].name;
-        if (status) status.textContent = i === 0
-          ? `Ingress ${name}: header built, Segments Left ${h.sl}`
-          : `Hop ${i}, ${name}: arrived ${h.elapsed_ms.toFixed(1)} ms, deadline ${h.deadline_ms.toFixed(1)} ms` +
-            (late ? ' -> LATE, DEV set' : (h.flags & 1) ? ' (DEV already set)' : ' -> on time');
+        if (status) {
+          status.textContent = i === 0
+            ? `Ingress ${name}: header built, Segments Left ${h.sl}`
+            : `Hop ${i}, ${name}: arrived ${h.elapsed_ms.toFixed(1)} ms, deadline ${h.deadline_ms.toFixed(1)} ms` +
+              (late ? ' -> LATE, DEV set' : (h.flags & 1) ? ' (DEV already set)' : ' -> on time');
+          // Styling hook only; the text above says the same thing in words.
+          status.dataset['state'] = late ? 'late' : (h.flags & 1) ? 'dev' : 'ok';
+        }
       }
       function step() { show((hop + 1) % pts.length); }
       root.addEventListener('click', (e) => {
-        const act = (e.target as HTMLElement | null)?.dataset?.act;
+        const act = (e.target as HTMLElement | null)?.closest<HTMLElement>('[data-act]')?.dataset?.['act'];
         if (act === 'step') { clearInterval(timer); step(); }
         if (act === 'reset') { clearInterval(timer); show(0); }
         if (act === 'play') {
@@ -270,42 +415,395 @@ const det = w.detection;
 </BaseLayout>
 
 <style>
-  .chips { display: flex; flex-wrap: wrap; gap: var(--space-2); margin-top: var(--space-3); }
-  .controls { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2) var(--space-3); margin-bottom: var(--space-3); }
-  .controls button { padding: var(--space-1) var(--space-3); border: 1px solid var(--line); border-radius: var(--radius-1); background: var(--surface-2); color: var(--ink); cursor: pointer; }
-  .controls button:hover { border-color: var(--accent); }
-  .status { flex-basis: 100%; color: var(--muted); font-family: var(--font-mono); font-size: var(--step--1); min-height: 1.5em; }
+  .chips { display: flex; flex-wrap: wrap; gap: var(--space-2); margin-top: var(--space-4); }
+
+  /* ---------- Simulation panel ---------- */
+  .sim-section { padding-top: 0; }
+
+  .sim .panel__title {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+  }
+
+  .sim__led {
+    width: 0.5rem;
+    height: 0.5rem;
+    border-radius: 50%;
+    background: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-soft), 0 0 10px var(--accent);
+  }
+
+  .sim__facts {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+  }
+
+  .sim__facts > div {
+    display: inline-flex;
+    align-items: baseline;
+    gap: var(--space-2);
+    padding: 0.15rem 0.6rem;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-pill);
+    background: var(--bg-deep);
+    font-size: var(--step--1);
+  }
+
+  .sim__facts dt {
+    font-family: var(--font-mono);
+    font-size: var(--step--2);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  .sim__facts dd {
+    margin: 0;
+    color: var(--ink);
+  }
+
+  .controls {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-3) var(--space-4);
+    margin-bottom: var(--space-4);
+  }
+
+  .controls[hidden] { display: none; }
+
+  .controls__buttons {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+  }
+
+  /* Segmented control for the two runs. */
+  .seg {
+    display: inline-flex;
+    flex-wrap: wrap;
+    padding: 3px;
+    gap: 3px;
+    border: 1px solid var(--line-input);
+    border-radius: var(--radius-2);
+    background: var(--bg-deep);
+  }
+
+  .seg label {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    min-height: 2.25rem;
+    padding: 0 0.8rem;
+    border-radius: 6px;
+    font-size: var(--step--1);
+    color: var(--muted);
+    cursor: pointer;
+    transition: background-color var(--dur) var(--ease), color var(--dur) var(--ease);
+  }
+
+  .seg input {
+    width: 0.9rem;
+    height: 0.9rem;
+    margin: 0;
+    accent-color: var(--accent);
+  }
+
+  .seg label:hover { color: var(--ink); }
+
+  .seg label:has(input:checked) {
+    color: var(--ink);
+    background: var(--surface-3);
+    box-shadow: var(--highlight-top), inset 0 0 0 1px var(--line-strong);
+  }
+
+  .seg label:has(input:focus-visible) {
+    outline: 2px solid var(--accent);
+    outline-offset: 1px;
+  }
+
+  /* Telemetry readout of the current hop. */
+  .status {
+    flex-basis: 100%;
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    min-height: 2.5rem;
+    padding: var(--space-2) var(--space-3);
+    border: 1px solid var(--line);
+    border-left: 3px solid var(--accent);
+    border-radius: var(--radius-2);
+    background: var(--bg-deep);
+    color: var(--ink-2);
+    font-family: var(--font-mono);
+    font-size: var(--step--1);
+  }
+
+  .status::before {
+    content: '';
+    flex: none;
+    width: 0.5rem;
+    height: 0.5rem;
+    border-radius: 50%;
+    background: var(--accent);
+  }
+
+  .status[data-state='late'],
+  .status[data-state='dev'] {
+    border-left-color: var(--bad);
+    color: var(--ink);
+  }
+
+  .status[data-state='late']::before,
+  .status[data-state='dev']::before {
+    background: var(--bad);
+    border-radius: 1px;
+    transform: rotate(45deg);
+  }
+
+  /* ---------- Map ---------- */
   .map { margin: 0; }
-  .map svg { width: 100%; height: auto; border: 1px solid var(--line); border-radius: var(--radius-2); }
-  .map__bg { fill: var(--surface); }
-  .map__grid { stroke: var(--line-soft); stroke-width: 1; }
-  .map__tick { fill: var(--muted); font-size: 13px; }
+
+  .map__frame {
+    overflow-x: auto;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-3);
+    background:
+      radial-gradient(70% 90% at 30% 20%, rgb(122 174 255 / 0.07), transparent 70%),
+      var(--bg-deep);
+  }
+
+  .map svg { width: 100%; height: auto; }
+
+  @media (max-width: 40em) {
+    /* Small screens: keep the labels legible and let the map scroll sideways. */
+    .map svg { width: 44rem; max-width: none; }
+  }
+
+  .map__bg { fill: transparent; }
+  .map__grid { stroke: rgb(122 174 255 / 0.12); stroke-width: 1; stroke-dasharray: 2 5; }
+  .map__tick { fill: var(--muted); font-size: 13px; font-family: var(--font-mono); }
+  .map__path-glow { fill: none; stroke: var(--accent); stroke-width: 10; stroke-opacity: 0.14; stroke-linejoin: round; stroke-linecap: round; }
   .map__path { fill: none; stroke: var(--accent); stroke-width: 3; stroke-linejoin: round; }
-  .map__slow { stroke: var(--deadline); stroke-width: 7; stroke-linecap: round; }
+  .map__slow { stroke: var(--deadline); stroke-width: 7; stroke-linecap: round; filter: drop-shadow(0 0 6px rgb(242 170 76 / 0.7)); }
   .map__sat { fill: var(--surface-2); stroke: var(--accent); stroke-width: 3; }
-  .map__sat--late { stroke: var(--bad); fill: var(--bad); }
+  .map__sat--late { stroke: var(--bad); fill: var(--bad); filter: drop-shadow(0 0 6px rgb(255 125 114 / 0.8)); }
   .map__gs { fill: var(--accent); }
-  .map__label { fill: var(--ink); font-size: 14px; paint-order: stroke; stroke: var(--surface); stroke-width: 4px; }
+  .map__label { fill: var(--ink); font-size: 14px; paint-order: stroke; stroke: var(--bg-deep); stroke-width: 5px; stroke-linejoin: round; }
   .map__label--gs { font-weight: 700; }
-  .hops td.hops__result { white-space: normal; min-width: 9em; }
-  .map__packet { fill: var(--ink); stroke: var(--surface); stroke-width: 3; transition: cx 0.6s var(--ease), cy 0.6s var(--ease); }
+  .map__packet { fill: var(--ink); stroke: var(--bg-deep); stroke-width: 3; transition: cx 0.6s var(--ease), cy 0.6s var(--ease); }
   .map__packet.is-late { fill: var(--bad); }
-  .map figcaption { color: var(--muted); font-size: var(--step--1); margin-top: var(--space-2); }
-  .table-wrap { overflow-x: auto; }
-  .hops { width: 100%; border-collapse: collapse; font-size: var(--step--1); }
-  .hops th, .hops td { padding: var(--space-1) var(--space-2); border-bottom: 1px solid var(--line-soft); text-align: left; white-space: nowrap; }
-  .hops tr.is-late td { color: var(--bad); font-weight: 600; }
-  .hops tr.is-current td { background: var(--accent-soft); }
-  .bytes { display: grid; gap: var(--space-1); font-family: var(--font-mono); font-size: var(--step--1); overflow-x: auto; }
-  .bytes__row { display: grid; grid-template-columns: 5.5em auto 1fr; gap: var(--space-2); align-items: center; padding: 2px var(--space-1); border-radius: var(--radius-1); }
-  .bytes__row.is-current { background: var(--accent-soft); }
-  .bytes__hop, .bytes__note { color: var(--muted); white-space: nowrap; }
-  .b { padding: 0 2px; margin-right: 1px; border-radius: 3px; }
-  .b--sl { background: color-mix(in srgb, var(--accent) 35%, transparent); }
-  .b--flags { background: color-mix(in srgb, var(--bad) 35%, transparent); }
-  .b--devhop { background: color-mix(in srgb, var(--deadline) 40%, transparent); }
-  .b--epoch { background: color-mix(in srgb, var(--derived) 30%, transparent); }
+  .map__packet-halo { fill: none; stroke: var(--ink); stroke-opacity: 0.45; stroke-width: 2; transition: cx 0.6s var(--ease), cy 0.6s var(--ease); }
+  .map__packet-halo.is-late { stroke: var(--bad); }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .map__packet-halo { animation: halo 1.8s ease-out infinite; transform-box: fill-box; transform-origin: center; }
+  }
+
+  @keyframes halo {
+    from { transform: scale(0.6); stroke-opacity: 0.7; }
+    to { transform: scale(1.6); stroke-opacity: 0; }
+  }
+
+  .map__legend {
+    list-style: none;
+    padding: 0;
+    margin-top: var(--space-3);
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2) var(--space-5);
+    font-size: var(--step--1);
+    color: var(--ink-2);
+  }
+
+  .map__legend li { display: inline-flex; align-items: center; gap: var(--space-2); margin: 0; }
+  .map__legend svg { width: 1rem; height: 1rem; flex: none; }
+  .map__legend li:nth-child(4) svg { width: 1.5rem; }
+  .key-gs { fill: var(--accent); }
+  .key-sat { fill: var(--surface-2); stroke: var(--accent); stroke-width: 2; }
+  .key-late { fill: var(--bad); stroke: var(--bad); stroke-width: 2; }
+  .key-slow { stroke: var(--deadline); stroke-width: 4; stroke-linecap: round; }
+  .key-packet { fill: var(--ink); }
+
+  .map figcaption { color: var(--muted); font-size: var(--step--1); margin-top: var(--space-3); max-width: var(--prose); }
+
+  /* ---------- Hop table ---------- */
+  .hops { width: 100%; font-size: var(--step--1); }
+  .hops th, .hops td { padding: var(--space-3); text-align: left; white-space: nowrap; vertical-align: middle; }
+  .hops th.col-num, .hops td.col-num { text-align: right; }
+  .hops td.hops__result { white-space: normal; min-width: 11em; }
+  .hops td.is-negative { color: var(--bad); font-weight: 600; }
+  .hops tr.is-late > td { background: var(--bad-soft); }
+  .hops tr.is-late > td:first-child { box-shadow: inset 3px 0 0 var(--bad); }
+  .hops tr.is-late td { font-weight: 600; }
+  .hops tr.is-current > td { background: var(--accent-soft); }
+  .hops tr.is-current > td:first-child { box-shadow: inset 3px 0 0 var(--accent); }
+
+  .result {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4em;
+    padding: 0.1em 0.55em;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-pill);
+    background: var(--bg-deep);
+    color: var(--ink-2);
+    font-family: var(--font-mono);
+    font-size: var(--step--2);
+    line-height: 1.6;
+    white-space: nowrap;
+  }
+
+  .result svg { width: 0.85rem; height: 0.85rem; flex: none; }
+  .result--ontime svg { color: var(--accent); }
+  .result--created svg { color: var(--muted); }
+  .result--late { color: var(--ink); border-color: var(--bad-line); background: rgb(255 125 114 / 0.14); }
+  .result--late svg, .result--dev svg { color: var(--bad); }
+  .result--dev { border-color: rgb(255 125 114 / 0.3); }
+
+  .hops__note { margin-top: var(--space-5); color: var(--ink-2); }
+
+  /* ---------- Header bytes ---------- */
+  .bytes-panel { padding: var(--space-3); }
+
+  .bytes { display: grid; gap: 2px; }
+
+  .bytes__row {
+    display: grid;
+    gap: var(--space-2) var(--space-4);
+    padding: var(--space-2) var(--space-3);
+    border-radius: var(--radius-2);
+    border: 1px solid transparent;
+    transition: background-color var(--dur) var(--ease), border-color var(--dur) var(--ease);
+  }
+
+  @media (min-width: 48em) {
+    .bytes__row { grid-template-columns: 9rem minmax(0, 1fr); align-items: center; }
+  }
+
+  .bytes__row:nth-child(even) { background: rgb(255 255 255 / 0.015); }
+  .bytes__row.is-current { background: var(--accent-soft); border-color: var(--accent-line); }
+
+  .bytes__meta { display: flex; flex-wrap: wrap; align-items: baseline; gap: 0 var(--space-3); font-family: var(--font-mono); font-size: var(--step--2); }
+  @media (min-width: 48em) { .bytes__meta { flex-direction: column; gap: 0; } }
+  .bytes__hop { color: var(--ink); font-weight: 500; letter-spacing: 0.04em; text-transform: uppercase; }
+  .bytes__note { color: var(--muted); white-space: nowrap; }
+
+  .bytes__hex {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 2px;
+    background: none;
+    border: 0;
+    padding: 0;
+    font-size: 0.75rem;
+  }
+
+  .b {
+    position: relative;
+    display: inline-block;
+    min-width: 1.3rem;
+    padding: 0.1rem 0.12rem;
+    border: 1px solid var(--line);
+    border-radius: 3px;
+    background: var(--surface);
+    color: var(--ink-2);
+    text-align: center;
+    font-family: var(--font-mono);
+    line-height: 1.5;
+  }
+
+  .bytes__hex .b--group { margin-left: 0.3rem; }
+  .b--sl { background: color-mix(in srgb, var(--accent) 30%, var(--surface)); border-color: var(--accent); color: var(--ink); }
+  .b--flags { background: color-mix(in srgb, var(--bad) 28%, var(--surface)); border-color: var(--bad); color: var(--ink); }
+  .b--devhop { background: color-mix(in srgb, var(--deadline) 30%, var(--surface)); border-color: var(--deadline); color: var(--ink); }
+  .b--epoch { background: color-mix(in srgb, var(--derived) 12%, var(--surface)); border-style: dashed; border-color: var(--derived); }
   .b--entry { color: var(--muted); }
-  .legend { display: flex; flex-wrap: wrap; gap: var(--space-2); font-size: var(--step--1); color: var(--muted); margin-top: var(--space-2); }
-  .source { color: var(--muted); font-size: var(--step--1); }
+  .b--pad { color: var(--muted); border-style: dotted; background: transparent; }
+
+  /* A changed byte gets a bright outline and a dot above it (shape, not only colour). */
+  .b.is-changed { outline: 2px solid var(--ink); outline-offset: 1px; color: var(--ink); }
+  .b.is-changed::after {
+    content: '';
+    position: absolute;
+    top: -6px;
+    left: 50%;
+    width: 4px;
+    height: 4px;
+    margin-left: -2px;
+    border-radius: 50%;
+    background: var(--ink);
+  }
+
+  .legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-3) var(--space-5);
+    margin-top: var(--space-4);
+    font-size: var(--step--1);
+    color: var(--muted);
+  }
+
+  .legend__item { display: inline-flex; align-items: center; gap: var(--space-2); }
+  .legend .b { font-size: 0.75rem; padding-inline: 0.4rem; }
+
+  /* ---------- Before and after ---------- */
+  .compare {
+    list-style: none;
+    padding: 0;
+    display: grid;
+    gap: var(--space-4);
+  }
+
+  @media (min-width: 56em) {
+    .compare { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  }
+
+  .compare li + li { margin-top: 0; }
+  .compare__item p { color: var(--ink-2); }
+  .compare__item strong { display: block; margin-bottom: var(--space-1); color: var(--ink); font-family: var(--font-display); font-size: var(--step-0); font-weight: 640; }
+  .compare__icon { color: var(--muted); }
+  .compare__item--ours { border-color: var(--accent-line); box-shadow: var(--highlight-top), var(--glow-accent); }
+  .compare__item--ours .compare__icon { color: var(--accent); border-color: var(--accent-line); }
+
+  .run-result { margin-top: var(--space-6); }
+
+  .stats {
+    display: grid;
+    gap: var(--space-3);
+  }
+
+  @media (min-width: 48em) {
+    .stats { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  }
+
+  .stat {
+    padding: var(--space-3) var(--space-4);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-2);
+    background: var(--bg-deep);
+  }
+
+  .stat dt { font-size: var(--step--1); color: var(--muted); }
+  .stat dd { margin: var(--space-1) 0 0; font-family: var(--font-display); font-size: var(--step-3); font-weight: 680; font-stretch: var(--stretch-semi); line-height: 1.1; color: var(--ink); }
+  .stat__of { font-family: var(--font-body); font-size: var(--step-0); font-weight: 400; color: var(--muted); }
+
+  .source {
+    margin-top: var(--space-5);
+    padding: var(--space-4) var(--space-5);
+    border: 1px dashed var(--line-strong);
+    border-radius: var(--radius-3);
+    color: var(--muted);
+    font-size: var(--step--1);
+    overflow-wrap: anywhere;
+  }
+
+  .source > * + * { margin-top: var(--space-2); }
+
+  @media (forced-colors: active) {
+    .b, .result, .status, .seg { border: 1px solid CanvasText; }
+  }
 </style>

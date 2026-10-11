@@ -20,6 +20,8 @@ html {
 }
 
 body {
+  position: relative;
+  isolation: isolate;
   margin: 0;
   min-height: 100vh;
   display: flex;
@@ -36,6 +38,26 @@ body {
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   overflow-x: hidden;
+}
+
+/*
+ * Decorative backdrop behind the top of every page: a faint coordinate grid that fades out,
+ * like the plotting surface of an operations display. It carries no information.
+ */
+.site-backdrop {
+  position: absolute;
+  inset: 0 0 auto;
+  height: 46rem;
+  z-index: -1;
+  pointer-events: none;
+  background-image:
+    radial-gradient(60rem 28rem at 78% 6rem, rgb(122 174 255 / 0.08), transparent 70%),
+    linear-gradient(rgb(122 174 255 / 0.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgb(122 174 255 / 0.05) 1px, transparent 1px);
+  background-size: auto, 48px 48px, 48px 48px;
+  background-position: 0 0, center -1px, center -1px;
+  -webkit-mask-image: linear-gradient(180deg, #000 0%, rgb(0 0 0 / 0.55) 45%, transparent 100%);
+  mask-image: linear-gradient(180deg, #000 0%, rgb(0 0 0 / 0.55) 45%, transparent 100%);
 }
 
 img,
@@ -120,6 +142,10 @@ li + li {
   margin-top: var(--space-2);
 }
 
+li::marker {
+  color: var(--muted);
+}
+
 strong {
   font-weight: 600;
 }
@@ -166,11 +192,12 @@ pre {
 pre {
   margin: 0;
   overflow-x: auto;
-  background: var(--surface);
+  background: var(--bg-deep);
   border: 1px solid var(--line);
   border-radius: var(--radius-2);
   padding: var(--space-4);
   line-height: 1.5;
+  box-shadow: inset 0 1px 0 rgb(0 0 0 / 0.4);
 }
 
 hr {
@@ -184,18 +211,37 @@ hr {
   color: var(--ink);
 }
 
+details > summary {
+  cursor: pointer;
+}
+
 /* ---------- Tables ---------- */
 .table-wrap {
   max-width: 100%;
   overflow-x: auto;
   border: 1px solid var(--line);
-  border-radius: var(--radius-2);
+  border-radius: var(--radius-3);
   background: var(--surface);
+  box-shadow: var(--shadow-1);
+  scrollbar-color: var(--line-strong) transparent;
+}
+
+/* Long tables scroll inside their own frame, so the column headers stay in view. */
+.table-wrap--tall {
+  max-height: min(72vh, 44rem);
+  overflow: auto;
+}
+
+.table-wrap--tall thead th {
+  position: sticky;
+  top: 0;
+  z-index: 1;
 }
 
 table {
   width: 100%;
-  border-collapse: collapse;
+  border-collapse: separate;
+  border-spacing: 0;
   font-size: var(--step--1);
 }
 
@@ -205,6 +251,7 @@ caption {
   color: var(--muted);
   font-size: var(--step--1);
   border-bottom: 1px solid var(--line);
+  background: var(--surface);
 }
 
 th,
@@ -221,13 +268,38 @@ thead th {
   font-weight: 500;
   font-size: var(--step--1);
   letter-spacing: 0.02em;
-  color: var(--muted);
+  color: var(--ink-2);
   background: var(--surface-2);
-  border-bottom: 1px solid var(--line);
+  border-bottom: 1px solid var(--line-strong);
+  white-space: nowrap;
+}
+
+tbody tr:nth-child(even) > * {
+  background-color: rgb(255 255 255 / 0.014);
+}
+
+tbody tr {
+  transition: background-color var(--dur) var(--ease);
+}
+
+tbody tr:hover > * {
+  background-color: var(--accent-faint);
+}
+
+tbody th[scope='row'] {
+  font-weight: 600;
+  color: var(--ink);
 }
 
 tbody tr:last-child > * {
   border-bottom: 0;
+}
+
+/* Numeric columns: right-aligned, tabular figures (use on both th and td of the column). */
+th.col-num,
+td.col-num {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
 }
 
 /* ---------- Layout utilities ---------- */
@@ -254,17 +326,29 @@ tbody tr:last-child > * {
   margin-top: var(--space-6);
 }
 
+.prose > h2:first-child,
+.prose > h3:first-child {
+  margin-top: 0;
+}
+
 .stack > * + * {
   margin-top: var(--space-4);
 }
 
 .section {
-  padding-block: var(--space-8);
+  position: relative;
+  padding-block: var(--section-pad);
   border-top: 1px solid var(--line-soft);
+  border-image: linear-gradient(90deg, transparent, var(--line) 18%, var(--line) 82%, transparent) 1;
 }
 
 .section--flush {
   border-top: 0;
+}
+
+/* The first section under a page hero continues it rather than starting a new band. */
+:where(.page-hero) + .section--flush {
+  padding-top: var(--space-4);
 }
 
 .section__head {
@@ -278,6 +362,10 @@ tbody tr:last-child > * {
   color: var(--muted);
 }
 
+.section__head .eyebrow {
+  margin-bottom: 0;
+}
+
 /* Heading column + content column on wide screens. */
 .split {
   display: grid;
@@ -289,6 +377,12 @@ tbody tr:last-child > * {
     grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr);
     gap: var(--space-8);
     align-items: start;
+  }
+
+  /* The heading column follows the reader through a long content column. */
+  .split > .section__head {
+    position: sticky;
+    top: calc(var(--header-h) + var(--space-6));
   }
 }
 
@@ -336,6 +430,7 @@ ol.grid > li + li {
 
 /* ---------- Page hero (inner pages) ---------- */
 .page-hero {
+  position: relative;
   padding-block: var(--space-8) var(--space-7);
 }
 
@@ -358,6 +453,10 @@ ol.grid > li + li {
 
 /* ---------- Text styles ---------- */
 .eyebrow {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0 var(--space-3);
   font-family: var(--font-mono);
   font-size: var(--step--2);
   font-weight: 500;
@@ -365,6 +464,16 @@ ol.grid > li + li {
   text-transform: uppercase;
   color: var(--muted);
   margin-bottom: var(--space-4);
+}
+
+/* A short accent rule leads every eyebrow: the site's section marker. */
+.eyebrow::before {
+  content: '';
+  flex: none;
+  width: 1.5rem;
+  height: 2px;
+  border-radius: 1px;
+  background: linear-gradient(90deg, var(--accent), rgb(122 174 255 / 0.25));
 }
 
 .lede {
@@ -396,12 +505,31 @@ ol.grid > li + li {
   color: var(--deadline);
 }
 
-/* ---------- Cards ---------- */
+/* A hash, commit or long identifier: mono, small, breaks anywhere. */
+.hash {
+  font-family: var(--font-mono);
+  font-size: var(--step--2);
+  overflow-wrap: anywhere;
+  word-break: break-all;
+}
+
+/* Mono kicker above a card title ("What you will see"). */
+.kicker {
+  font-family: var(--font-mono);
+  font-size: var(--step--2);
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+/* ---------- Cards and panels ---------- */
 .card {
-  background: var(--surface);
+  background: var(--panel-sheen), var(--surface);
   border: 1px solid var(--line);
   border-radius: var(--radius-3);
   padding: var(--space-5);
+  box-shadow: var(--highlight-top), var(--shadow-1);
 }
 
 .card > * + * {
@@ -416,6 +544,78 @@ ol.grid > li + li {
   color: var(--muted);
 }
 
+/* A card whose heading link makes the whole card the target. */
+.card--link {
+  position: relative;
+  transition: border-color var(--dur) var(--ease), transform var(--dur-slow) var(--ease),
+    box-shadow var(--dur-slow) var(--ease), background-color var(--dur) var(--ease);
+}
+
+.card--link h3 a {
+  color: var(--ink);
+  text-decoration: none;
+}
+
+.card--link h3 a::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+}
+
+.card--link h3 a:focus-visible {
+  outline: none;
+}
+
+.card--link:has(a:focus-visible) {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+
+.card--link:hover {
+  border-color: var(--accent-line);
+  box-shadow: var(--highlight-top), var(--shadow-2);
+  transform: translateY(-2px);
+}
+
+.panel {
+  background: var(--panel-sheen), var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-4);
+  box-shadow: var(--highlight-top), var(--shadow-2);
+}
+
+.panel__bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2) var(--space-4);
+  padding: var(--space-3) var(--space-4);
+  border-bottom: 1px solid var(--line);
+  background: rgb(19 32 58 / 0.5);
+  border-radius: var(--radius-4) var(--radius-4) 0 0;
+}
+
+.panel__title {
+  font-family: var(--font-mono);
+  font-size: var(--step--2);
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--ink-2);
+}
+
+.panel__body {
+  padding: var(--space-4);
+}
+
+@media (min-width: 48em) {
+  .panel__body {
+    padding: var(--space-5);
+  }
+}
+
 .step-index {
   font-family: var(--font-mono);
   font-size: var(--step--1);
@@ -423,43 +623,254 @@ ol.grid > li + li {
   font-variant-numeric: tabular-nums;
 }
 
+/* Small square tile holding a line icon (cards, callouts). */
+.icon-tile {
+  display: inline-grid;
+  place-items: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  flex: none;
+  border-radius: var(--radius-2);
+  border: 1px solid var(--line-strong);
+  background: linear-gradient(160deg, var(--surface-3), var(--surface-2));
+  color: var(--accent);
+  box-shadow: var(--highlight-top);
+}
+
+.icon-tile svg {
+  width: 1.25rem;
+  height: 1.25rem;
+}
+
+/* ---------- Callouts: verdicts, limitations, losses, notices ---------- */
+.callout {
+  --callout-color: var(--accent);
+  position: relative;
+  display: grid;
+  gap: var(--space-3);
+  padding: var(--space-4) var(--space-5);
+  border: 1px solid color-mix(in srgb, var(--callout-color) 32%, var(--line));
+  border-left: 3px solid var(--callout-color);
+  border-radius: var(--radius-3);
+  background:
+    linear-gradient(90deg, color-mix(in srgb, var(--callout-color) 8%, transparent), transparent 60%),
+    var(--surface);
+  box-shadow: var(--shadow-1);
+}
+
+.callout > * {
+  margin: 0;
+}
+
+.callout__head {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--space-2) var(--space-3);
+  font-family: var(--font-mono);
+  font-size: var(--step--2);
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--callout-color);
+}
+
+.callout__head svg {
+  width: 1rem;
+  height: 1rem;
+  flex: none;
+}
+
+.callout--loss {
+  --callout-color: var(--bad);
+}
+
+.callout--caution {
+  --callout-color: var(--unknown);
+}
+
+.callout--notice {
+  --callout-color: var(--unknown);
+  border-left-style: dashed;
+}
+
+/* ---------- Status badge (verdicts) ---------- */
+.status-badge {
+  --status-color: var(--unknown);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45em;
+  padding: 0.2em 0.65em 0.2em 0.5em;
+  border: 1px solid color-mix(in srgb, var(--status-color) 50%, transparent);
+  border-radius: var(--radius-pill);
+  background: color-mix(in srgb, var(--status-color) 11%, transparent);
+  color: var(--ink);
+  font-family: var(--font-mono);
+  font-size: var(--step--2);
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  line-height: 1.5;
+}
+
+.status-badge svg {
+  width: 0.95em;
+  height: 0.95em;
+  flex: none;
+  color: var(--status-color);
+}
+
+.status-badge--supported {
+  --status-color: var(--accent);
+}
+
+.status-badge--mixed {
+  --status-color: var(--mixed);
+}
+
+.status-badge--not-supported {
+  --status-color: var(--bad);
+}
+
 /* ---------- Buttons / link buttons ---------- */
 .button {
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: var(--space-2);
   min-height: 2.75rem;
   padding: 0.6rem 1.1rem;
   border-radius: var(--radius-2);
-  border: 1px solid var(--line);
-  background: var(--surface);
+  border: 1px solid var(--line-strong);
+  background: linear-gradient(180deg, var(--surface-2), var(--surface));
   color: var(--ink);
   font-weight: 500;
   text-decoration: none;
   line-height: 1.2;
-  transition: background-color var(--dur) var(--ease), border-color var(--dur) var(--ease);
+  box-shadow: var(--highlight-top), var(--shadow-1);
+  cursor: pointer;
+  transition: background-color var(--dur) var(--ease), border-color var(--dur) var(--ease),
+    box-shadow var(--dur) var(--ease), transform var(--dur) var(--ease);
 }
 
 .button:hover {
+  color: var(--ink);
   background: var(--surface-2);
   border-color: var(--accent);
 }
 
+.button:active {
+  transform: translateY(1px);
+}
+
+.button svg {
+  width: 1.05em;
+  height: 1.05em;
+  flex: none;
+}
+
 .button--primary {
-  background: var(--accent);
+  background: linear-gradient(180deg, var(--accent-strong), var(--accent));
   border-color: var(--accent);
   color: var(--on-accent);
+  font-weight: 600;
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.35), var(--glow-accent);
 }
 
 .button--primary:hover {
+  color: var(--on-accent);
   background: var(--accent-strong);
   border-color: var(--accent-strong);
+}
+
+.button--sm {
+  min-height: 2.25rem;
+  padding: 0.35rem 0.8rem;
+  font-size: var(--step--1);
 }
 
 .button-row {
   display: flex;
   flex-wrap: wrap;
   gap: var(--space-3);
+}
+
+/* An arrow that nudges forward when its link or card is hovered. */
+.arrow {
+  display: inline-block;
+  transition: transform var(--dur-slow) var(--ease);
+}
+
+a:hover .arrow,
+.card--link:hover .arrow {
+  transform: translateX(3px);
+}
+
+/* ---------- Plain form controls (results explorer, network controls) ---------- */
+.ui-select,
+.ui-input {
+  min-height: 2.5rem;
+  padding: 0.4rem 0.75rem;
+  border: 1px solid var(--line-input);
+  border-radius: var(--radius-2);
+  background-color: var(--bg-deep);
+  color: var(--ink);
+  font-size: var(--step--1);
+  transition: border-color var(--dur) var(--ease), box-shadow var(--dur) var(--ease);
+}
+
+.ui-select {
+  appearance: none;
+  -webkit-appearance: none;
+  padding-right: 2.25rem;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 8'%3E%3Cpath d='M1 1.5 6 6.5 11 1.5' fill='none' stroke='%239aa9bf' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 0.75rem center;
+  background-size: 0.75rem;
+  cursor: pointer;
+}
+
+.ui-select option {
+  background: var(--surface);
+  color: var(--ink);
+}
+
+.ui-select:hover:not(:disabled),
+.ui-input:hover:not(:disabled) {
+  border-color: var(--accent);
+}
+
+.ui-select:focus-visible,
+.ui-input:focus-visible {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: var(--focus-ring);
+}
+
+.ui-select:disabled,
+.ui-input:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.ui-check {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  cursor: pointer;
+}
+
+.ui-check input {
+  width: 1.05rem;
+  height: 1.05rem;
+  margin: 0;
+  accent-color: var(--accent);
+  cursor: pointer;
+}
+
+.ui-check input:disabled {
+  cursor: not-allowed;
 }
 
 /* ---------- Accessibility helpers ---------- */
@@ -518,13 +929,26 @@ ol.grid > li + li {
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
   }
+
+  .card--link:hover {
+    transform: none;
+  }
 }
 
 /* Forced colours (Windows high contrast): keep borders and focus visible. */
 @media (forced-colors: active) {
   .card,
+  .panel,
+  .callout,
+  .status-badge,
   .table-wrap,
-  .button {
+  .button,
+  .ui-select,
+  .ui-input {
     border: 1px solid CanvasText;
+  }
+
+  .site-backdrop {
+    display: none;
   }
 }

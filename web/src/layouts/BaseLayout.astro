@@ -56,6 +56,7 @@ const canonical = Astro.site ? new URL(Astro.url.pathname, Astro.site).href : un
     <script is:inline>document.documentElement.classList.add('js');</script>
   </head>
   <body>
+    <div class="site-backdrop" aria-hidden="true"></div>
     <a class="skip-link" href="#main">Skip to content</a>
     <SiteHeader />
     <main id="main" tabindex="-1">
@@ -68,6 +69,9 @@ const canonical = Astro.site ? new URL(Astro.url.pathname, Astro.site).href : un
 <style>
   main {
     flex: 1 0 auto;
+    /* Decorative drawings may reach past the viewport edge; never let them cause sideways
+       scrolling. clip (unlike hidden) keeps position: sticky working inside main. */
+    overflow-x: clip;
   }
 
   main:focus {

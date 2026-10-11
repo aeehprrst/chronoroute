@@ -87,17 +87,29 @@ export default function ResultsExplorer({
   const tableColumns = allColumns ? columns : definition.tableColumns;
   const pageSize = 25;
   const shown = filtered.slice(page * pageSize, (page + 1) * pageSize);
+  // Presentation only: columns whose shown cells are all plain numbers are right-aligned.
+  const numericColumns = new Set(
+    tableColumns.filter(
+      (c) =>
+        shown.length > 0 &&
+        shown.every((r) =>
+          /^[-+]?(\d+\.?\d*|\.\d+)([eE][-+]?\d+)?$/.test(formatCell(r, c)),
+        ),
+    ),
+  );
   const span =
     chart.maximum - chart.minimum || Math.max(Math.abs(chart.maximum) * 0.1, 1);
   const chartLow = chart.minimum - span * 0.1;
   const chartHigh = chart.maximum + span * 0.1;
   const series = [...new Set(chart.points.map((p) => p.series))];
+  // Series are told apart by colour AND line pattern (the legend shows both).
   const colors = [
-    'var(--accent)',
-    'var(--deadline)',
-    'var(--real)',
-    'var(--derived)',
+    'var(--series-1)',
+    'var(--series-2)',
+    'var(--series-3)',
+    'var(--series-4)',
   ];
+  const dashes = [undefined, '7 4', '2 4', '10 4 2 4'];
   return (
     <div className="results-explorer">
       <p className="result-load" aria-live="polite">
@@ -122,6 +134,7 @@ export default function ResultsExplorer({
               }[key]
             }
             <select
+              className="ui-select"
               value={String(selection[key] ?? '')}
               disabled={!ready}
               onChange={(e) => {
@@ -143,6 +156,7 @@ export default function ResultsExplorer({
         <label>
           Chart metric
           <select
+            className="ui-select"
             value={metricIndex}
             onChange={(e) => setMetricIndex(Number(e.target.value))}
           >
@@ -154,7 +168,7 @@ export default function ResultsExplorer({
           </select>
         </label>
         {definition.id === 'E01' && (
-          <label>
+          <label className="ui-check">
             <input
               type="checkbox"
               checked={!!selection.selected}
@@ -169,6 +183,7 @@ export default function ResultsExplorer({
         )}
       </div>
       <figure
+        className="result-figure"
         data-manifest-sha256={evidence.manifestSha}
         data-summary-sha256={evidence.summarySha}
       >
@@ -196,6 +211,14 @@ export default function ResultsExplorer({
             <line x1="65" y1="270" x2="840" y2="270" stroke="currentColor" />
             {chart.ticks.map((tick) => (
               <g key={tick.value}>
+                <line
+                  className="result-gridline"
+                  x1="65"
+                  x2="840"
+                  y1={tick.y}
+                  y2={tick.y}
+                  stroke="currentColor"
+                />
                 <line
                   x1="60"
                   x2="65"
@@ -232,6 +255,7 @@ export default function ResultsExplorer({
                   fill="none"
                   stroke={colors[i % colors.length]}
                   strokeWidth="2"
+                  strokeDasharray={dashes[i % dashes.length]}
                 />
               ))}
             {chart.points.map((p, i) => {
@@ -298,15 +322,25 @@ export default function ResultsExplorer({
                 })}
             {definition.id === 'E02' &&
               series.map((s, i) => (
-                <text
-                  key={s}
-                  x="80"
-                  y={330 + i * 22}
-                  fill={colors[i % colors.length]}
-                  fontSize="13"
-                >
-                  {s}
-                </text>
+                <g key={s}>
+                  <line
+                    x1="40"
+                    x2="72"
+                    y1={326 + i * 22}
+                    y2={326 + i * 22}
+                    stroke={colors[i % colors.length]}
+                    strokeWidth="2"
+                    strokeDasharray={dashes[i % dashes.length]}
+                  />
+                  <text
+                    x="80"
+                    y={330 + i * 22}
+                    fill={colors[i % colors.length]}
+                    fontSize="13"
+                  >
+                    {s}
+                  </text>
+                </g>
               ))}
           </svg>
         </div>
@@ -356,6 +390,7 @@ export default function ResultsExplorer({
         <label>
           Search this selection
           <input
+            className="ui-input"
             type="search"
             value={selection.search ?? ''}
             onChange={(e) => {
@@ -364,7 +399,7 @@ export default function ResultsExplorer({
             }}
           />
         </label>
-        <label>
+        <label className="ui-check">
           <input
             type="checkbox"
             checked={allColumns}
@@ -374,6 +409,7 @@ export default function ResultsExplorer({
         </label>
         <button
           type="button"
+          className="button button--sm"
           disabled={page === 0}
           onClick={() => setPage(page - 1)}
         >
@@ -381,19 +417,20 @@ export default function ResultsExplorer({
         </button>
         <button
           type="button"
+          className="button button--sm"
           disabled={(page + 1) * pageSize >= filtered.length}
           onClick={() => setPage(page + 1)}
         >
           Next rows
         </button>
       </div>
-      <p aria-live="polite">
+      <p className="result-count" aria-live="polite">
         Showing {shown.length ? page * pageSize + 1 : 0}–
         {Math.min((page + 1) * pageSize, filtered.length)} of {filtered.length}{' '}
         matching rows. The download contains every original row and column.
       </p>
       <div
-        className="table-wrap"
+        className="table-wrap table-wrap--tall"
         tabIndex={0}
         role="region"
         aria-label="Scrollable results table"
@@ -407,7 +444,11 @@ export default function ResultsExplorer({
           <thead>
             <tr>
               {tableColumns.map((c) => (
-                <th key={c} scope="col">
+                <th
+                  key={c}
+                  scope="col"
+                  className={numericColumns.has(c) ? 'col-num' : undefined}
+                >
                   {c}
                 </th>
               ))}
@@ -417,7 +458,12 @@ export default function ResultsExplorer({
             {shown.map((r, i) => (
               <tr key={i}>
                 {tableColumns.map((c) => (
-                  <td key={c}>{formatCell(r, c)}</td>
+                  <td
+                    key={c}
+                    className={numericColumns.has(c) ? 'col-num' : undefined}
+                  >
+                    {formatCell(r, c)}
+                  </td>
                 ))}
               </tr>
             ))}

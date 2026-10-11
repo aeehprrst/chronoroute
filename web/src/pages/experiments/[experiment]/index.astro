@@ -1,6 +1,7 @@
 ---
 import BaseLayout from '../../../layouts/BaseLayout.astro';
 import LabelChip from '../../../components/LabelChip.astro';
+import VerdictStatus from '../../../components/experiments/VerdictStatus.astro';
 import ResultsExplorer from '../../../components/experiments/ResultsExplorer';
 import { EXPERIMENTS } from '../../../lib/experiments/catalog';
 import { loadExperiment, manifestSummary, type ExperimentData } from '../../../lib/experiments/load';
@@ -15,12 +16,329 @@ const cases=lossCases(def,data.rows,contrasts);const result=verdict(def,data.row
 const sourcePath=`results/${def.id}/${def.run}/summary.csv`;
 const island=explorerProps(def,data.rows,data.columns,data.evidence,assetHref(`experiments/${def.slug}/summary.csv`));
 const totalRuns=data.rows.reduce((s,r)=>s+(Number(r['n'])||0),0);
+const toc=[['hypothesis-title','Hypothesis'],['verdict-title','Verdict'],['results-title','Charts and data'],['losses-title','Where ChronoRoute loses'],['limitations-title','Limitations'],['provenance-title','How this was made']] as const;
 ---
 <BaseLayout evidenceOnly title={`${def.slug.toUpperCase()}: ${def.title}`} description={def.question}>
- <header class="page-hero container"><p class="eyebrow"><a href={pageHref('experiments')}>Experiments</a> / {def.slug.toUpperCase()}</p><h1>{def.title}</h1><p class="lede">{def.question}</p><div class="result-labels"><LabelChip kind="derived" note="statistics and accounting"/><LabelChip kind="modelled" note="network outcomes"/></div></header>
- <section class="section section--flush"><div class="container prose"><h2>Pre-registered hypothesis</h2><p>{def.hypothesis}</p><p><a href={`${REPO_URL}/blob/${data.preregSha}/experiments/PREREG.md`}>Frozen preregistration</a>, identified and verified against this result’s manifest.</p><h2>Verdict</h2><p data-verdict={result.status}><strong>{result.summary}</strong></p>{result.details.length>0&&<ul>{result.details.map(text=><li>{text}</li>)}</ul>}<p>Every number in this verdict is computed at build time from the verified summary.csv{data.contrasts?<> and the registered paired comparisons in <a href={assetHref(`experiments/${def.slug}/${data.contrasts.file}`)} download={data.contrasts.file}>{data.contrasts.file}</a> (SHA-256 <code>{data.contrasts.sha256}</code>, checked against the manifest)</>:null}.</p><p>C5 orbital inputs are REAL public data; C2 orbits and positions are MODELLED. Topology, probes, faults and network behaviour are MODELLED. Starlink’s operational routing is UNKNOWN; Starlink does not use T-CRH.</p></div></section>
- <section class="section" aria-labelledby="results-title"><div class="container"><h2 id="results-title">Charts and data</h2><p><a href={assetHref(`experiments/${def.slug}/summary.csv`)} download="summary.csv">Download CSV</a> · <a href={assetHref(`experiments/${def.slug}/manifest.json`)} download="manifest.json">Download manifest</a>{data.contrasts&&<> · <a href={assetHref(`experiments/${def.slug}/${data.contrasts.file}`)} download={data.contrasts.file}>Download paired contrasts</a></>}</p><p class="result-source">Source: <a href={`${REPO_URL}/blob/main/${sourcePath}`}><code>{sourcePath}</code></a>. SHA-256: <code>{data.summarySha}</code>.</p><ResultsExplorer {...island} client:load/></div></section>
- <section class="section" aria-labelledby="losses-title"><div class="container"><h2 id="losses-title">Where ChronoRoute loses</h2><p>Every listed point disadvantage is retained, including privileged-oracle advantages. Where a registered paired comparison exists for the same cell, its paired Student-t 95% interval and Holm-adjusted p-value are quoted; otherwise marginal intervals alone do not establish a significant loss. Ties in the predicted stuck-loss reduction are listed as unsupported advantages.</p>{def.lossNotes.map(text=><p>{text}</p>)}{cases.length>0?<div class="table-wrap" tabindex="0" role="region" aria-label="Scrollable disadvantages table"><table><caption>Descriptive comparisons from the same summary; source row numbers count data rows, excluding the header.</caption><thead><tr>{['Cell','Metric','Policy','ChronoRoute','Comparator','Comparator value','Interpretation','Source rows'].map(h=><th scope="col">{h}</th>)}</tr></thead><tbody>{cases.map(r=><tr><td>{r.context}</td><td>{r.metric}</td><td>{r.policy}</td><td>{formatValue(r.ours)}{r.oursDetail&&` (${r.oursDetail})`}</td><td>{r.competitor}</td><td>{formatValue(r.theirs)}{r.theirsDetail&&` (${r.theirsDetail})`}</td><td>{r.note}</td><td>{r.sourceRows}</td></tr>)}</tbody></table></div>:<p>{def.id==='E16'?'No failed equivalence endpoint is recorded in this summary; this is a scoped agreement result, not a routing-performance win.':def.id==='E00'?'No correctness violation is recorded in this summary.':'No point disadvantage is identified by the displayed comparison metrics. This does not establish a universal advantage.'}</p>}</div></section>
- <section class="section"><div class="container prose"><h2>Limitations</h2><ul>{def.limitations.map(text=><li>{text}</li>)}{typeof manifest.extra['limitations']==='string'&&<li>{manifest.extra['limitations']}</li>}</ul><p>These pages use only summary.csv and manifest.json{data.contrasts?`, plus ${data.contrasts.file} for the verdict and the paired comparisons quoted above`:''}; each file is checked against the manifest SHA-256. They do not infer missing comparisons from figures, reports, raw traces or other result files.</p></div></section>
- <section class="section" aria-labelledby="provenance-title"><div class="container"><h2 id="provenance-title">How this was made</h2><dl class="result-provenance"><dt>Recorded producer</dt><dd>{manifest.tool} ({manifest.tool_version})</dd><dt>Manifest commit</dt><dd><a href={`${REPO_URL}/commit/${manifest.git_sha}`}>{manifest.git_sha}</a>; dirty: {String(manifest.dirty)}</dd><dt>Run</dt><dd>{manifest.run_id}</dd><dt>Time</dt><dd>{manifest.started_utc} to {manifest.ended_utc}; {manifest.wall_seconds} seconds of recorded host wall time (REAL)</dd>{(def.provenance??[]).map(note=><><dt>{note.title}</dt><dd><p>{note.text}{totalRuns>0&&` This summary covers ${totalRuns} runs.`}</p><ul>{note.commits.map(c=><li>{c.role}: <a href={`${REPO_URL}/commit/${c.sha}`}><code>{c.sha}</code></a></li>)}</ul></dd></>)}<dt>Snapshot</dt><dd>{manifest.snapshot?.id??'Not recorded'}; SHA-256: {manifest.snapshot?.sha256??'Not recorded'}</dd><dt>Seeds</dt><dd>{manifest.seeds.length?manifest.seeds.join(', '):'No random seed applies'}</dd><dt>Command</dt><dd><pre>{manifest.command}</pre></dd><dt>Config SHA-256</dt><dd><code>{manifest.config_sha256}</code></dd><dt>Labels</dt><dd><ul>{Object.entries(manifest.labels).map(([key,value])=><li>{key}: {value}</li>)}</ul>{typeof manifest.extra['synthetic_positions']==='string'&&<p>C2 override: {manifest.extra['synthetic_positions']}</p>}</dd><dt>Manifest</dt><dd><p>{summary.schema}; {summary.outputs} recorded output files ({summary.outputBytes} bytes); {summary.inputs} recorded input hashes. <a href={assetHref(`experiments/${def.slug}/manifest.json`)} download="manifest.json">Download the full manifest</a> ({summary.bytes} bytes, SHA-256 <code>{summary.sha256}</code>) for the configuration, versions, host and every input and output hash.</p><ul>{summary.files.map(o=><li><code>{o.path}</code>: {o.size_bytes} bytes, SHA-256 <code>{o.sha256}</code></li>)}{summary.versions.length>0&&<li>Versions: {summary.versions.join('; ')}</li>}{summary.host.length>0&&<li>Host (REAL): {summary.host.join('; ')}</li>}</ul></dd></dl><p>For collected results, the manifest commit identifies the collector. Input hashes preserve the producer chain in the downloaded manifest; this page does not load those additional files.</p></div></section>
+  <header class="page-hero container">
+    <p class="eyebrow"><a href={pageHref('experiments')}>Experiments</a> / {def.slug.toUpperCase()}</p>
+    <h1>{def.title}</h1>
+    <p class="lede">{def.question}</p>
+    <div class="result-labels"><LabelChip kind="derived" note="statistics and accounting"/><LabelChip kind="modelled" note="network outcomes"/><VerdictStatus status={result.status}/></div>
+    <nav class="exp-toc" aria-label="On this page">
+      <ul role="list">{toc.map(([id,label])=><li><a href={`#${id}`}>{label}</a></li>)}</ul>
+    </nav>
+  </header>
+
+  <section class="section section--flush" aria-labelledby="hypothesis-title">
+    <div class="container">
+      <div class="card hypothesis">
+        <h2 id="hypothesis-title">Pre-registered hypothesis</h2>
+        <p class="hypothesis__text">{def.hypothesis}</p>
+        <p><a href={`${REPO_URL}/blob/${data.preregSha}/experiments/PREREG.md`}>Frozen preregistration</a>, identified and verified against this result’s manifest.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" aria-labelledby="verdict-title">
+    <div class="container">
+      <div class:list={['callout','verdict',`verdict--${result.status.replace(' ','-')}`]}>
+        <div class="verdict__head">
+          <h2 id="verdict-title">Verdict</h2>
+          <VerdictStatus status={result.status}/>
+        </div>
+        <p data-verdict={result.status} class="verdict__summary"><strong>{result.summary}</strong></p>
+        {result.details.length>0&&<ul class="verdict__details">{result.details.map(text=><li>{text}</li>)}</ul>}
+      </div>
+      <div class="verdict__notes">
+        <p>Every number in this verdict is computed at build time from the verified summary.csv{data.contrasts?<> and the registered paired comparisons in <a href={assetHref(`experiments/${def.slug}/${data.contrasts.file}`)} download={data.contrasts.file}>{data.contrasts.file}</a> (SHA-256 <code class="hash">{data.contrasts.sha256}</code>, checked against the manifest)</>:null}.</p>
+        <p class="verdict__labels">C5 orbital inputs are REAL public data; C2 orbits and positions are MODELLED. Topology, probes, faults and network behaviour are MODELLED. Starlink’s operational routing is UNKNOWN; Starlink does not use T-CRH.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" aria-labelledby="results-title">
+    <div class="container">
+      <div class="section__head">
+        <p class="eyebrow">Evidence</p>
+        <h2 id="results-title">Charts and data</h2>
+      </div>
+      <p class="downloads">
+        <a class="button button--sm" href={assetHref(`experiments/${def.slug}/summary.csv`)} download="summary.csv"><svg viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M8 2.5v8m0 0 3-3m-3 3-3-3M3 13.5h10" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"></path></svg>Download CSV</a>
+        <a class="button button--sm" href={assetHref(`experiments/${def.slug}/manifest.json`)} download="manifest.json"><svg viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M8 2.5v8m0 0 3-3m-3 3-3-3M3 13.5h10" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"></path></svg>Download manifest</a>
+        {data.contrasts&&<a class="button button--sm" href={assetHref(`experiments/${def.slug}/${data.contrasts.file}`)} download={data.contrasts.file}><svg viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M8 2.5v8m0 0 3-3m-3 3-3-3M3 13.5h10" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"></path></svg>Download paired contrasts</a>}
+      </p>
+      <p class="result-source">Source: <a href={`${REPO_URL}/blob/main/${sourcePath}`}><code>{sourcePath}</code></a>. SHA-256: <code class="hash">{data.summarySha}</code>.</p>
+      <ResultsExplorer {...island} client:load/>
+    </div>
+  </section>
+
+  <section class="section" aria-labelledby="losses-title">
+    <div class="container">
+      <div class="callout callout--loss losses">
+        <p class="callout__head">
+          <svg viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M2 3.5h12M4 7.5l3 3 2.5-2.5L14 12.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+          Disadvantages
+        </p>
+        <h2 id="losses-title">Where ChronoRoute loses</h2>
+        <p>Every listed point disadvantage is retained, including privileged-oracle advantages. Where a registered paired comparison exists for the same cell, its paired Student-t 95% interval and Holm-adjusted p-value are quoted; otherwise marginal intervals alone do not establish a significant loss. Ties in the predicted stuck-loss reduction are listed as unsupported advantages.</p>
+        {def.lossNotes.map(text=><p>{text}</p>)}
+      </div>
+      {cases.length>0?<div class="table-wrap table-wrap--tall losses__table" tabindex="0" role="region" aria-label="Scrollable disadvantages table"><table><caption>Descriptive comparisons from the same summary; source row numbers count data rows, excluding the header.</caption><thead><tr>{['Cell','Metric','Policy','ChronoRoute','Comparator','Comparator value','Interpretation','Source rows'].map(h=><th scope="col">{h}</th>)}</tr></thead><tbody>{cases.map(r=><tr><td>{r.context}</td><td>{r.metric}</td><td>{r.policy}</td><td>{formatValue(r.ours)}{r.oursDetail&&` (${r.oursDetail})`}</td><td>{r.competitor}</td><td>{formatValue(r.theirs)}{r.theirsDetail&&` (${r.theirsDetail})`}</td><td>{r.note}</td><td>{r.sourceRows}</td></tr>)}</tbody></table></div>:<p class="losses__none">{def.id==='E16'?'No failed equivalence endpoint is recorded in this summary; this is a scoped agreement result, not a routing-performance win.':def.id==='E00'?'No correctness violation is recorded in this summary.':'No point disadvantage is identified by the displayed comparison metrics. This does not establish a universal advantage.'}</p>}
+    </div>
+  </section>
+
+  <section class="section" aria-labelledby="limitations-title">
+    <div class="container">
+      <div class="callout callout--caution limitations">
+        <p class="callout__head">
+          <svg viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M8 1.8 14.6 13.5H1.4L8 1.8ZM8 6.2v3.3M8 11.4v.1" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+          Caveats
+        </p>
+        <h2 id="limitations-title">Limitations</h2>
+        <ul>{def.limitations.map(text=><li>{text}</li>)}{typeof manifest.extra['limitations']==='string'&&<li>{manifest.extra['limitations']}</li>}</ul>
+        <p class="limitations__scope">These pages use only summary.csv and manifest.json{data.contrasts?`, plus ${data.contrasts.file} for the verdict and the paired comparisons quoted above`:''}; each file is checked against the manifest SHA-256. They do not infer missing comparisons from figures, reports, raw traces or other result files.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" aria-labelledby="provenance-title">
+    <div class="container">
+      <div class="section__head">
+        <p class="eyebrow">Provenance</p>
+        <h2 id="provenance-title">How this was made</h2>
+      </div>
+      <dl class="result-provenance"><dt>Recorded producer</dt><dd>{manifest.tool} ({manifest.tool_version})</dd><dt>Manifest commit</dt><dd><a href={`${REPO_URL}/commit/${manifest.git_sha}`}>{manifest.git_sha}</a>; dirty: {String(manifest.dirty)}</dd><dt>Run</dt><dd>{manifest.run_id}</dd><dt>Time</dt><dd>{manifest.started_utc} to {manifest.ended_utc}; {manifest.wall_seconds} seconds of recorded host wall time (REAL)</dd>{(def.provenance??[]).map(note=><><dt>{note.title}</dt><dd><p>{note.text}{totalRuns>0&&` This summary covers ${totalRuns} runs.`}</p><ul>{note.commits.map(c=><li>{c.role}: <a href={`${REPO_URL}/commit/${c.sha}`}><code>{c.sha}</code></a></li>)}</ul></dd></>)}<dt>Snapshot</dt><dd>{manifest.snapshot?.id??'Not recorded'}; SHA-256: {manifest.snapshot?.sha256??'Not recorded'}</dd><dt>Seeds</dt><dd>{manifest.seeds.length?manifest.seeds.join(', '):'No random seed applies'}</dd><dt>Command</dt><dd><pre>{manifest.command}</pre></dd><dt>Config SHA-256</dt><dd><code>{manifest.config_sha256}</code></dd><dt>Labels</dt><dd><ul>{Object.entries(manifest.labels).map(([key,value])=><li>{key}: {value}</li>)}</ul>{typeof manifest.extra['synthetic_positions']==='string'&&<p>C2 override: {manifest.extra['synthetic_positions']}</p>}</dd><dt>Manifest</dt><dd><p>{summary.schema}; {summary.outputs} recorded output files ({summary.outputBytes} bytes); {summary.inputs} recorded input hashes. <a href={assetHref(`experiments/${def.slug}/manifest.json`)} download="manifest.json">Download the full manifest</a> ({summary.bytes} bytes, SHA-256 <code>{summary.sha256}</code>) for the configuration, versions, host and every input and output hash.</p><ul>{summary.files.map(o=><li><code>{o.path}</code>: {o.size_bytes} bytes, SHA-256 <code>{o.sha256}</code></li>)}{summary.versions.length>0&&<li>Versions: {summary.versions.join('; ')}</li>}{summary.host.length>0&&<li>Host (REAL): {summary.host.join('; ')}</li>}</ul></dd></dl>
+      <p class="provenance__note">For collected results, the manifest commit identifies the collector. Input hashes preserve the producer chain in the downloaded manifest; this page does not load those additional files.</p>
+    </div>
+  </section>
 </BaseLayout>
+
+<style>
+  .result-labels {
+    align-items: center;
+  }
+
+  .exp-toc {
+    margin-top: var(--space-5);
+  }
+
+  .exp-toc ul {
+    list-style: none;
+    padding: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+  }
+
+  .exp-toc li + li {
+    margin-top: 0;
+  }
+
+  .exp-toc a {
+    display: inline-flex;
+    align-items: center;
+    min-height: 2.25rem;
+    padding: 0 var(--space-3);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-2);
+    background: var(--surface);
+    color: var(--ink-2);
+    font-size: var(--step--1);
+    text-decoration: none;
+    transition: border-color var(--dur) var(--ease), color var(--dur) var(--ease);
+  }
+
+  .exp-toc a:hover {
+    border-color: var(--accent);
+    color: var(--ink);
+  }
+
+  /* ---------- Hypothesis ---------- */
+  .hypothesis {
+    max-width: 62rem;
+    padding: var(--space-5) var(--space-6);
+    border-left: 3px solid var(--accent);
+  }
+
+  .hypothesis h2 {
+    font-size: var(--step-2);
+  }
+
+  .card .hypothesis__text {
+    color: var(--ink);
+    font-size: var(--step-1);
+    line-height: 1.5;
+    max-width: var(--prose);
+  }
+
+  /* ---------- Verdict ---------- */
+  .verdict {
+    gap: var(--space-4);
+    padding: var(--space-5) var(--space-6);
+  }
+
+  .verdict--mixed {
+    --callout-color: var(--mixed);
+  }
+
+  .verdict--not-supported {
+    --callout-color: var(--bad);
+  }
+
+  .verdict--unestablished,
+  .verdict--incomplete {
+    --callout-color: var(--unknown);
+  }
+
+  .verdict__head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-3) var(--space-4);
+  }
+
+  .verdict__head h2 {
+    font-size: var(--step-2);
+  }
+
+  .verdict__summary {
+    font-size: var(--step-1);
+    line-height: 1.45;
+    max-width: 72ch;
+  }
+
+  .verdict__details {
+    list-style: none;
+    padding: 0;
+    display: grid;
+    gap: 0;
+    border-top: 1px solid var(--line);
+  }
+
+  .verdict__details li {
+    position: relative;
+    margin: 0;
+    padding: var(--space-3) 0 var(--space-3) var(--space-5);
+    border-bottom: 1px solid var(--line-soft);
+    color: var(--ink-2);
+    max-width: 90ch;
+  }
+
+  .verdict__details li::before {
+    content: '';
+    position: absolute;
+    left: 0.25rem;
+    top: 1.15em;
+    width: 0.45rem;
+    height: 0.45rem;
+    border: 1.5px solid var(--callout-color);
+    transform: rotate(45deg);
+  }
+
+  .verdict__details li:last-child {
+    border-bottom: 0;
+  }
+
+  .verdict__notes {
+    margin-top: var(--space-4);
+    display: grid;
+    gap: var(--space-3);
+    max-width: 90ch;
+    color: var(--muted);
+    font-size: var(--step--1);
+  }
+
+  .verdict__labels {
+    padding: var(--space-3) var(--space-4);
+    border: 1px dashed var(--line-strong);
+    border-radius: var(--radius-2);
+    color: var(--ink-2);
+  }
+
+  /* ---------- Charts and data ---------- */
+  .downloads {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+  }
+
+  .result-source {
+    margin-top: var(--space-3);
+    color: var(--muted);
+    font-size: var(--step--1);
+  }
+
+  /* ---------- Losses and limitations ---------- */
+  .losses,
+  .limitations {
+    padding: var(--space-5) var(--space-6);
+  }
+
+  .losses h2,
+  .limitations h2 {
+    font-size: var(--step-2);
+  }
+
+  .losses p:not(.callout__head) {
+    color: var(--ink-2);
+    max-width: 90ch;
+  }
+
+  .losses__table {
+    margin-top: var(--space-4);
+  }
+
+  /* Short cells stay on one line; values with details and the interpretation get room to wrap. */
+  .losses__table td {
+    white-space: nowrap;
+  }
+
+  .losses__table td:nth-child(4),
+  .losses__table td:nth-child(6) {
+    white-space: normal;
+    min-width: 12rem;
+  }
+
+  .losses__table td:nth-child(7) {
+    white-space: normal;
+    min-width: 20rem;
+  }
+
+  .losses__none {
+    margin-top: var(--space-4);
+    color: var(--ink-2);
+  }
+
+  .limitations ul {
+    display: grid;
+    gap: var(--space-2);
+    color: var(--ink-2);
+    max-width: 90ch;
+  }
+
+  .limitations li + li {
+    margin-top: 0;
+  }
+
+  .limitations__scope {
+    color: var(--muted);
+    font-size: var(--step--1);
+    max-width: 90ch;
+  }
+
+  .provenance__note {
+    margin-top: var(--space-4);
+    color: var(--muted);
+    font-size: var(--step--1);
+    max-width: 90ch;
+  }
+
+  @media (max-width: 40em) {
+    .hypothesis,
+    .verdict,
+    .losses,
+    .limitations {
+      padding: var(--space-4);
+    }
+  }
+</style>

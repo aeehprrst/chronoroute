@@ -17,11 +17,13 @@ const items = NAV_ITEMS.map((item) => {
 <header class="site-header">
   <div class="container site-header__inner">
     <a class="wordmark" href={pageHref('')} aria-label={`${SITE_NAME}, home`}>
-      <svg class="wordmark__mark" viewBox="0 0 32 32" width="28" height="28" aria-hidden="true" focusable="false">
-        <circle cx="16" cy="16" r="6.5" fill="none" stroke="currentColor" stroke-width="2"></circle>
-        <ellipse cx="16" cy="16" rx="14" ry="6" fill="none" stroke="currentColor" stroke-width="1.5" opacity="0.55" transform="rotate(-28 16 16)"></ellipse>
-        <circle cx="27.6" cy="9.6" r="2.4" class="wordmark__dot"></circle>
-      </svg>
+      <span class="wordmark__badge" aria-hidden="true">
+        <svg class="wordmark__mark" viewBox="0 0 32 32" width="26" height="26" aria-hidden="true" focusable="false">
+          <circle cx="16" cy="16" r="6.5" fill="none" stroke="currentColor" stroke-width="2"></circle>
+          <ellipse cx="16" cy="16" rx="14" ry="6" fill="none" stroke="currentColor" stroke-width="1.5" opacity="0.55" transform="rotate(-28 16 16)"></ellipse>
+          <circle cx="27.6" cy="9.6" r="2.4" class="wordmark__dot"></circle>
+        </svg>
+      </span>
       <span class="wordmark__text">{SITE_NAME}</span>
     </a>
 
@@ -67,7 +69,8 @@ const items = NAV_ITEMS.map((item) => {
         button.focus();
       }
     });
-    window.matchMedia('(min-width: 52.5em)').addEventListener('change', () => setOpen(false));
+    // Keep in step with the breakpoint in the styles below.
+    window.matchMedia('(min-width: 72em)').addEventListener('change', () => setOpen(false));
   }
 </script>
 
@@ -78,8 +81,17 @@ const items = NAV_ITEMS.map((item) => {
     z-index: 50;
     /* Opaque on purpose: a translucent header let page text show through while scrolling
        (the CSS minifier kept only the -webkit- blur, which Chrome ignores). */
-    background: var(--bg);
-    border-bottom: 1px solid var(--line-soft);
+    background: linear-gradient(180deg, var(--bg-deep), var(--bg));
+    box-shadow: 0 10px 30px -18px rgb(0 0 0 / 0.9);
+  }
+
+  /* Hairline under the header, brightest in the middle. */
+  .site-header::after {
+    content: '';
+    position: absolute;
+    inset: auto 0 0;
+    height: 1px;
+    background: linear-gradient(90deg, var(--line-soft), rgb(122 174 255 / 0.4) 50%, var(--line-soft));
   }
 
   .site-header__inner {
@@ -100,6 +112,23 @@ const items = NAV_ITEMS.map((item) => {
     padding-block: var(--space-2);
   }
 
+  .wordmark__badge {
+    display: inline-grid;
+    place-items: center;
+    width: 2.25rem;
+    height: 2.25rem;
+    border-radius: var(--radius-2);
+    border: 1px solid var(--line-strong);
+    background: radial-gradient(circle at 30% 25%, var(--surface-3), var(--surface) 70%);
+    box-shadow: var(--highlight-top), 0 0 18px -6px rgb(122 174 255 / 0.5);
+    transition: box-shadow var(--dur-slow) var(--ease), border-color var(--dur) var(--ease);
+  }
+
+  .wordmark:hover .wordmark__badge {
+    border-color: var(--accent-line);
+    box-shadow: var(--highlight-top), 0 0 22px -4px rgb(122 174 255 / 0.65);
+  }
+
   .wordmark__mark {
     color: var(--accent);
     flex: none;
@@ -111,7 +140,7 @@ const items = NAV_ITEMS.map((item) => {
 
   .wordmark__text {
     font-family: var(--font-display);
-    font-weight: 640;
+    font-weight: 660;
     font-stretch: var(--stretch-wide);
     font-size: 1.125rem;
     letter-spacing: 0.01em;
@@ -123,7 +152,7 @@ const items = NAV_ITEMS.map((item) => {
     padding: 0;
     display: flex;
     flex-wrap: wrap;
-    gap: var(--space-1) var(--space-2);
+    gap: var(--space-1);
   }
 
   .site-nav__list li + li {
@@ -131,17 +160,21 @@ const items = NAV_ITEMS.map((item) => {
   }
 
   .site-nav a {
+    position: relative;
     display: inline-flex;
     align-items: center;
-    min-height: 2.75rem;
-    padding-inline: var(--space-3);
+    min-height: 2.5rem;
+    padding-inline: 0.7rem;
+    border: 1px solid transparent;
     border-radius: var(--radius-2);
     color: var(--muted);
     text-decoration: none;
     font-size: var(--step--1);
     font-weight: 500;
     letter-spacing: 0.01em;
-    transition: color var(--dur) var(--ease), background-color var(--dur) var(--ease);
+    white-space: nowrap;
+    transition: color var(--dur) var(--ease), background-color var(--dur) var(--ease),
+      border-color var(--dur) var(--ease);
   }
 
   .site-nav a:hover {
@@ -149,10 +182,25 @@ const items = NAV_ITEMS.map((item) => {
     background: var(--surface);
   }
 
+  /* Active page: raised pill plus an accent bar (shape and position, not colour alone). */
   .site-nav a[aria-current='page'] {
     color: var(--ink);
-    box-shadow: inset 0 -2px 0 var(--accent);
-    border-radius: var(--radius-2) var(--radius-2) 0 0;
+    background: linear-gradient(180deg, var(--surface-2), var(--surface));
+    border-color: var(--line-strong);
+    box-shadow: var(--highlight-top);
+  }
+
+  .site-nav a[aria-current='page']::after {
+    content: '';
+    position: absolute;
+    left: 50%;
+    bottom: -1px;
+    width: 1.5rem;
+    height: 2px;
+    border-radius: 2px;
+    transform: translateX(-50%);
+    background: var(--accent);
+    box-shadow: 0 0 10px 1px rgb(122 174 255 / 0.6);
   }
 
   .menu-button {
@@ -160,13 +208,18 @@ const items = NAV_ITEMS.map((item) => {
     align-items: center;
     gap: var(--space-2);
     min-height: 2.75rem;
-    padding: 0 var(--space-3);
-    background: var(--surface);
-    border: 1px solid var(--line);
+    padding: 0 var(--space-4);
+    background: linear-gradient(180deg, var(--surface-2), var(--surface));
+    border: 1px solid var(--line-strong);
     border-radius: var(--radius-2);
+    box-shadow: var(--highlight-top);
     cursor: pointer;
     font-size: var(--step--1);
     font-weight: 500;
+  }
+
+  .menu-button:hover {
+    border-color: var(--accent);
   }
 
   .menu-button__icon,
@@ -211,9 +264,9 @@ const items = NAV_ITEMS.map((item) => {
     transform: translateY(-5px) rotate(-45deg);
   }
 
-  /* Narrow screens with JavaScript: collapsible menu (below 52.5em, where the six links no
+  /* Narrow screens with JavaScript: collapsible menu (below 72em, where the eight links no
      longer fit on one row next to the wordmark). Without JavaScript: links wrap. */
-  @media (max-width: 52.49em) {
+  @media (max-width: 71.99em) {
     :global(.js) .menu-button {
       display: inline-flex;
     }
@@ -221,27 +274,79 @@ const items = NAV_ITEMS.map((item) => {
     :global(.js) .site-nav {
       display: none;
       width: 100%;
-      padding-bottom: var(--space-3);
+      padding-bottom: var(--space-4);
     }
 
     :global(.js) .site-nav[data-open='true'] {
       display: block;
+      animation: menu-in var(--dur-slow) var(--ease);
     }
 
     :global(.js) .site-nav__list {
-      flex-direction: column;
+      display: grid;
       gap: var(--space-1);
+      padding: var(--space-2);
+      border: 1px solid var(--line);
+      border-radius: var(--radius-3);
+      background: var(--panel-sheen), var(--surface);
+      box-shadow: var(--shadow-2);
     }
 
     :global(.js) .site-nav a {
       display: flex;
+      justify-content: space-between;
+      min-height: 2.75rem;
+      padding-inline: var(--space-4);
       font-size: var(--step-0);
     }
 
+    /* A chevron on each row says "go there". */
+    :global(.js) .site-nav a::before {
+      content: '';
+      order: 2;
+      width: 0.45rem;
+      height: 0.45rem;
+      border-top: 1.5px solid currentColor;
+      border-right: 1.5px solid currentColor;
+      transform: rotate(45deg);
+      opacity: 0.55;
+    }
+
     :global(.js) .site-nav a[aria-current='page'] {
-      box-shadow: inset 2px 0 0 var(--accent);
-      border-radius: 0 var(--radius-2) var(--radius-2) 0;
-      background: var(--surface);
+      background: var(--surface-2);
+    }
+
+    :global(.js) .site-nav a[aria-current='page']::after {
+      left: -1px;
+      top: 50%;
+      bottom: auto;
+      width: 3px;
+      height: 1.4rem;
+      transform: translateY(-50%);
+    }
+  }
+
+  @media (min-width: 30em) and (max-width: 71.99em) {
+    :global(.js) .site-nav__list {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  /* Without JavaScript the links wrap; keep them compact on phones. */
+  @media (max-width: 40em) {
+    .site-nav a {
+      padding-inline: 0.55rem;
+    }
+  }
+
+  @keyframes menu-in {
+    from {
+      opacity: 0;
+      transform: translateY(-4px);
+    }
+    to {
+      opacity: 1;
+      transform: none;
     }
   }
 </style>

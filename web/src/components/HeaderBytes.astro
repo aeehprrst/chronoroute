@@ -141,11 +141,12 @@ const rows = [
 
 <style>
   .tcrh {
-    background: var(--surface);
+    background: var(--panel-sheen), var(--surface);
     border: 1px solid var(--line);
-    border-radius: var(--radius-3);
+    border-radius: var(--radius-4);
     padding: var(--space-4);
     min-width: 0;
+    box-shadow: var(--highlight-top), var(--shadow-2);
   }
 
   @media (min-width: 48em) {
@@ -171,7 +172,7 @@ const rows = [
     padding: 0;
     margin-top: var(--space-3);
     display: grid;
-    gap: 2px;
+    gap: 3px;
   }
 
   .tcrh__rows li + li {
@@ -186,9 +187,15 @@ const rows = [
       'range text';
     column-gap: var(--space-3);
     padding: var(--space-2) var(--space-3);
-    border-radius: var(--radius-1);
-    background: var(--bg);
-    border-left: 2px solid var(--line);
+    border-radius: var(--radius-2);
+    background: var(--bg-deep);
+    border: 1px solid rgb(34 50 77 / 0.6);
+    border-left: 3px solid var(--line-strong);
+    transition: background-color var(--dur) var(--ease);
+  }
+
+  .tcrh__row:hover {
+    background: rgb(19 32 58 / 0.55);
   }
 
   @media (min-width: 40em) {
@@ -201,6 +208,7 @@ const rows = [
 
   .tcrh__row--time {
     border-left-color: var(--deadline);
+    background: linear-gradient(90deg, var(--deadline-soft), transparent 55%), var(--bg-deep);
   }
 
   .tcrh__row--entry {
@@ -224,12 +232,18 @@ const rows = [
     grid-area: hex;
     font-family: var(--font-mono);
     font-size: var(--step-0);
+    font-weight: 500;
     color: var(--ink);
-    letter-spacing: 0.04em;
+    letter-spacing: 0.06em;
+    word-spacing: 0.15em;
     white-space: nowrap;
     background: none;
     border: 0;
     padding: 0;
+  }
+
+  .tcrh__row--entry .tcrh__hex {
+    color: var(--accent-strong);
   }
 
   .tcrh__row--time .tcrh__hex {

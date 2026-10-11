@@ -1,13 +1,196 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
+import VerdictStatus from '../../components/experiments/VerdictStatus.astro';
 import { EXPERIMENTS } from '../../lib/experiments/catalog';
 import { loadExperiment } from '../../lib/experiments/load';
 import { verdict } from '../../lib/experiments/data';
 import { pageHref } from '../../lib/paths';
 const releases=await Promise.all(EXPERIMENTS.map(def=>loadExperiment(def)));
+const rows=releases.map(data=>({data,result:verdict(data.definition,data.rows,data.contrasts?.rows??null)}));
 ---
 <BaseLayout evidenceOnly title="Experiments" description="Registered ChronoRoute experiments, with manifested results, confidence intervals and cases where the protocol loses.">
- <header class="page-hero container"><p class="eyebrow">Results</p><h1>Experiments</h1><p class="lede">Questions, registered hypotheses and results from the reviewed experiment releases. Every chart and table reads the same verified summary CSV offered for download.</p></header>
- <section class="section section--flush"><div class="container prose"><h2>What these results describe</h2><p>Network outcomes are MODELLED; comparison statistics and size accounting are DERIVED. C5 orbital inputs are REAL public data. C2 orbits and positions are MODELLED. Starlink’s operational routing is UNKNOWN; Starlink does not use T-CRH.</p><p>Intervals are taken from the result files. Exact correctness and byte-accounting checks have no sampling interval. These experiments do not establish a universal winner; each verdict below says whether the registered hypothesis is supported, not supported or mixed, and each experiment page lists the caveats behind it.</p></div></section>
- <section class="section"><div class="container"><h2>Registered experiments</h2><div class="table-wrap"><table><caption>Reviewed releases; no pilot or failed attempt is selected automatically.</caption><thead><tr><th scope="col">Experiment</th><th scope="col">Question</th><th scope="col">Verdict</th></tr></thead><tbody>{releases.map(data=><tr><th scope="row"><a href={pageHref(`experiments/${data.definition.slug}`)}>{data.definition.slug.toUpperCase()}: {data.definition.title}</a></th><td>{data.definition.question}</td><td>{verdict(data.definition,data.rows,data.contrasts?.rows??null).summary}</td></tr>)}</tbody></table></div></div></section>
+  <header class="page-hero container">
+    <p class="eyebrow">Results</p>
+    <h1>Experiments</h1>
+    <p class="lede">Questions, registered hypotheses and results from the reviewed experiment releases. Every chart and table reads the same verified summary CSV offered for download.</p>
+  </header>
+
+  <section class="section section--flush" aria-labelledby="describe-title">
+    <div class="container">
+      <div class="callout callout--notice describe">
+        <p class="callout__head">
+          <svg viewBox="0 0 16 16" aria-hidden="true" focusable="false"><circle cx="8" cy="8" r="6.4" fill="none" stroke="currentColor" stroke-width="1.5"></circle><path d="M8 7.2v4M8 4.8v.1" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"></path></svg>
+          Read this first
+        </p>
+        <h2 id="describe-title" class="describe__title">What these results describe</h2>
+        <p>Network outcomes are MODELLED; comparison statistics and size accounting are DERIVED. C5 orbital inputs are REAL public data. C2 orbits and positions are MODELLED. Starlink’s operational routing is UNKNOWN; Starlink does not use T-CRH.</p>
+        <p>Intervals are taken from the result files. Exact correctness and byte-accounting checks have no sampling interval. These experiments do not establish a universal winner; each verdict below says whether the registered hypothesis is supported, not supported or mixed, and each experiment page lists the caveats behind it.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" aria-labelledby="registered-title">
+    <div class="container">
+      <div class="section__head">
+        <p class="eyebrow">Releases</p>
+        <h2 id="registered-title">Registered experiments</h2>
+        <p>Reviewed releases; no pilot or failed attempt is selected automatically.</p>
+      </div>
+      <ol class="exp-list" role="list">
+        {rows.map(({data,result})=>(
+          <li class:list={['card','exp',`exp--${result.status.replace(' ','-')}`]}>
+            <div class="exp__id" aria-hidden="true">{data.definition.slug.toUpperCase()}</div>
+            <div class="exp__body">
+              <h3 class="exp__title"><a href={pageHref(`experiments/${data.definition.slug}`)}>{data.definition.slug.toUpperCase()}: {data.definition.title}</a></h3>
+              <div class="exp__cols">
+                <div>
+                  <p class="kicker">Question</p>
+                  <p class="exp__question">{data.definition.question}</p>
+                </div>
+                <div>
+                  <p class="kicker exp__verdict-head">Verdict <VerdictStatus status={result.status}/></p>
+                  <p class="exp__verdict">{result.summary}</p>
+                </div>
+              </div>
+              <p class="exp__open"><a href={pageHref(`experiments/${data.definition.slug}`)}>Charts, losses and limitations<span class="sr-only"> for {data.definition.slug.toUpperCase()}</span> <span class="arrow" aria-hidden="true">→</span></a></p>
+            </div>
+          </li>
+        ))}
+      </ol>
+    </div>
+  </section>
 </BaseLayout>
+
+<style>
+  .describe {
+    max-width: 62rem;
+  }
+
+  .describe__title {
+    font-size: var(--step-2);
+  }
+
+  .describe p:not(.callout__head) {
+    color: var(--ink-2);
+    max-width: var(--prose);
+  }
+
+  .exp-list {
+    list-style: none;
+    padding: 0;
+    display: grid;
+    gap: var(--space-4);
+  }
+
+  .exp-list li + li {
+    margin-top: 0;
+  }
+
+  .exp {
+    display: grid;
+    gap: var(--space-4);
+    position: relative;
+    overflow: hidden;
+    transition: border-color var(--dur) var(--ease);
+  }
+
+  .exp:hover {
+    border-color: var(--line-strong);
+  }
+
+  @media (min-width: 48em) {
+    .exp {
+      grid-template-columns: 4.5rem minmax(0, 1fr);
+      gap: var(--space-5);
+      padding: var(--space-5) var(--space-6);
+    }
+  }
+
+  .card.exp > * + * {
+    margin-top: 0;
+  }
+
+  .exp__id {
+    display: grid;
+    place-items: center;
+    width: 3.5rem;
+    height: 3.5rem;
+    border-radius: var(--radius-3);
+    border: 1px solid var(--line-strong);
+    background: linear-gradient(160deg, var(--surface-3), var(--surface-2));
+    box-shadow: var(--highlight-top);
+    font-family: var(--font-display);
+    font-size: var(--step-1);
+    font-weight: 700;
+    font-stretch: var(--stretch-semi);
+    color: var(--ink);
+  }
+
+  .exp__body > * + * {
+    margin-top: var(--space-3);
+  }
+
+  .exp__title {
+    font-size: var(--step-1);
+  }
+
+  .exp__title a {
+    color: var(--ink);
+    text-decoration-color: var(--line-strong);
+  }
+
+  .exp__title a:hover {
+    text-decoration-color: var(--accent);
+  }
+
+  .exp__cols {
+    display: grid;
+    gap: var(--space-4);
+  }
+
+  @media (min-width: 56em) {
+    .exp__cols {
+      grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.4fr);
+      gap: var(--space-6);
+    }
+  }
+
+  .exp__cols .kicker {
+    margin-bottom: var(--space-2);
+  }
+
+  .exp__verdict-head {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+  }
+
+  .card .exp__question {
+    color: var(--ink-2);
+  }
+
+  .card .exp__verdict {
+    color: var(--ink);
+    font-size: var(--step--1);
+    padding-left: var(--space-3);
+    border-left: 2px solid var(--line-strong);
+  }
+
+  .exp--mixed .exp__verdict {
+    border-left-color: var(--mixed);
+  }
+
+  .exp--not-supported .exp__verdict {
+    border-left-color: var(--bad);
+  }
+
+  .exp--supported .exp__verdict {
+    border-left-color: var(--accent);
+  }
+
+  .exp__open {
+    padding-top: var(--space-3);
+    border-top: 1px solid var(--line-soft);
+    font-size: var(--step--1);
+  }
+</style>

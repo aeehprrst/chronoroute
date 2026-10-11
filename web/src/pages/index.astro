@@ -3,7 +3,6 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 import LabelChip from '../components/LabelChip.astro';
 import DataBadge from '../components/DataBadge.astro';
 import HeaderBytes from '../components/HeaderBytes.astro';
-import BuildingState from '../components/BuildingState.astro';
 import HomeGlobeSection from '../components/globe/HomeGlobeSection.astro';
 import DeadlineStory from '../components/protocol/DeadlineStory.astro';
 import { LABELS } from '../lib/labels';
@@ -11,6 +10,49 @@ import { pageHref } from '../lib/paths';
 import { readTcrhEncodeVector } from '../lib/data-build';
 
 const vector = await readTcrhEncodeVector('v0-3hop');
+
+/*
+ * One card per page. The descriptions are the pages' own summaries (the Network simulation and
+ * Experiments texts are those pages' meta descriptions); the icons are line drawings only.
+ */
+const destinations = [
+  {
+    path: 'live',
+    title: 'Live globe',
+    icon: 'globe',
+    text: 'Every satellite in the orbit snapshot, placed by SGP4 in your browser for the current time or any time near it.',
+  },
+  {
+    path: 'route',
+    title: 'Route planner',
+    icon: 'route',
+    text: 'Pick two cities: a hypothetical path over modelled laser links, its per-hop deadlines, and the T-CRH bytes, checked against the Python reference.',
+  },
+  {
+    path: 'network',
+    title: 'Network simulation',
+    icon: 'network',
+    text: 'One real ns-3 packet on the real Starlink 463 km shell, hop by hop: the deadline it carries, when it arrives, and how a slowed laser link makes it late.',
+  },
+  {
+    path: 'protocol',
+    title: 'Protocol',
+    icon: 'bytes',
+    text: 'Build, decode and step through T-CRH headers with an engine checked against the shared golden test vectors.',
+  },
+  {
+    path: 'experiments',
+    title: 'Experiments',
+    icon: 'chart',
+    text: 'Registered ChronoRoute experiments, with manifested results, confidence intervals and cases where the protocol loses.',
+  },
+  {
+    path: 'methodology',
+    title: 'Methodology',
+    icon: 'layers',
+    text: 'What is real, derived, modelled or unknown, the sources, the limitations and what is new.',
+  },
+] as const;
 ---
 
 <BaseLayout description="ChronoRoute is deadline-based source routing for LEO satellite constellations: a compact IPv6 routing header (T-CRH) carries the path and an arrival deadline for every hop, so a satellite that receives a packet late knows the plan has broken.">
@@ -18,7 +60,7 @@ const vector = await readTcrhEncodeVector('v0-3hop');
   <section class="hero container" aria-labelledby="hero-title">
     <div class="hero__text">
       <p class="eyebrow">Student project · Computer Networks · VIT Vellore</p>
-      <h1 id="hero-title">ChronoRoute</h1>
+      <h1 id="hero-title" class="hero__title">ChronoRoute</h1>
       <p class="hero__deck">
         Every packet carries its planned path and a <span class="deadline">deadline</span> for each hop, so the
         satellite that receives it late knows the plan has broken and switches to geographic forwarding.
@@ -28,24 +70,112 @@ const vector = await readTcrhEncodeVector('v0-3hop');
         geometry. Starlink itself does not use it.
       </p>
       <div class="button-row hero__actions">
-        <a class="button button--primary" href={pageHref('live')}>Open the live globe</a>
+        <a class="button button--primary" href={pageHref('live')}>
+          Open the live globe <span class="arrow" aria-hidden="true">→</span>
+        </a>
         <a class="button" href={pageHref('protocol')}>Explore the protocol</a>
       </div>
     </div>
 
     <div class="hero__figure">
-      {
-        vector ? (
-          <>
-            <p class="hero__figure-intro">
-              A real T-CRH header, byte for byte: the reference test vector from the specification.
-            </p>
-            <HeaderBytes vector={vector} compact />
-          </>
-        ) : (
-          <p class="muted">The golden test vector file was not found at build time.</p>
-        )
-      }
+      <svg class="hero__orbits" viewBox="0 0 600 600" aria-hidden="true" focusable="false">
+        <circle cx="300" cy="300" r="132" class="hero__orbit hero__orbit--earth"></circle>
+        <g class="hero__spin">
+          <ellipse cx="300" cy="300" rx="290" ry="118" transform="rotate(-24 300 300)" class="hero__orbit"></ellipse>
+          <circle cx="557" cy="187" r="5" class="hero__sat"></circle>
+        </g>
+        <g class="hero__spin hero__spin--slow">
+          <ellipse cx="300" cy="300" rx="250" ry="200" transform="rotate(32 300 300)" class="hero__orbit hero__orbit--faint"></ellipse>
+          <circle cx="90" cy="168" r="4" class="hero__sat hero__sat--faint"></circle>
+        </g>
+      </svg>
+      <div class="hero__console">
+        {
+          vector ? (
+            <>
+              <p class="hero__figure-intro">
+                A real T-CRH header, byte for byte: the reference test vector from the specification.
+              </p>
+              <HeaderBytes vector={vector} compact />
+            </>
+          ) : (
+            <p class="muted">The golden test vector file was not found at build time.</p>
+          )
+        }
+      </div>
+    </div>
+  </section>
+
+  <!-- OWNER: content -->
+  <section class="section explore" aria-labelledby="next-title">
+    <div class="container">
+      <div class="section__head">
+        <p class="eyebrow">Explore</p>
+        <h2 id="next-title">Where to go next</h2>
+        <p>What you will see on each page of this site.</p>
+      </div>
+      <ul class="grid next-cards" role="list">
+        {
+          destinations.map((d, i) => (
+            <li class="card card--link next-card">
+              <div class="next-card__top">
+                <span class="icon-tile" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
+                    {d.icon === 'globe' && (
+                      <>
+                        <circle cx="12" cy="12" r="8.5" />
+                        <path d="M3.5 12h17M12 3.5c2.6 2.3 3.9 5.1 3.9 8.5s-1.3 6.2-3.9 8.5c-2.6-2.3-3.9-5.1-3.9-8.5S9.4 5.8 12 3.5Z" />
+                      </>
+                    )}
+                    {d.icon === 'route' && (
+                      <>
+                        <circle cx="5" cy="18" r="2" />
+                        <circle cx="19" cy="6" r="2" />
+                        <path d="M7 18h6.5a3.5 3.5 0 0 0 0-7h-3a3.5 3.5 0 0 1 0-7H17" />
+                      </>
+                    )}
+                    {d.icon === 'network' && (
+                      <>
+                        <circle cx="4.5" cy="16" r="1.8" />
+                        <circle cx="10" cy="8" r="1.8" />
+                        <circle cx="15" cy="14" r="1.8" />
+                        <circle cx="20" cy="6" r="1.8" />
+                        <path d="M5.6 14.5 8.9 9.5M11.4 9.3l2.3 3.4M16.2 12.5l2.7-4.9" />
+                      </>
+                    )}
+                    {d.icon === 'bytes' && (
+                      <>
+                        <rect x="3" y="5" width="5" height="5" rx="1" />
+                        <rect x="9.5" y="5" width="5" height="5" rx="1" />
+                        <rect x="16" y="5" width="5" height="5" rx="1" />
+                        <rect x="3" y="14" width="5" height="5" rx="1" />
+                        <rect x="9.5" y="14" width="11.5" height="5" rx="1" />
+                      </>
+                    )}
+                    {d.icon === 'chart' && (
+                      <>
+                        <path d="M4 4v16h16" />
+                        <path d="M8 15v-3M12 15V8M16 15v-5" />
+                        <path d="M7 8.5h2M11 5h2M15 7h2" />
+                      </>
+                    )}
+                    {d.icon === 'layers' && (
+                      <>
+                        <path d="m12 3.5 8.5 4.5-8.5 4.5L3.5 8 12 3.5Z" />
+                        <path d="m3.5 12 8.5 4.5 8.5-4.5M3.5 16l8.5 4.5 8.5-4.5" />
+                      </>
+                    )}
+                  </svg>
+                </span>
+                <span class="next-card__index" aria-hidden="true">{String(i + 1).padStart(2, '0')}</span>
+              </div>
+              <h3><a href={pageHref(d.path)}>{d.title}</a></h3>
+              <p>{d.text}</p>
+              <p class="next-card__go" aria-hidden="true">Open <span class="arrow">→</span></p>
+            </li>
+          ))
+        }
+      </ul>
     </div>
   </section>
 
@@ -82,54 +212,17 @@ const vector = await readTcrhEncodeVector('v0-3hop');
       <ul class="grid grid--4 label-cards" role="list">
         {
           LABELS.map((label) => (
-            <li class="card">
+            <li class:list={['card', 'label-card', `label-card--${label.kind}`]}>
               <LabelChip kind={label.kind} />
               <p class="label-cards__def">{label.definition}</p>
-              <p class="small">Example: {label.example}</p>
+              <p class="small label-cards__example">Example: {label.example}</p>
             </li>
           ))
         }
       </ul>
       <p class="label-cards__more">
-        <a href={pageHref('methodology#labels')}>How we apply the labels</a>
+        <a href={pageHref('methodology#labels')}>How we apply the labels <span class="arrow" aria-hidden="true">→</span></a>
       </p>
-    </div>
-  </section>
-
-  <!-- OWNER: content -->
-  <section class="section" aria-labelledby="next-title">
-    <div class="container">
-      <div class="section__head">
-        <p class="eyebrow">Explore</p>
-        <h2 id="next-title">Where to go next</h2>
-      </div>
-      <ul class="grid grid--4 next-cards" role="list">
-        <li class="card next-card">
-          <h3><a href={pageHref('live')}>Live globe</a></h3>
-          <p>
-            Every satellite in the orbit snapshot, placed by SGP4 in your browser for the current time or any time
-            near it.
-          </p>
-        </li>
-        <li class="card next-card">
-          <h3><a href={pageHref('route')}>Route planner</a></h3>
-          <p>
-            Pick two cities: a hypothetical path over modelled laser links, its per-hop deadlines, and the T-CRH
-            bytes, checked against the Python reference.
-          </p>
-        </li>
-        <li class="card next-card">
-          <h3><a href={pageHref('protocol')}>Protocol</a></h3>
-          <p>
-            Build, decode and step through T-CRH headers with an engine checked against the shared golden test
-            vectors.
-          </p>
-        </li>
-        <li class="card next-card">
-          <h3><a href={pageHref('methodology')}>Methodology</a></h3>
-          <p>What is real, derived, modelled or unknown, the sources, the limitations and what is new.</p>
-        </li>
-      </ul>
     </div>
   </section>
 
@@ -155,33 +248,53 @@ const vector = await readTcrhEncodeVector('v0-3hop');
         <p class="eyebrow">Status</p>
         <h2 id="results-title">Results</h2>
       </div>
-      <BuildingState heading="How well does the alarm work?" phase="results" level={3}>
+      <div class="prose">
+        <h3>How well does the alarm work?</h3>
         <p>
-          The experiments will measure how often a deadline catches a real problem and how often it raises a false
-          alarm, on real Starlink orbit data. Their results will appear here once the simulations have run, each linked to
-          its run manifest (code commit, configuration, random seeds, orbit snapshot and file hashes) so that anyone
-          can reproduce it.
+          The registered experiments measured how often a deadline catches a real problem and how often it raises a
+          false alarm, on real Starlink orbit data. Each experiment has its own page with the question, the
+          pre-registered hypothesis, the verdict, charts with confidence intervals, the data to download and its run
+          manifest (code commit, configuration, random seeds, orbit snapshot and file hashes), so that anyone can
+          reproduce it.
         </p>
-        <p>No results are shown before then.</p>
-      </BuildingState>
+        <p>
+          In short: deadlines catch strong slow-downs and dead links with no extra control traffic, but at the
+          registered 1% false-alarm limit small delays stay hidden inside the slack, and a local queue monitor detects
+          more. Each page says where ChronoRoute loses.
+        </p>
+        <p><a href={pageHref('experiments')}>See the experiments <span class="arrow" aria-hidden="true">→</span></a></p>
+      </div>
     </div>
   </section>
 </BaseLayout>
 
 <style>
   .hero {
+    position: relative;
     display: grid;
     gap: var(--space-7);
-    padding-block: var(--space-8) var(--space-8);
+    padding-block: var(--space-7) var(--space-8);
     align-items: center;
   }
 
   @media (min-width: 64em) {
     .hero {
-      grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr);
+      grid-template-columns: minmax(0, 1.05fr) minmax(0, 0.95fr);
       gap: var(--space-8);
-      padding-block: var(--space-9);
+      padding-block: var(--space-8) var(--space-9);
+      min-height: min(52rem, calc(100svh - var(--header-h)));
     }
+  }
+
+  .hero__title {
+    font-size: clamp(3rem, 1.9rem + 5vw, 6.5rem);
+    letter-spacing: -0.015em;
+    background: linear-gradient(180deg, #ffffff 15%, #b8d1ff 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    /* Keeps the descenders of the gradient text inside its painted box. */
+    padding-bottom: 0.06em;
   }
 
   .hero__deck {
@@ -197,8 +310,11 @@ const vector = await readTcrhEncodeVector('v0-3hop');
 
   .hero .lede {
     margin-top: var(--space-5);
+    padding-left: var(--space-4);
+    border-left: 2px solid var(--line-strong);
     color: var(--muted);
     font-size: var(--step-0);
+    max-width: 52ch;
   }
 
   .hero__actions {
@@ -206,7 +322,79 @@ const vector = await readTcrhEncodeVector('v0-3hop');
   }
 
   .hero__figure {
+    position: relative;
     min-width: 0;
+    isolation: isolate;
+  }
+
+  /* Decorative orbit lines behind the header bytes (drawing only, no data). */
+  .hero__orbits {
+    position: absolute;
+    z-index: -1;
+    top: 50%;
+    left: 50%;
+    width: min(46rem, 150%);
+    max-width: none;
+    transform: translate(-50%, -50%);
+    pointer-events: none;
+    opacity: 0.75;
+  }
+
+  .hero__orbit {
+    fill: none;
+    stroke: rgb(122 174 255 / 0.3);
+    stroke-width: 1;
+  }
+
+  .hero__orbit--faint {
+    stroke: rgb(122 174 255 / 0.12);
+    stroke-dasharray: 3 6;
+  }
+
+  .hero__orbit--earth {
+    fill: rgb(122 174 255 / 0.035);
+    stroke: rgb(122 174 255 / 0.1);
+  }
+
+  .hero__sat {
+    fill: var(--accent);
+    filter: drop-shadow(0 0 6px rgb(122 174 255 / 0.9));
+  }
+
+  .hero__sat--faint {
+    fill: var(--deadline);
+    filter: drop-shadow(0 0 6px rgb(242 170 76 / 0.8));
+  }
+
+  .hero__spin {
+    transform-origin: 300px 300px;
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .hero__spin {
+      animation: hero-spin 90s linear infinite;
+    }
+
+    .hero__spin--slow {
+      animation-duration: 150s;
+      animation-direction: reverse;
+    }
+  }
+
+  @keyframes hero-spin {
+    to {
+      transform: rotate(360deg);
+    }
+  }
+
+  .hero__console {
+    position: relative;
+    max-width: 34rem;
+    margin-inline: auto;
+  }
+
+  .hero__console :global(.tcrh) {
+    box-shadow: var(--highlight-top), var(--shadow-3), var(--glow-accent);
   }
 
   .hero__figure-intro {
@@ -215,6 +403,57 @@ const vector = await readTcrhEncodeVector('v0-3hop');
     margin-bottom: var(--space-3);
   }
 
+  /* ---------- Explore ---------- */
+  .next-cards {
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 18rem), 1fr));
+  }
+
+  @media (min-width: 64em) {
+    .next-cards {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+  }
+
+  .next-card {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .next-card__top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: var(--space-2);
+  }
+
+  .next-card__index {
+    font-family: var(--font-mono);
+    font-size: var(--step--2);
+    letter-spacing: 0.1em;
+    color: var(--muted);
+  }
+
+  .next-card p:not(.next-card__go) {
+    flex: 1 0 auto;
+  }
+
+  .next-card .next-card__go {
+    margin-top: var(--space-4);
+    padding-top: var(--space-3);
+    border-top: 1px solid var(--line-soft);
+    font-family: var(--font-mono);
+    font-size: var(--step--2);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--accent);
+  }
+
+  .next-card:hover .icon-tile {
+    border-color: var(--accent-line);
+    box-shadow: var(--highlight-top), 0 0 16px -4px rgb(122 174 255 / 0.55);
+  }
+
+  /* ---------- Labels ---------- */
   .label-cards,
   .next-cards {
     list-style: none;
@@ -226,41 +465,53 @@ const vector = await readTcrhEncodeVector('v0-3hop');
     margin-top: 0;
   }
 
-  .label-cards__def {
+  .label-card {
+    --kind: var(--unknown);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .label-card::before {
+    content: '';
+    position: absolute;
+    inset: 0 0 auto;
+    height: 2px;
+    background: linear-gradient(90deg, var(--kind), transparent);
+  }
+
+  .label-card--real {
+    --kind: var(--real);
+  }
+
+  .label-card--derived {
+    --kind: var(--derived);
+  }
+
+  .label-card--modelled {
+    --kind: var(--modelled);
+  }
+
+  .label-card--unknown {
+    --kind: var(--unknown);
+  }
+
+  .card .label-cards__def {
     color: var(--ink);
+  }
+
+  .label-cards__example {
+    padding-top: var(--space-3);
+    border-top: 1px dashed var(--line);
   }
 
   .label-cards__more {
     margin-top: var(--space-5);
   }
 
-  .next-card {
-    position: relative;
-  }
-
-  .next-card h3 a {
-    color: var(--ink);
-    text-decoration: none;
-  }
-
-  /* The whole card is the link target; the visible link stays the heading. */
-  .next-card h3 a::after {
-    content: '';
-    position: absolute;
-    inset: 0;
-    border-radius: var(--radius-3);
-  }
-
-  .next-card:hover {
-    border-color: var(--accent);
-  }
-
-  .next-card h3 a:focus-visible {
-    outline: none;
-  }
-
-  .next-card:has(a:focus-visible) {
-    outline: 2px solid var(--accent);
-    outline-offset: 3px;
+  @media (forced-colors: active) {
+    .hero__title {
+      color: CanvasText;
+      background: none;
+    }
   }
 </style>

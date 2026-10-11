@@ -215,6 +215,42 @@ const software = [
     color: var(--ink);
   }
 
+  /* The three implementations, as three small panels. */
+  .parts {
+    list-style: none;
+    padding: 0;
+    display: grid;
+    gap: var(--space-3);
+  }
+
+  .parts li {
+    margin: 0;
+    padding: var(--space-4) var(--space-5);
+    border: 1px solid var(--line);
+    border-left: 3px solid var(--accent);
+    border-radius: var(--radius-3);
+    background: var(--panel-sheen), var(--surface);
+    box-shadow: var(--highlight-top);
+  }
+
+  .software {
+    list-style: none;
+    padding: 0;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-3);
+    background: var(--surface);
+  }
+
+  .software li {
+    margin: 0;
+    padding: var(--space-3) var(--space-4);
+    border-bottom: 1px solid var(--line-soft);
+  }
+
+  .software li:last-child {
+    border-bottom: 0;
+  }
+
   .prose h3 {
     font-size: var(--step-0);
   }
