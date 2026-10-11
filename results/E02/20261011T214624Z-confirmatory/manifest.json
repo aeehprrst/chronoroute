@@ -1,0 +1,125 @@
+{
+  "command": "/home/aeehprrst/chronoroute/venv/bin/python -B experiments/E02/account.py --out results/E02/20261011T214624Z-confirmatory",
+  "config": {
+    "campaign": {
+      "cell_id": "exact-entries-and-course-captures",
+      "experiment": "E02",
+      "pair_id": null,
+      "phase": "confirmatory",
+      "prereg_git_sha": "b87f08a7cc9431d139bf66372f03133035494b8c",
+      "prereg_path": "experiments/PREREG.md",
+      "prereg_sha256": "1d1541f60be8411f565c5eda4e64322354c276a7321181e2ee9ee92f065ea5d3",
+      "seed": null
+    },
+    "captures": [
+      "results/course-milestone/c5-463-60s-seed1/nofault/capture.pcap.gz",
+      "results/course-milestone/c5-463-60s-seed1/fault/capture.pcap.gz"
+    ],
+    "entries": [
+      1,
+      40
+    ],
+    "reference_packet_bytes": 1400
+  },
+  "config_sha256": "7bf6f234012c65396aa11b4e27c09ee4aa95089ae16f4e17131285ce010a75e2",
+  "dirty": false,
+  "ended_utc": "2026-10-11T21:46:30.494849Z",
+  "extra": {
+    "campaign": {
+      "cell_id": "exact-entries-and-course-captures",
+      "experiment": "E02",
+      "pair_id": null,
+      "phase": "confirmatory",
+      "prereg_git_sha": "b87f08a7cc9431d139bf66372f03133035494b8c",
+      "prereg_path": "experiments/PREREG.md",
+      "prereg_sha256": "1d1541f60be8411f565c5eda4e64322354c276a7321181e2ee9ee92f065ea5d3",
+      "seed": null
+    },
+    "complete": true,
+    "inputs": [
+      {
+        "path": "results/course-milestone/c5-463-60s-seed1/nofault/capture.pcap.gz",
+        "sha256": "9840181811508d2e36bce41e9b06e74b486dc2c6f8c5bb7583d1c472e4f74ed0"
+      },
+      {
+        "path": "results/course-milestone/c5-463-60s-seed1/manifest.json",
+        "sha256": "07253194f51034dc7744aae07d1d02f226f15b588adf3172a79992fdbe51b957"
+      },
+      {
+        "path": "results/course-milestone/c5-463-60s-seed1/fault/capture.pcap.gz",
+        "sha256": "6c16ea7f0258b46406f4aa0f373f28b0c84a4d55cdcb87843d004d8922cd879c"
+      },
+      {
+        "path": "results/course-milestone/c5-463-60s-seed1/manifest.json",
+        "sha256": "07253194f51034dc7744aae07d1d02f226f15b588adf3172a79992fdbe51b957"
+      }
+    ]
+  },
+  "git_sha": "8004d42f0053673fb6750c12353e4236651ed140",
+  "host": {
+    "cpu_model": "13th Gen Intel(R) Core(TM) i9-13900H",
+    "logical_cores": 20,
+    "machine": "x86_64",
+    "platform": "Linux-6.18.33.2-microsoft-standard-WSL2-x86_64-with-glibc2.43",
+    "ram_bytes": 8131362816
+  },
+  "labels": {
+    "pcap_addresses": "MODELLED",
+    "pcap_timestamps": "MODELLED",
+    "routes_and_budgets": "DERIVED",
+    "tcrh_header_bytes": "REAL"
+  },
+  "outputs": [
+    {
+      "path": "REPORT.md",
+      "sha256": "7a080ac9b3bcaf80bde09ba530d919d4605c9611e564b80a06da1e13394180bb",
+      "size_bytes": 494
+    },
+    {
+      "path": "capture_frames.csv.gz",
+      "sha256": "90d03cdb4f57164dd9aaa06034a049b4805c9755704d7879a9cbc1a770cb3435",
+      "size_bytes": 230320
+    },
+    {
+      "path": "capture_summary.csv",
+      "sha256": "8ba2683ae3969222dea1012c80cd41bafa34b63edc2cbc2481e795986e29487a",
+      "size_bytes": 68
+    },
+    {
+      "path": "header-overhead.png",
+      "sha256": "a2f26d28acbc3188b22505e95c800c57c89087ad909a599fd648bb67e9ac1659",
+      "size_bytes": 76793
+    },
+    {
+      "path": "summary.csv",
+      "sha256": "1bc1d6162fdb4e3a77ba64347506d1f321ba4f3965632f1d65f2cd3a72fd2b1d",
+      "size_bytes": 24832
+    },
+    {
+      "path": "verdict.json",
+      "sha256": "b9e4d9d1a64191dd6ced5ba1203d02da2e867916246b5ff266b26c7630be3cdf",
+      "size_bytes": 868
+    }
+  ],
+  "run_id": "48b4955de5beef53",
+  "schema": "chronoroute.manifest/1",
+  "seeds": [],
+  "snapshot": {
+    "id": "20261010T1358Z-celestrak",
+    "sha256": "c37e70812155c2d1d9eeb3e96681303c00c9fca91287939b21bf5313ce83aecd",
+    "sha256_of": "SHA256SUMS"
+  },
+  "started_utc": "2026-10-11T21:46:24.387457Z",
+  "tool": "E02 exact accounting",
+  "tool_version": "1.0.0.dev0",
+  "versions": {
+    "chronoroute": "1.0.0.dev0",
+    "matplotlib": "3.11.1",
+    "networkx": "3.6.1",
+    "numpy": "2.5.3",
+    "python": "3.14.4",
+    "sgp4": "2.27"
+  },
+  "wall_seconds": 6.107377,
+  "written_utc": "2026-10-11T21:46:30.530041Z"
+}
