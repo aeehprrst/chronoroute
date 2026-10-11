@@ -174,6 +174,66 @@ def test_twin_with_another_configuration_is_refused(setup, tmp_path, capsys):
         tw.run = old
 
 
+@pytest.fixture(scope="module")
+def unscored_twins(setup, tmp_path_factory):
+    """Pairs with no fault to score still need the same counterfactual checks."""
+    tmp = tmp_path_factory.mktemp("unscored-twins")
+    fw = doc()["forwarding"]
+    return {
+        "jitter": (run(tmp, "jitter", doc(forwarding=dict(
+            fw, jitter={"model": "j1", "mean_ns": 800000}))),
+            "engine.config.forwarding.jitter.mean_ns"),
+        "slack": (run(tmp, "slack", doc(schedule={"slack": "1.1"})),
+                  "engine.config.schedule.slack"),
+        "scheme": (run(tmp, "scheme", doc(), "e2e"), "scheme.name"),
+        "extra_fault": (setup["real"], "same faults otherwise"),
+    }
+
+
+@pytest.mark.parametrize("command", ["score", "roc"])
+@pytest.mark.parametrize("difference", ["jitter", "slack", "scheme", "extra_fault"])
+def test_unscored_pair_is_checked(setup, unscored_twins, tmp_path, capsys, command, difference):
+    """An empty scored-fault list must not bypass validation and publish a mismatched pair."""
+    from chronoroute import cli
+    base = setup["twin"]
+    other, reason = unscored_twins[difference]
+    assert detection.scored_faults(base, other) == []
+    out = tmp_path / command
+    if command == "score":
+        args = ["eval", "score", str(base.dir), "--twin", str(other.dir)]
+    else:
+        args = ["eval", "roc", "--pairs", f"{base.dir}:{other.dir}", "--slack", "1.2"]
+    assert cli.main(args + ["--out", str(out)]) == 2
+    assert reason in capsys.readouterr().err
+    assert not out.exists()
+
+
+@pytest.mark.parametrize("command", ["score", "roc"])
+def test_identical_unscored_pair_is_accepted(setup, tmp_path, command):
+    """A valid null comparison has no detections to attribute, but can report false events."""
+    from chronoroute import cli
+    path = str(setup["twin"].dir)
+    if command == "score":
+        args = ["eval", "score", path, "--twin", path]
+    else:
+        args = ["eval", "roc", "--pairs", f"{path}:{path}", "--slack", "1.2"]
+    assert cli.main(args + ["--out", str(tmp_path / command)]) == 0
+
+
+def test_roc_can_filter_out_the_scored_fault(setup, unscored_twins):
+    """Selecting no events to score must still accept a valid pair and check its settings."""
+    rules = [Rule(kind="mult", slack="1.2")]
+    fr, tw = setup["real"], setup["twin"]
+    rows = detection.event_roc([(fr, tw)], lambda _run: [], rules)
+    baseline = detection.event_roc([(tw, tw)], None, rules)
+    assert rows[0]["fault_events"] == 0 and rows[0]["p_det"] is None
+    assert rows[0]["false_events_per_hour"] == baseline[0]["false_events_per_hour"]
+    assert rows[0]["clean_fpr"] == baseline[0]["clean_fpr"]
+    other, _reason = unscored_twins["jitter"]
+    with pytest.raises(ValueError, match="differ at"):
+        detection.event_roc([(fr, other)], lambda _run: [], rules)
+
+
 def test_detector_window_and_reset():
     n = 6
     fl = detection.Flags(flagged=np.array([1, 1, 1, 1, 1, 0], dtype=bool), node=np.full(n, 5),

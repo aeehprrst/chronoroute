@@ -55,8 +55,8 @@ import { REPO_URL } from '../lib/site';
         </p>
         <p>
           Each hop then gets a budget, the slack S (1.5 by default) times its predicted delay, and the cumulative budgets
-          become the deadlines in the header, rounded up to whole deadline units (0.1 ms by default), exactly as the
-          specification's encoding rule says. The header bytes come from the site's T-CRH engine, which passes every shared
+          become the deadlines in the header, rounded up to whole deadline units (0.1 ms by default). If a delta exceeds
+          one byte, it is clamped and SAT is set, as the specification's encoding rule requires. The header bytes come from the site's T-CRH engine, which passes every shared
           golden test vector. <LabelChip kind="real" size="sm" note="header bytes" />
         </p>
         <p>
@@ -64,7 +64,7 @@ import { REPO_URL } from '../lib/site';
           satellite and city positions for 20 fixed city pairs, twice: on the project's reference snapshot and on the
           snapshot this page serves. It stops the deployment if any path cost differs by more than 1 ns or any byte of the
           header, packet or capture file differs. Two different paths whose costs agree within 1 ns are allowed, reported as
-          ties (never as identical), and their header, packet and capture file are still compared on Python's path. Positions themselves are compared separately: the browser's SGP4 library keeps element epochs to the
+          ties (never as identical), and their header, packet and capture file are still compared on Python's path. Positions themselves are compared separately for both snapshots, using the published element sets for the served snapshot: the browser's SGP4 library keeps element epochs to the
           millisecond only, so its positions differ from Python's by up to about 8 metres, which is why the route check
           uses one shared set of positions.
         </p>

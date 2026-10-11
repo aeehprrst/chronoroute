@@ -115,3 +115,80 @@ def test_chained_reruns_record_every_live_fault(base, tmp_path):
     assert added == [x["fault"] for x in rr["live_faults"]]
     kinds = [f["kind"] for f in r2["faults"]]
     assert "link_down" in kinds and "rate_cut" in kinds
+
+
+def test_rerun_recovers_every_fault_from_a_legacy_chain(tmp_path, monkeypatch):
+    """Older re-runs recorded only their own fault and their immediate parent. Extending
+    such a chain must recover earlier live faults before the viewer names the new run."""
+    original = tmp_path / "base"
+    original.mkdir()
+    run = {"tool": "python-sim", "engine": {"config": config.normalise(doc()), "duration_ns": 4 * S}}
+    (original / "run.json").write_text(json.dumps(run))
+    parent = original
+    earlier = []
+    for number, kind in enumerate(("down", "slow"), 1):
+        fault = rerun.fault_for(kind, (1, number + 1), number * S, 4 * S)
+        earlier.append({"kind": kind, "fault": fault})
+        child = tmp_path / f"legacy-{number}"
+        child.mkdir()
+        run["engine"]["config"]["faults"].append(fault)
+        run["rerun"] = {"of": str(parent), "flow": 0, "kind": kind, "fault": fault}
+        (child / "run.json").write_text(json.dumps(run))
+        parent = child
+
+    recorded = {}
+
+    def capture(cfg, out, **kwargs):
+        recorded.update(cfg=cfg, out=out, **kwargs)
+
+    monkeypatch.setattr(command, "run_config", capture)
+    out = rerun.rerun_with_fault(parent, flow=0, link=(2, 3), start_ns=3 * S, kind="rate",
+                                out_dir=tmp_path / "new")
+    metadata = recorded["run_extra"]["rerun"]
+    latest = {"kind": "rate", "fault": rerun.fault_for("rate", (2, 3), 3 * S, 4 * S)}
+    assert metadata["live_faults"] == [*earlier, latest]
+    assert metadata["original"] == str(original)
+    assert metadata["of"] == str(parent) and out == recorded["out"]
+    assert recorded["cfg"]["faults"][-3:] == [x["fault"] for x in metadata["live_faults"]]
+
+
+@pytest.mark.parametrize("parent", ["missing", "cycle"])
+def test_rerun_refuses_incomplete_legacy_history(tmp_path, parent):
+    """An unreadable or cyclic old chain cannot support an honest list of accumulated faults."""
+    run_dir = tmp_path / "legacy"
+    run_dir.mkdir()
+    fault = rerun.fault_for("down", (1, 2), S, 4 * S)
+    cfg = config.normalise(doc())
+    cfg["faults"].append(fault)
+    run = {"tool": "python-sim", "engine": {"config": cfg, "duration_ns": 4 * S},
+           "rerun": {"of": str(run_dir if parent == "cycle" else tmp_path / "missing"),
+                     "flow": 0, "kind": "down", "fault": fault}}
+    (run_dir / "run.json").write_text(json.dumps(run))
+    with pytest.raises(ValueError, match="live re-run history"):
+        rerun.rerun_with_fault(run_dir, flow=0, link=(2, 3), start_ns=2 * S, out_dir=tmp_path / "new")
+
+
+def test_rerun_recovers_partially_migrated_history(tmp_path):
+    """The earlier list writer could extend an old chain and omit its first live fault.
+    Its claimed original is then still a re-run, whose faults must also be recovered."""
+    original, old1, old2, migrated = [tmp_path / name for name in ("base", "old1", "old2", "migrated")]
+    live = [{"kind": kind, "fault": rerun.fault_for(kind, (1, i + 2), S, 4 * S)}
+            for i, kind in enumerate(("down", "rate", "slow"))]
+    records = [(original, {}),
+               (old1, {"rerun": {"of": str(original), **live[0]}}),
+               (old2, {"rerun": {"of": str(old1), **live[1]}}),
+               (migrated, {"rerun": {"of": str(old2), "original": str(old1),
+                                    "live_faults": live[1:], **live[2]}})]
+    for directory, run in records:
+        directory.mkdir()
+        (directory / "run.json").write_text(json.dumps(run))
+    assert rerun._rerun_history(migrated, records[-1][1]) == (str(original), live)
+
+
+def test_complete_rerun_history_survives_unavailable_ancestors(tmp_path):
+    """A copied current run carries its own complete fault list without needing parent files."""
+    original = tmp_path / "unavailable-original"
+    live = [{"kind": "down", "fault": rerun.fault_for("down", (1, 2), S, 4 * S)}]
+    run = {"rerun": {"of": str(tmp_path / "unavailable-parent"), "original": str(original),
+                     "live_faults": live, **live[-1]}}
+    assert rerun._rerun_history(tmp_path / "copied", run) == (str(original), live)

@@ -256,10 +256,19 @@ def _tx_losses(run):
     Engine._link_drop): buffer_overflow (t = when the packet tried to join the full FIFO,
     wait -1), arq_exhausted and a link end without a position (t = the transmission start,
     wait = its transmitter wait). Such a packet never left u, so its path ends at u and the
-    path alone cannot say which link it was lost at. Older folders have no such column and
-    give nothing here.
+    path alone cannot say which link it was lost at. Refuse old or incomplete traces with
+    buffer_overflow / arq_exhausted drops but no attempted-link record: silently omitting
+    those losses would mislabel fault-caused drops as clean. Older folders without these
+    drops remain readable.
     """
     col = run.extras.get("tx_loss_at") if run.has_extras() else None
+    missing = next((i for i, reason in enumerate(run.reason)
+                    if run.outcome[i] == 1 and reason in ("buffer_overflow", "arq_exhausted")
+                    and (col is None or i >= len(col) or not col[i])), None)
+    if missing is not None:
+        raise ValueError("cannot score transmitter losses: tx_loss_at is missing for packet "
+                         f"{int(run.pkt[missing])} ({run.reason[missing]}); "
+                         "re-run with the current engine to record its attempted link")
     rows = [(i, *(int(x) for x in s.split(":"))) for i, s in enumerate(col) if s] if col else []
     if not rows:
         z = np.zeros(0, dtype=np.int64)
@@ -524,6 +533,10 @@ class FaultIndex:
         arrival of a packet lost in flight on a downed link)."""
         n = run.n
         out = np.zeros(n, dtype=bool)
+        if not self.links:
+            # Label scoring still needs complete loss records with an empty or node-only
+            # fault log. Link indexes validate them when constructing _LinkUses below.
+            _tx_losses(run)
         if run.paths.flat.size == 0 or (not self.links and not self.nodes):
             return out
         if self.links:

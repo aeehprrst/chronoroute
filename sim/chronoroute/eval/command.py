@@ -83,6 +83,9 @@ def score_run(run_dir, *, twin_dir=None, slacks=(), k=1, window_ns=1_000_000_000
             out["faults"].append(row)
     if twin_dir is not None:
         twin = load_run(twin_dir)
+        faults = detection.scored_faults(run, twin)
+        if not faults:
+            detection.check_twin(run, twin)
         det = []
         rules = [None] + [Rule(kind="mult", slack=str(s)) for s in slacks]
         for rule in rules:
@@ -93,7 +96,7 @@ def score_run(run_dir, *, twin_dir=None, slacks=(), k=1, window_ns=1_000_000_000
             rows = []
             # only the faults the twin does not have; check_twin (inside every call below)
             # refuses a twin whose other faults differ from the fault run's
-            for f in detection.scored_faults(run, twin):
+            for f in faults:
                 rows.append({"fault": metrics.fault_element(f),
                              "packet": detection.counterfactual(run, twin, f1, f0, f),
                              "event": detection.event_detection(run, twin, f1, f0, f, k, window_ns),

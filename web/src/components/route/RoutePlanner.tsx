@@ -21,8 +21,8 @@ import { loadRouteData, type RouteData } from '../../lib/route/load';
 import { buildRouteContext, flowStations, type RouteContext } from '../../lib/route/context';
 import { ecefFrameFromTeme } from '../../lib/route/frame';
 import { planRoute, DEFAULT_SLACK, type RoutePlan } from '../../lib/route/planner';
-import { bytesToHex } from '../../engine/tcrh';
-import { formatRatio, ratio, unitNsBig, UNIT_NS, type UnitCode } from '../../engine/timebase';
+import { bytesToHex, MAX_DELTA } from '../../engine/tcrh';
+import { formatRatio, ratio, ratioCeilDiv, unitNsBig, UNIT_NS, type UnitCode } from '../../engine/timebase';
 import { badgeConclusion, describeRun } from '../../lib/route/parity-summary';
 import { LABEL_TABLE, labelKind, type LabelKey } from '../../lib/label-keys';
 import type { DataLabel } from '../../lib/data-types';
@@ -489,7 +489,12 @@ function PlanView({ plan, failed, ctx, data, tMs }: { plan: RoutePlan; failed: n
           </div>
           <div>
             <dt>
-              Final deadline in the header, D<sub>{h}</sub> − E (rounded up to whole {unitMs} ms units)
+              Final deadline in the header, D<sub>{h}</sub> − E (
+              {plan.sat ? (
+                <>SAT: deltas clamped to {MAX_DELTA} units; ceil(B<sub>{h}</sub>/u) would be {ratioCeilDiv(plan.budgets.at(-1)!, unitNsBig(unitCode)).toString()} units</>
+              ) : (
+                <>rounded up to whole {unitMs} ms units</>
+              )})
             </dt>
             <dd className="num">
               {(lastHop.deadlineAfterEpochNs / unitNsBig(unitCode)).toString()} units = {unitsMs(lastHop.deadlineAfterEpochNs, unitCode)} ms after Epoch_Base

@@ -6,7 +6,7 @@
  * CR_BUILD_DATA / CR_TEST hooks), so this runs in well under a second and never touches
  * public/data. Fixtures live in a fresh temporary folder that is removed afterwards.
  */
-import { afterAll, describe, expect, it } from 'vitest';
+import { afterAll, afterEach, describe, expect, it, vi } from 'vitest';
 import { spawnSync } from 'node:child_process';
 import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import os from 'node:os';
@@ -17,6 +17,7 @@ const SCRIPTS = path.resolve(import.meta.dirname, '..', 'scripts');
 const TMP_BASE = existsSync('/tmp/cr-sb') ? '/tmp/cr-sb' : os.tmpdir();
 const tmp = mkdtempSync(path.join(TMP_BASE, 'ci-scripts-'));
 afterAll(() => rmSync(tmp, { recursive: true, force: true }));
+afterEach(() => vi.unstubAllEnvs());
 
 /** A snapshot folder; `supgp` = it holds a SupGP download; `marks` = stub instructions. */
 function snapshot(root: string, name: string, supgp = true, marks: string[] = []): string {
@@ -35,11 +36,17 @@ function snapshot(root: string, name: string, supgp = true, marks: string[] = []
 function run(script: string, args: string[], env: Record<string, string> = {}) {
   const githubOutput = path.join(tmp, `out-${Math.random().toString(36).slice(2)}`);
   const summary = `${githubOutput}.summary`;
+  const inherited = { ...process.env };
+  // The workflow's data-selection settings belong to its outer invocation, not these
+  // fixtures. Individual tests can still supply their own limit and stub executables.
+  delete inherited['MAX_SNAPSHOTS'];
+  delete inherited['CR_BUILD_DATA'];
+  delete inherited['CR_TEST'];
   // Always point GITHUB_OUTPUT / GITHUB_STEP_SUMMARY at scratch files: inside a real GitHub
   // job they are set, and this test must never write into the job's own outputs.
   const res = spawnSync('bash', [path.join(SCRIPTS, script), ...args], {
     encoding: 'utf8',
-    env: { ...process.env, GITHUB_OUTPUT: githubOutput, GITHUB_STEP_SUMMARY: summary, ...env },
+    env: { ...inherited, GITHUB_OUTPUT: githubOutput, GITHUB_STEP_SUMMARY: summary, ...env },
   });
   const read = (f: string) => (existsSync(f) ? readFileSync(f, 'utf8') : '');
   return { status: res.status, stdout: res.stdout, stderr: res.stderr, output: read(githubOutput), summary: read(summary) };
@@ -87,6 +94,24 @@ describe('newest-snapshot.sh', () => {
 });
 
 describe('build-tested-data.sh', () => {
+  it('keeps fallback selection independent of the enclosing job candidate limit', () => {
+    vi.stubEnv('MAX_SNAPSHOTS', '2');
+    const r = run('build-tested-data.sh', [committed, cache], hooks);
+    expect(r.status, r.stdout + r.stderr).toBe(0);
+    expect(r.output).toContain(`snapshot=${s1358}\n`);
+  });
+
+  it('does not inherit candidate limits or hook executables from the enclosing job', () => {
+    vi.stubEnv('MAX_SNAPSHOTS', '2');
+    vi.stubEnv('CR_BUILD_DATA', '/unexpected/inherited-build');
+    vi.stubEnv('CR_TEST', '/unexpected/inherited-test');
+    const probe = path.join(tmp, 'environment.bash');
+    writeFileSync(probe, 'printf "inherited:%s|%s|%s\\n" "${MAX_SNAPSHOTS-unset}" "${CR_BUILD_DATA-unset}" "${CR_TEST-unset}"\n');
+    const r = run('newest-snapshot.sh', [committed], { BASH_ENV: probe });
+    expect(r.status, r.stdout + r.stderr).toBe(0);
+    expect(r.stdout).toContain('inherited:unset|unset|unset\n');
+  });
+
   it('with MAX_SNAPSHOTS=1 tries only the newest (committed: 0200Z fails its tests -> exit 1)', () => {
     writeFileSync(calls, '');
     const r = run('build-tested-data.sh', [committed], { ...hooks, MAX_SNAPSHOTS: '1' });

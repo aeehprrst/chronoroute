@@ -223,8 +223,11 @@ def _run_settings(run):
     return cfg, "chronoroute", json.loads(json.dumps(normalise_scheme("chronoroute")))
 
 
-def check_twin(fault_run, twin_run, fault):
+def check_twin(fault_run, twin_run, fault=None):
     """Refuse a pair that is not a counterfactual pair for `fault` (common random numbers).
+
+    With no scored fault, the fault logs must match exactly (null faults still ignored).
+    This also validates pairs whose scored-fault list is empty before reporting false events.
 
     1. Same packets: same count, send times and flows (same seed and traffic).
     2. Same faults except the scored one: the twin's fault log must equal the fault
@@ -259,7 +262,7 @@ def check_twin(fault_run, twin_run, fault):
         raise ValueError("the twin must be the fault run without the scored fault and otherwise the SAME "
                          "configuration, but they differ at: " + ", ".join(diff[:6]) + more)
     want = Counter(_fault_key(f) for f in fault_run.faults if not is_null_fault(f))
-    if not is_null_fault(fault):
+    if fault is not None and not is_null_fault(fault):
         key = _fault_key(fault)
         if want.get(key, 0) == 0:
             raise ValueError("the scored fault is not in the fault run's fault log")
@@ -457,9 +460,15 @@ def event_roc(pairs, faults_of, rules, *, k=1, window_ns=1_000_000_000, horizon_
         tp = expo = 0
         fp = clean = 0
         for fr, tw in pairs:
+            actual = scored_faults(fr, tw)
+            # Validate the pair's real fault difference even when the caller selects no
+            # faults to score. An empty selection need not mean the fault logs are equal.
+            for fault in actual or [None]:
+                check_twin(fr, tw, fault)
+            faults = actual if faults_of is None else list(faults_of(fr))
             f1 = flags_for(fr, rule)
             f0 = flags_for(tw, rule)
-            for fault in (scored_faults(fr, tw) if faults_of is None else faults_of(fr)):
+            for fault in faults:
                 r = event_detection(fr, tw, f1, f0, fault, k, window_ns, horizon_ns)
                 total += 1
                 det += int(r["detected"])

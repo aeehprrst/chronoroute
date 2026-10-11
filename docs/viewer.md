@@ -110,8 +110,12 @@ key always re-runs the run ON SCREEN, so after a first live key the next one ADD
 previous ones: they are all active. The message then names every one of them, and the HUD keeps
 the list on screen for as long as the re-run is shown (globe: orange text on the right; 2D map:
 the side panel), from `run.json` `rerun.live_faults`. To start again from the recorded run, open
-it again. A
-re-run is a full run of every flow, so it takes as long as the original (seconds on C1, minutes on
+it again. When extending an older re-run that lacks the complete list, the engine recovers the
+earlier faults from its parent `run.json` files, including a partial list whose claimed original
+is itself a re-run. Current complete lists remain usable if ancestor folders have moved. If a
+required history is missing or cyclic, live mode reports the error and keeps the recorded run
+on screen. A re-run is a full run of every flow,
+so it takes as long as the original (seconds on C1, minutes on
 the real shell). Otherwise (no hook, an ns-3 trace, or the re-run failed) the viewer is
 **replay-only** and says why on the HUD: `d` and `f` then jump to the first packet of the flow that
 crossed the **recorded** faulted link while the fault was active (preferring one that was flagged

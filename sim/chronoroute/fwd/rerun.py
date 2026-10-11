@@ -38,6 +38,9 @@ from that run's config). run.json "rerun" therefore records the whole list,
 "live_faults" (oldest first, each {"kind", "fault"}), and "original" (the
 recorded run the chain started from), so the viewer names every fault that is
 active in the run on screen, not only the newest.
+Older chains without that list are recovered from their parent run.json files;
+an unavailable or cyclic history is refused instead of hiding earlier faults.
+Older partial lists are extended when their claimed original is itself a re-run.
 """
 
 import json
@@ -68,27 +71,48 @@ def fault_for(kind, link, start_ns, stop_ns, *, factor="0.0002", delta_ns=10_000
     return f
 
 
-def _live_faults_of(run):
-    """Faults earlier live re-runs added to `run` (oldest first): [{"kind", "fault"}].
+def _rerun_history(run_dir, run):
+    """(original run, earlier live faults, oldest first), including pre-list re-runs.
 
-    Re-runs chain: a re-run of a re-run keeps every fault added before (the viewer re-runs
-    the run on screen), so run.json "rerun" carries the whole list ("live_faults") and a
-    viewer can name every one of them, not only the newest. A re-run written before the list
-    existed has only its own "fault"."""
-    r = run.get("rerun")
-    if not isinstance(r, dict):
-        return []
-    if isinstance(r.get("live_faults"), list):
-        return [dict(x) for x in r["live_faults"]]
-    return [{"kind": r.get("kind"), "fault": r.get("fault")}] if r.get("fault") else []
-
-
-def _original_of(run_dir, run):
-    """The recorded run the chain of live re-runs started from."""
-    r = run.get("rerun")
-    if isinstance(r, dict):
-        return r.get("original") or r.get("of") or str(run_dir)
-    return str(run_dir)
+    Current re-runs carry their complete history. Older ones carry only their own fault
+    and parent, so walk those parent records until the original or a complete list is
+    reached. An earlier list writer could name another re-run as the original and omit
+    its faults: recover that prefix when its record is available. A self-contained list
+    remains usable when its ancestors have moved; a chain without a list requires them.
+    """
+    current = Path(run_dir)
+    faults, seen = [], set()
+    while True:
+        resolved = current.resolve()
+        if resolved in seen:
+            raise ValueError(f"cycle in live re-run history at {current}")
+        seen.add(resolved)
+        r = run.get("rerun")
+        if not isinstance(r, dict):
+            return str(current), faults
+        if isinstance(r.get("live_faults"), list):
+            original = r.get("original") or r.get("of") or str(current)
+            faults = [dict(x) for x in r["live_faults"]] + faults
+            try:
+                ancestor = json.loads((Path(original) / "run.json").read_text(encoding="utf-8"))
+            except OSError:
+                return original, faults
+            except ValueError as exc:
+                raise ValueError(f"cannot recover live re-run history from {original}/run.json: {exc}") from exc
+            if not isinstance(ancestor.get("rerun"), dict):
+                return original, faults
+            current, run = Path(original), ancestor
+            continue
+        if r.get("fault"):
+            faults.insert(0, {"kind": r.get("kind"), "fault": r["fault"]})
+        parent = r.get("of")
+        if not parent:
+            raise ValueError(f"live re-run history at {current} has no parent or complete fault list")
+        current = Path(parent)
+        try:
+            run = json.loads((current / "run.json").read_text(encoding="utf-8"))
+        except (OSError, ValueError) as exc:
+            raise ValueError(f"cannot recover live re-run history from {current / 'run.json'}: {exc}") from exc
 
 
 def rerun_with_fault(run_dir, *, flow, link, start_ns, kind="rate", stop_ns=None, factor="0.0002",
@@ -116,9 +140,9 @@ def rerun_with_fault(run_dir, *, flow, link, start_ns, kind="rate", stop_ns=None
     if out_dir is None:
         out_dir = run_dir.parent / f"{run_dir.name}--rerun-{kind}-{a}-{b}-t{start_ns}"
     out_dir = Path(out_dir)
+    original, earlier = _rerun_history(run_dir, run)
     extra = {"rerun": {"of": str(run_dir), "flow": int(flow), "kind": kind, "fault": fault,
-                       "original": _original_of(run_dir, run),
-                       "live_faults": _live_faults_of(run) + [{"kind": kind, "fault": fault}]}}
+                       "original": original, "live_faults": earlier + [{"kind": kind, "fault": fault}]}}
     argv = ["rerun_with_fault", str(run_dir), f"--flow={int(flow)}", f"--link={a},{b}",
             f"--start-ns={start_ns}", f"--kind={kind}"]
     scheme = run.get("scheme")

@@ -23,7 +23,7 @@ Repository: <https://github.com/aeehprrst/chronoroute> (local copy: `~/chronorou
 | Laser links (Grid-4, MODELLED), ground links, routing, scheduler | `sim/chronoroute/topo/`, `sim/chronoroute/route/` | Done (`cr route`) |
 | ns-3 scenario bundle + website data export | `sim/chronoroute/export/`, `docs/bundle-format.md` | Done |
 | Simulator v2 engine (queues, faults, fallbacks, traces) | `sim/chronoroute/fwd/`, `spec/trace-v1.md`, `docs/sim-config.md` | Done (`cr run`); matches the ns-3 course milestone per packet to the nanosecond |
-| Baselines + offline evaluation (metrics, counterfactual detection, CIs) | `sim/chronoroute/baselines/`, `sim/chronoroute/eval/`, `docs/baselines.md` | Done (`cr eval scheme | score | roc`); one known issue, see Task 0 |
+| Baselines + offline evaluation (metrics, counterfactual detection, CIs) | `sim/chronoroute/baselines/`, `sim/chronoroute/eval/`, `docs/baselines.md` | Done (`cr eval scheme | score | roc`); Task 0 review covered by regression tests |
 | 3D viewer (PyVista) and ns-3 trace import | `sim/chronoroute/viz/`, `docs/viewer.md` | Done (`cr viz globe`, `cr viz map2d`, `cr trace from-ns3`) |
 | ns-3 module: real IPv6 Routing Header type 253, LEO bundle runner | `ns3/contrib/chronoroute/`, `ns3/run_leo.py` | Done |
 | Course milestone (ns-3 LEO run on the real 463 km shell) | `docs/course-milestone.md`, `results/course-milestone/` | Done |
@@ -71,9 +71,19 @@ Repository: <https://github.com/aeehprrst/chronoroute> (local copy: `~/chronorou
 Each task lists what to build, where, and the checks that prove it is done.
 
 ### Task 0: fix the open review findings first
-These were found by the last independent review and are not fixed yet. Fix each one with a
-test that fails before the fix and passes after it. The first one matters for every
-detection result, so it must be fixed before Task 3.
+**Status: complete.** The findings below are retained as the review record. The initial
+checkout already contained the transmitter-loss exposure fix, configuration comparisons,
+mixed-infinity refusal, accumulated live-fault display and corrected OLSR reference, with
+regression tests for the code fixes. Those tests were verified; the remaining bugs were
+reproduced with failing tests before their fixes.
+
+Coverage is in `sim/tests/test_eval_metrics.py` (fluid and Poisson background, ARQ losses,
+and refusal of missing attempted-link records), `test_eval_detection.py` (including pairs
+with no scored faults), `test_eval_stats.py`, `test_fwd_rerun.py` (including legacy and
+partially migrated histories), `test_viz_player.py`, `test_viz_hud.py`, and
+`test_baselines_docs.py`. Web regressions are in `web/tests/route-planner-view.test.ts`,
+`ci-scripts.test.ts`, `sgp4-parity.test.ts` and `sgp4-gate.test.ts`.
+Required checks: `make check`, and `cd web && npm test && npm run check && npm run build`.
 
 ### [major] sim: sim/chronoroute/eval/metrics.py: exposure() :262-315, FaultIndex.exposed_any() :364-416, packet_labels() :469-503 (hits need a next node on the path)
 - Problem: Packets that the fault itself drops at the faulty link are never exposed and are labelled clean. This covers drop-tail buffer_overflow under a rate cut and arq_exhausted under ARQ. These packets' paths end at the upstream node, so the (u, v) hop test never matches. They enter the clean-packet FPR denominator, which biases FPR downward, and the counterfactual's changed-but-unexposed set. The fixer's claim that exposure equals the changed packets exactly for a rate cut holds only while the buffer never fills: the committed test uses 200 pps with no background. A rate cut with background load is exactly how faults.py says queues build, and the fix to finding 11 now recommends rate_cut and arq for headline experiments.

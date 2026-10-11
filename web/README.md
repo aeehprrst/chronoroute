@@ -119,7 +119,8 @@ links up/down, visible and connected satellites and per-hop delays are compared 
 diagnostics. City positions come from Python because V8's `Math.sin`/`Math.cos` can differ
 from numpy's in the last bit (5 of the 60 cities differ by one ulp in one coordinate); our own
 conversion is checked separately, within 1e-9 km. `tests/sgp4-parity.test.ts` compares
-satellite.js with python-sgp4 for every satellite of the shell: at most 10 m, and at most 1 m
+satellite.js with python-sgp4 for every satellite of the shell in both snapshots, using the
+published element sets for the served check: at most 10 m, and at most 1 m
 once EPOCH is cut to milliseconds (satellite.js reads EPOCH through a JavaScript Date, which
 keeps milliseconds only). CI writes the result summary to `public/data/parity.json`
 (`src/lib/route/parity-summary.ts`), which the route page shows; it says "identical" only

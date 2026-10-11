@@ -297,6 +297,10 @@ and stale deviations are never deadline false positives). A packet a fault dropp
 `clean`: it could not be flagged downstream, so in the clean denominator it would bias the FPR
 down (C1, a rate cut to 0.002 with ISL background ρ = 0.3 dropped 280 packets at the cut link
 that were labelled clean before this rule; `test_fault_drops_are_exposed_and_never_clean`).
+Link-loss exposure and packet labels require `tx_loss_at` for every `buffer_overflow` and
+`arq_exhausted` drop. Traces missing the column or an individual drop's record are refused:
+the attempted link cannot be recovered from a path ending at its upstream node. Re-run these
+traces with the current engine; delivery-only metrics remain usable.
 
 **Counterfactual detection.** Run every fault scenario twice with the same seed and policy
 `continue`: with the fault and without it (the twin). Every random draw is keyed, so the twin
@@ -309,6 +313,8 @@ same configuration otherwise: `run.json` `engine.config` without its fault list 
 options, and the scheme (name and every setting), must be equal, so a twin built with another
 jitter, slack, policy, carrier-detection delay or scheme is refused with the differing keys named
 (it has the same packets and faults, but its flags differ for reasons unrelated to the fault).
+Pairs with no scored faults are checked too, including their matching fault logs, before
+reporting the twin's false events.
 `cr eval score --twin` and `cr eval roc` score only the faults the twin does not have
 (`detection.scored_faults`), and exit with an error on a refused pair. Packets are paired by id. A
 packet is a true detection when it crossed the faulty element after onset (and went on: exposure

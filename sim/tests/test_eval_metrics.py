@@ -318,13 +318,14 @@ def test_fault_drops_are_exposed_and_never_clean(drop_runs):
     assert c["lost_at_fault"] == int(drops.sum()) and c["exposed"] == int(crossed.sum())
     assert c["exposed"] + c["lost_at_fault"] == c["reached"] == int(changed.sum())
     assert c["induced_unexposed"] == 0 and c["true_detections"] > 0
-    # the old rule (no transmitter-loss record) left every one of these drops clean
+    # Missing transmitter-loss records must not silently recreate the old clean-label bias.
     old = dict(fr.extras)
     fr.extras = {k: v for k, v in old.items() if k != "tx_loss_at"}
     try:
-        before = metrics.exposure(fr, fault)[0]
-        assert np.array_equal(changed & ~before, drops)
-        assert np.all(metrics.packet_labels(fr)[drops] == 0)
+        with pytest.raises(ValueError, match="tx_loss_at"):
+            metrics.exposure(fr, fault)
+        with pytest.raises(ValueError, match="tx_loss_at"):
+            metrics.packet_labels(fr)
     finally:
         fr.extras = old
 
@@ -346,6 +347,80 @@ def test_arq_give_ups_are_exposed_and_never_clean(drop_runs):
     assert np.all(metrics.packet_labels(fr)[drops] == 1)
     c = detection.counterfactual(fr, tw, detection.flags_for(fr), detection.flags_for(tw), fault)
     assert c["lost_at_fault"] == int(drops.sum()) and c["induced_unexposed"] == 0
+
+
+@pytest.mark.parametrize("case", ["rate_cut", "arq"])
+@pytest.mark.parametrize("missing", ["column", "record"])
+def test_fault_loss_scoring_refuses_unknown_attempted_links(drop_runs, monkeypatch, case, missing):
+    """An old or incomplete trace cannot identify where transmitter losses happened.
+    Refuse to score it rather than silently put fault-caused losses in the clean denominator.
+    Delivery metrics still have all the information they need."""
+    from chronoroute.eval import detection
+    fr, tw, _link = drop_runs[case]
+    fault = fr.faults[0]
+    drops = np.flatnonzero(fr.outcome == 1)
+    assert drops.size > 0
+    expected_delivery = metrics.pdr_total(fr)
+    extras = dict(fr.extras)
+    if missing == "column":
+        extras.pop("tx_loss_at")
+    else:
+        extras["tx_loss_at"] = list(extras["tx_loss_at"])
+        extras["tx_loss_at"][int(drops[0])] = ""
+    monkeypatch.setattr(fr, "extras", extras)
+    with pytest.raises(ValueError, match="tx_loss_at"):
+        metrics.exposure(fr, fault)
+    with pytest.raises(ValueError, match="tx_loss_at"):
+        metrics.FaultIndex(fr.faults).exposed_any(fr)
+    with pytest.raises(ValueError, match="tx_loss_at"):
+        metrics.packet_labels(fr)
+    with pytest.raises(ValueError, match="tx_loss_at"):
+        detection.counterfactual(fr, tw, detection.flags_for(fr), detection.flags_for(tw), fault)
+    assert metrics.pdr_total(fr) == expected_delivery
+    # Labels require complete loss records even when the fault log is empty.
+    monkeypatch.setitem(fr.run, "faults", [])
+    with pytest.raises(ValueError, match="tx_loss_at"):
+        metrics.packet_labels(fr)
+
+
+def test_poisson_background_fault_drops_are_never_clean(tmp_path):
+    """Packet-level background must preserve attempted hops and loss accounting too.
+    Use a smaller MODELLED rate to keep the background arrivals inexpensive."""
+    from chronoroute.baselines import params, run as brun
+    from chronoroute.eval import detection
+    from chronoroute.fwd import config, scenario as sm
+    d = {"seed": 21, "scenario": {"kind": "walker", "preset": "C1", "duration_s": "0.8", "drain_s": 1,
+                                 "gsl": {"min_elevation_deg": 10}},
+         "traffic": {"flows": [{"src": "London", "dst": "New York"},
+                               {"src": "New York", "dst": "London"}], "rate_pps": 300},
+         "forwarding": {"policy": "continue", "link_rate_bps": 5_000_000,
+                        "background": {"model": "poisson", "rho": "0.3", "links": "isl"}},
+         "output": {"trace": "none"}}
+    a, b = sm.build_scenario(config.normalise(d)).resolve_on_path(
+        {"flow": 0, "position": "middle"}, 200 * MS, False)
+    fault = {"kind": "rate_cut", "link": [a, b], "factor": "0.002", "start_s": "0.2", "stop_s": "0.5"}
+    scheme = params.normalise_scheme("chronoroute")
+    brun.run_scheme(config.normalise(dict(d, faults=[fault])), scheme, tmp_path / "fault", write_manifest=False)
+    brun.run_scheme(config.normalise(d), scheme, tmp_path / "twin", write_manifest=False)
+    fr, tw = load.load_run(tmp_path / "fault"), load.load_run(tmp_path / "twin")
+    fault = fr.faults[0]
+    drops = np.flatnonzero(fr.outcome == 1)
+    assert drops.size > 0 and np.all(tw.delivered)
+    attempts = [tuple(map(int, fr.extras["tx_loss_at"][i].split(":"))) for i in drops]
+    assert {(u, v) for u, v, _t, _w in attempts} == {(a, b), (b, a)}
+    for i, (u, _v, t, w) in zip(drops, attempts):
+        assert fr.reason[i] == "buffer_overflow" and int(fr.paths[i][-1]) == u
+        assert t >= fault["start_ns"] and w == -1
+    reached = metrics.exposure(fr, fault)[0]
+    crossed = metrics.exposure(fr, fault, "crossed")[0]
+    lost = metrics.lost_at_fault(fr, fault)
+    assert np.all(lost[drops]) and not (crossed & lost).any()
+    assert np.array_equal(reached, crossed | lost)
+    assert np.array_equal(metrics.FaultIndex(fr.faults).exposed_any(fr), reached)
+    assert np.all(metrics.packet_labels(fr)[drops] == 1)
+    score = detection.counterfactual(fr, tw, detection.flags_for(fr), detection.flags_for(tw), fault)
+    assert score["lost_at_fault"] == int(drops.size)
+    assert score["exposed"] + score["lost_at_fault"] == score["reached"]
 
 
 def test_packets_in_flight_at_a_link_down_onset_are_lost_by_the_fault(drop_runs):
