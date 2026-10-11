@@ -8,7 +8,7 @@
 #define TCRH_HEADER_H
 
 #include "ns3/buffer.h"
-#include "ns3/header.h"
+#include "ns3/ipv6-extension-header.h"
 
 #include <cstdint>
 #include <ostream>
@@ -61,19 +61,24 @@ namespace ns3
  * GetParseStatus() says why; the reason codes and the order of the checks are
  * the ones in spec/golden/README.md, shared with the Python reference.
  *
- * LATER PHASE (P5, a real IPv6 extension): this class is deliberately shaped
- * so that it can derive from ns3::Ipv6ExtensionRoutingHeader instead of
- * ns3::Header. The accessors for the four bytes every routing header shares
- * already use that class's names (Get/SetNextHeader, GetTypeRouting,
- * Get/SetSegmentsLeft), and Serialize()/Deserialize() read and write the whole
- * header, those four bytes included. To switch: change the base class, keep
- * the fields in the base in sync (SetNextHeader, SetTypeRouting(253),
- * SetSegmentsLeft, SetLength(GetSerializedSize())) or forward these accessors
- * to the base, and keep the overrides of GetSerializedSize/Serialize/
- * Deserialize/Print. Ipv6ExtensionRoutingDemux needs exactly that to fragment a
- * packet that carries the header (ipv6-extension.cc, GetExtensionRoutingHeaderPtr).
+ * A REAL IPv6 ROUTING HEADER (phase P5a). The class derives from
+ * ns3::Ipv6ExtensionRoutingHeader, the base ns-3 uses for every routing header,
+ * because ns-3.44's own IPv6 code handles routing headers through a pointer to
+ * that base (ipv6-extension.cc, Ipv6ExtensionRoutingDemux::
+ * GetExtensionRoutingHeaderPtr and the fragmentation code). The four bytes every
+ * routing header shares (Next Header, Hdr Ext Len, Routing Type, Segments Left)
+ * are therefore stored IN THE BASE CLASS, not in copies here: a caller holding
+ * an Ipv6ExtensionRoutingHeader* (whose accessors are not virtual) reads the
+ * same values as a caller holding a TcrhHeader. The base's GetLength() is the
+ * total size in bytes, (Hdr Ext Len + 1) * 8, exactly as for any routing header.
+ *
+ * Known ns-3.44 limit, NOT fixed here: if a packet carrying any routing header
+ * other than Type 0 had to be fragmented, ns-3 asserts (ipv6-extension.cc
+ * :600-602 casts to the Type 0 class). The source shim (TcrhSourceShim)
+ * therefore refuses packets that would need fragmenting, and routers never
+ * fragment (they send ICMPv6 Packet Too Big).
  */
-class TcrhHeader : public Header
+class TcrhHeader : public Ipv6ExtensionRoutingHeader
 {
   public:
     // ----- header constants (spec sections 2, 3 and 7) -----
@@ -228,15 +233,14 @@ class TcrhHeader : public Header
                  uint8_t extraFlags = 0);
 
     // ----- the four bytes shared by every IPv6 routing header -----
-    /// @return the Next Header field
-    uint8_t GetNextHeader() const;
-    /// @param nextHeader the Next Header field
-    void SetNextHeader(uint8_t nextHeader);
-    /// @return the Routing Type (always 253)
-    uint8_t GetTypeRouting() const;
-    /// @return Segments Left
-    uint8_t GetSegmentsLeft() const;
+    // Next Header (GetNextHeader / SetNextHeader), Routing Type (GetTypeRouting,
+    // always 253 here) and Segments Left (GetSegmentsLeft) are the inherited
+    // accessors of Ipv6ExtensionHeader / Ipv6ExtensionRoutingHeader: the values
+    // live in the base class (see the class comment).
+
     /// Set Segments Left (mutable in flight). Aborts if it exceeds Num Hops.
+    /// Hides the base class setter only to add that check; both write the same
+    /// field.
     /// @param segmentsLeft new value, 0..Num Hops
     void SetSegmentsLeft(uint8_t segmentsLeft);
     /// @return Hdr Ext Len as on the wire
@@ -309,9 +313,8 @@ class TcrhHeader : public Header
     void Print(std::ostream& os) const override;
 
   private:
-    uint8_t m_nextHeader;           //!< Next Header
-    uint8_t m_hdrExtLen;            //!< Hdr Ext Len (as received, or minimal for a built header)
-    uint8_t m_segmentsLeft;         //!< Segments Left
+    // Next Header, Hdr Ext Len (the base's m_length, as received or minimal for
+    // a built header), Routing Type and Segments Left live in the base class.
     uint8_t m_flags;                //!< Flags
     uint8_t m_devHop;               //!< Dev Hop
     uint8_t m_reserved;             //!< Reserved byte, kept as received
@@ -321,6 +324,11 @@ class TcrhHeader : public Header
     std::vector<uint8_t> m_tail;    //!< bytes after the entries up to (HdrExtLen+1)*8
     ParseStatus m_status;           //!< result of the last Deserialize()
 };
+
+/// The name the P5a plan uses for the T-CRH routing header class. TcrhHeader
+/// keeps its Phase 1 name (and its TypeId "ns3::TcrhHeader"), so this is an
+/// alias, not a second class.
+using TcrhRoutingHeader = TcrhHeader;
 
 } // namespace ns3
 

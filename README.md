@@ -14,8 +14,12 @@ ChronoRoute is not affiliated with SpaceX. "Starlink" names the public orbit dat
 
 ## Status
 
-**Phase 1, "Foundations", of the rebuild plan (started 2026-10-10, in progress).** Its
-goals:
+**Phase 1 ("Foundations") is complete; Sprint A (real data, real IPv6 header, course
+milestone) is complete.** See [`docs/course-milestone.md`](docs/course-milestone.md) for the ns-3
+LEO run on the real Starlink 463 km shell and [`docs/bundle-format.md`](docs/bundle-format.md)
+for the data exchanged between the Python tools and ns-3.
+
+Phase 1 goals (done):
 
 - fix the wire format in a normative spec, [`spec/tcrh-v1.md`](spec/tcrh-v1.md), with golden
   test vectors in `spec/golden/`;
@@ -64,6 +68,9 @@ python3 -m venv venv                  # once
 venv/bin/pip install -e ".[test]"     # installs chronoroute + pinned numpy/networkx/sgp4/matplotlib
 make test                             # runs pytest on sim/tests
 ```
+
+Set `PYTHONDONTWRITEBYTECODE=1` (for example in `~/.bashrc`) before running the `cr` command
+(`venv/bin/cr ...`), so Python does not leave `__pycache__` folders in the source tree.
 
 `pip install -e` is an "editable" install: the package points at the source files, so edits
 take effect without reinstalling. The Makefile uses `venv/bin/python` by default. Use

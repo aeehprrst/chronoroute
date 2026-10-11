@@ -93,9 +93,9 @@ CrhHeader::Parse(const uint8_t* data, uint32_t len, bool exact, CrhHeader* out, 
     if (out != nullptr)
     {
         CrhHeader h;
-        h.m_routingType = rtype;
-        h.m_nextHeader = data[0];
-        h.m_segmentsLeft = data[OFF_SEGMENTS_LEFT];
+        h.SetTypeRouting(rtype);
+        h.SetNextHeader(data[0]);
+        h.SetSegmentsLeft(data[OFF_SEGMENTS_LEFT]);
         const uint32_t size = SidBytes(rtype);
         // every SID-sized slot, padding included (no count field; see class doc)
         h.m_sids.clear();
@@ -108,6 +108,7 @@ CrhHeader::Parse(const uint8_t* data, uint32_t len, bool exact, CrhHeader* out, 
             }
             h.m_sids.push_back(sid);
         }
+        h.SyncLength();
         h.m_status = OK;
         *out = h;
     }
@@ -119,18 +120,26 @@ CrhHeader::Parse(const uint8_t* data, uint32_t len, bool exact, CrhHeader* out, 
 }
 
 CrhHeader::CrhHeader()
-    : m_routingType(ROUTING_TYPE_CRH16),
-      m_nextHeader(DEFAULT_NEXT_HEADER),
-      m_segmentsLeft(0),
-      m_status(OK)
+    : m_status(OK)
 {
+    // the shared routing-header fields live in the base class
+    SetTypeRouting(ROUTING_TYPE_CRH16);
+    SetNextHeader(DEFAULT_NEXT_HEADER);
+    SetSegmentsLeft(0);
+    SyncLength();
+}
+
+void
+CrhHeader::SyncLength()
+{
+    m_length = static_cast<uint8_t>(GetSerializedSize() / 8 - 1);
 }
 
 TypeId
 CrhHeader::GetTypeId()
 {
     static TypeId tid = TypeId("ns3::CrhHeader")
-                            .SetParent<Header>()
+                            .SetParent<Ipv6ExtensionRoutingHeader>()
                             .SetGroupName("Chronoroute")
                             .AddConstructor<CrhHeader>();
     return tid;
@@ -155,40 +164,11 @@ CrhHeader::SetPath(const std::vector<uint32_t>& sidsFwd, uint8_t routingType)
     }
     NS_ABORT_MSG_IF(SizeForSids(sidsFwd.size(), routingType) > CRH_MAX_HEADER_BYTES,
                     "path too long for one CRH");
-    m_routingType = routingType;
+    SetTypeRouting(routingType);
     m_sids.assign(sidsFwd.rbegin(), sidsFwd.rend());
-    m_segmentsLeft = static_cast<uint8_t>(m_sids.size());
+    SetSegmentsLeft(static_cast<uint8_t>(m_sids.size()));
+    SyncLength();
     m_status = OK;
-}
-
-uint8_t
-CrhHeader::GetNextHeader() const
-{
-    return m_nextHeader;
-}
-
-void
-CrhHeader::SetNextHeader(uint8_t nextHeader)
-{
-    m_nextHeader = nextHeader;
-}
-
-uint8_t
-CrhHeader::GetTypeRouting() const
-{
-    return m_routingType;
-}
-
-uint8_t
-CrhHeader::GetSegmentsLeft() const
-{
-    return m_segmentsLeft;
-}
-
-void
-CrhHeader::SetSegmentsLeft(uint8_t segmentsLeft)
-{
-    m_segmentsLeft = segmentsLeft;
 }
 
 uint8_t
@@ -200,7 +180,7 @@ CrhHeader::GetHdrExtLen() const
 uint8_t
 CrhHeader::GetMinimumLength() const
 {
-    return MinHdrExtLen(m_segmentsLeft, m_routingType);
+    return MinHdrExtLen(GetSegmentsLeft(), GetTypeRouting());
 }
 
 uint32_t
@@ -225,9 +205,9 @@ CrhHeader::GetSidsReversed() const
 uint32_t
 CrhHeader::GetCurrentSid() const
 {
-    NS_ABORT_MSG_UNLESS(m_segmentsLeft < m_sids.size(),
+    NS_ABORT_MSG_UNLESS(GetSegmentsLeft() < m_sids.size(),
                         "Segments Left out of range for the SID list");
-    return m_sids[m_segmentsLeft];
+    return m_sids[GetSegmentsLeft()];
 }
 
 std::vector<uint8_t>
@@ -261,20 +241,20 @@ CrhHeader::GetParseStatus() const
 uint32_t
 CrhHeader::GetSerializedSize() const
 {
-    return SizeForSids(m_sids.size(), m_routingType);
+    return SizeForSids(m_sids.size(), GetTypeRouting());
 }
 
 void
 CrhHeader::Serialize(Buffer::Iterator start) const
 {
     const uint32_t total = GetSerializedSize();
-    start.WriteU8(m_nextHeader);
+    start.WriteU8(GetNextHeader());
     start.WriteU8(static_cast<uint8_t>(total / 8 - 1)); // Hdr Ext Len
-    start.WriteU8(m_routingType);
-    start.WriteU8(m_segmentsLeft);
+    start.WriteU8(GetTypeRouting());
+    start.WriteU8(GetSegmentsLeft());
     for (uint32_t sid : m_sids)
     {
-        if (m_routingType == ROUTING_TYPE_CRH16)
+        if (GetTypeRouting() == ROUTING_TYPE_CRH16)
         {
             start.WriteHtonU16(static_cast<uint16_t>(sid));
         }
@@ -284,7 +264,7 @@ CrhHeader::Serialize(Buffer::Iterator start) const
         }
     }
     // zero padding to the 64-bit boundary
-    for (uint32_t i = FIXED_BYTES + SidBytes(m_routingType) * m_sids.size(); i < total; ++i)
+    for (uint32_t i = FIXED_BYTES + SidBytes(GetTypeRouting()) * m_sids.size(); i < total; ++i)
     {
         start.WriteU8(0);
     }
@@ -320,8 +300,8 @@ CrhHeader::Deserialize(Buffer::Iterator start)
 void
 CrhHeader::Print(std::ostream& os) const
 {
-    os << (m_routingType == ROUTING_TYPE_CRH16 ? "CRH-16" : "CRH-32") << "(type="
-       << +m_routingType << " segsLeft=" << +m_segmentsLeft << " sids=[";
+    os << (GetTypeRouting() == ROUTING_TYPE_CRH16 ? "CRH-16" : "CRH-32") << "(type="
+       << +GetTypeRouting() << " segsLeft=" << +GetSegmentsLeft() << " sids=[";
     for (size_t i = 0; i < m_sids.size(); ++i)
     {
         os << (i ? " " : "") << m_sids[i];

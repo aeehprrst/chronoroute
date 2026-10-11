@@ -29,7 +29,7 @@ export MPLBACKEND := Agg
 # Extra options for tools/ns3-sync.sh, e.g. make ns3-sync ARGS=--copy
 ARGS ?=
 
-.PHONY: help test legacy-dev legacy-starlink golden ns3-sync ns3-test ns3-legacy check
+.PHONY: help test legacy-dev legacy-starlink golden ns3-sync ns3-test ns3-legacy course-milestone check
 
 help:  ## List the targets
 	@grep -E '^[a-z0-9-]+:.*## ' $(MAKEFILE_LIST) | awk -F':.*## ' '{printf "  make %-16s %s\n", $$1, $$2}'
@@ -79,6 +79,10 @@ ns3-test: ns3-sync  ## Build ns-3 (at most NS3_JOBS jobs) and run the chronorout
 ns3-legacy: ns3-sync  ## Re-run the legacy ns-3 T-CRH slack sweep into results/legacy-v0.9/ns3/tcrh_sweep
 	cd "$(NS3_DIR)" && ./ns3 build -j$(NS3_JOBS) scratch/tcrh-experiment scratch/tcrh-experiment-a8
 	NS3_DIR="$(NS3_DIR)" $(PY) ns3/run_tcrh_sweep.py
+
+course-milestone: ns3-sync  ## Course milestone: ns-3 LEO run on the real 463 km shell (rebuilds bundles from git-recorded recipes)
+	$(PY) ns3/run_leo.py --recipe c5-463-10s-small
+	$(PY) ns3/run_leo.py --recipe c5-463-60s --no-build
 
 check:  ## Everything CI checks: test + golden (golden includes the ns-3 .inc check)
 	$(MAKE) test

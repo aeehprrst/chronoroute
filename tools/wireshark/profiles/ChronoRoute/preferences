@@ -1,0 +1,21 @@
+# ChronoRoute Wireshark profile: packet list columns.
+# Needs the T-CRH dissector (tools/wireshark/tcrh.lua) for the tcrh.* columns.
+# Install: see tools/wireshark/README.md. Only the columns are set here; every
+# other preference keeps Wireshark's default.
+#
+#   SL           Segments Left of the routing header (Wireshark's own field)
+#   Cur SID      SID[SL]: the node this frame is heading to
+#   T-CRH flags  the Flags byte (DEV 0x01, GREEDY 0x02, SAT 0x04, UNIT 0x30)
+#   Margin (ms)  current deadline minus the capture time (negative = late)
+gui.column.format:
+	"No.", "%m",
+	"Time", "%t",
+	"Source", "%s",
+	"Destination", "%d",
+	"SL", "%Cus:ipv6.routing.segleft:0:R",
+	"Cur SID", "%Cus:tcrh.current_sid:0:R",
+	"T-CRH flags", "%Cus:tcrh.flags:0:R",
+	"Margin (ms)", "%Cus:tcrh.margin_ms:0:R",
+	"Protocol", "%p",
+	"Length", "%L",
+	"Info", "%i"

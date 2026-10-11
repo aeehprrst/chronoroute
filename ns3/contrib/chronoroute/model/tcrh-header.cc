@@ -169,9 +169,10 @@ TcrhHeader::Parse(const uint8_t* data,
     if (out != nullptr)
     {
         TcrhHeader h;
-        h.m_nextHeader = data[OFF_NEXT_HEADER];
-        h.m_hdrExtLen = hel;
-        h.m_segmentsLeft = sl;
+        // the four shared bytes go into the base class (see the class comment)
+        h.SetNextHeader(data[OFF_NEXT_HEADER]);
+        h.m_length = hel; // the base's Hdr Ext Len, kept exactly as received
+        h.SetTypeRouting(ROUTING_TYPE);
         h.m_flags = data[OFF_FLAGS];
         h.m_devHop = data[OFF_DEV_HOP];
         h.m_reserved = data[OFF_RESERVED];
@@ -192,6 +193,7 @@ TcrhHeader::Parse(const uint8_t* data,
         }
         // keep whatever follows the entries (padding, normally zero) byte for byte
         h.m_tail.assign(data + off, data + total);
+        h.SetSegmentsLeft(sl); // after the entries: the check needs Num Hops
         h.m_status = OK;
         *out = h;
     }
@@ -205,23 +207,25 @@ TcrhHeader::Parse(const uint8_t* data,
 // ---------------------------------------------------------------- object
 
 TcrhHeader::TcrhHeader()
-    : m_nextHeader(DEFAULT_NEXT_HEADER),
-      m_hdrExtLen(static_cast<uint8_t>(SizeForHops(0) / 8 - 1)),
-      m_segmentsLeft(0),
-      m_flags(0),
+    : m_flags(0),
       m_devHop(0),
       m_reserved(0),
       m_epochBase(0),
       m_tail(SizeForHops(0) - FIXED_BYTES, 0),
       m_status(OK)
 {
+    // the shared routing-header fields live in the base class
+    SetNextHeader(DEFAULT_NEXT_HEADER);
+    m_length = static_cast<uint8_t>(SizeForHops(0) / 8 - 1);
+    SetTypeRouting(ROUTING_TYPE);
+    Ipv6ExtensionRoutingHeader::SetSegmentsLeft(0);
 }
 
 TypeId
 TcrhHeader::GetTypeId()
 {
     static TypeId tid = TypeId("ns3::TcrhHeader")
-                            .SetParent<Header>()
+                            .SetParent<Ipv6ExtensionRoutingHeader>()
                             .SetGroupName("Chronoroute")
                             .AddConstructor<TcrhHeader>();
     return tid;
@@ -257,39 +261,16 @@ TcrhHeader::SetPath(const std::vector<uint16_t>& sidsFwd,
     const uint32_t h = sidsFwd.size();
     m_sids.assign(sidsFwd.rbegin(), sidsFwd.rend());
     m_deltas.assign(deltasFwd.rbegin(), deltasFwd.rend());
-    m_segmentsLeft = static_cast<uint8_t>(h);
+    SetSegmentsLeft(static_cast<uint8_t>(h));
+    SetTypeRouting(ROUTING_TYPE);
     m_flags = static_cast<uint8_t>((unitCode << FLAG_UNIT_SHIFT) | extraFlags);
     m_devHop = 0;
     m_reserved = 0;
     m_epochBase = epochBase;
     const uint32_t size = SizeForHops(h);
-    m_hdrExtLen = static_cast<uint8_t>(size / 8 - 1);
+    m_length = static_cast<uint8_t>(size / 8 - 1); // the base's Hdr Ext Len
     m_tail.assign(size - FIXED_BYTES - ENTRY_BYTES * h, 0); // zero padding
     m_status = OK;
-}
-
-uint8_t
-TcrhHeader::GetNextHeader() const
-{
-    return m_nextHeader;
-}
-
-void
-TcrhHeader::SetNextHeader(uint8_t nextHeader)
-{
-    m_nextHeader = nextHeader;
-}
-
-uint8_t
-TcrhHeader::GetTypeRouting() const
-{
-    return ROUTING_TYPE;
-}
-
-uint8_t
-TcrhHeader::GetSegmentsLeft() const
-{
-    return m_segmentsLeft;
 }
 
 void
@@ -297,13 +278,13 @@ TcrhHeader::SetSegmentsLeft(uint8_t segmentsLeft)
 {
     NS_ABORT_MSG_IF(segmentsLeft > m_sids.size(),
                     "Segments Left " << +segmentsLeft << " > Num Hops " << m_sids.size());
-    m_segmentsLeft = segmentsLeft;
+    Ipv6ExtensionRoutingHeader::SetSegmentsLeft(segmentsLeft);
 }
 
 uint8_t
 TcrhHeader::GetHdrExtLen() const
 {
-    return m_hdrExtLen;
+    return m_length;
 }
 
 uint8_t
@@ -434,7 +415,7 @@ TcrhHeader::GetDeadlines() const
 uint8_t
 TcrhHeader::GetCurrentHopIndex() const
 {
-    return static_cast<uint8_t>(m_sids.size() - m_segmentsLeft);
+    return static_cast<uint8_t>(m_sids.size() - GetSegmentsLeft());
 }
 
 TcrhHeader::ParseStatus
@@ -470,7 +451,7 @@ TcrhHeader::ToHex() const
 uint32_t
 TcrhHeader::GetSerializedSize() const
 {
-    return (static_cast<uint32_t>(m_hdrExtLen) + 1) * 8;
+    return (static_cast<uint32_t>(m_length) + 1) * 8;
 }
 
 void
@@ -478,10 +459,10 @@ TcrhHeader::Serialize(Buffer::Iterator start) const
 {
     // invariant: entries + tail fill exactly (HdrExtLen + 1) * 8 bytes
     NS_ASSERT(FIXED_BYTES + ENTRY_BYTES * m_sids.size() + m_tail.size() == GetSerializedSize());
-    start.WriteU8(m_nextHeader);
-    start.WriteU8(m_hdrExtLen);
+    start.WriteU8(GetNextHeader());
+    start.WriteU8(m_length);
     start.WriteU8(ROUTING_TYPE);
-    start.WriteU8(m_segmentsLeft);
+    start.WriteU8(GetSegmentsLeft());
     start.WriteU8(m_flags);
     start.WriteU8(static_cast<uint8_t>(m_sids.size()));
     start.WriteU8(m_devHop);
@@ -531,7 +512,7 @@ void
 TcrhHeader::Print(std::ostream& os) const
 {
     static const char* unitText[4] = {"1ms", "0.1ms", "0.25ms", "0.125ms"};
-    os << "T-CRH(nh=" << +m_nextHeader << " sl=" << +m_segmentsLeft << " flags=0x" << std::hex
+    os << "T-CRH(nh=" << +GetNextHeader() << " sl=" << +GetSegmentsLeft() << " flags=0x" << std::hex
        << std::setw(2) << std::setfill('0') << +m_flags << std::dec << std::setfill(' ');
     if (IsDev())
     {

@@ -18,6 +18,9 @@
  * Run: ./test.py -s chronoroute   (or ./ns3 run "test-runner --suite=chronoroute")
  */
 
+#include "golden-vectors.h"
+#include "tcrh-ipv6-test.h"
+
 #include "ns3/crh-header.h"
 #include "ns3/nstime.h"
 #include "ns3/packet.h"
@@ -36,107 +39,7 @@ using namespace ns3;
 namespace
 {
 
-// ---------------------------------------------------------------- vector types
-// Field order is the order tools/golden_to_inc.py writes them in (C++20
-// designated initializers must follow declaration order, so a mismatch does
-// not compile). Absent / null JSON values stay value-initialised.
-
-struct TcrhEncodeVector
-{
-    const char* name;
-    const char* note;
-    std::vector<uint32_t> sidsFwd;
-    bool hasDeltasFwd;
-    std::vector<uint32_t> deltasFwd;
-    bool hasCumulativeBudgetsNs;
-    std::vector<uint64_t> cumulativeBudgetsNs;
-    bool hasEpochBase;
-    uint32_t epochBase;
-    bool hasTIngressGpsNs;
-    uint64_t tIngressGpsNs;
-    uint32_t unitCode;
-    uint32_t nextHeader;
-    uint32_t flags;
-    const char* expectHex;
-    std::vector<uint32_t> expectDeadlinesU;
-    bool expectSat;
-    uint32_t expectEpochBase;
-    std::vector<uint32_t> expectDeltasFwd;
-    uint32_t expectFlags;
-    uint32_t expectSize;
-};
-
-struct TcrhProcessVector
-{
-    const char* name;
-    const char* note;
-    const char* hexIn;
-    uint32_t nowU;
-    const char* policy;
-    const char* expectAction;
-    bool hasExpectNextSid;
-    uint32_t expectNextSid;
-    const char* expectHexOut; // nullptr: the packet is discarded
-    bool expectLate;
-    bool hasExpectHopIndex;
-    uint32_t expectHopIndex;
-    bool hasExpectDeadlineU;
-    uint32_t expectDeadlineU;
-    const char* expectReason; // nullptr: no reason
-    bool hasExpectIcmpCode;   // false: no ICMPv6 message is sent
-    uint32_t expectIcmpCode;
-    bool hasExpectIcmpPointer;
-    uint32_t expectIcmpPointer;
-};
-
-struct TcrhLinkDownVector
-{
-    const char* name;
-    const char* note;
-    const char* hexIn; // the packet as it leaves step 5
-    const char* expectAction;
-    bool hasExpectNextSid;
-    uint32_t expectNextSid;
-    const char* expectHexOut; // nullptr: the packet is discarded
-    bool hasExpectHopIndex;
-    uint32_t expectHopIndex;
-    const char* expectReason;
-    bool hasExpectIcmpCode;
-    uint32_t expectIcmpCode;
-    bool hasExpectIcmpPointer;
-    uint32_t expectIcmpPointer;
-};
-
-struct CrhEncodeVector
-{
-    const char* name;
-    const char* note;
-    uint32_t routingType;
-    std::vector<uint32_t> sidsFwd;
-    uint32_t nextHeader;
-    const char* expectHex;
-    uint32_t expectSize;
-    uint32_t expectHdrExtLen;
-    std::vector<uint32_t> expectDecodedSidsRev;
-};
-
-struct CrhProcessVector
-{
-    const char* name;
-    const char* note;
-    const char* hexIn;
-    const char* expectAction;
-    bool hasExpectNextSid;
-    uint32_t expectNextSid;
-    const char* expectHexOut;
-    const char* expectReason;
-    bool hasExpectIcmpCode;
-    uint32_t expectIcmpCode;
-    bool hasExpectIcmpPointer;
-    uint32_t expectIcmpPointer;
-};
-
-#include "golden-vectors.inc"
+// The vector structs and the generated data: golden-vectors.h
 
 // ---------------------------------------------------------------- helpers
 
@@ -825,6 +728,11 @@ class ChronorouteTestSuite : public TestSuite
         AddTestCase(new TcrhPathWalkTestCase, TestCase::Duration::QUICK);
         AddTestCase(new CrhEncodeVectorsTestCase, TestCase::Duration::QUICK);
         AddTestCase(new CrhProcessVectorsTestCase, TestCase::Duration::QUICK);
+        // phase P5a: T-CRH as a real IPv6 routing header (tcrh-ipv6-test.cc)
+        for (TestCase* tc : MakeTcrhIpv6TestCases())
+        {
+            AddTestCase(tc, TestCase::Duration::QUICK);
+        }
     }
 };
 

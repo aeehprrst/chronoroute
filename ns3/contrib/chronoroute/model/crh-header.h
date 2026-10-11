@@ -8,7 +8,7 @@
 #define CRH_HEADER_H
 
 #include "ns3/buffer.h"
-#include "ns3/header.h"
+#include "ns3/ipv6-extension-header.h"
 
 #include <cstdint>
 #include <optional>
@@ -50,8 +50,14 @@ namespace ns3
  *
  * Segments Left may exceed the number of slots: that is exactly the forged
  * header the minimum-length check rejects, so it must be representable.
+ *
+ * Like TcrhHeader, this is a REAL IPv6 routing header (phase P5a): it derives
+ * from ns3::Ipv6ExtensionRoutingHeader and keeps Next Header, Hdr Ext Len,
+ * Routing Type and Segments Left in that base class, so ns-3 code holding a
+ * base pointer sees the same values. Wireshark decodes Routing Types 5 and 6
+ * natively (packet-ipv6.c), which makes CRH-16 a handy cross-check in pcaps.
  */
-class CrhHeader : public Header
+class CrhHeader : public Ipv6ExtensionRoutingHeader
 {
   public:
     static constexpr uint8_t ROUTING_TYPE_CRH16 = 5; //!< RFC 9631, 16-bit SIDs
@@ -132,16 +138,10 @@ class CrhHeader : public Header
      */
     void SetPath(const std::vector<uint32_t>& sidsFwd, uint8_t routingType = ROUTING_TYPE_CRH16);
 
-    /// @return Next Header
-    uint8_t GetNextHeader() const;
-    /// @param nextHeader Next Header
-    void SetNextHeader(uint8_t nextHeader);
-    /// @return Routing Type (5 or 6)
-    uint8_t GetTypeRouting() const;
-    /// @return Segments Left
-    uint8_t GetSegmentsLeft() const;
-    /// @param segmentsLeft Segments Left (not checked: forged values must be representable)
-    void SetSegmentsLeft(uint8_t segmentsLeft);
+    // Next Header (Get/SetNextHeader), Routing Type (GetTypeRouting: 5 or 6)
+    // and Segments Left (Get/SetSegmentsLeft, not checked: forged values must
+    // be representable) are the inherited base-class accessors.
+
     /// @return Hdr Ext Len
     uint8_t GetHdrExtLen() const;
     /// @return L for the current Segments Left (RFC 9631 5.1)
@@ -169,9 +169,11 @@ class CrhHeader : public Header
     void Print(std::ostream& os) const override;
 
   private:
-    uint8_t m_routingType;        //!< 5 or 6
-    uint8_t m_nextHeader;         //!< Next Header
-    uint8_t m_segmentsLeft;       //!< Segments Left
+    /// Keep the base class's Hdr Ext Len equal to the size the SID slots need
+    /// (a CRH has no other length information).
+    void SyncLength();
+
+    // Next Header, Hdr Ext Len, Routing Type and Segments Left live in the base.
     std::vector<uint32_t> m_sids; //!< SID slots, REVERSE path order
     ParseStatus m_status;         //!< result of the last Deserialize()
 };
