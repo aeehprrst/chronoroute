@@ -158,6 +158,56 @@ The rules:
 - Every number on a chart traces back to a manifest.
 - A chart without a manifest does not get published.
 
+## Website
+
+The public site (<https://aeehprrst.github.io/chronoroute/>) is the Astro project in
+[`web/`](web/): live globe, route planner, protocol tools and methodology. Details, rules and
+the layout are in [`web/README.md`](web/README.md); the format of its data files is in
+[`web/DATA_CONTRACT.md`](web/DATA_CONTRACT.md).
+
+```bash
+cd ~/chronoroute/web
+export PATH=$HOME/.local/opt/node/bin:$PATH   # Node 24
+npm ci                 # exact dependencies from package-lock.json
+npm run data           # public/data from the Python pipeline (cr export web) + the two parity files
+npm test               # vitest, including the Python <-> TypeScript route parity gate
+npm run check          # astro check
+npm run build          # static site in web/dist/
+```
+
+- **Data** always comes from the Python pipeline: `web/scripts/build-data.sh` runs
+  `cr export web` on the newest `data/pinned/*-celestrak` snapshot (or the one given), checks it
+  with `pipeline/validate.py --web`, copies `data/static/cities.csv` and
+  `data/static/sid_registry.json`, and runs `tools/web_parity.py` on the reference snapshot and
+  on the published one. `web/public/data/` is generated and never committed.
+  `npm run data:offline-fallback` (`web/scripts/dev-data.mjs`) is only for offline development
+  and is never used by CI.
+- **Route parity** (reviewer must-fix #8): `tools/web_parity.py` computes 20 canonical city
+  pairs with the Python router and exports the satellite and city positions it used, for the
+  fixed reference snapshot (`20261010T1358Z-celestrak`) and for the snapshot being published;
+  `web/tests/route-parity.test.ts` runs the TypeScript planner on the same positions (for the
+  published snapshot, on the files actually served). A deploy is blocked only by a
+  header/packet/pcap byte mismatch or a path cost differing by more than 1 ns; equal-cost ties
+  are allowed and reported as ties (rule in `web/tests/parity-gate.ts`). SGP4 itself is compared
+  separately with a 10 m tolerance (`web/tests/sgp4-parity.test.ts`). The Python side is checked
+  by `sim/tests/test_web_parity.py`.
+- **Deploy** (`.github/workflows/pages.yml`): on pushes to `main` that touch the site or what it
+  is built from (including a newly committed `data/pinned/` snapshot), and by hand. It deploys
+  the newest snapshot that passes the data build and every test, falling back to at most two
+  older ones with a warning (`web/scripts/build-tested-data.sh`).
+- **Data refresh** (`.github/workflows/refresh-data.yml`): every 4 hours (minute 17) it runs
+  `pipeline/fetch.py --sources supgp` once (the site needs SupGP only), and rebuilds and deploys
+  only when a new snapshot arrived. A request is never retried; after a failed HTTP request,
+  scheduled runs stop fetching until someone re-runs the workflow by hand with
+  "resume_after_failure" ticked. A download rejected by validation fails only that run. Nothing
+  is deployed after any failure. The site shows the data's age and a "stale" badge after 24
+  hours.
+- **Owner checklist:** set Settings -> Pages -> Source to "GitHub Actions" before the first
+  deploy. After the first monthly keepalive run (the 1st of the month, 05:41 UTC), open its log
+  in the Actions tab: it prints the workflow's state before and after re-enabling it. Whether
+  that call resets GitHub's 60-day inactivity timer is not documented by GitHub; if the schedule
+  is ever disabled anyway, the Actions tab says so and one click on "Enable workflow" restores it.
+
 ## Protocol specification
 
 The normative T-CRH v1 specification is [`spec/tcrh-v1.md`](spec/tcrh-v1.md). It covers the

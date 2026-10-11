@@ -1,0 +1,25 @@
+# Dependencies (package-lock.json IS committed)
+node_modules/
+
+# Build output and Astro caches
+dist/
+.astro/
+
+# Generated data: written by `npm run data` (the Python pipeline, scripts/build-data.sh)
+# in development and by CI before every build. Never committed, so the site can only
+# show what the pipeline produced from a committed or freshly fetched snapshot.
+public/data/
+# Python reference routes for the parity tests (tools/web_parity.py), also generated.
+.parity/
+
+# Logs and local files
+*.log
+npm-debug.log*
+.DS_Store
+Thumbs.db
+.env
+.env.*
+
+# Editor folders
+.vscode/
+.idea/

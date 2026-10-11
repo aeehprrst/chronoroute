@@ -37,6 +37,9 @@ COMMAND_MODULES = (
     "chronoroute.data.fleet_report",       # cr fleet report
     "chronoroute.route.command",           # cr route --from A --to B
     "chronoroute.export.command",          # cr export bundle | web | sids
+    "chronoroute.fwd.command",             # cr run --config FILE --seed N --out DIR
+    "chronoroute.viz.command",             # cr viz globe | map2d, cr trace from-ns3
+    "chronoroute.eval.command",            # cr eval scheme | score | roc (baselines, offline evaluation)
 )
 
 

@@ -1,0 +1,941 @@
+---
+/**
+ * /protocol (owner: content): T-CRH explained, with interactive tools driven by the
+ * TypeScript engine in src/engine. The "N of M golden vectors" figure is computed here at
+ * build time by running every shared vector through the engine; it is never typed in.
+ */
+import { readFile } from 'node:fs/promises';
+import path from 'node:path';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import LabelChip from '../components/LabelChip.astro';
+import HeaderBytes from '../components/HeaderBytes.astro';
+import ByteMap from '../components/protocol/ByteMap';
+import HeaderBuilder from '../components/protocol/HeaderBuilder';
+import HeaderDecoder from '../components/protocol/HeaderDecoder';
+import ProcessStepper from '../components/protocol/ProcessStepper';
+import SizeCompare from '../components/protocol/SizeCompare';
+import { GROUP_LABELS, runGoldenVectors, type VectorGroup } from '../components/protocol/golden-run';
+import { SPEC_DIR, readTcrhEncodeVector } from '../lib/data-build';
+import { REPO_URL } from '../lib/site';
+import { pageHref } from '../lib/paths';
+import { UNIT_CODES, UNIT_NS, wrapPeriodDays } from '../engine/timebase';
+import { bytesToHex, encode, encodeDeltas, fromForward } from '../engine/tcrh';
+
+type Json = Record<string, unknown>;
+
+async function readGolden(file: string): Promise<unknown> {
+  return JSON.parse(await readFile(path.join(SPEC_DIR, 'golden', file), 'utf8'));
+}
+
+let tcrhFile: unknown = null;
+let crhFile: unknown = null;
+let loadError: string | null = null;
+try {
+  [tcrhFile, crhFile] = await Promise.all([readGolden('tcrh_vectors.json'), readGolden('crh_vectors.json')]);
+} catch (error) {
+  loadError = error instanceof Error ? error.message : String(error);
+}
+const golden = tcrhFile && crhFile ? runGoldenVectors(tcrhFile, crhFile) : null;
+const failing = golden ? golden.outcomes.filter((o) => o.failures.length > 0) : [];
+const groupOrder: VectorGroup[] = ['tcrh-encode', 'tcrh-process', 'tcrh-link-down', 'crh-encode', 'crh-process'];
+
+// Spec version, read from the specification's status line.
+let specVersion: string | null = null;
+try {
+  const specText = await readFile(path.join(SPEC_DIR, 'tcrh-v1.md'), 'utf8');
+  specVersion = /version (\d+\.\d+(?:\.\d+)?)/.exec(specText)?.[1] ?? null;
+} catch {
+  specVersion = null;
+}
+
+const vectorsIn = (group: string): Json[] => {
+  const file = tcrhFile as Json | null;
+  const list = file && Array.isArray(file[group]) ? (file[group] as unknown[]) : [];
+  return list.filter((v): v is Json => typeof v === 'object' && v !== null);
+};
+const byName = (group: string, name: string): Json | undefined => vectorsIn(group).find((v) => v['name'] === name);
+const hexOf = (group: string, name: string, key: string): string | null => {
+  const value = byName(group, name)?.[key];
+  return typeof value === 'string' ? value : null;
+};
+
+const encodeVectors = vectorsIn('encode').flatMap((v) =>
+  typeof v['name'] === 'string' && typeof v['expect_hex'] === 'string' ? [{ name: v['name'], hex: v['expect_hex'] }] : [],
+);
+
+const decoderWanted: Array<[string, string, string, string]> = [
+  ['3-hop reference header', 'encode', 'v0-3hop', 'expect_hex'],
+  ['Late at hop 1, after greedy fallback', 'process', 'late-by-one-unit-hop1-greedy', 'expect_hex_out'],
+  ['Ingress found its first link down', 'link_down', 'ingress-link-down', 'expect_hex_out'],
+  ['10 hops at 0.1 ms', 'encode', 'h10-real-gps-time-uc1', 'expect_hex'],
+  ['255 hops (784 bytes)', 'encode', 'h255-uc0', 'expect_hex'],
+  ['Malformed: Segments Left > Num Hops', 'process', 'malformed-sl-gt-numhops', 'hex_in'],
+  ['Malformed: Num Hops 0', 'process', 'malformed-numhops-zero', 'hex_in'],
+  ['Malformed: cut short', 'process', 'malformed-truncated', 'hex_in'],
+  ['Not a T-CRH (a CRH-16)', 'process', 'malformed-wrong-type', 'hex_in'],
+];
+const decoderExamples = decoderWanted.flatMap(([label, group, name, key]) => {
+  const hex = hexOf(group, name, key);
+  const note = byName(group, name)?.['note'];
+  return hex ? [{ label, hex, note: `Golden vector ${name}${typeof note === 'string' ? `: ${note}` : ''}` }] : [];
+});
+
+const stepperWanted: Array<[string, string]> = [
+  ['3 hops at 1 ms (v0-3hop, spec section 10)', 'v0-3hop'],
+  ['10 hops at 0.1 ms (h10-real-gps-time-uc1)', 'h10-real-gps-time-uc1'],
+  ['13 hops at 0.125 ms (h13-uc3)', 'h13-uc3'],
+];
+const stepperPresets = stepperWanted.flatMap(([label, name]) => {
+  const hex = hexOf('encode', name, 'expect_hex');
+  return hex ? [{ label, hex }] : [];
+});
+
+// The spec section 10 header, built by the engine and compared with the golden vector.
+const referenceHex = bytesToHex(encode(fromForward([2, 3, 7], [6, 7, 8], 1000, 0, 17)));
+const referenceMatches = hexOf('encode', 'v0-3hop', 'expect_hex') === referenceHex;
+const referenceVector = await readTcrhEncodeVector('v0-3hop');
+
+// Why ceil-cumulative: golden vector half-unit-budgets-uc0 (per hop 2.5, 3.5, 2.4, 2.6 ms at 1 ms).
+const halfBudgets = byName('encode', 'half-unit-budgets-uc0')?.['cumulative_budgets_ns'];
+const halfBudgetsNs = Array.isArray(halfBudgets) && halfBudgets.every((b) => typeof b === 'number') ? (halfBudgets as number[]) : null;
+/** Round half to even: the v0 per-hop rule (Python round()). */
+const roundHalfEven = (x: number): number => {
+  const f = Math.floor(x);
+  const diff = x - f;
+  if (diff > 0.5) return f + 1;
+  if (diff < 0.5) return f;
+  return f % 2 === 0 ? f : f + 1;
+};
+const halfRows = halfBudgetsNs
+  ? (() => {
+      const ceilDeltas = encodeDeltas(halfBudgetsNs.map((b) => BigInt(b)), 0).deltas;
+      let prev = 0;
+      let v0Sum = 0;
+      let ceilSum = 0;
+      return halfBudgetsNs.map((cum, i) => {
+        const perHopNs = cum - prev;
+        prev = cum;
+        v0Sum += roundHalfEven(perHopNs / 1e6);
+        ceilSum += ceilDeltas[i] ?? 0;
+        return { k: i + 1, cumMs: cum / 1e6, v0Sum, ceilSum };
+      });
+    })()
+  : null;
+
+const unitRows = UNIT_CODES.map((uc) => ({ uc, ms: UNIT_NS[uc] / 1e6, wrap: wrapPeriodDays(uc) }));
+---
+
+<BaseLayout
+  title="Protocol"
+  description="T-CRH, the Temporal Compact Routing Header: an IPv6 Routing Header (type 253) that carries a source route and a cumulative arrival deadline for every hop. Build, decode and step through real headers in your browser."
+>
+  <header class="page-hero container">
+    <p class="eyebrow">Protocol · T-CRH{specVersion ? ` v${specVersion}` : ' v1'}</p>
+    <h1>A routing header that carries deadlines</h1>
+    <p class="lede">
+      T-CRH, the Temporal Compact Routing Header, is an IPv6 Routing Header with Routing Type 253, an
+      experimental value from RFC 4727. It extends the Compact Routing Header of RFC 9631 (CRH-16) with a time
+      stamp and one deadline byte per hop.
+    </p>
+    <p class="muted page-hero__note">
+      The normative definition is <code>spec/tcrh-v1.md</code>{specVersion ? ` (version ${specVersion})` : ''} in the
+      <a href={REPO_URL} rel="noopener">project repository</a>, with machine-checkable golden test vectors in
+      <code>spec/golden/</code>. The interactive tools below run a TypeScript port of the reference implementation
+      in your browser; the reference header, the tables and the golden-vector count were produced by the same
+      engine when this page was built. If this page and the specification ever disagree, the specification is
+      right.
+    </p>
+    <div class="page-hero__meta">
+      {
+        golden ? (
+          <a class:list={['golden-pill', { 'golden-pill--bad': failing.length > 0 }]} href="#golden">
+            <span class="golden-pill__count num">
+              {golden.passed}/{golden.total}
+            </span>
+            shared golden vectors pass in this page's engine
+          </a>
+        ) : (
+          <a class="golden-pill golden-pill--bad" href="#golden">
+            Golden vectors were not checked in this build
+          </a>
+        )
+      }
+    </div>
+    <nav class="toc" aria-label="On this page">
+      <ul>
+        <li><a href="#plain">In plain words</a></li>
+        <li><a href="#bytes">Byte map</a></li>
+        <li><a href="#time">Deadlines</a></li>
+        <li><a href="#build">Build</a></li>
+        <li><a href="#decode">Decode</a></li>
+        <li><a href="#process">Follow a packet</a></li>
+        <li><a href="#size">Size</a></li>
+        <li><a href="#golden">Golden vectors</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <section class="section" id="plain" aria-labelledby="plain-title">
+    <div class="container split">
+      <div class="section__head">
+        <p class="eyebrow">In plain words</p>
+        <h2 id="plain-title">A list of stops, each with a deadline</h2>
+      </div>
+      <div class="prose">
+        <p>
+          The ground station that sends a packet into the constellation, the <em>ingress</em>, writes three things
+          into its T-CRH: the path, as a list of 16-bit segment identifiers (SIDs), one per satellite or ground
+          station; a time budget for every hop, one byte each, counted in small time units; and a time stamp,
+          <span class="deadline">Epoch_Base</span>, taken when the packet enters the network.
+        </p>
+        <p>
+          Adding the budgets to the time stamp gives every stop a <span class="deadline">deadline</span>: the latest
+          time the packet should arrive there if the network behaves as planned. Each satellite named in the header
+          compares its own clock with its own deadline when the packet arrives. No extra messages are needed; the
+          check is a few additions and one comparison.
+        </p>
+        <p>
+          A late packet means the plan no longer matches reality, for example because a link is up but slow. The
+          satellite sets the DEV flag, writes its hop number into Dev Hop, and applies its deviation policy: by
+          default it stops following the list and forwards the packet geographically towards the final endpoint.
+        </p>
+        <p>
+          As in RFC 9631, the list is stored backwards: the last stop comes first. Segments Left counts the stops
+          still to visit and is also the index of the next one.
+        </p>
+        <div class="chips">
+          <LabelChip kind="real" note="definitions from spec/tcrh-v1.md" />
+        </div>
+        <dl class="terms">
+          <div>
+            <dt>SID</dt>
+            <dd>Segment identifier: a 16-bit name for a satellite (0x0000 to 0xEFFF) or a ground station (0xF000 + g).</dd>
+          </div>
+          <div>
+            <dt>Deadline unit u</dt>
+            <dd>1, 0.1, 0.25 or 0.125 ms, chosen by two bits in the Flags byte. Every time value in the header counts units.</dd>
+          </div>
+          <div>
+            <dt>Epoch_Base</dt>
+            <dd>The ingress GPS time counted in deadline units u, rounded up, modulo 2<span class="sr-inline"> to the power </span><sup>32</sup>.</dd>
+          </div>
+          <div>
+            <dt>Delta d<span class="sr-inline">_</span><sub>k</sub></dt>
+            <dd>The budget for reaching hop k from hop k − 1: one unsigned byte, 0 to 255 units.</dd>
+          </div>
+          <div>
+            <dt>Deadline D<span class="sr-inline">_</span><sub>k</sub></dt>
+            <dd>Epoch_Base + d<span class="sr-inline">_</span><sub>1</sub> + … + d<span class="sr-inline">_</span><sub>k</sub>, modulo 2<span class="sr-inline"> to the power </span><sup>32</sup>.</dd>
+          </div>
+          <div>
+            <dt>DEV, Dev Hop, GREEDY</dt>
+            <dd>The alarm flag, the hop that first raised it, and the flag that marks geographic fallback.</dd>
+          </div>
+        </dl>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="bytes" aria-labelledby="bytes-title">
+    <div class="container">
+      <div class="section__head">
+        <p class="eyebrow">Anatomy</p>
+        <h2 id="bytes-title">One header, byte by byte</h2>
+        <p>
+          The reference header from section 10 of the specification: path 2 → 3 → 7, deltas 6, 7 and 8 ms,
+          Epoch_Base 1000, unit 1 ms. Hover over a byte, or Tab into the map and use the arrow keys, to see the
+          field it belongs to and what it means.
+        </p>
+        <div class="chips">
+          <LabelChip
+            kind="real"
+            note={referenceMatches ? 'built by the engine, identical to golden vector v0-3hop' : 'built by the engine from spec section 10'}
+          />
+        </div>
+      </div>
+      <div class="tool-frame">
+        <ByteMap
+          client:visible
+          hex={referenceHex}
+          caption="T-CRH, 24 bytes: 12 fixed bytes, 3 entries of 3 bytes, 3 bytes of padding."
+        />
+      </div>
+      {
+        referenceVector && (
+          <details class="text-version">
+            <summary>Text version of this header</summary>
+            <HeaderBytes vector={referenceVector} />
+          </details>
+        )
+      }
+
+      <div class="grid grid--2 ref-tables">
+        <div class="table-wrap" role="region" aria-label="Fields of the header" tabindex="0">
+          <table>
+            <caption>Fields (spec section 2). Multi-byte fields are big-endian.</caption>
+            <thead>
+              <tr><th scope="col">Bytes</th><th scope="col">Field</th><th scope="col">Meaning</th></tr>
+            </thead>
+            <tbody>
+              <tr><td class="mono">0</td><th scope="row">Next Header</th><td>Protocol of the following header (6 TCP, 17 UDP, 41 IPv6, 59 none).</td></tr>
+              <tr><td class="mono">1</td><th scope="row">Hdr Ext Len</th><td>Length in 8-byte units after the first 8: size = (Hdr Ext Len + 1) × 8.</td></tr>
+              <tr><td class="mono">2</td><th scope="row">Routing Type</th><td>253 (RFC 4727 experimental value).</td></tr>
+              <tr><td class="mono">3</td><th scope="row">Segments Left</th><td>Entries not yet visited. <strong>Mutable.</strong></td></tr>
+              <tr><td class="mono">4</td><th scope="row">Flags</th><td>DEV, GREEDY, SAT and the unit code. <strong>Mutable.</strong></td></tr>
+              <tr><td class="mono">5</td><th scope="row">Num Hops</th><td>Entries present, 1 to 255; 0 is malformed.</td></tr>
+              <tr><td class="mono">6</td><th scope="row">Dev Hop</th><td>Hop that first set DEV (0 = the ingress, whose first link was down). <strong>Mutable.</strong></td></tr>
+              <tr><td class="mono">7</td><th scope="row">Reserved</th><td>Zero on transmit, ignored on receipt.</td></tr>
+              <tr><td class="mono">8–11</td><th scope="row">Epoch_Base</th><td>Ingress time stamp in deadline units.</td></tr>
+              <tr><td class="mono">12 + 3i</td><th scope="row">SID[i], Delta[i]</th><td>2-byte SID and 1-byte budget, in reverse path order.</td></tr>
+              <tr><td class="mono">end</td><th scope="row">Padding</th><td>Zeros up to a multiple of 8 bytes.</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="table-wrap" role="region" aria-label="Flag bits" tabindex="0">
+          <table>
+            <caption>Flags byte (spec section 3)</caption>
+            <thead>
+              <tr><th scope="col">Mask</th><th scope="col">Name</th><th scope="col">Meaning</th></tr>
+            </thead>
+            <tbody>
+              <tr><td class="mono">0x01</td><th scope="row">DEV</th><td>A node found the packet late, or its next link down. Set once, never cleared.</td></tr>
+              <tr><td class="mono">0x02</td><th scope="row">GREEDY</th><td>The packet is in geographic fallback, not following its SID list.</td></tr>
+              <tr><td class="mono">0x04</td><th scope="row">SAT</th><td>A delta was clamped to 255 when the header was built.</td></tr>
+              <tr><td class="mono">0x30</td><th scope="row">UNIT</th><td>Deadline unit code: 0 = 1 ms, 1 = 0.1 ms, 2 = 0.25 ms, 3 = 0.125 ms.</td></tr>
+              <tr><td class="mono">0xC8</td><th scope="row">reserved</th><td>Zero on transmit, ignored and passed on.</td></tr>
+            </tbody>
+          </table>
+          <p class="small muted mutable-note">
+            Three fields change in flight: Segments Left, Flags and Dev Hop. RFC 9631 lets only Segments Left change,
+            which matters for IPsec AH because AH protects the fields that do not change.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="time" aria-labelledby="time-title">
+    <div class="container split">
+      <div class="section__head">
+        <p class="eyebrow">Time base</p>
+        <h2 id="time-title">How a deadline is written and checked</h2>
+        <p>Clocks use GPS time, which has no leap seconds. For every date in this project, GPS = UTC + 18 s.</p>
+        <div class="chips">
+          <LabelChip kind="real" note="tables: exact values from the spec, computed at build time" />
+        </div>
+      </div>
+      <div class="stack time-body">
+        <div class="formula" role="group" aria-label="Deadline formulas">
+          <p><span class="formula__k">Ingress</span><span>Epoch_Base = ceil(T<span class="sr-inline">_</span><sub>ingress</sub> / u) mod 2<span class="sr-inline"> to the power </span><sup>32</sup></span></p>
+          <p><span class="formula__k">Deadline</span><span>D<span class="sr-inline">_</span><sub>k</sub> = (Epoch_Base + d<span class="sr-inline">_</span><sub>1</sub> + … + d<span class="sr-inline">_</span><sub>k</sub>) mod 2<span class="sr-inline"> to the power </span><sup>32</sup></span></p>
+          <p><span class="formula__k">Clock</span><span>now<span class="sr-inline">_</span><sub>u</sub> = floor(t<span class="sr-inline">_</span><sub>GPS</sub> / u) mod 2<span class="sr-inline"> to the power </span><sup>32</sup></span></p>
+          <p><span class="formula__k">Late</span><span>serial_diff(now<span class="sr-inline">_</span><sub>u</sub>, D<span class="sr-inline">_</span><sub>k</sub>) &gt; 0</span></p>
+        </div>
+        <p>
+          Rounding the time stamp up can only add slack. A packet that arrives anywhere inside the deadline unit is
+          on time; it is late only once the clock has moved past that unit. The comparison uses 32-bit serial-number
+          arithmetic, so a deadline just after the counter wraps still compares correctly.
+        </p>
+        <div class="table-wrap" role="region" aria-label="Deadline units" tabindex="0">
+          <table>
+            <caption>Unit codes, and how long the 32-bit counter runs before it wraps (2<span class="sr-inline"> to the power </span><sup>32</sup> × u), computed from the spec</caption>
+            <thead>
+              <tr><th scope="col">Code</th><th scope="col" class="r">Unit u</th><th scope="col" class="r">Wrap period</th><th scope="col" class="r">Largest delta (255 u)</th></tr>
+            </thead>
+            <tbody>
+              {
+                unitRows.map((row) => (
+                  <tr>
+                    <td class="mono">{row.uc}{row.uc === 1 ? ' (provisional default)' : ''}</td>
+                    <td class="r mono">{row.ms} ms</td>
+                    <td class="r mono">{row.wrap.toFixed(2)} days</td>
+                    <td class="r mono">{Number((255 * row.ms).toFixed(3))} ms</td>
+                  </tr>
+                ))
+              }
+            </tbody>
+          </table>
+        </div>
+
+        <h3>Why the budgets are rounded cumulatively</h3>
+        <p>
+          The encoder rounds the <em>cumulative</em> budget up to whole units and stores the difference (spec 5.1).
+          Rounding errors then never add up, and no deadline is earlier than its budget unless the SAT flag says a
+          delta was clamped. Version 0 rounded each hop on its own, half to even, which could make a deadline
+          early. Golden vector <code>half-unit-budgets-uc0</code> shows the difference at a 1 ms unit:
+        </p>
+        {
+          halfRows ? (
+            <div class="table-wrap" role="region" aria-label="Rounding comparison" tabindex="0">
+              <table>
+                <caption>
+                  Per-hop budgets 2.5, 3.5, 2.4 and 2.6 ms. Deadlines in ms after Epoch_Base; a deadline below its
+                  budget is early. Computed at build time: v1 by the engine, v0 by per-hop round-half-even.
+                </caption>
+                <thead>
+                  <tr>
+                    <th scope="col">Hop k</th>
+                    <th scope="col" class="r">Cumulative budget</th>
+                    <th scope="col" class="r">v0 deadline</th>
+                    <th scope="col" class="r">v1 deadline</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {halfRows.map((row) => (
+                    <tr>
+                      <td class="mono">{row.k}</td>
+                      <td class="r mono">{row.cumMs} ms</td>
+                      <td class:list={['r', 'mono', { early: row.v0Sum < row.cumMs }]}>
+                        {row.v0Sum} ms{row.v0Sum < row.cumMs ? ' (early)' : ''}
+                      </td>
+                      <td class="r mono">{row.ceilSum} ms</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          ) : (
+            <p class="muted">Golden vector half-unit-budgets-uc0 was not found at build time.</p>
+          )
+        }
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="build" aria-labelledby="build-title">
+    <div class="container">
+      <div class="section__head">
+        <p class="eyebrow">Try it</p>
+        <h2 id="build-title">Build a header</h2>
+        <p>
+          Enter a path and a predicted delay for each hop. The cumulative budget of hop k is
+          B<span class="sr-inline">_</span><sub>k</sub> = S × (delay<span class="sr-inline">_</span><sub>1</sub> + … + delay<span class="sr-inline">_</span><sub>k</sub>); the slack S leaves room for normal
+          variation. The engine stamps Epoch_Base from the ingress time and encodes the budgets with exact
+          arithmetic, never with floating-point rounding.
+        </p>
+        <div class="chips">
+          <LabelChip kind="real" note="bytes: the engine's output" />
+          <LabelChip kind="modelled" note="inputs: example values you choose" />
+        </div>
+      </div>
+      <HeaderBuilder client:visible vectors={encodeVectors} />
+    </div>
+  </section>
+
+  <section class="section" id="decode" aria-labelledby="decode-title">
+    <div class="container tool-anchor" id="decode-tool" tabindex="-1">
+      <div class="section__head">
+        <p class="eyebrow">Try it</p>
+        <h2 id="decode-title">Decode a header</h2>
+        <p>
+          Paste the bytes of a T-CRH in hex. The engine checks them in the order of spec section 6 step 1 and either
+          names every field or says, in plain words, why a node would reject them.
+        </p>
+      </div>
+      <HeaderDecoder client:visible examples={decoderExamples} />
+    </div>
+  </section>
+
+  <section class="section" id="process" aria-labelledby="process-title">
+    <div class="container tool-anchor" id="step-tool" tabindex="-1">
+      <div class="split process-head">
+        <div class="section__head">
+          <p class="eyebrow">At each satellite</p>
+          <h2 id="process-title">Follow a packet</h2>
+          <p>
+            Only the node named in the IPv6 destination address examines the routing header (RFC 8200). These are
+            its steps, from section 6 of the specification. Step through a packet below to watch each rule fire.
+          </p>
+          <div class="chips">
+            <LabelChip kind="real" note="decisions: the engine's output" />
+            <LabelChip kind="modelled" note="arrival times, down links: example inputs" />
+          </div>
+        </div>
+        <ol class="process">
+          <li>
+            <h3>Validate</h3>
+            <p>
+              In order: at least 8 bytes; Routing Type 253 (if not, the header is ignored when Segments Left is 0,
+              as RFC 8200 requires, and the packet is discarded otherwise); Num Hops not 0; Segments Left ≤ Num Hops;
+              Hdr Ext Len long enough; all bytes present. A failure discards the packet, with an ICMPv6 Parameter
+              Problem where there is a field to point at.
+            </p>
+          </li>
+          <li>
+            <h3>Check the <span class="deadline">deadline</span></h3>
+            <p>
+              Unless this is the ingress or DEV is already set: k = Num Hops − Segments Left, and if the clock is past
+              D<span class="sr-inline">_</span><sub>k</sub> the node sets DEV and writes k into Dev Hop.
+            </p>
+          </li>
+          <li>
+            <h3>Deliver at the end</h3>
+            <p>If Segments Left is 0, this node is the final endpoint and delivers the packet, late or not.</p>
+          </li>
+          <li>
+            <h3>Apply the deviation policy</h3>
+            <p>
+              If DEV is set: <em>greedy</em> sets GREEDY, sets Segments Left to 0 and forwards geographically towards
+              SID[0]; <em>continue</em> keeps following the list; <em>drop</em> discards the packet.
+            </p>
+          </li>
+          <li>
+            <h3>Take the next SID</h3>
+            <p>Decrement Segments Left first, then read SID[Segments Left].</p>
+          </li>
+          <li>
+            <h3>Look it up and forward</h3>
+            <p>
+              Look the SID up in the CRH-FIB, the table from SIDs to addresses. No entry: the packet is discarded with
+              an ICMPv6 Parameter Problem, Code 0 (RFC 9631 section 7). Otherwise the destination address becomes the
+              entry’s address and the packet leaves on the entry’s interface.
+            </p>
+          </li>
+          <li>
+            <h3>Next link down</h3>
+            <p>
+              If the link to that SID is down, no deadline can show it, so it is a deviation of its own: set DEV (Dev
+              Hop = this hop, 0 at the ingress) and GREEDY, and fall back towards SID[0] under every policy.
+            </p>
+          </li>
+        </ol>
+      </div>
+      <ProcessStepper client:visible presets={stepperPresets} />
+    </div>
+  </section>
+
+  <section class="section" id="size" aria-labelledby="size-title">
+    <div class="container">
+      <div class="section__head">
+        <p class="eyebrow">Overhead</p>
+        <h2 id="size-title">What the deadlines cost in bytes</h2>
+        <p>
+          Compared with CRH-16, T-CRH spends one more byte per hop and 8 more fixed bytes. The sizes below come
+          from the formulas in section 9 of the specification. In encapsulation mode the gateway also adds a 40-byte
+          outer IPv6 header (section 8), as SRv6 H.Encaps does.
+        </p>
+        <div class="chips">
+          <LabelChip kind="real" note="exact sizes from the RFC and spec formulas" />
+        </div>
+      </div>
+      <SizeCompare client:visible />
+      <p class="small muted size-note">
+        Compressed SRv6 segment lists (RFC 9800) pack several segment identifiers into one 128-bit entry and can
+        come close to these compact headers in size. They are not in this comparison because their size depends on
+        the compression flavour and the locator layout chosen.
+      </p>
+    </div>
+  </section>
+
+  <section class="section" id="golden" aria-labelledby="golden-title">
+    <div class="container">
+      <div class="golden">
+        <div class="golden__head">
+          <p class="eyebrow">Golden vectors</p>
+          <h2 id="golden-title">Checked against the shared test vectors</h2>
+          <p>
+            The Python reference, the ns-3 module and this page's TypeScript engine must all reproduce the same
+            vectors, byte for byte. The count below was produced while this page was built, by running every vector
+            in <code>spec/golden/tcrh_vectors.json</code> and <code>crh_vectors.json</code> through the engine.
+          </p>
+          <div class="chips">
+            <LabelChip kind="real" note="our engine's output when this page was built" />
+          </div>
+        </div>
+        {
+          golden ? (
+            <div class="golden__body">
+              <p class:list={['golden__count', { 'golden__count--bad': failing.length > 0 }]}>
+                <span class="num">{golden.passed}</span>
+                <span class="golden__of">of {golden.total} vectors pass</span>
+              </p>
+              <div class="table-wrap">
+                <table>
+                  <caption>By group</caption>
+                  <thead>
+                    <tr><th scope="col">Group</th><th scope="col" class="r">Pass</th><th scope="col" class="r">Total</th></tr>
+                  </thead>
+                  <tbody>
+                    {groupOrder
+                      .filter((g) => golden.byGroup[g].total > 0)
+                      .map((g) => (
+                        <tr>
+                          <th scope="row">{GROUP_LABELS[g]}</th>
+                          <td class="r mono">{golden.byGroup[g].passed}</td>
+                          <td class="r mono">{golden.byGroup[g].total}</td>
+                        </tr>
+                      ))}
+                  </tbody>
+                </table>
+              </div>
+              {failing.length > 0 && (
+                <div class="golden__failing">
+                  <h3>Failing vectors</h3>
+                  <ul>
+                    {failing.map((o) => (
+                      <li>
+                        <code>{o.name}</code>: {o.failures.join('; ')}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+              <details>
+                <summary>All {golden.total} vectors</summary>
+                <ul class="golden__names">
+                  {golden.outcomes.map((o) => (
+                    <li>
+                      <span class:list={['golden__mark', { 'golden__mark--bad': o.failures.length > 0 }]}>
+                        {o.failures.length === 0 ? 'pass' : 'FAIL'}
+                      </span>{' '}
+                      <code>{o.name}</code> <span class="muted">{o.note}</span>
+                    </li>
+                  ))}
+                </ul>
+              </details>
+            </div>
+          ) : (
+            <p class="muted">
+              The golden vector files could not be read when this page was built ({loadError ?? 'unknown error'}), so no
+              result is shown.
+            </p>
+          )
+        }
+        <p class="small muted">
+          See also the <a href={pageHref('methodology')}>methodology</a> and the specification in the
+          <a href={REPO_URL} rel="noopener">repository</a>.
+        </p>
+      </div>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .page-hero__note {
+    margin-top: var(--space-4);
+    max-width: 62ch;
+    font-size: var(--step--1);
+  }
+
+  .golden-pill {
+    display: inline-flex;
+    align-items: baseline;
+    gap: var(--space-2);
+    padding: 0.4rem 0.75rem;
+    border: 1px solid color-mix(in srgb, var(--real) 45%, transparent);
+    background: color-mix(in srgb, var(--real) 8%, transparent);
+    border-radius: var(--radius-2);
+    color: var(--ink);
+    font-size: var(--step--1);
+    text-decoration: none;
+  }
+
+  .golden-pill--bad {
+    border-color: var(--bad);
+  }
+
+  .golden-pill__count {
+    font-family: var(--font-mono);
+    font-weight: 500;
+    color: var(--real);
+  }
+
+  .golden-pill--bad .golden-pill__count {
+    color: var(--bad);
+  }
+
+  .toc {
+    margin-top: var(--space-6);
+  }
+
+  .toc ul {
+    list-style: none;
+    padding: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+  }
+
+  .toc li + li {
+    margin-top: 0;
+  }
+
+  .toc a {
+    display: inline-flex;
+    align-items: center;
+    min-height: 2.25rem;
+    padding: 0 0.75rem;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-2);
+    font-size: var(--step--1);
+    color: var(--muted);
+    text-decoration: none;
+  }
+
+  .toc a:hover {
+    color: var(--ink);
+    border-color: var(--accent);
+  }
+
+  .chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+  }
+
+  .terms {
+    display: grid;
+    gap: var(--space-3);
+    margin-top: var(--space-5);
+    padding: var(--space-4);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-2);
+    background: var(--surface);
+  }
+
+  .terms > div {
+    display: grid;
+    gap: var(--space-1);
+  }
+
+  @media (min-width: 40em) {
+    .terms > div {
+      grid-template-columns: 9.5rem minmax(0, 1fr);
+      gap: var(--space-4);
+    }
+  }
+
+  .terms dt {
+    font-family: var(--font-mono);
+    font-size: var(--step--1);
+    color: var(--ink);
+  }
+
+  .terms dd {
+    margin: 0;
+    font-size: var(--step--1);
+    color: var(--muted);
+  }
+
+  .tool-frame {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-3);
+    padding: var(--space-4);
+  }
+
+  @media (min-width: 48em) {
+    .tool-frame {
+      padding: var(--space-5);
+    }
+  }
+
+  .text-version {
+    margin-top: var(--space-4);
+  }
+
+  .text-version summary,
+  .golden details summary {
+    cursor: pointer;
+    color: var(--accent);
+    font-size: var(--step--1);
+  }
+
+  .text-version[open] summary {
+    margin-bottom: var(--space-3);
+  }
+
+  .ref-tables {
+    margin-top: var(--space-6);
+    align-items: start;
+  }
+
+  .mutable-note {
+    padding: var(--space-3) var(--space-4);
+    border-top: 1px solid var(--line-soft);
+  }
+
+  .r {
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+  }
+
+  td.early {
+    color: var(--bad);
+  }
+
+  .time-body h3 {
+    margin-top: var(--space-6);
+  }
+
+  /* Let grid columns shrink below their content's width (tables scroll inside their wrapper). */
+  .split > * {
+    min-width: 0;
+  }
+
+  .formula {
+    display: grid;
+    gap: var(--space-2);
+    padding: var(--space-4);
+    border: 1px solid var(--line);
+    border-left: 3px solid var(--deadline);
+    border-radius: var(--radius-2);
+    background: var(--surface);
+    font-family: var(--font-mono);
+    font-size: var(--step--1);
+  }
+
+  .formula p {
+    display: grid;
+    grid-template-columns: 5.5rem minmax(0, 1fr);
+    gap: var(--space-3);
+    align-items: baseline;
+    color: var(--ink);
+    overflow-wrap: anywhere;
+  }
+
+  .formula__k {
+    font-size: var(--step--2);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--deadline);
+  }
+
+  .process-head {
+    margin-bottom: var(--space-6);
+  }
+
+  .process {
+    list-style: none;
+    padding: 0;
+    counter-reset: step;
+    display: grid;
+    gap: var(--space-2);
+  }
+
+  .process li {
+    counter-increment: step;
+    position: relative;
+    margin: 0;
+    padding: var(--space-3) var(--space-4) var(--space-3) 3.25rem;
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-2);
+  }
+
+  .process li::before {
+    content: counter(step, decimal-leading-zero);
+    position: absolute;
+    left: var(--space-4);
+    top: calc(var(--space-3) + 0.15rem);
+    font-family: var(--font-mono);
+    font-size: var(--step--1);
+    color: var(--accent);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .process h3 {
+    font-size: var(--step-0);
+  }
+
+  .process p {
+    margin-top: var(--space-1);
+    color: var(--muted);
+    font-size: var(--step--1);
+  }
+
+  .tool-anchor:focus {
+    outline: none;
+  }
+
+  .size-note {
+    margin-top: var(--space-4);
+    max-width: var(--prose);
+  }
+
+  .golden {
+    display: grid;
+    gap: var(--space-5);
+    padding: var(--space-5);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-3);
+    background: var(--surface);
+  }
+
+  @media (min-width: 48em) {
+    .golden {
+      padding: var(--space-6);
+    }
+  }
+
+  .golden__head {
+    display: grid;
+    gap: var(--space-3);
+    max-width: var(--prose);
+  }
+
+  .golden__head p:not(.eyebrow) {
+    color: var(--muted);
+  }
+
+  .golden__head .eyebrow {
+    margin-bottom: 0;
+  }
+
+  .golden__body {
+    display: grid;
+    gap: var(--space-4);
+  }
+
+  .golden__count {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: var(--space-3);
+    font-family: var(--font-display);
+    font-stretch: var(--stretch-condensed);
+  }
+
+  .golden__count .num {
+    font-size: var(--step-5);
+    font-weight: 700;
+    line-height: 1;
+    color: var(--real);
+  }
+
+  .golden__count--bad .num {
+    color: var(--bad);
+  }
+
+  .golden__of {
+    font-size: var(--step-2);
+    color: var(--ink);
+  }
+
+  .golden__failing {
+    color: var(--bad);
+  }
+
+  .golden__names {
+    list-style: none;
+    padding: 0;
+    margin-top: var(--space-3);
+    font-size: var(--step--1);
+  }
+
+  .golden__names li + li {
+    margin-top: var(--space-1);
+  }
+
+  .golden__mark {
+    display: inline-block;
+    min-width: 2.6rem;
+    font-family: var(--font-mono);
+    font-size: var(--step--2);
+    color: var(--real);
+  }
+
+  .golden__mark--bad {
+    color: var(--bad);
+  }
+</style>

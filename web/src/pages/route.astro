@@ -1,0 +1,108 @@
+---
+/**
+ * /route: the route planner. The island (RoutePlanner.tsx) computes everything in the browser
+ * from this site's own data files; this page adds the explanation that works without
+ * JavaScript.
+ */
+import BaseLayout from '../layouts/BaseLayout.astro';
+import LabelChip from '../components/LabelChip.astro';
+import DataBadge from '../components/DataBadge.astro';
+import RoutePlanner from '../components/route/RoutePlanner.tsx';
+import { pageHref } from '../lib/paths';
+import { REPO_URL } from '../lib/site';
+---
+
+<BaseLayout
+  title="Route planner"
+  description="Pick two cities and a time: your browser plans a path over today's real Starlink fleet on modelled laser links and writes it, with per-hop deadlines, into a T-CRH header you can download as a pcap."
+>
+  <header class="page-hero page-hero--compact container">
+    <p class="eyebrow">Route planner</p>
+    <h1>Plan a path, see the bytes</h1>
+    <p class="lede">
+      Pick two cities and a time within six hours of the orbit snapshot. Your browser computes where every satellite in
+      the orbital planes of Starlink's 53° / 463 km shell is, plans the shortest path over our model of the laser links,
+      gives every hop a deadline, and writes the result into the T-CRH routing header, byte for byte.
+    </p>
+  </header>
+
+  <section class="section section--flush" aria-label="Route planner">
+    <div class="container">
+      <noscript>
+        <p class="noscript">
+          The route planner computes in your browser and needs JavaScript. The same computation runs from the command line:
+          <code>cr route --from Chennai --to London</code> (see the <a href={REPO_URL}>repository</a>).
+        </p>
+      </noscript>
+      <RoutePlanner client:load />
+    </div>
+  </section>
+
+  <section class="section" aria-labelledby="how-title">
+    <div class="container split">
+      <div class="section__head">
+        <p class="eyebrow">How it works</p>
+        <h2 id="how-title">The same rules as the Python reference</h2>
+      </div>
+      <div class="prose">
+        <p>
+          The planner is a TypeScript port of the project's Python router (<code>cr route</code>). For the chosen instant it
+          builds the network of the shell: the laser links of our Grid-4 model <LabelChip kind="modelled" size="sm" note="laser links" />
+          that are up at that instant, and each city's links to the four highest satellites at least 25° above its horizon
+          <LabelChip kind="modelled" size="sm" note="ground links" />. Every link weighs its light time rounded to the nearest
+          nanosecond plus 0.5 ms of processing, so all costs are whole numbers and every implementation adds them up the same
+          way. Dijkstra's algorithm finds the cheapest path; when two paths cost exactly the same, the lower node number wins.
+        </p>
+        <p>
+          Each hop then gets a budget, the slack S (1.5 by default) times its predicted delay, and the cumulative budgets
+          become the deadlines in the header, rounded up to whole deadline units (0.1 ms by default), exactly as the
+          specification's encoding rule says. The header bytes come from the site's T-CRH engine, which passes every shared
+          golden test vector. <LabelChip kind="real" size="sm" note="header bytes" />
+        </p>
+        <p>
+          <strong>Checked against Python.</strong> On every deployment, CI runs the Python router and this planner on the same
+          satellite and city positions for 20 fixed city pairs, twice: on the project's reference snapshot and on the
+          snapshot this page serves. It stops the deployment if any path cost differs by more than 1 ns or any byte of the
+          header, packet or capture file differs. Two different paths whose costs agree within 1 ns are allowed, reported as
+          ties (never as identical), and their header, packet and capture file are still compared on Python's path. Positions themselves are compared separately: the browser's SGP4 library keeps element epochs to the
+          millisecond only, so its positions differ from Python's by up to about 8 metres, which is why the route check
+          uses one shared set of positions.
+        </p>
+        <p>
+          What this is not: Starlink's routing. It is not public, and Starlink does not use T-CRH.
+          <LabelChip kind="unknown" size="sm" note="Starlink's routing" /> The modelling choices are listed on the
+          <a href={pageHref('methodology')}>methodology page</a>; the header format on the <a href={pageHref('protocol')}>protocol page</a>.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" aria-label="Orbit snapshot">
+    <div class="container">
+      <DataBadge />
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .page-hero--compact {
+    padding-block: var(--space-6) var(--space-5);
+  }
+
+  .page-hero--compact h1 {
+    font-size: var(--step-3);
+    max-width: none;
+  }
+
+  .page-hero--compact .lede {
+    margin-top: var(--space-3);
+    max-width: 75ch;
+  }
+
+  .noscript {
+    padding: var(--space-4);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-2);
+    background: var(--surface);
+  }
+</style>

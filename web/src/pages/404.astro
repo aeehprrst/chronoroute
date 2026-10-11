@@ -1,0 +1,40 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { NAV_ITEMS } from '../lib/site';
+import { pageHref } from '../lib/paths';
+---
+
+<BaseLayout title="Page not found" description="This page does not exist on the ChronoRoute website." noindex>
+  <section class="page-hero container not-found" aria-labelledby="nf-title">
+    <p class="eyebrow">Error 404</p>
+    <h1 id="nf-title">Page not found</h1>
+    <p class="lede">
+      There is no page at this address. It may have moved, or the link may be mistyped. These pages
+      exist:
+    </p>
+    <ul class="not-found__links">
+      {
+        NAV_ITEMS.map((item) => (
+          <li>
+            <a class="button" href={pageHref(item.path)}>{item.label}</a>
+          </li>
+        ))
+      }
+    </ul>
+  </section>
+</BaseLayout>
+
+<style>
+  .not-found__links {
+    list-style: none;
+    padding: 0;
+    margin-top: var(--space-6);
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-3);
+  }
+
+  .not-found__links li + li {
+    margin-top: 0;
+  }
+</style>

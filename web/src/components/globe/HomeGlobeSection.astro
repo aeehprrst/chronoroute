@@ -1,0 +1,75 @@
+---
+/**
+ * Home-page section with the small live globe (owner: globe). The island is hydrated only when
+ * it scrolls into view (client:visible), and three.js loads after that.
+ */
+import LabelChip from '../LabelChip.astro';
+import GlobeIsland from './GlobeIsland';
+import { pageHref } from '../../lib/paths';
+---
+
+<section class="section" aria-labelledby="globe-home-title">
+  <div class="container globe-home">
+    <div class="section__head globe-home__text">
+      <p class="eyebrow">The test geometry</p>
+      <h2 id="globe-home-title">Real Starlink orbits, computed in your browser</h2>
+      <p>
+        Each dot is a Starlink satellite from a public CelesTrak orbit snapshot, placed by the SGP4
+        orbit model at the time shown on the globe. The clock here runs at 60 times real time so that
+        the motion is visible (it starts paused if your device asks for reduced motion); the Earth
+        turns at the same rate.
+      </p>
+      <p>
+        We use these orbits only as realistic geometry for testing T-CRH. Starlink does not use T-CRH,
+        and its own routing is not public.
+      </p>
+      <div class="globe-home__chips" role="group" aria-label="Labels for this globe">
+        <LabelChip kind="real" note="orbital elements" />
+        <LabelChip kind="real" note="positions (SGP4)" />
+        <LabelChip kind="derived" note="colour groups" />
+      </div>
+      <p>
+        <a href={pageHref('live')}>The live globe</a> has the full controls: the current time or faster, a
+        time slider, search and details for every satellite.
+      </p>
+    </div>
+    <div class="globe-home__figure">
+      <GlobeIsland client:visible variant="mini" liveHref={pageHref('live')} />
+      <noscript>
+        <p class="muted small">The globe needs JavaScript and WebGL 2.</p>
+      </noscript>
+    </div>
+  </div>
+</section>
+
+<style>
+  .globe-home {
+    display: grid;
+    gap: var(--space-6);
+    align-items: center;
+  }
+
+  @media (min-width: 64em) {
+    .globe-home {
+      grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+      gap: var(--space-8);
+    }
+  }
+
+  .globe-home__text {
+    margin-bottom: 0;
+  }
+
+  .globe-home__chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+  }
+
+  .globe-home__figure {
+    min-width: 0;
+    width: 100%;
+    max-width: 40rem;
+    justify-self: center;
+  }
+</style>

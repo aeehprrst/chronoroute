@@ -1,0 +1,137 @@
+# Website: build, test (including the Python <-> TypeScript route parity gate) and deploy to
+# GitHub Pages (https://aeehprrst.github.io/chronoroute/).
+#
+# Runs on every push to main that touches the website or what it is built from (including a
+# newly committed data/pinned snapshot), and by hand. The site's data always comes from the
+# project's Python pipeline (web/scripts/build-data.sh: `cr export web` + validate + static
+# files + tools/web_parity.py), never from the offline fallback web/scripts/dev-data.mjs.
+#
+# Snapshot: web/scripts/build-tested-data.sh tries the newest one available (the newest
+# committed data/pinned/*-celestrak folder, or a newer download kept by refresh-data.yml in the
+# Actions cache) and, if its data build or any vitest test fails, the next newest (at most 3).
+# A fallback shows as a warning on the run; a code defect fails every candidate, and then
+# nothing is deployed.
+#
+# Deploy gate: every step must pass. web/tests/route-parity.test.ts runs twice, on the fixed
+# reference snapshot (20261010T1358Z) and on the snapshot being deployed (read from the files
+# actually served), and fails only when a path cost differs from Python's by more than 1 ns or
+# a header/packet/pcap byte differs (reviewer must-fix #8); everything else it compares is
+# reported, not blocking. If anything fails, nothing is deployed and the last deployed site
+# stays online.
+#
+# One-time setup (repository owner): Settings -> Pages -> Source: "GitHub Actions".
+
+name: pages
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "web/**"
+      - "sim/**"
+      - "spec/**"
+      - "data/static/**"
+      - "data/pinned/**"
+      - "pipeline/**"
+      - "tools/web_parity.py"
+      - "pyproject.toml"
+      - ".github/workflows/pages.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+# One deployment at a time, shared with refresh-data.yml; a running deployment is never cancelled.
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+env:
+  ASTRO_TELEMETRY_DISABLED: "1"
+  PYTHONDONTWRITEBYTECODE: "1"
+  MPLBACKEND: Agg
+
+jobs:
+  build:
+    name: Build and test the site
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - name: Check out the repository
+        uses: actions/checkout@v5
+        with:
+          persist-credentials: false
+
+      - name: Set up Python 3.14
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.14"
+          cache: pip
+          cache-dependency-path: pyproject.toml
+
+      - name: Set up Node 24
+        uses: actions/setup-node@v6
+        with:
+          node-version: "24"
+          cache: npm
+          cache-dependency-path: web/package-lock.json
+
+      - name: Install chronoroute (with test extras for the Python parity test)
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -e ".[test]"
+
+      - name: Restore the newest snapshot downloaded by refresh-data.yml (if any)
+        uses: actions/cache/restore@v5
+        with:
+          # Downloads kept by refresh-data.yml, outside the git work tree (so the pipeline's
+          # "chronoroute-pipeline <commit>" identifier stays clean). Same path string there.
+          path: ~/celestrak-pinned
+          # Never matches exactly: always the most recent "celestrak-pinned-..." entry.
+          key: celestrak-pinned-restore-only
+          restore-keys: celestrak-pinned-
+
+      - name: Python side of the route parity (tools/web_parity.py)
+        run: python -m pytest -q sim/tests/test_web_parity.py sim/tests/test_export_web.py
+
+      - name: Install the website's dependencies (exact versions from package-lock.json)
+        working-directory: web
+        run: npm ci
+
+      - name: Build the site data with the Python pipeline and run every vitest test (newest passing snapshot)
+        id: data
+        env:
+          PYTHON: python
+          MAX_SNAPSHOTS: "3"
+          # Relative to web/, where build-tested-data.sh runs `npm test`.
+          PARITY_SUMMARY_OUT: public/data/parity.json
+        run: bash web/scripts/build-tested-data.sh data/pinned "$HOME/celestrak-pinned"
+
+      - name: Type check (astro check)
+        working-directory: web
+        run: npm run check
+
+      - name: Build the static site
+        working-directory: web
+        run: npm run build
+
+      - name: Upload the site for GitHub Pages
+        uses: actions/upload-pages-artifact@v5
+        with:
+          path: web/dist
+
+  deploy:
+    name: Deploy to GitHub Pages
+    needs: build
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy
+        id: deployment
+        uses: actions/deploy-pages@v5

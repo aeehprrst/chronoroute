@@ -1,0 +1,117 @@
+---
+/**
+ * Site footer: project facts, data attribution, the non-affiliation statement, licence
+ * and repository link. Attribution text comes from the snapshot manifest when present.
+ */
+import { NAV_ITEMS, LICENCE_SHORT, LICENCE_URL, REPO_URL, SITE_NAME, SITE_TAGLINE } from '../lib/site';
+import { pageHref } from '../lib/paths';
+import { readLatestManifest } from '../lib/data-build';
+
+const DEFAULT_ATTRIBUTION =
+  'Orbit data courtesy of CelesTrak (celestrak.org); SupGP elements derived from SpaceX ephemerides.';
+const snapshot = await readLatestManifest();
+const attribution = snapshot.ok ? snapshot.manifest.attribution : DEFAULT_ATTRIBUTION;
+---
+
+<footer class="site-footer">
+  <div class="container site-footer__grid">
+    <section class="site-footer__col" aria-labelledby="footer-project">
+      <h2 id="footer-project" class="site-footer__title">{SITE_NAME}</h2>
+      <p>{SITE_TAGLINE}. A student project for the Computer Networks course at VIT Vellore.</p>
+      <p>
+        <a href={REPO_URL} rel="noopener">Source code on GitHub</a>
+        <span aria-hidden="true"> · </span>
+        <a href={LICENCE_URL} rel="noopener">Licence</a>: {LICENCE_SHORT}
+      </p>
+    </section>
+
+    <section class="site-footer__col" aria-labelledby="footer-data">
+      <h2 id="footer-data" class="site-footer__title">Data</h2>
+      <p>{attribution}</p>
+      <p>
+        Every number and visual on this site carries a label: REAL, DERIVED, MODELLED or UNKNOWN.
+        <a href={pageHref('methodology#labels')}>What the labels mean</a>
+      </p>
+    </section>
+
+    <section class="site-footer__col" aria-labelledby="footer-notice">
+      <h2 id="footer-notice" class="site-footer__title">Notice</h2>
+      <p>
+        <strong>Not affiliated with SpaceX.</strong> This project is not affiliated with,
+        endorsed by or connected to SpaceX or Starlink. Starlink does not use T-CRH; we use
+        public Starlink orbits only as realistic test geometry.
+      </p>
+      <p>No analytics, no cookies, no third-party requests.</p>
+    </section>
+
+    <nav class="site-footer__col" aria-label="Footer">
+      <h2 class="site-footer__title">Pages</h2>
+      <ul class="site-footer__links">
+        {NAV_ITEMS.map((item) => (
+          <li><a href={pageHref(item.path)}>{item.label}</a></li>
+        ))}
+      </ul>
+    </nav>
+  </div>
+</footer>
+
+<style>
+  .site-footer {
+    margin-top: var(--space-9);
+    border-top: 1px solid var(--line);
+    background: var(--surface);
+    padding-block: var(--space-7) var(--space-8);
+    font-size: var(--step--1);
+    color: var(--muted);
+  }
+
+  .site-footer__grid {
+    display: grid;
+    gap: var(--space-6);
+  }
+
+  @media (min-width: 40em) {
+    .site-footer__grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  @media (min-width: 64em) {
+    .site-footer__grid {
+      grid-template-columns: 1.2fr 1.2fr 1.2fr 0.6fr;
+      gap: var(--space-7);
+    }
+  }
+
+  .site-footer__col > * + * {
+    margin-top: var(--space-3);
+  }
+
+  .site-footer__title {
+    font-family: var(--font-mono);
+    font-size: var(--step--2);
+    font-weight: 500;
+    font-stretch: 100%;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--ink);
+  }
+
+  .site-footer strong {
+    color: var(--ink);
+  }
+
+  .site-footer__links {
+    list-style: none;
+    padding: 0;
+  }
+
+  .site-footer__links li + li {
+    margin-top: var(--space-1);
+  }
+
+  .site-footer__links a {
+    display: inline-block;
+    padding-block: var(--space-1);
+  }
+</style>

@@ -1,0 +1,247 @@
+---
+/**
+ * Site header: wordmark and primary navigation. On narrow screens the navigation
+ * collapses behind a menu button (only when JavaScript runs; without it the links stay
+ * visible and wrap).
+ */
+import { NAV_ITEMS, SITE_NAME } from '../lib/site';
+import { isCurrentPage, pageHref } from '../lib/paths';
+
+const current = Astro.url.pathname;
+const items = NAV_ITEMS.map((item) => {
+  const href = pageHref(item.path);
+  return { ...item, href, active: isCurrentPage(current, href) };
+});
+---
+
+<header class="site-header">
+  <div class="container site-header__inner">
+    <a class="wordmark" href={pageHref('')} aria-label={`${SITE_NAME}, home`}>
+      <svg class="wordmark__mark" viewBox="0 0 32 32" width="28" height="28" aria-hidden="true" focusable="false">
+        <circle cx="16" cy="16" r="6.5" fill="none" stroke="currentColor" stroke-width="2"></circle>
+        <ellipse cx="16" cy="16" rx="14" ry="6" fill="none" stroke="currentColor" stroke-width="1.5" opacity="0.55" transform="rotate(-28 16 16)"></ellipse>
+        <circle cx="27.6" cy="9.6" r="2.4" class="wordmark__dot"></circle>
+      </svg>
+      <span class="wordmark__text">{SITE_NAME}</span>
+    </a>
+
+    <button
+      class="menu-button"
+      type="button"
+      aria-expanded="false"
+      aria-controls="site-nav"
+      data-menu-button
+    >
+      <span class="menu-button__icon" aria-hidden="true"></span>
+      <span>Menu</span>
+    </button>
+
+    <nav id="site-nav" class="site-nav" aria-label="Main" data-menu>
+      <ul class="site-nav__list">
+        {
+          items.map((item) => (
+            <li>
+              <a href={item.href} aria-current={item.active ? 'page' : undefined}>
+                {item.label}
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </nav>
+  </div>
+</header>
+
+<script>
+  const button = document.querySelector<HTMLButtonElement>('[data-menu-button]');
+  const menu = document.querySelector<HTMLElement>('[data-menu]');
+  if (button && menu) {
+    const setOpen = (open: boolean) => {
+      button.setAttribute('aria-expanded', String(open));
+      menu.dataset['open'] = String(open);
+    };
+    button.addEventListener('click', () => setOpen(button.getAttribute('aria-expanded') !== 'true'));
+    document.addEventListener('keydown', (event) => {
+      if (event.key === 'Escape' && button.getAttribute('aria-expanded') === 'true') {
+        setOpen(false);
+        button.focus();
+      }
+    });
+    window.matchMedia('(min-width: 52.5em)').addEventListener('change', () => setOpen(false));
+  }
+</script>
+
+<style>
+  .site-header {
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    /* Opaque on purpose: a translucent header let page text show through while scrolling
+       (the CSS minifier kept only the -webkit- blur, which Chrome ignores). */
+    background: var(--bg);
+    border-bottom: 1px solid var(--line-soft);
+  }
+
+  .site-header__inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-4);
+    min-height: var(--header-h);
+    flex-wrap: wrap;
+  }
+
+  .wordmark {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-3);
+    color: var(--ink);
+    text-decoration: none;
+    padding-block: var(--space-2);
+  }
+
+  .wordmark__mark {
+    color: var(--accent);
+    flex: none;
+  }
+
+  .wordmark__dot {
+    fill: var(--deadline);
+  }
+
+  .wordmark__text {
+    font-family: var(--font-display);
+    font-weight: 640;
+    font-stretch: var(--stretch-wide);
+    font-size: 1.125rem;
+    letter-spacing: 0.01em;
+  }
+
+  .site-nav__list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-1) var(--space-2);
+  }
+
+  .site-nav__list li + li {
+    margin-top: 0;
+  }
+
+  .site-nav a {
+    display: inline-flex;
+    align-items: center;
+    min-height: 2.75rem;
+    padding-inline: var(--space-3);
+    border-radius: var(--radius-2);
+    color: var(--muted);
+    text-decoration: none;
+    font-size: var(--step--1);
+    font-weight: 500;
+    letter-spacing: 0.01em;
+    transition: color var(--dur) var(--ease), background-color var(--dur) var(--ease);
+  }
+
+  .site-nav a:hover {
+    color: var(--ink);
+    background: var(--surface);
+  }
+
+  .site-nav a[aria-current='page'] {
+    color: var(--ink);
+    box-shadow: inset 0 -2px 0 var(--accent);
+    border-radius: var(--radius-2) var(--radius-2) 0 0;
+  }
+
+  .menu-button {
+    display: none;
+    align-items: center;
+    gap: var(--space-2);
+    min-height: 2.75rem;
+    padding: 0 var(--space-3);
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-2);
+    cursor: pointer;
+    font-size: var(--step--1);
+    font-weight: 500;
+  }
+
+  .menu-button__icon,
+  .menu-button__icon::before,
+  .menu-button__icon::after {
+    display: block;
+    width: 16px;
+    height: 2px;
+    background: currentColor;
+    border-radius: 1px;
+    transition: transform var(--dur) var(--ease);
+  }
+
+  .menu-button__icon {
+    position: relative;
+  }
+
+  .menu-button__icon::before,
+  .menu-button__icon::after {
+    content: '';
+    position: absolute;
+    left: 0;
+  }
+
+  .menu-button__icon::before {
+    top: -5px;
+  }
+
+  .menu-button__icon::after {
+    top: 5px;
+  }
+
+  .menu-button[aria-expanded='true'] .menu-button__icon {
+    background: transparent;
+  }
+
+  .menu-button[aria-expanded='true'] .menu-button__icon::before {
+    transform: translateY(5px) rotate(45deg);
+  }
+
+  .menu-button[aria-expanded='true'] .menu-button__icon::after {
+    transform: translateY(-5px) rotate(-45deg);
+  }
+
+  /* Narrow screens with JavaScript: collapsible menu (below 52.5em, where the six links no
+     longer fit on one row next to the wordmark). Without JavaScript: links wrap. */
+  @media (max-width: 52.49em) {
+    :global(.js) .menu-button {
+      display: inline-flex;
+    }
+
+    :global(.js) .site-nav {
+      display: none;
+      width: 100%;
+      padding-bottom: var(--space-3);
+    }
+
+    :global(.js) .site-nav[data-open='true'] {
+      display: block;
+    }
+
+    :global(.js) .site-nav__list {
+      flex-direction: column;
+      gap: var(--space-1);
+    }
+
+    :global(.js) .site-nav a {
+      display: flex;
+      font-size: var(--step-0);
+    }
+
+    :global(.js) .site-nav a[aria-current='page'] {
+      box-shadow: inset 2px 0 0 var(--accent);
+      border-radius: 0 var(--radius-2) var(--radius-2) 0;
+      background: var(--surface);
+    }
+  }
+</style>

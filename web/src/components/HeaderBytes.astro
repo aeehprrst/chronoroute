@@ -1,0 +1,254 @@
+---
+/**
+ * Shows the exact bytes of a T-CRH golden test vector (spec/golden/tcrh_vectors.json),
+ * split into the fields of spec section 2, with the cumulative deadline per hop.
+ * The vector is read from ../spec at build time; nothing here is typed in by hand.
+ */
+import LabelChip from './LabelChip.astro';
+import type { TcrhEncodeVector } from '../lib/data-build';
+import {
+  bytesToHex,
+  deadlines,
+  forwardSids,
+  hexToBytes,
+  nextHeaderName,
+  readTcrhLayout,
+} from '../lib/tcrh-layout';
+
+interface Props {
+  vector: TcrhEncodeVector;
+  /** Compact: byte rows only, no deadline table. */
+  compact?: boolean;
+  headingId?: string;
+}
+
+const { vector, compact = false, headingId } = Astro.props;
+const bytes = hexToBytes(vector.expect_hex);
+const layout = readTcrhLayout(bytes);
+const sidsFwd = forwardSids(layout);
+const deadlineList = deadlines(layout);
+const deltasFwd = layout.entries.map((entry) => entry.delta).reverse();
+const unitMs = layout.unitNs / 1_000_000;
+const unitText = `${unitMs} ms`;
+
+// Cross-check the layout reader against the vector's own expectations; refuse to render a mismatch.
+const consistent =
+  layout.size === vector.expect_size &&
+  layout.epochBase === vector.expect_epoch_base &&
+  sidsFwd.join(',') === vector.sids_fwd.join(',') &&
+  deadlineList.join(',') === vector.expect_deadlines_u.join(',');
+if (!consistent) {
+  throw new Error(`HeaderBytes: decoded fields of golden vector "${vector.name}" do not match its expectations`);
+}
+
+const slice = (from: number, to: number) => bytesToHex(bytes.subarray(from, to));
+const nh = nextHeaderName(layout.nextHeader);
+const flagText =
+  layout.flagNames.length > 0 ? layout.flagNames.join(', ') : 'no state flags';
+
+const rows = [
+  {
+    range: '0–3',
+    hex: slice(0, 4),
+    text: `Next Header ${layout.nextHeader}${nh ? ` (${nh})` : ''} · Hdr Ext Len ${layout.hdrExtLen} · Routing Type ${layout.routingType} · Segments Left ${layout.segmentsLeft}`,
+    kind: 'fixed',
+  },
+  {
+    range: '4–7',
+    hex: slice(4, 8),
+    text: `Flags 0x${layout.flags.toString(16).padStart(2, '0')} (${flagText}; unit code ${layout.unitCode} = ${unitText}) · Num Hops ${layout.numHops} · Dev Hop ${layout.devHop} · Reserved`,
+    kind: 'fixed',
+  },
+  {
+    range: '8–11',
+    hex: slice(8, 12),
+    text: `Epoch_Base ${layout.epochBase} units`,
+    kind: 'time',
+  },
+  ...layout.entries.map((entry) => ({
+    range: `${entry.offset}–${entry.offset + 2}`,
+    hex: slice(entry.offset, entry.offset + 3),
+    text: `SID[${entry.index}] = ${entry.sid} · Delta[${entry.index}] = ${entry.delta}${entry.index === 0 ? ' (final endpoint)' : entry.index === layout.numHops - 1 ? ' (first hop)' : ''}`,
+    kind: 'entry',
+  })),
+  ...(layout.padding.length > 0
+    ? [
+        {
+          range: `${layout.padding.offset}–${layout.padding.offset + layout.padding.length - 1}`,
+          hex: slice(layout.padding.offset, layout.padding.offset + layout.padding.length),
+          text: `Padding to a multiple of 8 bytes (${layout.padding.length} B)`,
+          kind: 'pad',
+        },
+      ]
+    : []),
+];
+---
+
+<figure class:list={['tcrh', { 'tcrh--compact': compact }]} aria-labelledby={headingId}>
+  <figcaption class="tcrh__caption">
+    <span class="tcrh__name">
+      Golden vector <code>{vector.name}</code>: {layout.size}-byte T-CRH, path {sidsFwd.join(' → ')},
+      unit {unitText}
+    </span>
+    <LabelChip kind="real" size="sm" note="spec/golden/tcrh_vectors.json" />
+  </figcaption>
+
+  <ol class="tcrh__rows">
+    {
+      rows.map((row) => (
+        <li class:list={['tcrh__row', `tcrh__row--${row.kind}`]}>
+          <span class="tcrh__range">
+            <span class="sr-only">Bytes </span>
+            {row.range}
+          </span>
+          <code class="tcrh__hex">{row.hex}</code>
+          <span class="tcrh__text">{row.text}</span>
+        </li>
+      ))
+    }
+  </ol>
+
+  {
+    !compact && (
+      <div class="table-wrap tcrh__deadlines">
+        <table>
+          <caption>
+            Cumulative arrival deadline at each hop: D<span class="sr-inline">_</span><sub>k</sub> = Epoch_Base + d<span class="sr-inline">_</span><sub>1</sub> + … + d<span class="sr-inline">_</span><sub>k</sub> (mod 2<span class="sr-inline"> to the power </span><sup>32</sup>), in units of {unitText}.
+          </caption>
+          <thead>
+            <tr>
+              <th scope="col">Hop k</th>
+              <th scope="col">SID</th>
+              <th scope="col">Budget d<span class="sr-inline">_</span><sub>k</sub></th>
+              <th scope="col">Deadline D<span class="sr-inline">_</span><sub>k</sub></th>
+            </tr>
+          </thead>
+          <tbody>
+            {sidsFwd.map((sid, i) => (
+              <tr>
+                <td class="num">{i + 1}</td>
+                <td class="num mono">{sid}</td>
+                <td class="num mono">{deltasFwd[i]}</td>
+                <td class="num mono deadline">{deadlineList[i]}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    )
+  }
+</figure>
+
+<style>
+  .tcrh {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-3);
+    padding: var(--space-4);
+    min-width: 0;
+  }
+
+  @media (min-width: 48em) {
+    .tcrh {
+      padding: var(--space-5);
+    }
+  }
+
+  .tcrh__caption {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2) var(--space-3);
+    align-items: center;
+    justify-content: space-between;
+    font-size: var(--step--1);
+    color: var(--muted);
+    padding-bottom: var(--space-3);
+    border-bottom: 1px solid var(--line-soft);
+  }
+
+  .tcrh__rows {
+    list-style: none;
+    padding: 0;
+    margin-top: var(--space-3);
+    display: grid;
+    gap: 2px;
+  }
+
+  .tcrh__rows li + li {
+    margin-top: 0;
+  }
+
+  .tcrh__row {
+    display: grid;
+    grid-template-columns: 3.4rem minmax(0, 1fr);
+    grid-template-areas:
+      'range hex'
+      'range text';
+    column-gap: var(--space-3);
+    padding: var(--space-2) var(--space-3);
+    border-radius: var(--radius-1);
+    background: var(--bg);
+    border-left: 2px solid var(--line);
+  }
+
+  @media (min-width: 40em) {
+    .tcrh:not(.tcrh--compact) .tcrh__row {
+      grid-template-columns: 3.4rem 7.5rem minmax(0, 1fr);
+      grid-template-areas: 'range hex text';
+      align-items: baseline;
+    }
+  }
+
+  .tcrh__row--time {
+    border-left-color: var(--deadline);
+  }
+
+  .tcrh__row--entry {
+    border-left-color: var(--accent);
+  }
+
+  .tcrh__row--pad {
+    border-left-style: dashed;
+  }
+
+  .tcrh__range {
+    grid-area: range;
+    font-family: var(--font-mono);
+    font-size: var(--step--2);
+    color: var(--muted);
+    font-variant-numeric: tabular-nums;
+    padding-top: 0.15rem;
+  }
+
+  .tcrh__hex {
+    grid-area: hex;
+    font-family: var(--font-mono);
+    font-size: var(--step-0);
+    color: var(--ink);
+    letter-spacing: 0.04em;
+    white-space: nowrap;
+    background: none;
+    border: 0;
+    padding: 0;
+  }
+
+  .tcrh__row--time .tcrh__hex {
+    color: var(--deadline);
+  }
+
+  .tcrh__row--pad .tcrh__hex {
+    color: var(--muted);
+  }
+
+  .tcrh__text {
+    grid-area: text;
+    font-size: var(--step--1);
+    color: var(--muted);
+    min-width: 0;
+    overflow-wrap: anywhere;
+  }
+
+  .tcrh__deadlines {
+    margin-top: var(--space-4);
+  }
+</style>

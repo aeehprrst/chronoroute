@@ -1,0 +1,100 @@
+/*
+ * Design tokens. One deliberate dark world: the night side of the Earth, seen from a
+ * mission operations room. Use the tokens, never raw hex values, in components.
+ *
+ * Colour roles
+ *   --accent    orbital blue: links, focus, the active route
+ *   --deadline  deadline amber: ONLY for timing and deadline concepts
+ *   --real / --derived / --modelled / --unknown: provenance labels (with a shape, never colour alone)
+ *   --bad       errors and late packets
+ */
+:root {
+  color-scheme: dark;
+
+  /* Palette */
+  --bg: #070d18;
+  --surface: #0e1726;
+  --surface-2: #13203a;
+  --line: #22324d;
+  --ink: #e6edf7;
+  --muted: #9aa9bf;
+  --accent: #7aaeff;
+  --deadline: #f2aa4c;
+  --real: #4cc896;
+  --derived: #7aaeff;
+  --modelled: #f2aa4c;
+  --unknown: #a5afbf;
+  --bad: #ff7d72;
+
+  /* Translucent helpers derived from the palette */
+  --line-soft: rgb(34 50 77 / 0.55);
+  /* Form-field borders: at least 3:1 against --bg, --surface and --surface-2 (WCAG 1.4.11). */
+  --line-input: #5a7096;
+  --accent-soft: rgb(122 174 255 / 0.12);
+  --deadline-soft: rgb(242 170 76 / 0.12);
+  --accent-strong: #9cc3ff;
+  --on-accent: #06101f;
+
+  /* Typefaces (self-hosted through @fontsource; no third-party font requests) */
+  --font-display: 'Archivo Variable', 'Archivo', 'Arial Narrow', system-ui, sans-serif;
+  --font-body: 'IBM Plex Sans', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --font-mono: 'IBM Plex Mono', ui-monospace, 'SFMono-Regular', Menlo, Consolas, monospace;
+
+  /* Archivo width axis (font-stretch, 62%..125%) */
+  --stretch-condensed: 72%;
+  --stretch-semi: 86%;
+  --stretch-wide: 118%;
+
+  /* Fluid type scale: 375 px -> 1440 px */
+  --step--2: 0.75rem;
+  --step--1: clamp(0.8125rem, 0.79rem + 0.1vw, 0.875rem);
+  --step-0: clamp(1rem, 0.97rem + 0.15vw, 1.0625rem);
+  --step-1: clamp(1.1875rem, 1.12rem + 0.3vw, 1.375rem);
+  --step-2: clamp(1.4375rem, 1.3rem + 0.6vw, 1.875rem);
+  --step-3: clamp(1.75rem, 1.45rem + 1.3vw, 2.75rem);
+  --step-4: clamp(2.25rem, 1.65rem + 2.6vw, 4.25rem);
+  --step-5: clamp(2.75rem, 1.85rem + 4.2vw, 5.75rem);
+
+  --leading-tight: 1.05;
+  --leading-snug: 1.25;
+  --leading-body: 1.6;
+
+  /* Space */
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.5rem;
+  --space-6: 2rem;
+  --space-7: 3rem;
+  --space-8: 4.5rem;
+  --space-9: 6.5rem;
+
+  /* Layout */
+  --gutter: 1rem;
+  --max: 75rem;
+  --prose: 68ch;
+  --header-h: 3.75rem;
+  --radius-1: 4px;
+  --radius-2: 8px;
+  --radius-3: 12px;
+
+  /* Focus ring: visible on every surface */
+  --focus-ring: 0 0 0 2px var(--bg), 0 0 0 4px var(--accent);
+
+  --ease: cubic-bezier(0.2, 0.7, 0.2, 1);
+  --dur: 160ms;
+}
+
+@media (min-width: 48em) {
+  :root {
+    --gutter: 2rem;
+    --header-h: 4.25rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --dur: 0ms;
+  }
+}

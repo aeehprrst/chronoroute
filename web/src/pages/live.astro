@@ -1,0 +1,143 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import LabelChip from '../components/LabelChip.astro';
+import LiveGlobeSection from '../components/globe/LiveGlobeSection.astro';
+import { pageHref } from '../lib/paths';
+---
+
+<BaseLayout
+  title="Live globe"
+  description="Starlink satellite positions computed in your browser with SGP4 from a public CelesTrak orbit snapshot, with clear labels for what is real, derived, modelled and unknown."
+>
+  <header class="page-hero page-hero--compact container">
+    <p class="eyebrow">Live globe</p>
+    <h1>The constellation, computed in your browser</h1>
+    <p class="lede">
+      Every Starlink satellite in the orbit snapshot, at its SGP4-predicted position for the time
+      shown, computed on your device (satellite.js) from public CelesTrak orbital elements. These
+      are predictions, not tracking data. <a href="#looking-title">Which parts are real</a>
+    </p>
+  </header>
+
+  <section class="section section--flush globe-section" aria-label="Globe" id="globe">
+    <div class="container">
+      <!-- OWNER: globe -->
+      <LiveGlobeSection />
+    </div>
+  </section>
+
+  <section class="section" aria-labelledby="looking-title">
+    <div class="container split">
+      <div class="section__head">
+        <p class="eyebrow">What you are looking at</p>
+        <h2 id="looking-title">Which parts are real</h2>
+      </div>
+      <dl class="facts">
+        <div class="facts__row">
+          <dt><LabelChip kind="real" /></dt>
+          <dd>
+            <strong>Orbital elements.</strong> CelesTrak's supplemental GP (SupGP) elements for
+            Starlink, which CelesTrak derives from ephemerides published by SpaceX. Element sets
+            whose epoch was more than three days old at download time are left out.
+          </dd>
+        </div>
+        <div class="facts__row">
+          <dt><LabelChip kind="real" /></dt>
+          <dd>
+            <strong>Satellite positions.</strong> Computed from those elements with SGP4 for the
+            time shown on the globe (the current time, unless you change it): real physics computed by
+            real code from the real elements. They are predictions, not tracking data: SGP4 is an
+            approximation, and its error grows with the time since each element set's epoch.
+          </dd>
+        </div>
+        <div class="facts__row">
+          <dt><LabelChip kind="derived" /></dt>
+          <dd>
+            <strong>Colour groups.</strong> Our grouping of the satellites by inclination and mean
+            altitude. It is not SpaceX's list of shells.
+          </dd>
+        </div>
+        <div class="facts__row">
+          <dt><LabelChip kind="modelled" /></dt>
+          <dd>
+            <strong>Inter-satellite laser links.</strong> Not drawn on this globe. Which satellites are
+            linked is not public; the <a href={pageHref('route')}>route planner</a> uses our Grid-4 model
+            of them, labelled MODELLED.
+          </dd>
+        </div>
+        <div class="facts__row">
+          <dt><LabelChip kind="unknown" /></dt>
+          <dd>
+            <strong>Starlink's real routing.</strong> Not public, so we do not show or claim it.
+            Starlink does not use T-CRH.
+          </dd>
+        </div>
+      </dl>
+    </div>
+  </section>
+
+  <section class="section" aria-labelledby="next-title">
+    <div class="container prose">
+      <h2 id="next-title">Routes</h2>
+      <p>
+        No links or routes are drawn on this globe. The <a href={pageHref('route')}>route planner</a>
+        computes routes between two cities with our code over a MODELLED laser-link topology, on the
+        same orbit snapshot; they are never taken from Starlink. The header format a route is written
+        into is described on the <a href={pageHref('protocol')}>protocol page</a>, and the assumptions
+        behind the link model on the <a href={pageHref('methodology')}>methodology page</a>.
+      </p>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  /* A short hero, so that the globe starts within the first screen. */
+  .page-hero--compact {
+    padding-block: var(--space-6) var(--space-5);
+  }
+
+  .page-hero--compact h1 {
+    font-size: var(--step-3);
+    max-width: none;
+  }
+
+  .page-hero--compact .lede {
+    margin-top: var(--space-3);
+    max-width: 75ch;
+  }
+
+  .globe-section {
+    padding-top: 0;
+  }
+
+  .facts {
+    display: grid;
+    gap: var(--space-4);
+  }
+
+  .facts__row {
+    display: grid;
+    gap: var(--space-2);
+    padding: var(--space-4);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-2);
+    background: var(--surface);
+  }
+
+  @media (min-width: 40em) {
+    .facts__row {
+      grid-template-columns: 8.5rem minmax(0, 1fr);
+      gap: var(--space-4);
+      align-items: baseline;
+    }
+  }
+
+  .facts dd {
+    margin: 0;
+    color: var(--muted);
+  }
+
+  .facts strong {
+    color: var(--ink);
+  }
+</style>

@@ -1,0 +1,55 @@
+---
+/**
+ * The /live globe section (owner: globe): the interactive island, and beside it the static
+ * provenance list and the orbit snapshot badge.
+ */
+import DataBadge from '../DataBadge.astro';
+import GlobeIsland from './GlobeIsland';
+import GlobeProvenance from './GlobeProvenance.astro';
+---
+
+<div class="live-globe">
+  <div class="live-globe__main">
+    <GlobeIsland client:visible variant="live" />
+    <noscript>
+      <p class="live-globe__noscript">
+        The live globe needs JavaScript and WebGL 2. The orbit snapshot it uses is described next to
+        it.
+      </p>
+    </noscript>
+  </div>
+  <div class="live-globe__aside">
+    <GlobeProvenance />
+    <DataBadge />
+  </div>
+</div>
+
+<style>
+  .live-globe {
+    display: grid;
+    gap: var(--space-5);
+  }
+
+  @media (min-width: 64em) {
+    .live-globe {
+      grid-template-columns: minmax(0, 1fr) 22rem;
+      align-items: start;
+    }
+  }
+
+  .live-globe__main {
+    min-width: 0;
+  }
+
+  .live-globe__aside {
+    display: grid;
+    gap: var(--space-4);
+    min-width: 0;
+  }
+
+  .live-globe__noscript {
+    margin-top: var(--space-3);
+    color: var(--muted);
+    font-size: var(--step--1);
+  }
+</style>

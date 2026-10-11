@@ -1,0 +1,793 @@
+---
+/**
+ * /methodology (owner: content): the provenance labels, what is REAL / DERIVED / MODELLED /
+ * UNKNOWN in this project, sources, limitations, related work, the novelty statement, and the
+ * results section (links to the corrected semester results and the course milestone; the new
+ * campaign's results are still to come). No result number is copied here by hand.
+ */
+import BaseLayout from '../layouts/BaseLayout.astro';
+import LabelChip from '../components/LabelChip.astro';
+import DataBadge from '../components/DataBadge.astro';
+import BuildingState from '../components/BuildingState.astro';
+import { LABELS } from '../lib/labels';
+import { pageHref } from '../lib/paths';
+import { REPO_URL } from '../lib/site';
+import { readLatestManifest } from '../lib/data-build';
+import type { DataLabel } from '../lib/data-types';
+
+const snapshot = await readLatestManifest();
+/** CelesTrak's human-readable SupGP index (the link); the exact query URL is shown as text. */
+const CELESTRAK_SUPGP_PAGE = 'https://celestrak.org/NORAD/elements/supplemental/';
+const celestrakQuery = snapshot.ok ? snapshot.manifest.source_url : null;
+
+interface InventoryRow {
+  what: string;
+  label: DataLabel;
+  labelNote?: string;
+  /** Not built yet in the current simulator: shown with a "Planned" tag. */
+  planned?: boolean;
+  how: string;
+  note: string;
+}
+
+const inventory: InventoryRow[] = [
+  {
+    what: 'Starlink orbital elements',
+    label: 'real',
+    how: 'CelesTrak supplemental GP (SupGP) element sets for Starlink, which CelesTrak derives from ephemerides published by SpaceX. Each snapshot is pinned with the sha256 hash of the raw download.',
+    note: 'Elements are a fitted orbit description, not a measured position.',
+  },
+  {
+    what: 'Satellite positions at a given time',
+    label: 'real',
+    labelNote: 'SGP4 on REAL elements',
+    how: 'SGP4 propagation of those elements (satellite.js on this site; the sgp4 package in the Python simulator): real physics computed by real code from real data, as the project’s shared label table records it.',
+    note: 'A prediction, not tracking data: SGP4 is an approximation, and its error grows with the time since the element set’s epoch. We quote no accuracy figure, because we have not measured one for these elements. The two SGP4 implementations agree to within 10 m (tested on every build).',
+  },
+  {
+    what: 'Speed of light',
+    label: 'real',
+    labelNote: 'physical constant',
+    how: '299,792,458 m/s in vacuum, exact by the definition of the metre.',
+    note: 'The only input of a propagation delay that is not a position.',
+  },
+  {
+    what: 'Propagation delay of a link',
+    label: 'derived',
+    how: 'The distance between the two nodes, from their SGP4 positions, divided by the speed of light.',
+    note: 'A delay is only as strong as the link it belongs to: the delay of a MODELLED laser link is MODELLED.',
+  },
+  {
+    what: 'Shape of the Earth',
+    label: 'real',
+    labelNote: 'public standard',
+    how: 'The WGS84 ellipsoid, the reference shape that GPS uses.',
+    note: 'Used for altitudes and ground positions on this site, and for the line-of-sight rule below.',
+  },
+  {
+    what: 'Line of sight between two nodes',
+    label: 'modelled',
+    labelNote: '80 km clearance',
+    how: 'A laser link is allowed only while the straight line between the two satellites stays at least 80 km above the WGS84 ellipsoid, to keep it clear of the atmosphere. The geometry is exact, but the 80 km clearance is our choice (Hypatia’s rule), so the rule as a whole is MODELLED.',
+    note: 'Applied by the Python topology code at every time step and by this site’s route planner at the instant you pick.',
+  },
+  {
+    what: 'T-CRH header bytes',
+    label: 'real',
+    labelNote: 'defined by our code',
+    how: 'The exact bytes our encoder produces, pinned byte for byte by the golden test vectors in spec/golden/.',
+    note: 'This site’s TypeScript engine is checked against every vector when the site is built (see the protocol page). The Python reference has a golden-vector test that runs in the project’s continuous integration. The ns-3 module has a test suite for the same vectors (make ns3-test), which is run locally, not in continuous integration.',
+  },
+  {
+    what: 'Orbital shells (colour groups)',
+    label: 'derived',
+    how: 'Grouped by our code from each element set’s inclination and mean altitude. The globes colour the satellites by these groups.',
+    note: 'A grouping for display, not SpaceX’s own shell assignment. Public fleet statistics, such as Jonathan McDowell’s, are an independent reference.',
+  },
+  {
+    what: 'Orbital planes',
+    label: 'derived',
+    how: 'Inferred by our pipeline from the elements: satellites are grouped into shells by inclination and altitude, and into planes by their ascending node; within a plane they are ordered by argument of latitude.',
+    note: 'SpaceX does not publish its planes. Satellites that fit no plane are left out of routing, and the route planner says how many.',
+  },
+  {
+    what: 'Laser inter-satellite link topology',
+    label: 'modelled',
+    how: 'Grid-4 (also written +Grid), a common research assumption, on those inferred planes. Each satellite links to the satellites ahead of and behind it in its plane and to at most one satellite in each neighbouring plane (a one-to-one nearest match). Links between planes are off above 70° latitude.',
+    note: 'Four links per satellite is an assumption from the research literature (Hypatia, after SpaceX regulatory filings), not knowledge of today’s network. Which satellites Starlink links, and how often those links change, is not public.',
+  },
+  {
+    what: 'Ground links',
+    label: 'modelled',
+    labelNote: '25° mask assumed',
+    how: 'A city sees a satellite at least 25° above its horizon and connects to the four highest. The 25° value is from Starlink’s regulatory filings, as used by Hypatia; which visible satellites a terminal really uses is not public.',
+    note: 'Cities are placed on the WGS84 ellipsoid from Natural Earth coordinates (REAL).',
+  },
+  {
+    what: 'Processing delay per hop',
+    label: 'modelled',
+    how: '0.5 ms added to the light time of every hop when routes are planned.',
+    note: 'The existing model’s value; not measured on a real satellite.',
+  },
+  {
+    what: 'Link capacities and queues',
+    label: 'modelled',
+    how: 'Chosen per experiment and stated with it.',
+    note: 'Not public for Starlink.',
+  },
+  {
+    what: 'Traffic',
+    label: 'modelled',
+    how: 'Who sends how much to whom, and when: chosen per experiment and stated with it.',
+    note: 'Not public for Starlink.',
+  },
+  {
+    what: 'Failures and slowdowns',
+    label: 'modelled',
+    how: 'Which links go down or become slow, when, and for how long: chosen per experiment and stated with it.',
+    note: 'The up-but-slow case is the one T-CRH is designed to catch.',
+  },
+  {
+    what: 'Starlink’s real routing',
+    label: 'unknown',
+    how: 'Not public.',
+    note: 'We never claim it. Starlink does not use T-CRH; its public orbits serve only as a realistic test geometry.',
+  },
+];
+
+interface Source {
+  title: string;
+  href: string;
+  detail: string;
+  /** Shown verbatim as code under the detail (e.g. the exact download URL). */
+  code?: { label: string; text: string };
+}
+
+const sources: Source[] = [
+  {
+    title: 'CelesTrak: supplemental GP element sets',
+    href: CELESTRAK_SUPGP_PAGE,
+    detail: 'The orbit data. Orbit data courtesy of CelesTrak (celestrak.org); SupGP elements derived from SpaceX ephemerides.',
+    ...(celestrakQuery ? { code: { label: 'Exact download URL of this build’s snapshot', text: celestrakQuery } } : {}),
+  },
+  {
+    title: 'RFC 8200: Internet Protocol, Version 6 (IPv6) Specification',
+    href: 'https://www.rfc-editor.org/rfc/rfc8200',
+    detail: 'Extension headers and the rules for routing headers (section 4.4).',
+  },
+  {
+    title: 'RFC 9631: The IPv6 Compact Routing Header (CRH)',
+    href: 'https://www.rfc-editor.org/rfc/rfc9631',
+    detail: 'CRH-16 and CRH-32. T-CRH extends CRH-16.',
+  },
+  {
+    title: 'RFC 8754: IPv6 Segment Routing Header (SRH)',
+    href: 'https://www.rfc-editor.org/rfc/rfc8754',
+    detail: 'SRv6, the main comparison for header size.',
+  },
+  {
+    title: 'RFC 9800: Compressed SRv6 Segment List Encoding',
+    href: 'https://www.rfc-editor.org/rfc/rfc9800',
+    detail: 'Compressed SRv6, which can come close to compact headers in size.',
+  },
+  {
+    title: 'RFC 4727: Experimental Values in IPv4, IPv6, ICMPv4, ICMPv6, UDP, and TCP Headers',
+    href: 'https://www.rfc-editor.org/rfc/rfc4727',
+    detail: 'Routing Type 253, the experimental value T-CRH uses.',
+  },
+  {
+    title:
+      'RFC 4443: Internet Control Message Protocol (ICMPv6) for the Internet Protocol Version 6 (IPv6) Specification',
+    href: 'https://www.rfc-editor.org/rfc/rfc4443',
+    detail: 'The Parameter Problem message a node sends for a malformed header.',
+  },
+  {
+    title: 'Hypatia (Kassing et al., ACM IMC 2020)',
+    href: 'https://github.com/snkas/hypatia',
+    detail: '“Exploring the ‘Internet from space’ with Hypatia”: a framework for simulating LEO satellite networks.',
+  },
+  {
+    title: 'Jonathan McDowell: Starlink statistics',
+    href: 'https://planet4589.org/space/con/star/stats.html',
+    detail: 'Independent public statistics on the Starlink fleet.',
+  },
+  {
+    title: 'satellite.js',
+    href: 'https://github.com/shashwatak/satellite-js',
+    detail: 'The SGP4 implementation this site uses in the browser.',
+  },
+];
+
+/** Closest prior work, cited in "Related work" below. */
+const priorWork: Source[] = [
+  {
+    title: 'E. J. Birrane: Contact Graph Routing Extension Block (draft-irtf-dtnrg-cgreb-00, 2013)',
+    href: 'https://datatracker.ietf.org/doc/draft-irtf-dtnrg-cgreb/',
+    detail: 'CGREB. IRTF Internet-Draft, expired. A bundle carries its planned contacts with their time windows, and each node re-checks them.',
+  },
+  {
+    title: 'Y. J. Stein: Segment Routed Time Sensitive Networking (draft-stein-srtsn-01, 2021)',
+    href: 'https://datatracker.ietf.org/doc/draft-stein-srtsn/',
+    detail: 'SRTSN. Individual Internet-Draft, expired. Per-hop deadlines in a segment list, used to schedule queues.',
+  },
+  {
+    title: 'S. Peng, R. Bonica: Deterministic Routing Header (draft-pb-6man-deterministic-crh-01, 2024)',
+    href: 'https://datatracker.ietf.org/doc/draft-pb-6man-deterministic-crh/',
+    detail: 'Called CRH-20 on this site. Individual Internet-Draft, expired. A CRH variant whose entries carry a per-hop scheduling value.',
+  },
+  {
+    title: 'S. Peng: Deterministic Source Route Header (draft-p-6man-deterministic-eh-01, 2024)',
+    href: 'https://datatracker.ietf.org/doc/draft-p-6man-deterministic-eh/',
+    detail: 'Individual Internet-Draft, expired. A source route header with deterministic-forwarding information.',
+  },
+  {
+    title: 'S. Peng et al.: Deadline Based Deterministic Forwarding (draft-ietf-detnet-deadline-based-forwarding-01, 2026)',
+    href: 'https://datatracker.ietf.org/doc/draft-ietf-detnet-deadline-based-forwarding/',
+    detail: 'DetNet working group Internet-Draft, work in progress. Deadline-based queueing for bounded latency.',
+  },
+  {
+    title: 'S. Peng, B. Tan, P. Liu: Deadline Option (draft-peng-6man-deadline-option-01, 2022)',
+    href: 'https://datatracker.ietf.org/doc/draft-peng-6man-deadline-option/',
+    detail: 'Individual Internet-Draft, expired. An IPv6 option that carries deadline information for this kind of forwarding.',
+  },
+  {
+    title: 'S. Vissicchio, M. Handley: Reliable Low-Delay Routing In Space with Routing-Oblivious LEO Satellites (arXiv:2401.11490, 2024)',
+    href: 'https://arxiv.org/abs/2401.11490',
+    detail: 'STARGLIDER. Routes computed on the ground, the path carried in the packet, satellites without routing state.',
+  },
+  {
+    title: 'V. Hartig, M. Bosk, N. Mohan, P. Mendes: Segment Routing based on Geographic Checkpoints (LEO-NET ’24, ACM, 2024)',
+    href: 'https://doi.org/10.1145/3697253.3697268',
+    detail: 'GCR. Segment routing over geographic checkpoints with geographic forwarding, simulated on the Starlink constellation.',
+  },
+  {
+    title: 'B. Karp, H. T. Kung: GPSR: Greedy Perimeter Stateless Routing for Wireless Networks (MobiCom 2000)',
+    href: 'https://doi.org/10.1145/345910.345953',
+    detail: 'The classic greedy geographic forwarding scheme.',
+  },
+];
+---
+
+<BaseLayout
+  title="Methodology"
+  description="How ChronoRoute labels every number as REAL, DERIVED, MODELLED or UNKNOWN, where the data comes from, what is modelled, the limitations, related work and what is new."
+>
+  <header class="page-hero container">
+    <p class="eyebrow">Methodology</p>
+    <h1>Where every number comes from</h1>
+    <p class="lede">
+      This project studies a routing protocol on the geometry of a real constellation, but much of what happens
+      inside a real satellite network is not public. So every number and every visual on this site says where it
+      comes from, and we do not show numbers we do not have.
+    </p>
+    <nav class="toc" aria-label="On this page">
+      <ul>
+        <li><a href="#labels">Labels</a></li>
+        <li><a href="#inventory">What is real</a></li>
+        <li><a href="#orbits">Orbit data</a></li>
+        <li><a href="#sources">Sources</a></li>
+        <li><a href="#limitations">Limitations</a></li>
+        <li><a href="#related">Related work</a></li>
+        <li><a href="#results">Results</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <!-- OWNER: content -->
+  <section class="section" id="labels" aria-labelledby="labels-title">
+    <div class="container">
+      <div class="section__head">
+        <p class="eyebrow">Provenance</p>
+        <h2 id="labels-title">The four labels</h2>
+        <p>Each label has its own colour and its own shape, so it can be read without colour.</p>
+      </div>
+      <div class="table-wrap">
+        <table class="stack-table">
+          <caption>Provenance labels used on this site</caption>
+          <thead>
+            <tr>
+              <th scope="col">Label</th>
+              <th scope="col">Meaning</th>
+              <th scope="col">Example in this project</th>
+            </tr>
+          </thead>
+          <tbody>
+            {
+              LABELS.map((label) => (
+                <tr>
+                  <th scope="row"><LabelChip kind={label.kind} /></th>
+                  <td>{label.definition}</td>
+                  <td class="muted">{label.example}</td>
+                </tr>
+              ))
+            }
+          </tbody>
+        </table>
+      </div>
+      <div class="prose rules">
+        <h3>Rules we follow</h3>
+        <ul>
+          <li>
+            A value is only as strong as its weakest input. A route is computed by our code, so the project’s shared
+            label table calls it DERIVED, but it runs over MODELLED laser links: it is always shown together with the
+            MODELLED label and called hypothetical.
+          </li>
+          <li>
+            The labels come from one table in the code (<code>sim/chronoroute/labels.py</code>), used by every data
+            file the project writes; this site’s copy is checked against it on every build.
+          </li>
+          <li>We do not show placeholder or invented numbers. Where data does not exist yet, the page says so.</li>
+          <li>
+            Starlink’s real routing is UNKNOWN. Starlink does not use T-CRH; we use its public orbits only as a
+            realistic test geometry.
+          </li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- OWNER: content -->
+  <section class="section" id="inventory" aria-labelledby="inventory-title">
+    <div class="container">
+      <div class="section__head">
+        <p class="eyebrow">Inventory</p>
+        <h2 id="inventory-title">What is real, derived, modelled and unknown</h2>
+        <p>Every input of the experiments, with its label and where it comes from.</p>
+      </div>
+      <div class="table-wrap">
+        <table class="stack-table inventory">
+          <caption>Inputs and their provenance</caption>
+          <thead>
+            <tr>
+              <th scope="col">What</th>
+              <th scope="col">Label</th>
+              <th scope="col">Where it comes from</th>
+              <th scope="col">Notes</th>
+            </tr>
+          </thead>
+          <tbody>
+            {
+              inventory.map((row) => (
+                <tr>
+                  <th scope="row">
+                    {row.what}
+                    {row.planned && <span class="planned-tag">Planned, not built yet</span>}
+                  </th>
+                  <td class="inventory__label">
+                    {row.labelNote ? <LabelChip kind={row.label} note={row.labelNote} /> : <LabelChip kind={row.label} />}
+                  </td>
+                  <td>{row.how}</td>
+                  <td class="muted">{row.note}</td>
+                </tr>
+              ))
+            }
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- OWNER: content -->
+  <section class="section" id="orbits" aria-labelledby="orbit-title">
+    <div class="container split">
+      <div class="section__head">
+        <p class="eyebrow">Orbit data</p>
+        <h2 id="orbit-title">From public elements to positions</h2>
+        <div class="chips">
+          <LabelChip kind="real" note="elements" />
+          <LabelChip kind="real" note="positions (SGP4)" />
+        </div>
+      </div>
+      <div class="stack">
+        <ol class="prose pipeline">
+          <li>
+            We download CelesTrak’s supplemental GP (SupGP) elements for Starlink. CelesTrak derives them from
+            ephemerides published by SpaceX. The download time is taken from the HTTP Date header, and the raw file
+            is kept with its sha256 hash.
+          </li>
+          <li>
+            Element sets whose epoch is more than three days older than the download are left out. Every remaining
+            set must initialise and propagate with SGP4 at the download time; any that fail are left out too. The
+            snapshot’s manifest records how many were left out and why.
+          </li>
+          <li>
+            SGP4 propagates each element set to the time you are looking at. Its error grows with the time since
+            each element set’s epoch, so the site always shows how old the snapshot is.
+          </li>
+        </ol>
+        <DataBadge />
+      </div>
+    </div>
+  </section>
+
+  <!-- OWNER: content -->
+  <section class="section" id="sources" aria-labelledby="sources-title">
+    <div class="container split">
+      <div class="section__head">
+        <p class="eyebrow">Sources</p>
+        <h2 id="sources-title">Data, standards and prior work</h2>
+      </div>
+      <div class="sources-wrap">
+        <h3 class="sources__title">Data and standards</h3>
+        <ul class="sources">
+          {
+            sources.map((s) => (
+              <li>
+                <a href={s.href} rel="noopener">{s.title}</a>
+                <p>{s.detail}</p>
+                {s.code && (
+                  <p class="sources__code">
+                    {s.code.label}: <code>{s.code.text}</code>
+                  </p>
+                )}
+              </li>
+            ))
+          }
+        </ul>
+        <h3 class="sources__title" id="prior-work">Prior work</h3>
+        <ul class="sources">
+          {
+            priorWork.map((s) => (
+              <li>
+                <a href={s.href} rel="noopener">{s.title}</a>
+                <p>{s.detail}</p>
+              </li>
+            ))
+          }
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- OWNER: content -->
+  <section class="section" id="limitations" aria-labelledby="limitations-title">
+    <div class="container split">
+      <div class="section__head">
+        <p class="eyebrow">Limitations</p>
+        <h2 id="limitations-title">What this work does not show</h2>
+      </div>
+      <ul class="prose limits">
+        <li>
+          <strong>It is a simulation.</strong> Results will come from our Python simulator and ns-3 module, on
+          modelled links, traffic and failures. Nothing here is measured on Starlink.
+        </li>
+        <li>
+          <strong>Orbits are a snapshot.</strong> SGP4 positions get less accurate as the element sets age.
+        </li>
+        <li>
+          <strong>Clocks must agree.</strong> The check assumes every node knows GPS time. A node whose clock is off
+          by some amount shifts its verdicts by the same amount.
+        </li>
+        <li>
+          <strong>The alarm comes after the fact.</strong> The node at the far end of a slow link notices; the
+          packet has already crossed that link.
+        </li>
+        <li>
+          <strong>Resolution is one unit.</strong> Lateness shorter than the deadline unit, or hidden by the slack
+          S, is not seen. Slack trades missed problems against false alarms, which is exactly what the experiments
+          will measure.
+        </li>
+        <li>
+          <strong>A hop budget is at most 255 units</strong> (25.5 ms at the provisional default unit of 0.1 ms).
+          A longer budget is clamped, the SAT flag is set, and that deadline is then earlier than its budget.
+        </li>
+        <li>
+          <strong>Three header fields change in flight</strong> (Segments Left, Flags, Dev Hop): two more mutable
+          fields than RFC 9631 allows, since only Segments Left changes in a CRH. This matters for IPsec AH.
+        </li>
+        <li>
+          <strong>Experimental and closed-domain.</strong> T-CRH uses an experimental routing type (253) and is
+          meant for a single operator’s network, not the public Internet.
+        </li>
+        <li>
+          <strong>The fallback can fail.</strong> Greedy geographic forwarding can reach a node with no neighbour
+          closer to the destination, so falling back does not guarantee delivery.
+        </li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- OWNER: content -->
+  <section class="section" id="related" aria-labelledby="related-title">
+    <div class="container split">
+      <div class="section__head">
+        <p class="eyebrow">Related work</p>
+        <h2 id="related-title">What exists, and what is new</h2>
+      </div>
+      <div class="prose">
+        <p>
+          <strong>Compact source routing.</strong> SRv6 (RFC 8754) carries a full 128-bit address per segment;
+          compressed SRv6 (RFC 9800) and the Compact Routing Header (RFC 9631) make the list much smaller. T-CRH
+          builds directly on CRH-16.
+        </p>
+        <p>
+          <strong>LEO network simulation.</strong> Hypatia (Kassing et al., IMC 2020) simulates LEO satellite
+          networks at packet level. Its default laser-link layout, Grid-4 (+Grid), is the link model this project
+          uses (see the <a href="#inventory">inventory</a>).
+        </p>
+        <p>
+          <strong>Per-hop timing in source routes.</strong> Putting timing for each hop into a source-routed packet
+          is not new, and ChronoRoute does not claim to be the first to do it. CGREB (Birrane, 2013) carries the
+          planned contacts of a route with their time windows, and each node re-checks that they are still
+          feasible. SRTSN (Stein, 2021) and the Deterministic Routing Header, called CRH-20 here (Peng and Bonica,
+          2024), carry a per-hop deadline or residence time that routers use to schedule their queues; the
+          Deterministic Source Route Header (Peng, 2024) and the deadline-based forwarding drafts for DetNet belong
+          to the same family. These designs use time as a scheduling input, or check whether link windows still exist.
+          T-CRH uses a cumulative arrival deadline as an alarm instead: one comparison per hop, which also catches a
+          link that is still up but slow.
+        </p>
+        <p>
+          <strong>Routing in LEO constellations.</strong> STARGLIDER (Vissicchio and Handley, 2024) has the same
+          architecture: routes are computed on the ground, the path travels in the packet, and satellites keep no
+          routing state. Its header is much smaller than T-CRH’s, and it reacts to detected link failures rather
+          than to timing. GCR (Hartig et al., LEO-NET 2024) combines segment routing with geographic forwarding.
+          Greedy geographic forwarding itself, as in GPSR, is prior art: in ChronoRoute it is a safety net, not a
+          contribution. Full references are in the <a href="#prior-work">source list</a>.
+        </p>
+        <figure class="novelty">
+          <figcaption>What is new</figcaption>
+          <blockquote>
+            <p>
+              To our knowledge, no earlier design uses cumulative per-hop arrival deadlines in an IPv6 routing header
+              as a built-in alarm: with one comparison, each satellite on the path can tell that reality has drifted
+              from the predicted LEO schedule, including links that are up but slow. The geographic forwarding that
+              follows an alarm is not new. The experiments will measure how well the alarm works (catch rate against
+              false alarms) on real Starlink orbit data.
+            </p>
+          </blockquote>
+        </figure>
+      </div>
+    </div>
+  </section>
+
+  <!-- OWNER: content -->
+  <section class="section" id="results" aria-labelledby="results-title">
+    <div class="container">
+      <div class="section__head">
+        <p class="eyebrow">Results</p>
+        <h2 id="results-title">Experiment results</h2>
+      </div>
+      <div class="prose results-now">
+        <h3>What exists now</h3>
+        <ul>
+          <li>
+            <strong>Corrected semester results.</strong> The earlier semester code had known bugs. Its experiments have
+            been re-run on the bug-fixed code, each with a provenance manifest, in
+            <a href={`${REPO_URL}/tree/main/results/legacy-v0.9`} rel="noopener"><code>results/legacy-v0.9</code></a>.
+            The <a href={`${REPO_URL}/blob/main/docs/results-changelog.md`} rel="noopener">results changelog</a> lists
+            every old headline number next to the corrected one, says why it changed, and names the claims that had
+            to be retired. The original, uncorrected figures are kept in the repository only for that comparison.
+          </li>
+          <li>
+            <strong>Course milestone.</strong> T-CRH in ns-3 on the real 53.2° / 463 km Starlink shell, with link
+            delays and states that change during the run, inside real IPv6 Routing Type 253 headers:
+            <a href={`${REPO_URL}/blob/main/docs/course-milestone.md`} rel="noopener"><code>docs/course-milestone.md</code></a>,
+            with the run folders in
+            <a href={`${REPO_URL}/tree/main/results/course-milestone`} rel="noopener"><code>results/course-milestone</code></a>.
+          </li>
+        </ul>
+        <p>
+          Their numbers are not repeated on this site, so they cannot drift from the files: read them, with their
+          limitations, in the documents above.
+        </p>
+      </div>
+      <BuildingState heading="The new experiment campaign" phase="results" level={3} id="results-state">
+        <p>
+          Results of the new campaign will appear here once it has run. Each one will come with its provenance: a
+          run manifest (schema <code>chronoroute.manifest/1</code>, in <code>spec/schemas/</code>) recording the code
+          commit, the configuration and its hash, the random seeds, the orbit snapshot, library versions, and the
+          sha256 hash of every output file, with a label for each input.
+        </p>
+        <p>
+          The central measurement is the alarm’s catch rate against its false-alarm rate, scored against paired runs
+          without the fault. No numbers are shown until those runs exist.
+        </p>
+      </BuildingState>
+      <p class="small muted after-results">
+        The protocol itself is already pinned by golden test vectors; see the
+        <a href={pageHref('protocol#golden')}>protocol page</a>. The code is in the
+        <a href={REPO_URL} rel="noopener">repository</a>.
+      </p>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .toc {
+    margin-top: var(--space-6);
+  }
+
+  .toc ul {
+    list-style: none;
+    padding: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+  }
+
+  .toc li + li {
+    margin-top: 0;
+  }
+
+  .toc a {
+    display: inline-flex;
+    align-items: center;
+    min-height: 2.25rem;
+    padding: 0 0.75rem;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-2);
+    font-size: var(--step--1);
+    color: var(--muted);
+    text-decoration: none;
+  }
+
+  .toc a:hover {
+    color: var(--ink);
+    border-color: var(--accent);
+  }
+
+  .chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+  }
+
+  .stack-table th[scope='row'] {
+    min-width: 9rem;
+  }
+
+  .inventory__label {
+    white-space: nowrap;
+  }
+
+  /* Narrow screens: one stacked block per row instead of a wide table. */
+  @media (max-width: 47.99em) {
+    .stack-table thead {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      overflow: hidden;
+      clip: rect(0 0 0 0);
+    }
+
+    .stack-table tr {
+      display: block;
+      padding: var(--space-3) var(--space-4);
+      border-bottom: 1px solid var(--line-soft);
+    }
+
+    .stack-table tbody tr:last-child {
+      border-bottom: 0;
+    }
+
+    .stack-table th[scope='row'],
+    .stack-table td {
+      display: block;
+      width: auto;
+      min-width: 0;
+      padding: var(--space-1) 0;
+      border: 0;
+    }
+
+    .inventory__label {
+      white-space: normal;
+    }
+  }
+
+  .rules {
+    margin-top: var(--space-6);
+  }
+
+  .pipeline {
+    padding-left: 1.4em;
+  }
+
+  .pipeline li::marker {
+    font-family: var(--font-mono);
+    color: var(--accent);
+  }
+
+  .sources {
+    list-style: none;
+    padding: 0;
+    display: grid;
+    gap: var(--space-3);
+  }
+
+  .sources li + li {
+    margin-top: 0;
+  }
+
+  .sources li {
+    padding: var(--space-3) var(--space-4);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-2);
+    background: var(--surface);
+  }
+
+  .sources p {
+    margin-top: var(--space-1);
+    font-size: var(--step--1);
+    color: var(--muted);
+  }
+
+  .sources-wrap {
+    display: grid;
+    gap: var(--space-4);
+    min-width: 0;
+  }
+
+  .sources__title {
+    font-size: var(--step-0);
+  }
+
+  .sources__title + .sources {
+    margin-top: calc(-1 * var(--space-2));
+  }
+
+  .sources__code code {
+    overflow-wrap: anywhere;
+  }
+
+  .planned-tag {
+    display: block;
+    width: fit-content;
+    margin-top: var(--space-2);
+    padding: 0.1rem 0.45rem;
+    border: 1px dashed var(--muted);
+    border-radius: var(--radius-1);
+    font-family: var(--font-mono);
+    font-size: var(--step--2);
+    font-weight: 400;
+    color: var(--muted);
+  }
+
+  .limits li {
+    color: var(--muted);
+  }
+
+  .limits strong {
+    color: var(--ink);
+  }
+
+  .novelty {
+    margin-top: var(--space-6);
+    padding: var(--space-5);
+    border: 1px solid var(--line);
+    border-left: 3px solid var(--accent);
+    border-radius: var(--radius-2);
+    background: var(--surface);
+  }
+
+  .novelty figcaption {
+    font-family: var(--font-mono);
+    font-size: var(--step--2);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  .novelty blockquote {
+    margin: var(--space-3) 0 0;
+  }
+
+  .novelty p {
+    font-family: var(--font-display);
+    font-size: var(--step-1);
+    font-stretch: 96%;
+    line-height: 1.45;
+    color: var(--ink);
+  }
+
+  .after-results {
+    margin-top: var(--space-4);
+  }
+
+  .results-now {
+    margin-bottom: var(--space-5);
+  }
+
+  .results-now h3 {
+    font-size: var(--step-0);
+  }
+</style>

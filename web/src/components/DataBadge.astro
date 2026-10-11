@@ -1,0 +1,282 @@
+---
+/**
+ * Orbit snapshot badge. Reads public/data/latest.json and the manifest it points to at
+ * BUILD time (so it works without JavaScript) and, in the browser, adds the live age of
+ * the download. If no snapshot exists it says so; it never shows invented values.
+ */
+import LabelChip from './LabelChip.astro';
+import { readLatestManifest } from '../lib/data-build';
+import { isDevelopmentSnapshot } from '../lib/data';
+import { formatInt, formatUtc } from '../lib/format';
+
+const result = await readLatestManifest();
+const m = result.ok ? result.manifest : null;
+const excludedTotal = m
+  ? m.excluded.stale_epoch + m.excluded.sgp4_error + m.excluded.invalid + m.excluded.duplicate
+  : 0;
+const reasons: Array<[number, string]> = m
+  ? [
+      [m.excluded.stale_epoch, `epoch older than ${m.max_epoch_age_days} days`],
+      [m.excluded.sgp4_error, 'SGP4 error'],
+      [m.excluded.invalid, 'invalid'],
+      [m.excluded.duplicate, 'duplicate'],
+    ]
+  : [];
+const excludedParts = reasons.filter(([n]) => n > 0).map(([n, why]) => `${formatInt(n)} ${why}`);
+
+/**
+ * The link goes to a human-readable page (CelesTrak's SupGP index for SupGP data, otherwise the
+ * source site's home page); the exact query URL, a raw data download, is shown as text.
+ */
+const SUPGP_PAGE = 'https://celestrak.org/NORAD/elements/supplemental/';
+let sourcePage = SUPGP_PAGE;
+if (m && !m.source_url.startsWith(SUPGP_PAGE)) {
+  try {
+    sourcePage = `${new URL(m.source_url).origin}/`;
+  } catch {
+    sourcePage = m.source_url;
+  }
+}
+
+// A snapshot ID starts with the time of its pinned download folder (YYYYMMDDTHHMMZ). If that
+// differs from this file's own download minute, say so, or an examiner sees two times for one snapshot.
+const idTime = m ? /^(\d{4})(\d{2})(\d{2})T(\d{2})(\d{2})Z/.exec(m.snapshot_id) : null;
+const idIso = idTime ? `${idTime[1]}-${idTime[2]}-${idTime[3]}T${idTime[4]}:${idTime[5]}` : null;
+const idDiffers = m !== null && idIso !== null && !m.fetched_utc.startsWith(idIso);
+const idTimeText = idIso ? `${idIso.replace('T', ' ')} UTC` : '';
+const countNote = m
+  ? ` of ${formatInt(m.count_raw)} downloaded; ` +
+    (excludedTotal === 0
+      ? 'none excluded'
+      : `${formatInt(excludedTotal)} excluded (${excludedParts.join(', ')})`)
+  : '';
+---
+
+<aside class="data-badge" aria-label="Orbit data snapshot">
+  <div class="data-badge__head">
+    <p class="data-badge__title">Orbit snapshot</p>
+    {m ? <LabelChip kind="real" size="sm" note="public orbital elements" /> : null}
+  </div>
+
+  {
+    m ? (
+      <>
+        <dl class="data-badge__list">
+          <div>
+            <dt>Source</dt>
+            <dd>
+              <a href={sourcePage} rel="noopener">{m.source}</a>
+              <span class="muted data-badge__sub">
+                Query URL: <code class="data-badge__url">{m.source_url}</code>
+              </span>
+            </dd>
+          </div>
+          <div>
+            <dt>Element sets</dt>
+            <dd>
+              <span class="num">{formatInt(m.count)}</span>
+              <span class="muted num">{countNote}</span>
+            </dd>
+          </div>
+          <div>
+            <dt>Element epochs</dt>
+            <dd>
+              <span class="num">
+                <time datetime={m.epoch_min}>{formatUtc(m.epoch_min, 'minutes')}</time> to{' '}
+                <time datetime={m.epoch_max}>{formatUtc(m.epoch_max, 'minutes')}</time>
+              </span>
+              <span class="muted data-badge__sub">
+                median <time class="num" datetime={m.epoch_median}>{formatUtc(m.epoch_median, 'minutes')}</time>
+              </span>
+            </dd>
+          </div>
+          <div>
+            <dt>Downloaded</dt>
+            <dd>
+              <time class="num" datetime={m.fetched_utc}>{formatUtc(m.fetched_utc)}</time>
+              <span class="muted data-badge__sub" data-age-from={m.fetched_utc} hidden></span>
+            </dd>
+          </div>
+          <div>
+            <dt>Snapshot</dt>
+            <dd>
+              <span class="mono data-badge__id">{m.snapshot_id}</span>
+              {idDiffers && (
+                <span class="muted data-badge__sub">
+                  Named after the pinned download folder ({idTimeText}); this file itself was downloaded at the time
+                  shown under Downloaded.
+                </span>
+              )}
+            </dd>
+          </div>
+        </dl>
+        {isDevelopmentSnapshot(m) && (
+          <p class="data-badge__note">
+            Development snapshot: converted by the offline fallback <code>dev-data.mjs</code> from a
+            pinned copy of the CelesTrak download. Published builds always use the project's Python
+            pipeline.
+          </p>
+        )}
+        <p
+          class="data-badge__note data-badge__note--warn data-badge__stale"
+          data-stale-from={m.fetched_utc}
+          data-stale-hours="24"
+          hidden
+        >
+          <strong class="data-badge__stale-tag">Stale</strong> This snapshot is more than 24 hours old.
+          The site normally refreshes its orbit data every 4 hours, so the last refreshes did not
+          complete; the positions shown are predictions from older elements.
+        </p>
+        <p
+          class="data-badge__note data-badge__note--warn"
+          data-stale-from={m.fetched_utc}
+          data-stale-hours={m.max_epoch_age_days * 24}
+          hidden
+        >
+          This snapshot was downloaded more than {m.max_epoch_age_days} days ago. SGP4 errors grow
+          with time since the element epoch, so positions computed from it are less accurate.
+        </p>
+      </>
+    ) : (
+      <p class="data-badge__empty">
+        No orbit snapshot is available in this build. {result.ok ? '' : result.reason}
+      </p>
+    )
+  }
+</aside>
+
+<script>
+  import { formatAge, parseUtc } from '../lib/format';
+
+  const HOUR_MS = 3_600_000;
+
+  function update(): void {
+    const now = Date.now();
+    document.querySelectorAll<HTMLElement>('[data-age-from]').forEach((el) => {
+      const from = parseUtc(el.dataset['ageFrom'] ?? '');
+      if (Number.isNaN(from)) return;
+      const age = formatAge(from, now);
+      el.textContent = now >= from ? `${age} ago` : age;
+      el.hidden = false;
+    });
+    document.querySelectorAll<HTMLElement>('[data-stale-from]').forEach((el) => {
+      const from = parseUtc(el.dataset['staleFrom'] ?? '');
+      const hours = Number(el.dataset['staleHours']);
+      if (Number.isNaN(from) || !Number.isFinite(hours)) return;
+      el.hidden = now - from <= hours * HOUR_MS;
+    });
+  }
+
+  update();
+  window.setInterval(update, 60_000);
+</script>
+
+<style>
+  .data-badge {
+    container-type: inline-size;
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-3);
+    padding: var(--space-4) var(--space-5) var(--space-5);
+    font-size: var(--step--1);
+  }
+
+  .data-badge__head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-2) var(--space-4);
+    padding-bottom: var(--space-3);
+    margin-bottom: var(--space-3);
+    border-bottom: 1px solid var(--line-soft);
+  }
+
+  .data-badge__title {
+    font-family: var(--font-mono);
+    font-size: var(--step--2);
+    font-weight: 500;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--ink);
+  }
+
+  .data-badge__list {
+    display: grid;
+    gap: var(--space-3) var(--space-5);
+  }
+
+  /* Two columns only when the badge itself is wide enough (it also sits in narrow sidebars). */
+  @container (min-width: 30rem) {
+    .data-badge__list {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  .data-badge__list > div {
+    min-width: 0;
+  }
+
+  .data-badge dt {
+    font-family: var(--font-mono);
+    font-size: var(--step--2);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  .data-badge dd {
+    margin: 0.15rem 0 0;
+    color: var(--ink);
+    overflow-wrap: anywhere;
+  }
+
+  .data-badge__sub {
+    display: block;
+  }
+
+  .data-badge__sub[hidden] {
+    display: none;
+  }
+
+  .data-badge__id {
+    font-size: var(--step--2);
+  }
+
+  .data-badge__url {
+    font-size: var(--step--2);
+    overflow-wrap: anywhere;
+  }
+
+  .data-badge__note {
+    margin-top: var(--space-4);
+    padding-top: var(--space-3);
+    border-top: 1px dashed var(--line);
+    color: var(--muted);
+  }
+
+  .data-badge__note[hidden] {
+    display: none;
+  }
+
+  .data-badge__note--warn {
+    color: var(--deadline);
+  }
+
+  .data-badge__stale-tag {
+    display: inline-block;
+    margin-right: var(--space-2);
+    padding: 0 0.4em;
+    border: 1px solid var(--bad);
+    border-radius: var(--radius-1);
+    color: var(--bad);
+    font-family: var(--font-mono);
+    font-size: var(--step--2);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  .data-badge__empty {
+    color: var(--muted);
+  }
+</style>

@@ -1,0 +1,639 @@
+---
+/**
+ * Home page: "how a deadline catches an up-but-slow link" in about a minute. An animated
+ * HTML/CSS diagram (horizontal at every width) plus the same story as a numbered list, which
+ * is the text alternative. Timings are example values, labelled as such; the rules are those
+ * of spec section 6. With prefers-reduced-motion the diagram shows its final state, still.
+ * A Pause button stops the loop (WCAG 2.2.2).
+ */
+import LabelChip from '../LabelChip.astro';
+
+interface Props {
+  headingId: string;
+}
+const { headingId } = Astro.props;
+
+// Example timings (ms after the packet left the ingress). Deadlines are cumulative budgets:
+// 6 + 7 + 8 + 6 ms, the first three as in the spec's reference vector.
+const budgets = [6, 7, 8, 6];
+const deadlines = budgets.map((_, i) => budgets.slice(0, i + 1).reduce((a, b) => a + b, 0));
+const arriveA = 5;
+const arriveB = 17;
+const lateBy = arriveB - (deadlines[1] ?? 0);
+---
+
+<div class="story">
+  <figure class="dd" data-story aria-labelledby={`${headingId}-cap`}>
+    <div
+      class="dd__stage"
+      role="img"
+      aria-label={`Diagram: a packet leaves the ingress ground station, reaches satellite A at ${arriveA} ms (deadline ${deadlines[0]} ms, on time), crosses a link that is up but slow, and reaches satellite B at ${arriveB} ms, ${lateBy} ms after its ${deadlines[1]} ms deadline. B sets DEV and forwards the packet geographically to the egress ground station.`}
+    >
+      <div class="dd__grid" aria-hidden="true">
+        <!-- row 1: nodes and links -->
+        <div class="dd__node dd__node--gs dd__n0"><span class="dd__dot"></span><span class="dd__name">Ingress</span></div>
+        <div class="dd__link dd__l1"><span class="dd__fill"></span></div>
+        <div class="dd__node dd__n1"><span class="dd__dot"></span><span class="dd__name">Sat A</span></div>
+        <div class="dd__link dd__link--slow dd__l2">
+          <span class="dd__fill"></span>
+          <span class="dd__queue"><i></i><i></i><i></i></span>
+          <span class="dd__tag">up, but slow</span>
+        </div>
+        <div class="dd__node dd__n2"><span class="dd__dot"></span><span class="dd__name">Sat B</span></div>
+        <div class="dd__link dd__planned dd__l3"><span class="dd__fill"></span></div>
+        <div class="dd__node dd__planned dd__n3"><span class="dd__dot"></span><span class="dd__name">Sat C</span></div>
+        <div class="dd__link dd__planned dd__l4"><span class="dd__fill"></span></div>
+        <div class="dd__node dd__node--gs dd__n4"><span class="dd__dot"></span><span class="dd__name">Egress</span></div>
+
+        <!-- row 2: deadlines and arrivals -->
+        <div class="dd__note dd__c1">t = 0</div>
+        <div class="dd__note dd__c3">
+          <span class="dd__dl">D₁ {deadlines[0]}&nbsp;ms</span>
+          <span class="dd__arr dd__a1">at {arriveA}&nbsp;ms<br /><b class="dd__ok">on time</b></span>
+        </div>
+        <div class="dd__note dd__c5">
+          <span class="dd__dl">D₂ {deadlines[1]}&nbsp;ms</span>
+          <span class="dd__arr dd__a2">at {arriveB}&nbsp;ms<br /><b class="dd__late">late: DEV</b></span>
+        </div>
+        <div class="dd__note dd__c7 dd__planned-note"><span class="dd__dl">D₃ {deadlines[2]}&nbsp;ms</span></div>
+        <div class="dd__note dd__c9">
+          <span class="dd__dl">D₄ {deadlines[3]}&nbsp;ms</span>
+          <span class="dd__arr dd__a4">delivered,<br />DEV set</span>
+        </div>
+
+        <!-- row 3: the fallback from B to the egress -->
+        <div class="dd__fallback">
+          <span class="dd__fill"></span>
+          <span class="dd__tag">GREEDY: geographic forwarding to the egress</span>
+        </div>
+      </div>
+    </div>
+    <figcaption id={`${headingId}-cap`} class="dd__cap">
+      <span>Example timings, for illustration; the rules are those of spec section 6.</span>
+      <span class="dd__chips">
+        <LabelChip kind="modelled" size="sm" note="example timings" />
+        <LabelChip kind="real" size="sm" note="processing rules" />
+      </span>
+      <button type="button" class="dd__pause" data-story-pause hidden aria-pressed="false">Pause animation</button>
+    </figcaption>
+  </figure>
+
+  <ol class="story__steps">
+    <li class="story__step story__s1">
+      <h3>The plan goes into the packet</h3>
+      <p>
+        The ingress ground station predicts the delay of every hop from the orbits and writes the path and a
+        cumulative <span class="deadline">deadline</span> for each hop into the T-CRH: A by {deadlines[0]} ms,
+        B by {deadlines[1]} ms, C by {deadlines[2]} ms, the egress by {deadlines[3]} ms.
+      </p>
+    </li>
+    <li class="story__step story__s2">
+      <h3>On time at A</h3>
+      <p>The packet reaches A at {arriveA} ms, before its {deadlines[0]} ms deadline. A follows the path.</p>
+    </li>
+    <li class="story__step story__s3">
+      <h3>A link that is up but slow</h3>
+      <p>
+        The link from A to B is up: it still carries hello messages, so link-state routing keeps using it. But a
+        queue on it holds the packet back.
+      </p>
+    </li>
+    <li class="story__step story__s4">
+      <h3>B notices</h3>
+      <p>
+        B receives the packet at {arriveB} ms, {lateBy} ms after its {deadlines[1]} ms deadline. It sets the DEV
+        flag and writes Dev Hop = 2. No extra message was needed: the packet itself is the evidence.
+      </p>
+    </li>
+    <li class="story__step story__s5">
+      <h3>Fall back</h3>
+      <p>
+        Under the greedy policy, B stops following the planned path and forwards the packet geographically
+        towards the egress. The egress delivers it, and DEV with Dev Hop tells it where the plan broke.
+      </p>
+    </li>
+  </ol>
+</div>
+
+<script>
+  document.querySelectorAll<HTMLElement>('[data-story]').forEach((figure) => {
+    const button = figure.querySelector<HTMLButtonElement>('[data-story-pause]');
+    if (!button) return;
+    const reduce = window.matchMedia('(prefers-reduced-motion: reduce)');
+    const sync = () => {
+      button.hidden = reduce.matches;
+    };
+    sync();
+    reduce.addEventListener('change', sync);
+    button.addEventListener('click', () => {
+      const paused = figure.toggleAttribute('data-paused');
+      button.setAttribute('aria-pressed', String(paused));
+      button.textContent = paused ? 'Play animation' : 'Pause animation';
+    });
+  });
+</script>
+
+<style>
+  .story {
+    display: grid;
+    gap: var(--space-6);
+  }
+
+  @media (min-width: 64em) {
+    .story {
+      grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.85fr);
+      gap: var(--space-7);
+      align-items: start;
+    }
+  }
+
+  /* ---------- diagram ---------- */
+  .dd {
+    margin: 0;
+    padding: var(--space-5) var(--space-3) var(--space-4);
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-3);
+    min-width: 0;
+  }
+
+  @media (min-width: 48em) {
+    .dd {
+      padding: var(--space-6) var(--space-5) var(--space-5);
+    }
+  }
+
+  .dd__grid {
+    display: grid;
+    grid-template-columns:
+      minmax(2.6rem, 1fr) minmax(0.6rem, 1fr) minmax(2.6rem, 1fr) minmax(1.4rem, 1.6fr) minmax(2.6rem, 1fr)
+      minmax(0.6rem, 1fr) minmax(2.6rem, 1fr) minmax(0.6rem, 1fr) minmax(2.6rem, 1fr);
+    grid-template-rows: auto auto auto;
+    row-gap: var(--space-2);
+    align-items: center;
+    padding-top: 1.6rem;
+  }
+
+  .dd__node {
+    display: grid;
+    justify-items: center;
+    gap: 0.3rem;
+    grid-row: 1;
+  }
+
+  .dd__dot {
+    width: 1.35rem;
+    height: 1.35rem;
+    border-radius: 50%;
+    border: 2px solid var(--accent);
+    background: var(--accent-soft);
+  }
+
+  .dd__node--gs .dd__dot {
+    border-radius: 4px;
+    border-color: var(--ink);
+    background: var(--surface-2);
+  }
+
+  .dd__name {
+    font-family: var(--font-mono);
+    font-size: 0.6875rem;
+    color: var(--ink);
+    white-space: nowrap;
+  }
+
+  @media (min-width: 30em) {
+    .dd__name {
+      font-size: var(--step--2);
+    }
+
+    .dd__dot {
+      width: 1.6rem;
+      height: 1.6rem;
+    }
+  }
+
+  .dd__link {
+    position: relative;
+    grid-row: 1;
+    align-self: start;
+    margin-top: calc(0.675rem - 1px);
+    height: 2px;
+    background: var(--line);
+  }
+
+  @media (min-width: 30em) {
+    .dd__link {
+      margin-top: calc(0.8rem - 1px);
+    }
+  }
+
+  .dd__fill {
+    position: absolute;
+    inset: 0;
+    background: var(--accent);
+    transform-origin: left center;
+  }
+
+  .dd__link--slow .dd__fill {
+    background: var(--deadline);
+  }
+
+  .dd__queue {
+    position: absolute;
+    left: 50%;
+    top: -0.95rem;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 2px;
+  }
+
+  .dd__queue i {
+    display: block;
+    width: 0.4rem;
+    height: 0.6rem;
+    border: 1px solid var(--deadline);
+    background: var(--deadline-soft);
+    border-radius: 1px;
+  }
+
+  .dd__tag {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    white-space: nowrap;
+    font-family: var(--font-mono);
+    font-size: 0.6875rem;
+    color: var(--deadline);
+  }
+
+  .dd__link--slow .dd__tag {
+    top: -2.3rem;
+  }
+
+  .dd__note {
+    grid-row: 2;
+    align-self: start;
+    display: grid;
+    justify-items: center;
+    gap: 0.15rem;
+    text-align: center;
+    font-family: var(--font-mono);
+    font-size: 0.6875rem;
+    line-height: 1.3;
+    color: var(--muted);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .dd__c1 { grid-column: 1; }
+  .dd__c3 { grid-column: 3; }
+  .dd__c5 { grid-column: 5; }
+  .dd__c7 { grid-column: 7; }
+  .dd__c9 { grid-column: 9; }
+
+  /* The end columns hug the edges so their notes never spill outside the figure. */
+  /* Wide screens: the diagram has room, so its text grows. */
+  @media (min-width: 48em) {
+    .dd__name { font-size: var(--step--1); }
+    .dd__note, .dd__tag { font-size: var(--step--2); }
+    .dd__dot { width: 1.9rem; height: 1.9rem; }
+    .dd__link { margin-top: calc(0.95rem - 1px); }
+  }
+
+  .dd__c1 { grid-column: 1 / 3; justify-items: start; text-align: left; }
+  .dd__c9 { grid-column: 8 / 10; justify-items: end; text-align: right; }
+
+  /* Phones: the egress note spans two columns, so its "delivered, DEV set" line reaches back
+     towards the D3 note of Sat C. Start that line below the D3 note, so the two never touch. */
+  @media (max-width: 29.99em) {
+    .dd__a4 { margin-top: 1.25rem; }
+  }
+
+  .dd__dl {
+    color: var(--deadline);
+  }
+
+  .dd__arr {
+    color: var(--ink);
+  }
+
+  .dd__ok {
+    font-weight: 500;
+    color: var(--ink);
+  }
+
+  .dd__late {
+    font-weight: 500;
+    color: var(--bad);
+  }
+
+  .dd__n2 .dd__dot {
+    border-color: var(--bad);
+    background: rgb(255 125 114 / 0.16);
+  }
+
+  .dd__n4 .dd__dot {
+    border-color: var(--accent);
+  }
+
+  /* The planned part B skipped. Only the graphics are faded; the text stays readable (WCAG 1.4.3)
+     and is struck through instead. */
+  .dd__link.dd__planned,
+  .dd__node.dd__planned .dd__dot {
+    opacity: 0.4;
+  }
+
+  .dd__node.dd__planned .dd__dot {
+    border-style: dashed;
+  }
+
+  .dd__planned .dd__fill {
+    transform: scaleX(0);
+  }
+
+  .dd__node.dd__planned .dd__name,
+  .dd__planned-note .dd__dl {
+    color: var(--muted);
+    text-decoration-line: line-through;
+  }
+
+  .dd__fallback {
+    position: relative;
+    grid-row: 3;
+    grid-column: 5 / 10;
+    height: 1.9rem;
+    /* from the centre of B's column to the centre of the egress column */
+    margin-inline: max(1.3rem, 10%);
+    border: 2px dashed var(--line);
+    border-top: 0;
+    border-radius: 0 0 var(--radius-2) var(--radius-2);
+  }
+
+  .dd__fallback .dd__fill {
+    inset: auto -2px -2px -2px;
+    height: 2px;
+    background: var(--accent);
+  }
+
+  .dd__fallback .dd__tag {
+    top: 2.1rem;
+    left: auto;
+    right: 0;
+    transform: none;
+    color: var(--accent);
+    white-space: normal;
+    width: max-content;
+    max-width: 15rem;
+    text-align: right;
+  }
+
+  .dd__cap {
+    margin-top: 3.5rem;
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2) var(--space-3);
+    align-items: center;
+    font-size: var(--step--2);
+    color: var(--muted);
+  }
+
+  .dd__chips {
+    display: inline-flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+  }
+
+  .dd__pause {
+    margin-left: auto;
+    min-height: 2.25rem;
+    padding: 0 0.75rem;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-2);
+    background: var(--surface-2);
+    color: var(--ink);
+    font-size: var(--step--1);
+    cursor: pointer;
+  }
+
+  .dd__pause:hover {
+    border-color: var(--accent);
+  }
+
+  /* ---------- steps (the text version) ---------- */
+  .story__steps {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: grid;
+    gap: var(--space-2);
+    counter-reset: story;
+  }
+
+  .story__steps li + li {
+    margin-top: 0;
+  }
+
+  .story__step {
+    counter-increment: story;
+    position: relative;
+    padding: var(--space-3) var(--space-4) var(--space-3) 3rem;
+    border: 1px solid var(--line-soft);
+    border-left: 2px solid var(--line);
+    border-radius: var(--radius-2);
+  }
+
+  .story__step::before {
+    content: counter(story);
+    position: absolute;
+    left: var(--space-4);
+    top: var(--space-3);
+    font-family: var(--font-mono);
+    font-size: var(--step--1);
+    color: var(--accent);
+  }
+
+  .story__step h3 {
+    font-size: var(--step-0);
+  }
+
+  .story__step p {
+    margin-top: var(--space-1);
+    font-size: var(--step--1);
+    color: var(--muted);
+  }
+
+  /*
+   * ---------- animation (only when motion is welcome) ----------
+   * One 16 s loop. The static styles above are the final state, which is what readers who
+   * prefer reduced motion see.
+   *   0-12%  plan        12-28% hop 1        28-55% slow link
+   *   55-68% B is late   68-90% fallback     90-100% hold, then reset
+   */
+  @media (prefers-reduced-motion: no-preference) {
+    .dd__l1 .dd__fill { animation: dd-l1 16s linear infinite; }
+    .dd__l2 .dd__fill { animation: dd-l2 16s linear infinite; }
+    .dd__queue i { animation: dd-queue 16s steps(1) infinite; }
+    .dd__queue i:nth-child(2) { animation-name: dd-queue2; }
+    .dd__queue i:nth-child(3) { animation-name: dd-queue3; }
+    .dd__l2 .dd__tag { animation: dd-show-slow 16s linear infinite; }
+    .dd__n1 .dd__dot { animation: dd-n1 16s linear infinite; }
+    .dd__n2 .dd__dot { animation: dd-n2 16s linear infinite; }
+    .dd__n4 .dd__dot { animation: dd-n4 16s linear infinite; }
+    .dd__n0 .dd__dot { animation: dd-n0 16s linear infinite; }
+    .dd__a1 { animation: dd-a1 16s linear infinite; }
+    .dd__a2 { animation: dd-a2 16s linear infinite; }
+    .dd__a4 { animation: dd-a4 16s linear infinite; }
+    .dd__link.dd__planned, .dd__node.dd__planned .dd__dot { animation: dd-planned 16s linear infinite; }
+    .dd__node.dd__planned .dd__name { animation: dd-planned-name 16s linear infinite; }
+    .dd__planned-note .dd__dl { animation: dd-planned-dl 16s linear infinite; }
+    .dd__fallback { animation: dd-fb-box 16s linear infinite; }
+    .dd__fallback .dd__fill { transform-origin: left center; animation: dd-fb 16s linear infinite; }
+    .story__s1 { animation: dd-s1 16s steps(1) infinite; }
+    .story__s2 { animation: dd-s2 16s steps(1) infinite; }
+    .story__s3 { animation: dd-s3 16s steps(1) infinite; }
+    .story__s4 { animation: dd-s4 16s steps(1) infinite; }
+    .story__s5 { animation: dd-s5 16s steps(1) infinite; }
+
+    .dd[data-paused] *,
+    .story:has(.dd[data-paused]) .story__step {
+      animation-play-state: paused !important;
+    }
+  }
+
+  @keyframes dd-n0 {
+    0%, 12% { box-shadow: 0 0 0 4px rgb(122 174 255 / 0.35); }
+    13%, 100% { box-shadow: none; }
+  }
+
+  @keyframes dd-l1 {
+    0%, 12% { transform: scaleX(0); }
+    20%, 97% { transform: scaleX(1); }
+    100% { transform: scaleX(0); }
+  }
+
+  @keyframes dd-n1 {
+    0%, 19% { opacity: 0.35; }
+    20%, 97% { opacity: 1; }
+    100% { opacity: 0.35; }
+  }
+
+  @keyframes dd-a1 {
+    0%, 20% { opacity: 0; }
+    22%, 97% { opacity: 1; }
+    100% { opacity: 0; }
+  }
+
+  @keyframes dd-l2 {
+    0%, 28% { transform: scaleX(0); }
+    53%, 97% { transform: scaleX(1); }
+    100% { transform: scaleX(0); }
+  }
+
+  @keyframes dd-show-slow {
+    0%, 27% { opacity: 0; }
+    29%, 97% { opacity: 1; }
+    100% { opacity: 0; }
+  }
+
+  @keyframes dd-queue {
+    0% { opacity: 0; }
+    30% { opacity: 1; }
+    55% { opacity: 0; }
+  }
+
+  @keyframes dd-queue2 {
+    0% { opacity: 0; }
+    35% { opacity: 1; }
+    55% { opacity: 0; }
+  }
+
+  @keyframes dd-queue3 {
+    0% { opacity: 0; }
+    40% { opacity: 1; }
+    55% { opacity: 0; }
+  }
+
+  @keyframes dd-n2 {
+    0%, 54% { opacity: 0.35; border-color: var(--accent); background: var(--accent-soft); box-shadow: none; }
+    55%, 68% { opacity: 1; border-color: var(--bad); background: rgb(255 125 114 / 0.16); box-shadow: 0 0 0 5px rgb(255 125 114 / 0.25); }
+    69%, 97% { opacity: 1; border-color: var(--bad); background: rgb(255 125 114 / 0.16); box-shadow: none; }
+    100% { opacity: 0.35; border-color: var(--accent); background: var(--accent-soft); }
+  }
+
+  @keyframes dd-a2 {
+    0%, 55% { opacity: 0; }
+    57%, 97% { opacity: 1; }
+    100% { opacity: 0; }
+  }
+
+  @keyframes dd-planned {
+    0%, 67% { opacity: 1; }
+    72%, 97% { opacity: 0.4; }
+    100% { opacity: 1; }
+  }
+
+  @keyframes dd-planned-name {
+    0%, 67% { color: var(--ink); text-decoration-line: none; }
+    72%, 97% { color: var(--muted); text-decoration-line: line-through; }
+    100% { color: var(--ink); text-decoration-line: none; }
+  }
+
+  @keyframes dd-planned-dl {
+    0%, 67% { color: var(--deadline); text-decoration-line: none; }
+    72%, 97% { color: var(--muted); text-decoration-line: line-through; }
+    100% { color: var(--deadline); text-decoration-line: none; }
+  }
+
+  @keyframes dd-fb-box {
+    0%, 67% { opacity: 0; }
+    69%, 97% { opacity: 1; }
+    100% { opacity: 0; }
+  }
+
+  @keyframes dd-fb {
+    0%, 68% { transform: scaleX(0); }
+    82%, 97% { transform: scaleX(1); }
+    100% { transform: scaleX(0); }
+  }
+
+  @keyframes dd-n4 {
+    0%, 81% { opacity: 0.35; }
+    82%, 97% { opacity: 1; }
+    100% { opacity: 0.35; }
+  }
+
+  @keyframes dd-a4 {
+    0%, 82% { opacity: 0; }
+    84%, 97% { opacity: 1; }
+    100% { opacity: 0; }
+  }
+
+  @keyframes dd-s1 {
+    0% { border-left-color: var(--accent); background: var(--accent-soft); }
+    12% { border-left-color: var(--line); background: transparent; }
+  }
+
+  @keyframes dd-s2 {
+    0% { border-left-color: var(--line); background: transparent; }
+    12% { border-left-color: var(--accent); background: var(--accent-soft); }
+    28% { border-left-color: var(--line); background: transparent; }
+  }
+
+  @keyframes dd-s3 {
+    0% { border-left-color: var(--line); background: transparent; }
+    28% { border-left-color: var(--deadline); background: var(--deadline-soft); }
+    55% { border-left-color: var(--line); background: transparent; }
+  }
+
+  @keyframes dd-s4 {
+    0% { border-left-color: var(--line); background: transparent; }
+    55% { border-left-color: var(--bad); background: rgb(255 125 114 / 0.08); }
+    68% { border-left-color: var(--line); background: transparent; }
+  }
+
+  @keyframes dd-s5 {
+    0% { border-left-color: var(--line); background: transparent; }
+    68% { border-left-color: var(--accent); background: var(--accent-soft); }
+    97% { border-left-color: var(--line); background: transparent; }
+  }
+</style>

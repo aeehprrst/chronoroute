@@ -1,0 +1,123 @@
+---
+/**
+ * "What is drawn" list for the live globe: every layer with its provenance label.
+ * Static HTML (no JavaScript needed).
+ */
+import LabelChip from '../LabelChip.astro';
+import { assetHref, pageHref } from '../../lib/paths';
+---
+
+<section class="provenance" aria-labelledby="provenance-title">
+  <h2 id="provenance-title" class="provenance__title">What the globe draws</h2>
+  <ul class="provenance__list" role="list">
+    <li>
+      <LabelChip kind="real" size="sm" note="SGP4 on REAL elements" />
+      <p>
+        <strong>Satellite positions.</strong> SGP4 (satellite.js 7.1.0) run in your browser on the
+        public orbital elements, for the simulated time shown above the globe: real physics computed by
+        real code from real data, but a prediction, not tracking data. Drawn true to scale: one unit is the
+        Earth's equatorial radius, 6,378.137 km.
+      </p>
+    </li>
+    <li>
+      <LabelChip kind="real" size="sm" note="SGP4 samples" />
+      <p>
+        <strong>Orbit ring of a selected satellite.</strong> When you select a satellite, the globe draws
+        one orbital period of its SGP4 positions (180 samples, centred on the simulated time). The straight
+        segments between samples are a drawing aid.
+      </p>
+    </li>
+    <li>
+      <LabelChip kind="real" size="sm" />
+      <p><strong>Orbital elements.</strong> The CelesTrak SupGP snapshot described below.</p>
+    </li>
+    <li>
+      <LabelChip kind="derived" size="sm" />
+      <p>
+        <strong>Colour groups.</strong> Our grouping by inclination and mean altitude. It is not
+        SpaceX's list of shells.
+      </p>
+    </li>
+    <li>
+      <LabelChip kind="derived" size="sm" />
+      <p>
+        <strong>Earth rotation, day and night.</strong> The Earth is turned by Greenwich mean sidereal
+        time; the Sun direction comes from the Astronomical Almanac's low-precision formulas.
+      </p>
+    </li>
+    <li>
+      <LabelChip kind="real" size="sm" />
+      <p>
+        <strong>Earth imagery.</strong> NASA Blue Marble (October 2004) and Black Marble (2016)
+        composites. They are not live images. The thin blue edge on the sunlit limb is a drawing cue,
+        not data. <a href={assetHref('textures/CREDITS.md')}>Image credits</a>
+      </p>
+    </li>
+    <li>
+      <LabelChip kind="real" size="sm" />
+      <p>
+        <strong>Reference markers.</strong> Greenwich, Chennai, New York and Sydney, placed from their
+        latitude and longitude, so the map's orientation can be checked by eye.
+      </p>
+    </li>
+    <li>
+      <LabelChip kind="modelled" size="sm" />
+      <p>
+        <strong>Laser links.</strong> Not drawn on the globe. Our Grid-4 model of them is used by the
+        <a href={pageHref('route')}>route planner</a>, labelled as our model.
+      </p>
+    </li>
+    <li>
+      <LabelChip kind="unknown" size="sm" />
+      <p>
+        <strong>Starlink's own routing.</strong> Not public, so not shown. Starlink does not use T-CRH.
+      </p>
+    </li>
+  </ul>
+</section>
+
+<style>
+  .provenance {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-3);
+    padding: var(--space-4) var(--space-5) var(--space-5);
+    font-size: var(--step--1);
+  }
+
+  .provenance__title {
+    font-family: var(--font-mono);
+    font-size: var(--step--2);
+    font-weight: 500;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    padding-bottom: var(--space-3);
+    margin-bottom: var(--space-3);
+    border-bottom: 1px solid var(--line-soft);
+  }
+
+  .provenance__list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: grid;
+    gap: var(--space-3);
+  }
+
+  .provenance__list li + li {
+    margin-top: 0;
+  }
+
+  .provenance__list li {
+    display: grid;
+    gap: var(--space-1);
+  }
+
+  .provenance__list p {
+    color: var(--muted);
+  }
+
+  .provenance__list strong {
+    color: var(--ink);
+  }
+</style>

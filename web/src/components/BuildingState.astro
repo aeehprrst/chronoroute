@@ -1,0 +1,105 @@
+---
+/**
+ * Honest placeholder for a section that another owner is still building, or for
+ * results that do not exist yet. It states what will appear and never shows numbers.
+ * Usage:
+ *   <!-- OWNER: globe -->
+ *   <BuildingState heading="3D globe" phase="build">What it will show…</BuildingState>
+ */
+interface Props {
+  heading: string;
+  /** 'build': the feature is being built. 'results': waits for the results phase. */
+  phase?: 'build' | 'results';
+  /** Heading level inside the page outline. */
+  level?: 2 | 3;
+  id?: string;
+}
+
+const { heading, phase = 'build', level = 2, id } = Astro.props;
+const status = phase === 'results' ? 'Coming in the results phase' : 'Being built';
+const Heading = level === 3 ? 'h3' : 'h2';
+const headingId = id ? `${id}-title` : undefined;
+---
+
+<section class:list={['pending', `pending--${phase}`]} id={id} aria-labelledby={headingId}>
+  <p class="pending__status">
+    <svg class="pending__icon" viewBox="0 0 16 16" width="16" height="16" aria-hidden="true" focusable="false">
+      {
+        phase === 'results' ? (
+          <>
+            <circle cx="8" cy="8" r="6.5" fill="none" stroke="currentColor" stroke-width="1.5" />
+            <path d="M8 4.2V8l2.6 1.6" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
+          </>
+        ) : (
+          <>
+            <rect x="1.75" y="1.75" width="12.5" height="12.5" rx="2" fill="none" stroke="currentColor" stroke-width="1.5" stroke-dasharray="3 2" />
+            <path d="M5 8h6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
+          </>
+        )
+      }
+    </svg>
+    {status}
+  </p>
+  <Heading class="pending__title" id={headingId}>{heading}</Heading>
+  <div class="pending__body">
+    <slot />
+  </div>
+</section>
+
+<style>
+  .pending {
+    position: relative;
+    border: 1px dashed var(--line);
+    border-radius: var(--radius-3);
+    padding: var(--space-6) var(--space-5);
+    background-color: rgb(14 23 38 / 0.6);
+    background-image: repeating-linear-gradient(
+      135deg,
+      transparent 0 14px,
+      rgb(34 50 77 / 0.18) 14px 15px
+    );
+  }
+
+  @media (min-width: 48em) {
+    .pending {
+      padding: var(--space-7) var(--space-6);
+    }
+  }
+
+  .pending__status {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    font-family: var(--font-mono);
+    font-size: var(--step--2);
+    font-weight: 500;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--muted);
+    border: 1px solid var(--line);
+    background: var(--bg);
+    border-radius: var(--radius-1);
+    padding: 0.25rem 0.6rem;
+  }
+
+  .pending__icon {
+    width: 1em;
+    height: 1em;
+    flex: none;
+  }
+
+  .pending__title {
+    margin-top: var(--space-4);
+    font-size: var(--step-2);
+  }
+
+  .pending__body {
+    margin-top: var(--space-3);
+    max-width: var(--prose);
+    color: var(--muted);
+  }
+
+  .pending__body > :global(*) + :global(*) {
+    margin-top: var(--space-3);
+  }
+</style>

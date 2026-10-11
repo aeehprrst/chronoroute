@@ -1,0 +1,266 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import LabelChip from '../components/LabelChip.astro';
+import DataBadge from '../components/DataBadge.astro';
+import HeaderBytes from '../components/HeaderBytes.astro';
+import BuildingState from '../components/BuildingState.astro';
+import HomeGlobeSection from '../components/globe/HomeGlobeSection.astro';
+import DeadlineStory from '../components/protocol/DeadlineStory.astro';
+import { LABELS } from '../lib/labels';
+import { pageHref } from '../lib/paths';
+import { readTcrhEncodeVector } from '../lib/data-build';
+
+const vector = await readTcrhEncodeVector('v0-3hop');
+---
+
+<BaseLayout description="ChronoRoute is deadline-based source routing for LEO satellite constellations: a compact IPv6 routing header (T-CRH) carries the path and an arrival deadline for every hop, so a satellite that receives a packet late knows the plan has broken.">
+  <!-- OWNER: content (hero) -->
+  <section class="hero container" aria-labelledby="hero-title">
+    <div class="hero__text">
+      <p class="eyebrow">Student project · Computer Networks · VIT Vellore</p>
+      <h1 id="hero-title">ChronoRoute</h1>
+      <p class="hero__deck">
+        Every packet carries its planned path and a <span class="deadline">deadline</span> for each hop, so the
+        satellite that receives it late knows the plan has broken and switches to geographic forwarding.
+      </p>
+      <p class="lede">
+        Deadline-based source routing for low-Earth-orbit constellations, to be evaluated on real Starlink orbit
+        geometry. Starlink itself does not use it.
+      </p>
+      <div class="button-row hero__actions">
+        <a class="button button--primary" href={pageHref('live')}>Open the live globe</a>
+        <a class="button" href={pageHref('protocol')}>Explore the protocol</a>
+      </div>
+    </div>
+
+    <div class="hero__figure">
+      {
+        vector ? (
+          <>
+            <p class="hero__figure-intro">
+              A real T-CRH header, byte for byte: the reference test vector from the specification.
+            </p>
+            <HeaderBytes vector={vector} compact />
+          </>
+        ) : (
+          <p class="muted">The golden test vector file was not found at build time.</p>
+        )
+      }
+    </div>
+  </section>
+
+  <!-- OWNER: globe -->
+  <HomeGlobeSection />
+
+  <!-- OWNER: content -->
+  <section class="section" id="how" aria-labelledby="how-title">
+    <div class="container">
+      <div class="section__head">
+        <p class="eyebrow">In 60 seconds</p>
+        <h2 id="how-title">How a deadline catches a link that is up but slow</h2>
+        <p>
+          Link-state routing learns about links from hello messages. A link that is up but slow still passes its
+          hellos, so the routing keeps using it while packets wait in its queue. A deadline in the packet does not
+          depend on hellos: the packet itself arrives late, and the satellite that receives it can tell.
+        </p>
+      </div>
+      <DeadlineStory headingId="how-figure" />
+    </div>
+  </section>
+
+  <!-- OWNER: content -->
+  <section class="section" aria-labelledby="labels-title">
+    <div class="container">
+      <div class="section__head">
+        <p class="eyebrow">Reading this site</p>
+        <h2 id="labels-title">Every number carries a label</h2>
+        <p>
+          We use real, public Starlink orbits as a realistic test geometry. Starlink does not use T-CRH, and how
+          Starlink really routes traffic is not public, so we never claim it.
+        </p>
+      </div>
+      <ul class="grid grid--4 label-cards" role="list">
+        {
+          LABELS.map((label) => (
+            <li class="card">
+              <LabelChip kind={label.kind} />
+              <p class="label-cards__def">{label.definition}</p>
+              <p class="small">Example: {label.example}</p>
+            </li>
+          ))
+        }
+      </ul>
+      <p class="label-cards__more">
+        <a href={pageHref('methodology#labels')}>How we apply the labels</a>
+      </p>
+    </div>
+  </section>
+
+  <!-- OWNER: content -->
+  <section class="section" aria-labelledby="next-title">
+    <div class="container">
+      <div class="section__head">
+        <p class="eyebrow">Explore</p>
+        <h2 id="next-title">Where to go next</h2>
+      </div>
+      <ul class="grid grid--4 next-cards" role="list">
+        <li class="card next-card">
+          <h3><a href={pageHref('live')}>Live globe</a></h3>
+          <p>
+            Every satellite in the orbit snapshot, placed by SGP4 in your browser for the current time or any time
+            near it.
+          </p>
+        </li>
+        <li class="card next-card">
+          <h3><a href={pageHref('route')}>Route planner</a></h3>
+          <p>
+            Pick two cities: a hypothetical path over modelled laser links, its per-hop deadlines, and the T-CRH
+            bytes, checked against the Python reference.
+          </p>
+        </li>
+        <li class="card next-card">
+          <h3><a href={pageHref('protocol')}>Protocol</a></h3>
+          <p>
+            Build, decode and step through T-CRH headers with an engine checked against the shared golden test
+            vectors.
+          </p>
+        </li>
+        <li class="card next-card">
+          <h3><a href={pageHref('methodology')}>Methodology</a></h3>
+          <p>What is real, derived, modelled or unknown, the sources, the limitations and what is new.</p>
+        </li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- OWNER: content -->
+  <section class="section" aria-labelledby="data-title">
+    <div class="container split">
+      <div class="section__head">
+        <p class="eyebrow">Orbit data in this build</p>
+        <h2 id="data-title">The orbit snapshot</h2>
+        <p>
+          The globes compute satellite positions with SGP4 from public orbital elements. This build uses the snapshot
+          below.
+        </p>
+      </div>
+      <DataBadge />
+    </div>
+  </section>
+
+  <!-- OWNER: content -->
+  <section class="section" aria-labelledby="results-title">
+    <div class="container">
+      <div class="section__head">
+        <p class="eyebrow">Status</p>
+        <h2 id="results-title">Results</h2>
+      </div>
+      <BuildingState heading="How well does the alarm work?" phase="results" level={3}>
+        <p>
+          The experiments will measure how often a deadline catches a real problem and how often it raises a false
+          alarm, on real Starlink orbit data. Their results will appear here once the simulations have run, each linked to
+          its run manifest (code commit, configuration, random seeds, orbit snapshot and file hashes) so that anyone
+          can reproduce it.
+        </p>
+        <p>No results are shown before then.</p>
+      </BuildingState>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .hero {
+    display: grid;
+    gap: var(--space-7);
+    padding-block: var(--space-8) var(--space-8);
+    align-items: center;
+  }
+
+  @media (min-width: 64em) {
+    .hero {
+      grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr);
+      gap: var(--space-8);
+      padding-block: var(--space-9);
+    }
+  }
+
+  .hero__deck {
+    margin-top: var(--space-5);
+    font-family: var(--font-display);
+    font-size: var(--step-2);
+    font-weight: 500;
+    font-stretch: var(--stretch-semi);
+    line-height: 1.25;
+    color: var(--ink);
+    max-width: 30ch;
+  }
+
+  .hero .lede {
+    margin-top: var(--space-5);
+    color: var(--muted);
+    font-size: var(--step-0);
+  }
+
+  .hero__actions {
+    margin-top: var(--space-6);
+  }
+
+  .hero__figure {
+    min-width: 0;
+  }
+
+  .hero__figure-intro {
+    font-size: var(--step--1);
+    color: var(--muted);
+    margin-bottom: var(--space-3);
+  }
+
+  .label-cards,
+  .next-cards {
+    list-style: none;
+    padding: 0;
+  }
+
+  .label-cards li + li,
+  .next-cards li + li {
+    margin-top: 0;
+  }
+
+  .label-cards__def {
+    color: var(--ink);
+  }
+
+  .label-cards__more {
+    margin-top: var(--space-5);
+  }
+
+  .next-card {
+    position: relative;
+  }
+
+  .next-card h3 a {
+    color: var(--ink);
+    text-decoration: none;
+  }
+
+  /* The whole card is the link target; the visible link stays the heading. */
+  .next-card h3 a::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: var(--radius-3);
+  }
+
+  .next-card:hover {
+    border-color: var(--accent);
+  }
+
+  .next-card h3 a:focus-visible {
+    outline: none;
+  }
+
+  .next-card:has(a:focus-visible) {
+    outline: 2px solid var(--accent);
+    outline-offset: 3px;
+  }
+</style>

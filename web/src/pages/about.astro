@@ -1,0 +1,221 @@
+---
+/**
+ * /about (owner: content): what the project is, who made it, how it was built, credits,
+ * licences, privacy, and the non-affiliation notice.
+ */
+import { access } from 'node:fs/promises';
+import path from 'node:path';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { assetHref, pageHref } from '../lib/paths';
+import { LICENCE, LICENCE_URL, REPO_URL } from '../lib/site';
+import { readLatestManifest } from '../lib/data-build';
+
+const snapshot = await readLatestManifest();
+const attribution = snapshot.ok
+  ? snapshot.manifest.attribution
+  : 'Orbit data courtesy of CelesTrak (celestrak.org); SupGP elements derived from SpaceX ephemerides.';
+
+// Link the globe's image credits only if that file is part of this build.
+let textureCredits: string | null = null;
+try {
+  await access(path.resolve(process.cwd(), 'public', 'textures', 'CREDITS.md'));
+  textureCredits = assetHref('textures/CREDITS.md');
+} catch {
+  textureCredits = null;
+}
+
+const software = [
+  { name: 'Astro', what: 'static site generator', licence: 'MIT', href: 'https://astro.build' },
+  { name: 'React', what: 'interactive parts of the pages', licence: 'MIT', href: 'https://react.dev' },
+  { name: 'three.js', what: '3D globe', licence: 'MIT', href: 'https://threejs.org' },
+  { name: 'React Three Fiber and drei', what: 'three.js in React', licence: 'MIT', href: 'https://github.com/pmndrs/react-three-fiber' },
+  { name: 'satellite.js', what: 'SGP4 orbit propagation', licence: 'MIT', href: 'https://github.com/shashwatak/satellite-js' },
+];
+---
+
+<BaseLayout
+  title="About"
+  description="About ChronoRoute, a student project by Arshpreet Gaba for the Computer Networks course at VIT Vellore: what it is, how it was built, credits, licences and privacy."
+>
+  <header class="page-hero container">
+    <p class="eyebrow">About</p>
+    <h1>About this project</h1>
+    <p class="lede">
+      ChronoRoute is a student research project on routing in low-Earth-orbit satellite constellations. It defines
+      T-CRH, an IPv6 routing header that carries a planned path and an arrival deadline for every hop, and will
+      test whether those deadlines can serve as a cheap alarm when the network drifts from its plan.
+    </p>
+  </header>
+
+  <!-- OWNER: content -->
+  <section class="section section--flush" aria-labelledby="who-title">
+    <div class="container split">
+      <div class="section__head">
+        <p class="eyebrow">People</p>
+        <h2 id="who-title">Who made it</h2>
+      </div>
+      <div class="prose">
+        <p>
+          ChronoRoute is made by <strong>Arshpreet Gaba</strong> at VIT Vellore, as a project for the Computer
+          Networks course.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- OWNER: content -->
+  <section class="section" aria-labelledby="built-title">
+    <div class="container split">
+      <div class="section__head">
+        <p class="eyebrow">How it was built</p>
+        <h2 id="built-title">One specification, three implementations</h2>
+      </div>
+      <div class="prose">
+        <p>
+          The wire format and the processing rules are fixed in one specification, <code>spec/tcrh-v1.md</code>, with
+          golden test vectors that every implementation must reproduce byte for byte.
+        </p>
+        <ul class="parts">
+          <li>
+            <strong>Python simulator.</strong> The reference implementation of the protocol, with a golden-vector
+            test that runs in the project’s continuous integration, and the data pipeline that builds this site’s
+            orbit data, orbital planes and laser-link model from real CelesTrak downloads.
+          </li>
+          <li>
+            <strong>ns-3 module.</strong> T-CRH inside the ns-3 network simulator, in real IPv6 Routing Type 253
+            headers, with a test suite for the same golden vectors (<code>make ns3-test</code>). It is run locally,
+            not in continuous integration, because building ns-3 there is too slow.
+          </li>
+          <li>
+            <strong>This website.</strong> A static site. Its protocol tools run a TypeScript port of the engine,
+            checked against the same vectors when the site is built; its globe computes satellite positions in your
+            browser; and its <a href={pageHref('route')}>route planner</a> plans paths with a port of the Python
+            router, checked against Python on every deployment.
+          </li>
+        </ul>
+        <h3>Results so far</h3>
+        <p>
+          The semester experiments have been re-run on the bug-fixed code, with a provenance manifest for every run:
+          see <a href={`${REPO_URL}/tree/main/results/legacy-v0.9`} rel="noopener"><code>results/legacy-v0.9</code></a>
+          and the <a href={`${REPO_URL}/blob/main/docs/results-changelog.md`} rel="noopener">results changelog</a>,
+          which explains every number that changed and the claims that were retired. The course milestone, an ns-3
+          run on the real Starlink 463 km shell, is written up in
+          <a href={`${REPO_URL}/blob/main/docs/course-milestone.md`} rel="noopener"><code>docs/course-milestone.md</code></a>.
+          The results of the new experiment campaign will appear on the <a href={pageHref('methodology#results')}>methodology
+          page</a> once it has run.
+        </p>
+        <p>
+          All of it is in the <a href={REPO_URL} rel="noopener">ChronoRoute repository on GitHub</a>. Start with the
+          <a href={pageHref('protocol')}>protocol</a>, or read how we <a href={pageHref('methodology')}>label our
+          numbers</a>.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- OWNER: content -->
+  <section class="section" aria-labelledby="notice-title">
+    <div class="container split">
+      <div class="section__head">
+        <p class="eyebrow">Notice</p>
+        <h2 id="notice-title">Not affiliated with SpaceX</h2>
+      </div>
+      <div class="prose">
+        <p>
+          This project is not affiliated with, endorsed by or connected to SpaceX or Starlink. We use public Starlink
+          orbital elements only as a realistic constellation geometry. Starlink does not use T-CRH, and how Starlink
+          routes traffic is not public; this site never claims to show it.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- OWNER: content -->
+  <section class="section" aria-labelledby="credits-title">
+    <div class="container split">
+      <div class="section__head">
+        <p class="eyebrow">Credits</p>
+        <h2 id="credits-title">Data, imagery, fonts and software</h2>
+      </div>
+      <div class="prose">
+        <h3>Orbit data</h3>
+        <p>{attribution}</p>
+        <h3>Earth imagery</h3>
+        <p>
+          The globe uses NASA Blue Marble and Black Marble composite images of the Earth. They are not live images.
+          NASA does not endorse this project.
+          {textureCredits && (
+            <>
+              {' '}
+              <a href={textureCredits}>Image credits</a>
+            </>
+          )}
+        </p>
+        <h3>Fonts</h3>
+        <p>
+          Archivo (Omnibus-Type), IBM Plex Sans and IBM Plex Mono (IBM), under the SIL Open Font Licence 1.1. They are
+          served from this site through Fontsource; your browser does not contact a font service.
+        </p>
+        <h3>Software</h3>
+        <ul class="software">
+          {
+            software.map((s) => (
+              <li>
+                <a href={s.href} rel="noopener">{s.name}</a>: {s.what} <span class="muted">({s.licence} licence)</span>
+              </li>
+            ))
+          }
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- OWNER: content -->
+  <section class="section" aria-labelledby="privacy-title">
+    <div class="container split">
+      <div class="section__head">
+        <p class="eyebrow">Privacy</p>
+        <h2 id="privacy-title">No tracking</h2>
+      </div>
+      <div class="prose">
+        <p>
+          This site uses no analytics and no cookies. Pages, fonts and data files are all served from this site; your
+          browser makes no requests to third parties while you read it. Links to other sites are ordinary links.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- OWNER: content -->
+  <section class="section" aria-labelledby="licence-title">
+    <div class="container split">
+      <div class="section__head">
+        <p class="eyebrow">Licence</p>
+        <h2 id="licence-title">Open source</h2>
+      </div>
+      <div class="prose">
+        <p>
+          ChronoRoute is released under the {LICENCE} licence, except the ns-3 module and programs under
+          <code>ns3/</code>, which are GPL-2.0-only because they build on ns-3. Orbit data keeps CelesTrak’s terms.
+          The details are in the <a href={LICENCE_URL} rel="noopener">LICENSE file</a>; the code, the specification
+          and the golden test vectors are in the <a href={REPO_URL} rel="noopener">repository</a>.
+        </p>
+      </div>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .parts li,
+  .software li {
+    color: var(--muted);
+  }
+
+  .parts strong {
+    color: var(--ink);
+  }
+
+  .prose h3 {
+    font-size: var(--step-0);
+  }
+</style>

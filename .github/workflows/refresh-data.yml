@@ -1,0 +1,253 @@
+# Orbit data refresh: every 4 hours, download the Starlink element sets from CelesTrak once,
+# validate them, rebuild the website's data with the Python pipeline, test (including the route
+# parity gate) and deploy.
+#
+# CelesTrak's usage policy is enforced by pipeline/fetch.py (one request per source per update
+# cycle, FORMAT always given, project User-Agent, gzip). This workflow adds:
+#   * fetch.py runs EXACTLY ONCE per run; nothing here ever retries it.
+#   * Only SupGP is requested (--sources supgp): the website is built from SupGP alone, so the
+#     GP request (about 4.7 MB per run) would be traffic for nothing. The experiments' GP files
+#     are in the snapshots committed under data/pinned/ (fetched with pipeline/fetch.py outside
+#     CI); this workflow never commits anything.
+#   * HTTP 403 "has not updated" is a normal outcome: fetch.py exits 0 without a new folder, the
+#     previous snapshot stays current, and nothing is rebuilt or deployed (the site shows the
+#     data's age itself, with a "stale" badge after 24 hours).
+#   * Any other outcome fails the run, so nothing is deployed and the last deployed site stays
+#     online:
+#       - a failed HTTP request (fetch.py exit 2: a non-200 answer other than that 403, a
+#         redirect, a network error, or a 200 answer that cannot be used) is a STOP until a
+#         human has looked: later scheduled runs refuse to fetch while the newest entry of the
+#         request log is such a failure. To resume, run this workflow by hand with
+#         "resume_after_failure" ticked.
+#       - a download that arrived but failed validation (fetch.py exit 3; kept as
+#         <id>.rejected) fails this run only. It is not a failed request, so the next scheduled
+#         run (4 hours later, well past CelesTrak's 2-hour rule) fetches again.
+#   * Downloads and the request log (fetch_log.jsonl, which fetch.py needs for its 2-hour rule)
+#     are kept between runs in the Actions cache under ~/celestrak-pinned, outside the git work
+#     tree. Only the newest two downloads are kept. If the cache is ever evicted, the newest
+#     committed data/pinned/ snapshot is the fallback.
+#
+# Keepalive: GitHub disables scheduled workflows in a public repository after 60 days without
+# repository activity. On the 1st of every month the "keepalive" job re-enables this workflow
+# through the GitHub API (PUT .../actions/workflows/refresh-data.yml/enable) with the job's own
+# token (permission actions: write only; no third-party action), and prints the workflow's
+# state before and after. NOT VERIFIED: GitHub's documentation does not say whether enabling
+# an already enabled workflow resets the 60-day timer, and the job cannot re-enable the
+# workflow once GitHub has disabled it (it lives in that workflow). After the first monthly
+# run, check its log in the Actions tab. If GitHub disables the schedule anyway, the Actions
+# tab shows it and one click on "Enable workflow" restores it (see the README's Website section).
+
+name: refresh-data
+
+on:
+  schedule:
+    - cron: "17 */4 * * *"   # data refresh, every 4 hours at minute 17 (UTC)
+    - cron: "41 5 1 * *"     # keepalive, 05:41 UTC on the 1st of every month
+  workflow_dispatch:
+    inputs:
+      deploy_without_new_data:
+        description: "Rebuild and deploy even if no new snapshot was downloaded"
+        type: boolean
+        default: false
+      resume_after_failure:
+        description: "A human has checked the last failed fetch; allow fetching again"
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+env:
+  ASTRO_TELEMETRY_DISABLED: "1"
+  PYTHONDONTWRITEBYTECODE: "1"
+  MPLBACKEND: Agg
+
+jobs:
+  keepalive:
+    name: Keep the schedule enabled
+    if: github.event_name == 'schedule' && github.event.schedule == '41 5 1 * *'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    permissions:
+      actions: write
+    steps:
+      - name: Re-enable this workflow through the GitHub API
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          wf="repos/${GITHUB_REPOSITORY}/actions/workflows/refresh-data.yml"
+          echo "Before: $(gh api "$wf" --jq '.state + " (updated " + .updated_at + ")"')"
+          gh api --method PUT "$wf/enable"
+          echo "After:  $(gh api "$wf" --jq '.state + " (updated " + .updated_at + ")"')"
+
+  refresh:
+    name: Fetch, validate, build and test
+    if: github.event_name == 'workflow_dispatch' || github.event.schedule == '17 */4 * * *'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    concurrency:
+      group: refresh-data
+      cancel-in-progress: false
+    outputs:
+      deploy: ${{ steps.decide.outputs.deploy }}
+    steps:
+      - name: Check out the repository
+        uses: actions/checkout@v5
+        with:
+          persist-credentials: false
+
+      - name: Set up Python 3.14
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.14"
+          cache: pip
+          cache-dependency-path: pyproject.toml
+
+      - name: Install chronoroute
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -e .
+
+      - name: Restore earlier downloads and the request log
+        uses: actions/cache/restore@v5
+        with:
+          path: ~/celestrak-pinned
+          key: celestrak-pinned-restore-only
+          restore-keys: celestrak-pinned-
+
+      - name: Refuse to fetch after an unacknowledged failure
+        env:
+          RESUME: ${{ inputs.resume_after_failure && 'yes' || 'no' }}
+        run: |
+          mkdir -p "$HOME/celestrak-pinned"
+          python - <<'EOF'
+          import json, os, pathlib, sys
+          log = pathlib.Path.home() / "celestrak-pinned" / "fetch_log.jsonl"
+          entries = [json.loads(l) for l in log.read_text().splitlines() if l.strip()] if log.is_file() else []
+          bad = {"stopped", "network_error", "bad_response"}
+          if entries and entries[-1].get("outcome") in bad:
+              last = entries[-1]
+              print(f"Last request {last.get('requested_utc')} for {last.get('source')} ended as "
+                    f"{last.get('outcome')}: {last.get('detail', '')}")
+              if os.environ["RESUME"] != "yes":
+                  print("Not fetching again until a human has looked (CelesTrak policy: stop on any "
+                        "non-200 answer and never retry). Run this workflow by hand with "
+                        "resume_after_failure ticked to continue.")
+                  sys.exit(1)
+              print("resume_after_failure is set: fetching again.")
+          EOF
+
+      - name: Fetch from CelesTrak (exactly once, never retried)
+        id: fetch
+        run: |
+          root="$HOME/celestrak-pinned"
+          before="$(bash web/scripts/newest-snapshot.sh data/pinned "$root")"
+          code=0
+          python -B pipeline/fetch.py --sources supgp --out-root "$root" || code=$?
+          after="$(bash web/scripts/newest-snapshot.sh data/pinned "$root")"
+          echo "fetch.py exit code $code; newest snapshot before: $before, after: $after"
+          echo "snapshot=$after" >> "$GITHUB_OUTPUT"
+          if [ "$after" != "$before" ]; then echo "new=true" >> "$GITHUB_OUTPUT"; else echo "new=false" >> "$GITHUB_OUTPUT"; fi
+          # 2 = stopped (failed HTTP request), 3 = download rejected by validation.
+          exit "$code"
+
+      - name: Keep the newest two downloads, the newest SupGP one, the newest rejected one and the log
+        if: always()
+        run: |
+          shopt -s nullglob
+          root="$HOME/celestrak-pinned"
+          mkdir -p "$root"
+          keep_supgp="$(bash web/scripts/newest-snapshot.sh "$root" 2>/dev/null || true)"
+          snaps=("$root"/*-celestrak)        # glob results are sorted, i.e. oldest first
+          for ((i = 0; i < ${#snaps[@]} - 2; i++)); do
+            if [ "${snaps[$i]}" != "$keep_supgp" ]; then rm -rf -- "${snaps[$i]}"; fi
+          done
+          rejected=("$root"/*.rejected)
+          for ((i = 0; i < ${#rejected[@]} - 1; i++)); do rm -rf -- "${rejected[$i]}"; done
+          ls -la "$root"
+
+      - name: Save downloads and the request log for the next run
+        if: always()
+        uses: actions/cache/save@v5
+        with:
+          path: ~/celestrak-pinned
+          key: celestrak-pinned-${{ github.run_id }}-${{ github.run_attempt }}
+
+      - name: Decide whether to rebuild and deploy
+        id: decide
+        env:
+          NEW: ${{ steps.fetch.outputs.new }}
+          FORCE: ${{ inputs.deploy_without_new_data && 'yes' || 'no' }}
+        run: |
+          if [ "$NEW" = "true" ] || [ "$FORCE" = "yes" ]; then
+            echo "deploy=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "deploy=false" >> "$GITHUB_OUTPUT"
+            echo "No new snapshot (CelesTrak has not updated, or the 2-hour rule skipped the request): nothing to deploy."
+          fi
+
+      - name: Validate the snapshot
+        if: steps.decide.outputs.deploy == 'true'
+        env:
+          SNAPSHOT: ${{ steps.fetch.outputs.snapshot }}
+        run: python -B pipeline/validate.py "$SNAPSHOT"
+
+      - name: Set up Node 24
+        if: steps.decide.outputs.deploy == 'true'
+        uses: actions/setup-node@v6
+        with:
+          node-version: "24"
+          cache: npm
+          cache-dependency-path: web/package-lock.json
+
+      - name: Build the site data with the Python pipeline
+        if: steps.decide.outputs.deploy == 'true'
+        env:
+          PYTHON: python
+          SNAPSHOT: ${{ steps.fetch.outputs.snapshot }}
+        run: bash web/scripts/build-data.sh "$SNAPSHOT"
+
+      - name: Install the website's dependencies
+        if: steps.decide.outputs.deploy == 'true'
+        working-directory: web
+        run: npm ci
+
+      - name: Unit, contract, SGP4 and route parity tests (vitest)
+        if: steps.decide.outputs.deploy == 'true'
+        working-directory: web
+        env:
+          PARITY_SUMMARY_OUT: public/data/parity.json
+        run: npm test
+
+      - name: Type check and build
+        if: steps.decide.outputs.deploy == 'true'
+        working-directory: web
+        run: |
+          npm run check
+          npm run build
+
+      - name: Upload the site for GitHub Pages
+        if: steps.decide.outputs.deploy == 'true'
+        uses: actions/upload-pages-artifact@v5
+        with:
+          path: web/dist
+
+  deploy:
+    name: Deploy to GitHub Pages
+    needs: refresh
+    if: needs.refresh.outputs.deploy == 'true'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    concurrency:
+      group: pages
+      cancel-in-progress: false
+    steps:
+      - name: Deploy
+        id: deployment
+        uses: actions/deploy-pages@v5
