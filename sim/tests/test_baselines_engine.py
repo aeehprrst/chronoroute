@@ -471,3 +471,32 @@ def test_ls_h_hello_bytes_match_the_analytic_count(tmp_path, link):
     got = sum(x["messages"] for x in r.control["ledger"]["by_type"] if x["type"] == "hello")
     assert got == total
     assert sum(x["bytes"] for x in r.control["ledger"]["by_type"] if x["type"] == "hello") == 80 * total
+
+
+@pytest.mark.parametrize('background',['none','fluid','poisson'])
+@pytest.mark.parametrize('kind',['rate_cut','arq','slow_processing','link_down'])
+def test_queue_oracle_search_optimization_preserves_packets_and_control(tmp_path,monkeypatch,link,background,kind):
+    import chronoroute.baselines.engine as engine_module
+    from chronoroute.baselines.paths import lazy_path
+    import json
+    faults={'rate_cut':dict(factor=.002),'arq':dict(loss=.3,max_retries=3,retry_extra_ns=500000),
+            'slow_processing':dict(delta_ns=4000000),'link_down':{}}
+    fault=dict(kind=kind,link=[link['a'],link['b']],start_s=2,stop_s=3,**faults[kind])
+    d=doc(**{'scenario.duration_s':4,'faults':[fault],
+             'forwarding.background':{'model':background,'rho':.3,'links':'isl'},
+             'forwarding.jitter':{'model':'j1','mean_ns':400000}})
+    scheme=params.normalise_scheme({'name':'o_q','outputs':{'stretch_oracle':False}})
+    cfg=config.normalise(d)
+    brun.run_scheme(cfg,scheme,tmp_path/'optimized',write_manifest=False)
+    called=[]
+    def reference(*args,**kwargs):
+        called.append(kwargs.get('lower_bound'))
+        return lazy_path(*args)
+    monkeypatch.setattr(engine_module,'lazy_path',reference)
+    brun.run_scheme(cfg,scheme,tmp_path/'reference',write_manifest=False)
+    assert called and (all(h is not None for h in called) if background!='poisson' else all(h is None for h in called))
+    for name in ('packets.csv.gz','scheme_packets.csv.gz','events.jsonl.gz','scheme_events.csv.gz','schedule.csv.gz','control.json'):
+        assert (tmp_path/'optimized'/name).read_bytes()==(tmp_path/'reference'/name).read_bytes(),name
+    for name in ('optimized','reference'):
+        summary=json.loads((tmp_path/name/'summary.json').read_text())
+        assert summary['conservation']['ok'] and summary['invariants']['violations']==0

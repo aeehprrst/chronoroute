@@ -98,3 +98,20 @@ compressed ledger of those manifests and their output hashes, replay-gate
 comparisons, offline ROC outputs and standalone figures. The aggregate manifest
 checks its own portable files. Reproducing raw records on another checkout
 requires rerunning the recorded commands; hashes alone are not packet traces.
+
+O-Q uses an exact integer A* search with cached nominal reverse distances for
+fluid/no-background runs. Queue waits and fault penalties remain in the actual
+edge weights; equal-cost routes retain the original lowest-predecessor rule.
+Poisson background retains the original search/query order. Differential tests
+compare foreground packet traces, header decisions, arrival times and the full
+control ledger. The number of virtual queues inspected is a computational
+diagnostic and can change. A recalibration can additionally compare real pilot
+files against a previous clean calibration with `--previous-calibration DIR`;
+all comparisons must pass, and earlier pilot time stays charged to the budget.
+
+`packet_run_ratios.csv` and `packet_ratio_distribution.csv` show the run-level
+packet-detection distribution and undefined exposures explicitly. Localisation
+is undefined for the unlocalised E2E monitor. Delivery and control accounting
+remain all-flow quantities even in the reverse-detection summary. The raw-cache
+collection manifest indexes completed simulation/scoring logs as well as the
+producer files.

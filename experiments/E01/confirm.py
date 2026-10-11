@@ -176,6 +176,13 @@ def main(argv=None):
         roc_observations.sort(key=lambda r:r['id'])
         e1.write_csv(args.out/'roc_inventory.csv',roc_observations)
         complete=analysis.write_analysis(args.out,records)
+        provenance.write_manifest(raw_root,tool='E01 raw cache collection',tool_version=__version__,
+                    command=[sys.executable,'-B',__file__,*(argv if argv is not None else sys.argv[1:])],
+                    config=dict(prereg_git_sha=e1.PREREG_SHA,prereg_sha256=e1.PREREG_HASH,phase='confirmatory'),
+                    seeds=list(range(1000,1036)),outputs=sorted(p for p in raw_root.rglob('*') if p.is_file()),
+                    labels=labels.pick('routes_and_budgets','traffic_probes','fault_slow_link'),timer=timer)
+        manifest_paths.append(raw_root/'manifest.json')
+        source_paths.append(raw_root/'manifest.json')
         # Original producer manifests are a compressed evidence ledger. Raw files remain available locally.
         for folder in (args.pilot,args.prerequisites):manifest_paths.extend(folder.rglob('manifest.json'))
         (args.out/'inputs').mkdir()

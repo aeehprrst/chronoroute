@@ -70,7 +70,7 @@ def extract(doc, job, operating):
             r.update(rule=d['rule'],selected=job['scheme']!='chronoroute' or ri-1==operating[job['const']]['rule_index'],
                      k=k,detected=detected,delay_s=delay,restricted_s=None if oracle else (delay if detected else 4.),
                      tp=None if native_ls or oracle else p['true_detections'],crossed=p['exposed'],reached=p['reached'],
-                     lost_at_fault=p['lost_at_fault'],localised_tp=p.get('localised_true_detections',0),
+                     lost_at_fault=p['lost_at_fault'],localised_tp=None if job['scheme'] in ('e2e','ls_h','ls_d','o_q') else p.get('localised_true_detections',0),
                      induced_unexposed=p.get('induced_unexposed',0),lost_flags=p.get('lost_flags',0),
                      fp=None if fp is None else fp['false_positives'],clean=None if fp is None else fp['clean'],
                      twin_fp=None if ft is None else ft['false_positives'],twin_clean=None if ft is None else ft['clean'],
@@ -114,7 +114,7 @@ def summarise(rows, *, n_boot=10000):
         for k in ('estimate','lo','hi'): out[prefix+'_'+k]=ci[k]
     out['undefined_packet_runs']=sum(r['crossed']==0 for r in rows)
     for field in ('crossed','reached','lost_at_fault','localised_tp','induced_unexposed','lost_flags','sent','delivered','effective_p99_inf_flows','delivered_p99_ineligible_flows'):
-        out[field]=sum(r[field] for r in rows)
+        out[field]=sum(r[field] for r in rows) if all(r[field] is not None for r in rows) else None
     out['tp']=None if first['tp'] is None else sum(r['tp'] for r in rows)
     for label,num,den in (('packet_pdet','tp','crossed'),('fpr','fp','clean'),('false_events_h','false_events','sending_hours'),('pdr_pooled','delivered','sent')):
         if first.get(num) is None:
@@ -169,6 +169,22 @@ def write_analysis(out, rows, *, n_boot=10000):
     for r in rows:groups[tuple(r[k] for k in ('const','scheme','condition','rule','k'))].append(r)
     summary=[summarise(rs,n_boot=n_boot) for rs in groups.values()]
     e1.write_csv(out/'summary.csv',summary)
+    ratio_rows=[];distributions=[]
+    for key,rs in groups.items():
+        if rs[0]['k']!=2:continue
+        values=[]
+        for r in rs:
+            ratio=r['tp']/r['crossed'] if r['tp'] is not None and r['crossed'] else None
+            loc=r['localised_tp']/r['tp'] if r['localised_tp'] is not None and r['tp'] else None
+            ratio_rows.append({**{k:r[k] for k in ('const','scheme','condition','seed','pair_id','rule','selected')},
+                               'tp':r['tp'],'crossed':r['crossed'],'packet_ratio':ratio,'localisation_ratio':loc})
+            if ratio is not None:values.append(ratio)
+        distributions.append(dict(zip(('const','scheme','condition','rule','k'),key),defined_runs=len(values),undefined_runs=len(rs)-len(values),
+                            min=min(values) if values else None,q25=float(np.quantile(values,.25)) if values else None,
+                            median=float(np.median(values)) if values else None,q75=float(np.quantile(values,.75)) if values else None,
+                            max=max(values) if values else None))
+    e1.write_csv(out/'packet_run_ratios.csv',ratio_rows)
+    e1.write_csv(out/'packet_ratio_distribution.csv',distributions)
     paired=contrasts(rows,n_boot=n_boot)
     e1.write_csv(out/'paired_contrasts.csv',paired)
     city=defaultdict(list)
@@ -229,6 +245,9 @@ def write_analysis(out, rows, *, n_boot=10000):
             rr=dict(r)
             p=s['packet'];ev=s['event'];fp=s['fpr'];ft=s['fpr_twin'];fe=s['false_events_twin']
             rr.update(tp=p['true_detections'],crossed=p['exposed'],reached=p['reached'],lost_at_fault=p['lost_at_fault'],
+                      localised_tp=None if r['scheme']=='e2e' else p.get('localised_true_detections',0),
+                      induced_unexposed=p.get('induced_unexposed',0),lost_flags=p.get('lost_flags',0),
+                      changed_but_unreached=p.get('changed_but_unreached',0),
                       detected=int(ev['detected']),delay_s=ev['delay_ns']/1e9 if ev['detected'] else None,
                       restricted_s=ev['delay_ns']/1e9 if ev['detected'] else 4.,
                       fp=fp['false_positives'],clean=fp['clean'],twin_fp=ft['false_positives'],twin_clean=ft['clean'],

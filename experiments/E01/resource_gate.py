@@ -10,6 +10,18 @@ from chronoroute.trace.writer import write_json
 import campaign as e1
 import confirm
 
+PARITY_FILES=('packets.csv.gz','scheme_packets.csv.gz','events.jsonl.gz','scheme_events.csv.gz','schedule.csv.gz','control.json')
+
+
+def compare_pilot_outputs(before,after):
+    """Exact foreground/header/arrival/control parity against pre-optimization pilot files."""
+    differences=[]
+    for name in PARITY_FILES:
+        a,b=before/name,after/name
+        if not a.is_file() or not b.is_file():differences.append(dict(file=name,reason='missing'))
+        elif provenance.file_sha256(a)!=provenance.file_sha256(b):differences.append(dict(file=name,reason='different bytes'))
+    return dict(checked_files=len(PARITY_FILES),violations=len(differences),differences=differences)
+
 
 def project_budget(pilot, observations, scores, *, spent_s, gate_ok, workers=8):
     """Keep the whole grid; use conservative costs separately for the two constellations."""
@@ -54,12 +66,15 @@ def main(argv=None):
     parser=argparse.ArgumentParser(description=__doc__)
     for name in ('pilot','prerequisites','out'):parser.add_argument('--'+name,required=True,type=Path)
     parser.add_argument('--workers',default=8,type=int,choices=range(1,9))
+    parser.add_argument('--previous-calibration',type=Path,help='clean pre-optimization pilot evidence for exact comparison and spent-time accounting')
     if argv is not None and '--help' in argv:parser.print_help();return 0
     args=parser.parse_args(argv)
     e1.validate_protocol()
     if provenance.git_state(e1.REPO)['dirty']:raise ValueError('commit code before calibration')
     for folder in (args.pilot,args.prerequisites):
         if provenance.validate_manifest(folder/'manifest.json')['dirty'] is not False:raise ValueError('dirty pilot')
+    if args.previous_calibration and provenance.validate_manifest(args.previous_calibration/'manifest.json')['dirty'] is not False:
+        raise ValueError('dirty previous calibration')
     args.out=args.out.resolve();args.out.mkdir(parents=True,exist_ok=False)
     write_json(args.out/'rules.json',e1.RULES)
     operating=json.loads((args.pilot/'operating_points.json').read_text())
@@ -95,6 +110,13 @@ def main(argv=None):
     with provenance.RunTimer() as timer:
         with ThreadPoolExecutor(max_workers=args.workers) as pool:
             simulations=list(pool.map(lambda j:e1.run_job(j,args.out,targets),planned))
+        parity=[]
+        if args.previous_calibration:
+            for job in planned:
+                if job['scheme']=='o_q':
+                    parity.append(dict(id=job['id'],**compare_pilot_outputs(args.previous_calibration/'runs'/job['id']/'raw',
+                                                                         args.out/'runs'/job['id']/'raw')))
+        write_json(args.out/'optimization_parity.json',parity)
         def score(item):
             job,raw,twin=item
             folder=args.out/'scores'/job['id']
@@ -118,8 +140,13 @@ def main(argv=None):
         import csv
         initial=[{**r,'experiment':'E01','cpu_s':float(r['cpu_s'])} for r in csv.DictReader((args.pilot/'inventory.csv').open())]
         observations += initial + [{**r,'experiment':'E01'} for r in simulations]
-        forecast=project_budget(pilot,observations,scores,spent_s=prior['spent_prerequisites_s']+timer.wall_seconds,
-                                gate_ok=prior['deterministic_gate_passed'] and all(r['status']=='ok' for r in simulations),workers=args.workers)
+        previous_spent=prior['spent_prerequisites_s']
+        if args.previous_calibration:
+            previous_spent=max(previous_spent,json.loads((args.previous_calibration/'resource_forecast.json').read_text())['spent_prerequisites_s'])
+        forecast=project_budget(pilot,observations,scores,spent_s=previous_spent+timer.wall_seconds,
+                                gate_ok=prior['deterministic_gate_passed'] and all(r['status']=='ok' for r in simulations)
+                                and all(r['violations']==0 for r in parity),workers=args.workers)
+        forecast['optimization_parity_passed']=all(r['violations']==0 for r in parity) if args.previous_calibration else None
         if provenance.file_sha256(args.pilot/'operating_points.json')!=frozen:raise ValueError('pilot selection changed')
         e1.write_csv(args.out/'inventory.csv',simulations)
         e1.write_csv(args.out/'score_inventory.csv',scores)
@@ -129,7 +156,8 @@ def main(argv=None):
             config=dict(prereg_git_sha=e1.PREREG_SHA,prereg_sha256=e1.PREREG_HASH,workers=args.workers,phase='pilot',reason='measure final scorer; refine conservative per-constellation cost without changing scientific grid'),
             seeds=[*range(6),16,17],outputs=sorted(p for p in args.out.rglob('*') if p.is_file() and p!=args.out/'manifest.json'),
             labels=labels.pick('routes_and_budgets','traffic_probes','fault_slow_link'),
-            extra=dict(forecast=forecast,frozen_operating_sha256=frozen,inputs=[dict(path=str(p),sha256=provenance.file_sha256(p)) for p in (args.pilot/'manifest.json',args.prerequisites/'manifest.json')]),timer=timer)
+            extra=dict(forecast=forecast,frozen_operating_sha256=frozen,inputs=[dict(path=str(p),sha256=provenance.file_sha256(p)) for p in
+                       (args.pilot/'manifest.json',args.prerequisites/'manifest.json',*([args.previous_calibration/'manifest.json'] if args.previous_calibration else []))]),timer=timer)
     print(json.dumps(forecast,indent=2),flush=True)
     return 0 if forecast['confirmation_allowed'] else 1
 

@@ -603,8 +603,14 @@ class SchemeEngine(Engine):
                     w += arq_expected_ns(arq, g)
             return w + int(self.queue(u, v, li).queue_delay_estimate(t))
 
+        # Geometry plus base service is an exact consistent lower bound: faults
+        # and queue waits only add nonnegative cost or remove edges. Cache one
+        # reverse tree per geometry step/destination, then preserve the forward
+        # search's lowest-predecessor tie rule. Keep the original query order for
+        # Poisson background, whose lazy stochastic sampler is outside E1.
+        lower = None if self.bg_model == "poisson" else self.truth.tree(k, 0, base, dst).dist
         _cost, path = lazy_path(self.topo.n_nodes, src, dst, lambda u: self.topo.neighbours[u], weight,
-                                self._transit_l)
+                                self._transit_l, lower_bound=lower)
         return path
 
     # ------------------------------------------------------------ finishing

@@ -191,7 +191,10 @@ def test_driver_partial_campaign_is_manifested_as_incomplete(tmp_path,monkeypatc
     monkeypatch.setattr(c.e1,'preflight',lambda *args: {})
     monkeypatch.setattr(c,'group_jobs',lambda *args: [[]])
     observation=dict(c.e1.jobs('confirmatory')[0],status='ok',cpu_s=1,score_cpu_s=0,peak_rss_kb=1)
-    monkeypatch.setattr(c,'run_group',lambda *args: ([observation],[row(1000)],[]))
+    def work(*args):
+        (args[2]/'unit-score.log').write_text('unit fixture')
+        return [observation],[row(1000)],[]
+    monkeypatch.setattr(c,'run_group',work)
     monkeypatch.setattr(c,'roc_jobs',lambda *args: [])
     monkeypatch.setattr(c.analysis,'write_analysis',lambda *args: False)
     args=['--out',str(tmp_path/'out'),'--workers','1']
@@ -199,6 +202,8 @@ def test_driver_partial_campaign_is_manifested_as_incomplete(tmp_path,monkeypatc
     assert c.main(args)==1
     m=provenance.validate_manifest(tmp_path/'out/manifest.json')
     assert not m['extra']['complete']
+    raw=provenance.validate_manifest(tmp_path/'out-raw/manifest.json')
+    assert any(entry['path']=='unit-score.log' for entry in raw['outputs'])
 
 
 def test_resource_projection_uses_constellation_costs_without_changing_grid():
@@ -237,7 +242,8 @@ def test_complete_condition_curves_keep_run_units_and_reverse_endpoints(tmp_path
     assert len(reverse)==15 and all(float(r['event_mean'])==1 for r in reverse)
 
 
-def test_calibration_driver_records_all_supplemental_jobs_and_frozen_rule(tmp_path,monkeypatch):
+@pytest.mark.parametrize('previous',[False,True])
+def test_calibration_driver_records_all_supplemental_jobs_and_frozen_rule(tmp_path,monkeypatch,previous):
     import resource_gate as gate
     from chronoroute import provenance
     pilot=tmp_path/'pilot';prior=tmp_path/'prior';out=tmp_path/'calibration'
@@ -260,15 +266,59 @@ def test_calibration_driver_records_all_supplemental_jobs_and_frozen_rule(tmp_pa
     monkeypatch.setattr(gate.e1.provenance,'git_state',lambda *args,**kwargs: {'sha':'0'*40,'dirty':False})
     monkeypatch.setattr(gate.e1,'validate_protocol',lambda: None)
     monkeypatch.setattr(gate.e1,'attach_metadata',lambda *args,**kwargs: None)
-    monkeypatch.setattr(gate.e1,'run_job',lambda job,*args: dict(job,status='ok',cpu_s=1))
+    def simulate(job,output,*args):
+        folder=output/'runs'/job['id']/'raw';folder.mkdir(parents=True)
+        for name in gate.PARITY_FILES:(folder/name).write_bytes(b'unit fixture')
+        return dict(job,status='ok',cpu_s=1)
+    monkeypatch.setattr(gate.e1,'run_job',simulate)
     def score(command,*args,**kwargs):
         folder=Path(command[command.index('--out')+1]);folder.mkdir(parents=True)
         (folder/'summary.json').write_text(json.dumps({'detection':[point]}))
         return dict(status='ok',cpu_s=1,wall_s=1,peak_rss_kb=1,returncode=0,command=command)
     monkeypatch.setattr(gate.e1,'measured_command',score)
-    assert gate.main(['--pilot',str(pilot),'--prerequisites',str(prior),'--out',str(out),'--workers','8'])==0
+    args=['--pilot',str(pilot),'--prerequisites',str(prior),'--out',str(out),'--workers','8']
+    if previous:
+        old=tmp_path/'previous';old.mkdir();(old/'manifest.json').write_text('{}')
+        (old/'resource_forecast.json').write_text(json.dumps({'spent_prerequisites_s':2}))
+        for const in ('C5','C2'):
+            for seed,conditions in ((0,('none',)),(16,('none','rate-0.3-middle')),(17,('none','rate-0.3-middle'))):
+                for condition in conditions:
+                    folder=old/'runs'/f'{const}-o_q-s{seed:04d}-{condition}'/'raw';folder.mkdir(parents=True)
+                    for name in gate.PARITY_FILES:(folder/name).write_bytes(b'unit fixture')
+        args+=['--previous-calibration',str(old)]
+    assert gate.main(args)==0
     m=validate(out/'manifest.json')
     import csv
     assert len(list(csv.DictReader((out/'inventory.csv').open())))==62
     assert len(list(csv.DictReader((out/'score_inventory.csv').open())))==88
     assert m['extra']['frozen_operating_sha256']==provenance.file_sha256(pilot/'operating_points.json')
+    if previous:
+        parity=json.loads((out/'optimization_parity.json').read_text())
+        assert len(parity)==10 and all(r['violations']==0 for r in parity)
+
+
+def test_packet_ratio_distribution_and_unlocalised_monitors_are_explicit(tmp_path):
+    import csv
+    rows=[row(seed,detected=seed%2) for seed in range(1000,1036)]
+    rows[0].update(crossed=0,tp=0)
+    rows += [dict(r,scheme='e2e',localised_tp=None) for r in rows]
+    a.write_analysis(tmp_path,rows,n_boot=100)
+    ratios=list(csv.DictReader((tmp_path/'packet_run_ratios.csv').open()))
+    assert len(ratios)==72 and ratios[0]['packet_ratio']==''
+    assert all(r['localisation_ratio']=='' for r in ratios if r['scheme']=='e2e')
+    distribution=list(csv.DictReader((tmp_path/'packet_ratio_distribution.csv').open()))
+    assert all(int(r['undefined_runs'])==1 and int(r['defined_runs'])==35 for r in distribution)
+    assert all(float(r['max'])==.5 for r in distribution)
+
+
+def test_optimized_pilot_file_comparison_refuses_missing_or_changed_evidence(tmp_path):
+    import resource_gate as gate
+    before=tmp_path/'before';after=tmp_path/'after'
+    before.mkdir();after.mkdir()
+    for name in gate.PARITY_FILES:
+        (before/name).write_bytes(b'unit fixture');(after/name).write_bytes(b'unit fixture')
+    assert gate.compare_pilot_outputs(before,after)['violations']==0
+    (after/gate.PARITY_FILES[0]).write_bytes(b'changed fixture')
+    assert gate.compare_pilot_outputs(before,after)['violations']==1
+    (after/gate.PARITY_FILES[1]).unlink()
+    assert gate.compare_pilot_outputs(before,after)['violations']==2

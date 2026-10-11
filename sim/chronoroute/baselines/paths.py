@@ -185,18 +185,31 @@ def bfs_hops_multi(g, roots):
     return hops
 
 
-def lazy_path(n, src, dst, neighbours, weight, transit):
+def lazy_path(n, src, dst, neighbours, weight, transit, *, lower_bound=None):
     """(cost, path) of the cheapest src -> dst path, weights computed on demand; (None, None).
 
     neighbours(u) -> iterable of (v, link index); weight(u, v, li) -> int > 0, or None when the
     link may not be used. Tie-break: the lowest predecessor id wins (route/dijkstra.py rule).
+
+    With a consistent nonnegative lower_bound to dst, use exact integer A*.
+    Equal priorities are ordered by distance travelled, so every positive-weight
+    predecessor of an equal-cost path settles before its successor. This keeps
+    the same lowest-predecessor tie rule as the unaccelerated search. None in a
+    lower-bound entry certifies that node cannot reach dst even without penalties.
     """
+    if lower_bound is not None:
+        if len(lower_bound) != n or lower_bound[dst] != 0:
+            raise ValueError("lower bound needs one entry per node and zero at destination")
+        if lower_bound[src] is None:
+            return None, None
+        if lower_bound[src] < 0:
+            raise ValueError("lower bounds must be nonnegative")
     dist = {src: 0}
     pred = {}
     done = set()
-    heap = [(0, src)]
+    heap = [(0 if lower_bound is None else lower_bound[src], 0, src)]
     while heap:
-        d, u = heapq.heappop(heap)
+        _priority, d, u = heapq.heappop(heap)
         if u in done:
             continue
         done.add(u)
@@ -207,17 +220,24 @@ def lazy_path(n, src, dst, neighbours, weight, transit):
         for v, li in neighbours(u):
             if v in done:
                 continue
+            if lower_bound is not None and v != dst and not transit[v]:
+                continue                     # a station cannot relay to the destination
+            hv = 0 if lower_bound is None else lower_bound[v]
+            if hv is None:
+                continue
             w = weight(u, v, li)
             if w is None:
                 continue
             if w <= 0:
                 raise ValueError("edge weights must be positive")
+            if lower_bound is not None and (hv < 0 or lower_bound[u] > w + hv):
+                raise ValueError("lower bound is not consistent with the edge weights")
             nd = d + w
             dv = dist.get(v)
             if dv is None or nd < dv:
                 dist[v] = nd
                 pred[v] = u
-                heapq.heappush(heap, (nd, v))
+                heapq.heappush(heap, (nd + hv, nd, v))
             elif nd == dv and u < pred[v]:
                 pred[v] = u
     if dst not in done:

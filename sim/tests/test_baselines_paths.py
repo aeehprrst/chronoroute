@@ -113,3 +113,34 @@ def test_lazy_path_equals_tree_cost_and_bfs_matches_networkx(seed):
         except nx.NetworkXNoPath:
             want = None
         assert hops[v] == want
+
+
+@pytest.mark.parametrize('seed',range(12))
+def test_lazy_path_with_consistent_lower_bound_is_exact_including_ties(seed):
+    n,a,b,ab,ba,transit=random_graph(seed+501,n=24,extra=35,gs=3)
+    nominal=BeliefGraph(n,a,b,ab,ba,transit)
+    rng=random.Random(seed)
+    nb=[[] for _ in range(n)];weights={}
+    for i,(u,v,x,y) in enumerate(zip(a,b,ab,ba)):
+        nb[u].append((v,i));nb[v].append((u,i))
+        weights[u,v]=x+rng.randrange(5);weights[v,u]=y+rng.randrange(5)
+    for dst in range(0,n,4):
+        lower=tree_to(nominal,dst).dist
+        for src in range(0,n,3):
+            args=(n,src,dst,lambda u:nb[u],lambda u,v,li:weights[u,v],transit)
+            assert lazy_path(*args,lower_bound=lower)==lazy_path(*args)
+
+
+def test_lazy_lower_bound_rejects_inconsistent_input_and_avoids_irrelevant_branches():
+    nb=[[(1,0),(2,1)],[(3,2)],[(3,3)],[]]
+    weights={(0,1):1,(0,2):1,(1,3):1,(2,3):100}
+    calls=[]
+    def weight(u,v,li):calls.append((u,v));return weights[u,v]
+    args=(4,0,3,lambda u:nb[u],weight,[True]*4)
+    reference=lazy_path(*args);normal_calls=len(calls);calls.clear()
+    assert lazy_path(*args,lower_bound=[2,1,100,0])==reference
+    assert len(calls)<normal_calls
+    with pytest.raises(ValueError):lazy_path(*args,lower_bound=[5,1,100,0])
+    with pytest.raises(ValueError):lazy_path(*args,lower_bound=[0])
+    with pytest.raises(ValueError):lazy_path(*args,lower_bound=[-1,1,100,0])
+    assert lazy_path(*args,lower_bound=[None,1,100,0])==(None,None)
