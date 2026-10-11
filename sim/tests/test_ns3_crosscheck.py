@@ -322,6 +322,16 @@ def test_pcap_reader_parses_a_ppp_probe_frame(tmp_path):
 
 # ======================================================================= ns-3 (integration)
 
+def test_ns3_records_actual_transmission_and_attempt_metadata(ns3_runs):
+    from chronoroute.eval import metrics
+    for variant in ('nofault','fault'):
+        rows=ns3_runs[variant]['packets']
+        run=cc.ns3_run(rows,ns3_runs[variant]['info'],[])
+        assert any(any(t>0 for t in row['wait_ns']) for row in rows) == (variant=='fault')
+        assert all(len(row['tx_ns'])==len(row['wait_ns']) for row in rows)
+        assert all(t>=0 for row in rows for t in row['tx_ns'])
+        assert metrics.pdr_total(run)['sent']==len(rows)
+
 def _binary():
     ns3 = Path(os.environ.get("NS3_DIR", Path.home() / "ns-3-dev"))
     found = sorted(glob.glob(str(ns3 / "build/contrib/chronoroute/examples/ns3.*-chronoroute-leo-*")))

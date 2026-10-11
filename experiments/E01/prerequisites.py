@@ -58,10 +58,11 @@ def write_sends(path, sends):
 
 def replay_config(const, seed, *, stochastic, fault):
     """E16 has zero processing in both actual and predicted timing."""
-    j = {"const": const, "seed": seed, "phase": "pilot", "scheme": "chronoroute", "condition": "none"}
+    phase='pilot' if seed<100 else 'confirmatory'
+    j = {"const": const, "seed": seed, "phase": phase, "scheme": "chronoroute", "condition": "none"}
     cfg = e1.document(j)["engine"]
     cfg["schedule"].update(plan_links="stable", planner_processing_ns=0)
-    cfg["forwarding"].update(processing_ns=0, jitter={"model": "none", "mean_ns": 400000},
+    cfg["forwarding"].update(processing_ns=0, fallback='none', jitter={"model": "none", "mean_ns": 400000},
                              background={"model": "none", "rho": 0, "links": "all", "packet_bytes": 1500, "window_ms": 10})
     for flow, times in zip(cfg["traffic"]["flows"], send_times(seed, stochastic=stochastic)):
         flow["send_times_ns"] = times
@@ -181,12 +182,18 @@ def run_child(job, out):
     return int(not summary["conservation"]["ok"] or summary["invariants"]["violations"] != 0)
 
 
-def run_replay(const, seed, fault, stochastic, out, *, engines=("python", "ns3")):
+def run_replay(const, seed, fault, stochastic, out, *, engines=("python", "ns3"), command=None):
     """Export common schedule/truth and replay both engines, including queues."""
     out.mkdir(parents=True, exist_ok=False)
     pair_timer = provenance.RunTimer().start()
     cfg = replay_config(const, seed, stochastic=stochastic, fault=fault)
     sc = build_scenario(cfg)
+    checks=0
+    for flow in sc.flows:
+        for t in range(0,int(cfg['scenario']['duration_s']*1000),1000):
+            if sc.plan(flow,t,t+1000) is None:raise ValueError('E16 stable route unavailable')
+            checks+=1
+    write_json(out/'preflight.json',{'checks':checks,'violations':0})
     target = sc.resolve_on_path({"flow": 0, "at_s": 4, "position": "middle", "kind": "isl"}, 4000000000, False)
     if fault:
         cfg["faults"][0].pop("on_path")
@@ -194,13 +201,14 @@ def run_replay(const, seed, fault, stochastic, out, *, engines=("python", "ns3")
     bc = bundle.BundleConfig(shell_id=sc.topo.shell.shell_id, cities=tuple(sc.cities), t0_ns=sc.t0_ns,
                              window_ms=14000, flows=tuple((f.src, f.dst) for f in sc.flows), processing_ns=0)
     b = bundle.build_bundle(sc.fleet, bc, sc.registry)
-    bundle.write_bundle(b, out / "bundle", command=[sys.executable, "-B", __file__, "export-common-replay"])
+    bundle.write_bundle(b, out / "bundle", command=command or [sys.executable, "-B", __file__, *sys.argv[1:]])
     sends = [f["send_times_ns"] for f in cfg["traffic"]["flows"]]
     write_sends(out / "sends.csv", sends)
     scheme = normalise_scheme({"name": "chronoroute", "outputs": {"stretch_oracle": False}})
     write_json(out / "engine.json", {**cfg, "scheme": scheme})
+    phase='pilot' if seed<100 else 'confirmatory'
     campaign = {"prereg_path": "experiments/PREREG.md", "prereg_git_sha": e1.PREREG_SHA, "prereg_sha256": e1.PREREG_HASH,
-                "phase": "pilot", "experiment": "E16", "cell_id": out.name, "pair_id": seed % 18, "seed": seed}
+                "phase": phase, "experiment": "E16", "cell_id": out.name, "pair_id": e1.pair_id(seed,phase), "seed": seed}
     e1.attach_metadata(out / "bundle", campaign, {"kind": "common schedule and truth export"})
     rows = []
     for engine in engines:
@@ -234,11 +242,12 @@ def run_replay(const, seed, fault, stochastic, out, *, engines=("python", "ns3")
         write_json(out / "comparison.json", comparison)
     write_json(out / "inventory.json", rows)
     pair_timer.stop()
-    provenance.write_manifest(out, tool="E16 paired replay", tool_version=__version__, command=[sys.executable, "-B", __file__, *sys.argv[1:]],
+    provenance.write_manifest(out, tool="E16 paired replay", tool_version=__version__, command=command or [sys.executable, "-B", __file__, *sys.argv[1:]],
                               config={"campaign": campaign, "stochastic": stochastic, "run": cfg}, seeds=[seed],
                               outputs=sorted(p for p in out.rglob("*") if p.is_file() and p != out / "manifest.json"),
                               labels=labels.pick("routes_and_budgets", "traffic_probes", "link_rate_and_queues"),
-                              extra={"campaign": campaign, "comparison": comparison}, timer=pair_timer)
+                              extra={"campaign": campaign, "comparison": comparison,
+                                     'synthetic_positions':'C2 elements and positions MODELLED' if const=='C2' else None}, timer=pair_timer)
     return rows, comparison
 
 

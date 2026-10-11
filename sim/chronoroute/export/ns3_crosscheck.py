@@ -1,7 +1,11 @@
 """
 ns3_crosscheck.py
 -----------------
-E16-lite: check the ns-3 course-milestone run (ns3/contrib/chronoroute/
+E16 compares actual Python and ns-3 replays, including queues and losses,
+with compare_replays, ns3_run, replay_metrics and paired TOST equivalence.
+The experiment launcher is experiments/E16/run.py.
+
+The separate legacy E16-lite check compares the ns-3 course-milestone run (ns3/contrib/chronoroute/
 examples/chronoroute-leo.cc) against an independent Python prediction made
 from the same scenario bundle, and summarise the runs.
 
@@ -399,11 +403,13 @@ def read_packets(path):
                 r[c] = int(r[c])
             for c in _OPT_INT_COLS:
                 r[c] = int(r[c]) if r[c] != "" else None
+            for c in ('tx_ns', 'wait_ns'):
+                if c in r:r[c]=[int(x) for x in r[c].split()]
             out.append(r)
     return out
 
 
-def compare_replays(run, packets):
+def compare_replays(run, packets, *, require_tx=False):
     """Compare actual Python queue/loss replay with actual ns-3 packet output.
 
     This uses no light-time predictor. Lost packets remain in the inventory,
@@ -416,24 +422,34 @@ def compare_replays(run, packets):
         duplicate += key in other
         other[key] = row
     mine = {(int(run.flow[i]), int(run.seq[i])): i for i in range(run.n)}
+    if len(mine)!=run.n:raise ValueError('duplicate Python packet identities')
     examples = [{"packet": list(k), "field": "packet_inventory"} for k in sorted(set(mine) ^ set(other))]
     violations = len(examples) + duplicate
     checked = 0
+    mismatched=set(set(mine)^set(other));max_time_error=0
     outcomes = {"delivered": (0, ""), "drop_queue": (1, "buffer_overflow"),
                 "drop_link_down": (1, "next_link_down"), "drop_iface_down": (1, "in_flight_link_down"),
                 "no_route": (2, "no_route"), "pending": (3, "unfinished")}
+    dead_attempts={}
+    if require_tx:
+        from ..eval.metrics import _link_down_events
+        dead_attempts={i:f'{u}:{v}:{t}' for i,u,v,t in _link_down_events(run)}
     for key in sorted(set(mine) & set(other)):
         i, row = mine[key], other[key]
         outcome, reason = outcomes.get(row["outcome"], (-999, row["outcome"]))
         schedule = run.schedule.get((key[0], int(run.row_from_ms[i])))
+        path=list(row['taken_path']);arrivals=list(row['hop_t_ns'])
+        if row['outcome']=='drop_iface_down':
+            path.append(row['outcome_node']);arrivals.append(row['outcome_t_ns'])
+        if row['outcome']=='no_route':path=[row['outcome_node']]
         fields = {
             "send_ns": (int(run.send_ns[i]), row["send_ns"]),
             "outcome": (int(run.outcome[i]), outcome),
             "drop_reason": (run.reason[i] if outcome == 1 else "", reason if outcome == 1 else ""),
             "latency_ns": (int(run.latency_ns[i]), -1 if row["latency_ns"] is None else row["latency_ns"]),
-            "path": (list(map(int, run.paths[i])), row["taken_path"]),
+            "path": (list(map(int, run.paths[i])), path),
             "planned_path": (list(schedule["path"]) if schedule else [], row["planned_path"]),
-            "arrival_ns": (list(map(int, run.arr_ns(i))), row["hop_t_ns"]),
+            "arrival_ns": (list(map(int, run.arr_ns(i))), arrivals),
             "arrival_u": (list(map(int, run.arrival_u[i])), row["hop_now_u"]),
             "deadline_u": (list(map(int, run.deadline_u[i])), row["hop_deadline_u"]),
             "first_late": (int(run.first_late[i]), -1 if row["first_late_hop"] is None else row["first_late_hop"]),
@@ -442,14 +458,131 @@ def compare_replays(run, packets):
             "row_from_ms": (int(run.row_from_ms[i]), -1 if row["row_from_ms"] is None else row["row_from_ms"]),
             "wire_bytes": (int(run.wire[i]), row["wire_bytes"]),
         }
+        if require_tx:
+            if any(c not in row for c in ('tx_ns','wait_ns','tx_loss_at','link_down_at')) or 'tx_ns' not in run.extras:
+                raise ValueError('strict replay needs actual transmission and attempted-link records')
+            fields.update(tx_ns=(list(map(int,run.extras['tx_ns'][i])),row['tx_ns']),
+                          wait_ns=(list(map(int,run.extras['wait_ns'][i])),row['wait_ns']),
+                          tx_loss_at=(run.extras['tx_loss_at'][i],row['tx_loss_at']),
+                          link_down_at=(dead_attempts.get(i,''),row['link_down_at']))
+            if path:fields['outcome_node']=(int(run.paths[i][-1]),row['outcome_node'])
         for field, (left, right) in fields.items():
             checked += 1
             if left != right:
                 violations += 1
+                mismatched.add(key)
                 if len(examples) < 20:
                     examples.append({"packet": list(key), "field": field, "python": left, "ns3": right})
+            if field in ('arrival_ns','tx_ns') and len(left)==len(right):
+                max_time_error=max(max_time_error,max((abs(a-b) for a,b in zip(left,right)),default=0))
+            if field=='latency_ns' and left>=0 and right>=0:max_time_error=max(max_time_error,abs(left-right))
     return {"packets_python": run.n, "packets_ns3": len(packets), "checked_fields": checked,
-            "duplicate_ns3_ids": duplicate, "violations": violations, "examples": examples}
+            "duplicate_ns3_ids": duplicate, "violations": violations, "examples": examples,
+            'mismatched_packets':len(mismatched),'max_abs_time_error_ns':max_time_error}
+
+
+def ns3_run(packets, info, faults):
+    """Adapt independently recorded ns-3 packets to production evaluators, without Python outcomes.
+
+    In-flight interface losses record no routing-header arrival in ns-3. Their
+    recorded receiver/time supply the last path node and arrival; no checker is
+    invented there. Queue and dead-link attempts must be explicit native records.
+    """
+    from ..eval.load import RunData,Ragged
+    rows=sorted(packets,key=lambda r:(r['send_ns'],r['flow_id'],r['seq']))
+    if len({(r['flow_id'],r['seq']) for r in rows})!=len(rows):raise ValueError('duplicate ns-3 packet identities')
+    paths=[];arrivals=[];reasons=[];outcomes=[];schedule={}
+    mapping={'delivered':(0,''),'drop_queue':(1,'buffer_overflow'),
+             'drop_link_down':(1,'next_link_down'),'drop_iface_down':(1,'in_flight_link_down'),
+             'no_route':(2,'no_route'),'pending':(3,'unfinished')}
+    for r in rows:
+        if any(c not in r for c in ('tx_ns','wait_ns','tx_loss_at','link_down_at')):
+            raise ValueError('native transmission records missing; rebuild ns-3 and rerun')
+        if r['outcome'] not in mapping:raise ValueError('unsupported native outcome '+r['outcome'])
+        if r['outcome']=='drop_queue' and not r['tx_loss_at']:raise ValueError('missing transmitter loss attempt')
+        if r['outcome']=='drop_link_down' and not r['link_down_at']:raise ValueError('missing dead-link attempt')
+        if len(r['tx_ns'])!=len(r['wait_ns']):raise ValueError('transmission/wait counts differ')
+        path=list(r['taken_path']);arr=list(r['hop_t_ns'])
+        if r['outcome']=='drop_iface_down':path.append(r['outcome_node']);arr.append(r['outcome_t_ns'])
+        if r['outcome']=='no_route':path=[r['outcome_node']]
+        if len(arr)!=max(0,len(path)-1):raise ValueError('native path and arrival counts differ')
+        paths.append(path);arrivals.append(arr)
+        outcome,reason=mapping[r['outcome']];outcomes.append(outcome);reasons.append(reason)
+        if r['row_from_ms'] is not None:schedule[r['flow_id'],r['row_from_ms']]={'path':r['planned_path']}
+    def ragged(values):return Ragged([' '.join(map(str,r)) for r in values])
+    def ints(key,missing=-1):return np.array([r[key] if r[key] is not None else missing for r in rows],dtype=np.int64)
+    n=len(rows);end=int(info['stop_ns']);send_end=int(info['send_window_ns'][1])
+    return RunData(dir=Path('.'),run={'engine':{'end_ns':end,'drain_ns':end-send_end,
+        'processing_ns':0,'link_rate_bps':DEFAULT_RATE_BPS},'faults':faults,'flows':info['flows'],
+        'scheme':{'name':'chronoroute'}},n=n,pkt=np.arange(n),flow=ints('flow_id'),seq=ints('seq'),send_ns=ints('send_ns'),
+        outcome=np.array(outcomes,dtype=np.int8),reason=reasons,latency_ns=ints('latency_ns'),
+        hops=np.array([len(x)-1 for x in paths]),paths=ragged(paths),dev=ints('dev'),dev_hop=ints('dev_hop'),
+        first_late=ints('first_late_hop'),arrival_u=ragged([r['hop_now_u'] for r in rows]),
+        deadline_u=ragged([r['hop_deadline_u'] for r in rows]),greedy=np.zeros(n,dtype=int),
+        fallback_reason=['']*n,row_from_ms=ints('row_from_ms'),wire=ints('wire_bytes'),schedule=schedule,
+        extras={'arrival_ns':ragged(arrivals),'tx_ns':ragged([r['tx_ns'] for r in rows]),
+                'wait_ns':ragged([r['wait_ns'] for r in rows]),'tx_loss_at':[r['tx_loss_at'] for r in rows],
+                'link_down_at':[r['link_down_at'] for r in rows]})
+
+
+def replay_metrics(run):
+    """Registered metrics from one actual run; effective quantiles retain infinite losses."""
+    from ..eval import metrics,detection
+    mask=metrics.measurement_mask(run);truth=metrics.packet_labels(run,mask)
+    pdr=metrics.pdr_total(run,mask);fpr=metrics.deadline_fpr(truth,detection.flags_for(run).flagged)
+    return {**pdr,**fpr,'labels':{name:int((truth==i).sum()) for i,name in enumerate(metrics.LABELS)},
+            'latency':metrics.latency_summary(run,mask,ps=('0.5','0.99'))}
+
+
+def tost(differences,margin,alpha=.05):
+    """Paired Student-t TOST; degenerate intervals pass only strictly within both bounds."""
+    from ..eval import stats
+    d=np.asarray(differences,dtype=float)
+    if d.ndim!=1 or len(d)<2 or not np.isfinite(d).all() or not 0<margin or not 0<alpha<.5:
+        raise ValueError('TOST needs finite paired runs and a positive margin')
+    c90=stats.mean_ci_t(d,conf=1-2*alpha);c95=stats.mean_ci_t(d,conf=.95)
+    se=c90['sd']/math.sqrt(len(d));mean=c90['mean']
+    if se==0:
+        lower=0. if mean>-margin else 1.;upper=0. if mean<margin else 1.
+    else:
+        lower=1-stats.t_cdf((mean+margin)/se,len(d)-1)
+        upper=stats.t_cdf((mean-margin)/se,len(d)-1)
+    return dict(n=len(d),estimate=mean,lo90=c90['lo'],hi90=c90['hi'],lo95=c95['lo'],hi95=c95['hi'],
+        p_lower=lower,p_upper=upper,margin=margin,
+        equivalent=bool(c90['lo']>-margin and c90['hi']<margin and lower<alpha and upper<alpha))
+
+
+def equivalence(pairs,endpoint):
+    """All-run equivalence; undefined or infinite endpoints prevent a passing cell."""
+    if endpoint not in ('pdr','fpr','p50','p99'):raise ValueError('unsupported equivalence endpoint')
+    if len({r['seed'] for r in pairs})!=len(pairs):raise ValueError('duplicate paired seeds')
+    ratio=endpoint in ('p50','p99');margin=math.log(1.05) if ratio else (.01 if endpoint=='pdr' else .005)
+    differences=[];undefined=0;infinite=0
+    for pair in pairs:
+        a,b=pair['ns3'],pair['python']
+        if ratio:
+            key='q0.5' if endpoint=='p50' else 'q0.99_eff'
+            aa={r['flow']:r.get(key) for r in a['latency']};bb={r['flow']:r.get(key) for r in b['latency']}
+            if set(aa)!=set(bb) or not aa:raise ValueError('latency flow coverage differs')
+            values=[v for f in aa for v in (aa[f],bb[f])]
+            if any(v is None or not math.isfinite(v) or v<=0 for v in values):
+                undefined+=1;infinite+=int(any(v is not None and math.isinf(v) for v in values));continue
+            differences.append(float(np.mean([math.log(aa[f]/bb[f]) for f in aa])))
+        else:
+            x,y=a[endpoint],b[endpoint]
+            if x is None or y is None or not math.isfinite(x) or not math.isfinite(y):undefined+=1;continue
+            differences.append(x-y)
+    out=dict(n=len(pairs),undefined_runs=undefined,infinite_runs=infinite,estimate=None,lo90=None,hi90=None,
+        lo95=None,hi95=None,p_lower=None,p_upper=None,margin=margin,equivalent=False,reason=None,
+        scale='ns3/python ratio' if ratio else 'ns3 minus python',
+        lower_bound=1/1.05 if ratio else -margin,upper_bound=1.05 if ratio else margin)
+    if undefined or len(pairs)<30:
+        out['reason']='undefined/infinite run endpoints' if undefined else 'fewer than thirty paired runs'
+        return out
+    out.update(tost(differences,margin))
+    if ratio:
+        for k in ('estimate','lo90','hi90','lo95','hi95'):out[k]=math.exp(out[k])
+    return out
 
 
 # ======================================================================= cross-check

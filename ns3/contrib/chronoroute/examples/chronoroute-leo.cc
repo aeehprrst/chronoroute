@@ -179,6 +179,10 @@ struct PacketRec
     int64_t outcomeNs{-1};
     std::string outcomeDetail;
     int64_t rxNs{-1};
+    std::vector<int64_t> txNs;   // actual PhyTxBegin timestamps, all nodes
+    std::vector<int64_t> waitNs; // transmitter wait since arrival at that node
+    std::string txLossAt;       // upstream:next:attempt_ns:wait, explicit failed attempt
+    std::string linkDownAt;     // upstream:next:attempt_ns, explicit dead next link
 };
 
 /// Per-flow sending state.
@@ -271,6 +275,8 @@ OnIngress(const TcrhHopEvent& e)
         if (std::strcmp(e.action, "drop_link_down") == 0)
         {
             r->linkDownHop = 0;
+            r->linkDownAt = std::to_string(h.node) + ":" + std::to_string(r->row->pathNodes.at(1))
+                            + ":" + std::to_string(e.tNs);
             SetOutcome(*r, Outcome::DROP_LINK_DOWN, h.node, "ingress");
         }
         else
@@ -320,6 +326,8 @@ OnHop(const TcrhHopEvent& e)
     if (action == "drop_link_down")
     {
         r->linkDownHop = h.hopIndex;
+        r->linkDownAt = std::to_string(node) + ":" + std::to_string(r->row->pathNodes.at(h.hopIndex + 1))
+                        + ":" + std::to_string(e.tNs);
         SetOutcome(*r, Outcome::DROP_LINK_DOWN, node, e.reason ? e.reason : "");
         return;
     }
@@ -365,6 +373,8 @@ OnMacTxDrop(uint32_t node, Ptr<const Packet> p)
         return;
     }
     SetOutcome(*r, Outcome::DROP_QUEUE, node, "droptail");
+    r->txLossAt = std::to_string(node) + ":" + std::to_string(r->row->pathNodes.at(r->hops.size()))
+                  + ":" + std::to_string(r->outcomeNs) + ":-1";
 }
 
 /// The traffic-control layer dropped a packet. That only happens with flow
@@ -379,6 +389,24 @@ OnTcDrop(uint32_t node, Ptr<const Packet> p)
         return;
     }
     SetOutcome(*r, Outcome::DROP_QUEUE, node, "tc_layer");
+    r->txLossAt = std::to_string(node) + ":" + std::to_string(r->row->pathNodes.at(r->hops.size()))
+                  + ":" + std::to_string(r->outcomeNs) + ":-1";
+}
+
+/// Record the device's actual transmission start, including queue wait.
+void
+OnRecordTx(uint32_t node, Ptr<const Packet> p)
+{
+    PacketRec* r = RecOfUid(p->GetUid());
+    if (r == nullptr)
+    {
+        return;
+    }
+    NS_ABORT_MSG_IF(r->hops.empty() || r->hops.back().node != node,
+                    "transmitter does not match the packet's last recorded arrival");
+    const int64_t now = Simulator::Now().GetNanoSeconds();
+    r->txNs.push_back(now);
+    r->waitNs.push_back(now - r->hops.back().tNs);
 }
 
 /// Something was handed to an upper layer: count UDP at satellites (must be 0:
@@ -827,6 +855,7 @@ main(int argc, char* argv[])
             if (dev)
             {
                 dev->TraceConnectWithoutContext("MacTxDrop", MakeBoundCallback(&OnMacTxDrop, bn.id));
+                dev->TraceConnectWithoutContext("PhyTxBegin", MakeBoundCallback(&OnRecordTx, bn.id));
             }
         }
     }
@@ -1062,7 +1091,8 @@ main(int argc, char* argv[])
     std::ofstream csv(outDir + "/packets.csv");
     csv << "flow_id,seq,uid,send_ns,row_from_ms,num_hops,epoch_base,wire_bytes,planned_path,taken_path,"
            "hop_t_ns,hop_now_u,hop_deadline_u,hop_margin_u,first_late_hop,link_down_hop,dev,dev_hop,"
-           "outcome,outcome_node,outcome_t_ns,rx_ns,latency_ns,fault_link,fault_link_t_ns,phase\n";
+           "outcome,outcome_node,outcome_t_ns,rx_ns,latency_ns,fault_link,fault_link_t_ns,phase,"
+           "tx_ns,wait_ns,tx_loss_at,link_down_at\n";
     for (PacketRec& r : g_packets)
     {
         outcomeCount[OutcomeName(r.outcome)]++;
@@ -1167,7 +1197,8 @@ main(int argc, char* argv[])
             << "," << OutcomeName(r.outcome) << "," << r.outcomeNode << "," << r.outcomeNs << ","
             << (r.rxNs >= 0 ? std::to_string(r.rxNs) : "") << ","
             << (r.rxNs >= 0 ? std::to_string(r.rxNs - r.sendNs) : "") << "," << faultUse << ","
-            << (faultT >= 0 ? std::to_string(faultT) : "") << "," << phase << "\n";
+            << (faultT >= 0 ? std::to_string(faultT) : "") << "," << phase << ","
+            << Join(r.txNs) << "," << Join(r.waitNs) << "," << r.txLossAt << "," << r.linkDownAt << "\n";
     }
     csv.close();
 
