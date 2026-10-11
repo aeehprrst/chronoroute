@@ -278,3 +278,5 @@ def test_lq_and_control_plane_detection(setup, tmp_path):
     lt = run(tmp_path, "lsd_t", doc((), **over), {"name": "ls_d", "ls_d": {"window_s": 1}})
     cp = detection.control_plane_detection(lf, lt, lf.faults[0])
     assert cp["detected"] and cp["delay_ns"] >= 50 * MS        # at least the SPF delay after a window end
+def test_empty_event_roc_has_undefined_endpoints():
+    assert detection.event_roc([], None, [None])[0]["clean_fpr"] is None

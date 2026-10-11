@@ -73,6 +73,17 @@ def test_cr_run_reports_a_bad_config(tmp_path, capsys):
     assert "forwarding.policy" in capsys.readouterr().err
 
 
+def test_cr_run_can_record_scheme_accounting_for_offline_scoring(tmp_path):
+    cfg = tmp_path / "scheme.yaml"
+    cfg.write_text(YAML + "forwarding: {policy: continue}\nscheme: {name: chronoroute, outputs: {stretch_oracle: false}}\n")
+    out = tmp_path / "out"
+    assert cli.main(["run", "--scheme", "--config", str(cfg), "--out", str(out)]) == 0
+    assert (out / "scheme_packets.csv.gz").is_file() and (out / "control.json").is_file()
+    m = provenance.validate_manifest(out / "manifest.json")
+    assert m["command"].startswith("cr run --scheme")
+    assert m["config"]["scheme"]["outputs"]["stretch_oracle"] is False
+
+
 def test_labels_come_from_the_shared_table_or_are_pending_modelled():
     from chronoroute import labels
     cfg = config.normalise({"forwarding": {"background": {"model": "fluid", "rho": 0.1},

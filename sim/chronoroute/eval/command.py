@@ -23,6 +23,7 @@ The `cr eval` commands.
 import csv
 import json
 import sys
+from dataclasses import replace
 from pathlib import Path
 
 from .. import __version__, provenance
@@ -30,7 +31,7 @@ from ..fwd import config as config_mod
 from ..trace import writer as tw
 from . import detection, metrics
 from .load import load_run
-from .offline import Rule
+from .offline import Rule, check_plans
 
 EVAL_LABELS = {"evaluation_metrics": "DERIVED"}
 
@@ -62,20 +63,22 @@ def _scheme_cmd(args):
     return 0 if ok else 1
 
 
-def score_run(run_dir, *, twin_dir=None, slacks=(), k=1, window_ns=1_000_000_000, warmup_ns=0, q_th_ns=None):
+def score_run(run_dir, *, twin_dir=None, slacks=(), k=1, window_ns=1_000_000_000, warmup_ns=0, q_th_ns=None,
+              rules=(), flow=None, include_null=False, check_plan_rules=False):
     """Everything `cr eval score` reports, as one JSON-ready dict."""
     run = load_run(run_dir)
     mask = metrics.measurement_mask(run, warmup_ns)
+    det_mask = mask & (run.flow == flow) if flow is not None else mask
     out = {"run": str(run_dir), "scheme": run.scheme.get("label", run.scheme.get("name")),
            "seed": run.engine.get("seed"), "pdr": metrics.pdr_total(run, mask),
            "pdr_by_flow": metrics.pdr_by_flow(run, mask), "latency": metrics.latency_summary(run, mask),
            "control": metrics.control_summary(run)}
     if run.has_extras():
         out["stretch"] = metrics.stretch(run, mask)
-        lab = metrics.packet_labels(run, mask, q_th_ns)
+        lab = metrics.packet_labels(run, det_mask, q_th_ns)
         out["labels"] = {name: int((lab == i).sum()) for i, name in enumerate(metrics.LABELS)}
         fl = detection.flags_for(run)
-        out["fpr"] = metrics.deadline_fpr(lab, fl.flagged & mask)
+        out["fpr"] = metrics.deadline_fpr(lab, fl.flagged & det_mask)
         out["faults"] = []
         for f in run.faults:
             row = {"fault": f, "blackhole": metrics.blackhole(run, f),
@@ -86,24 +89,53 @@ def score_run(run_dir, *, twin_dir=None, slacks=(), k=1, window_ns=1_000_000_000
         faults = detection.scored_faults(run, twin)
         if not faults:
             detection.check_twin(run, twin)
+        if include_null and not faults:
+            faults = [f for f in run.faults if detection.is_null_fault(f)]
         det = []
-        rules = [None] + [Rule(kind="mult", slack=str(s)) for s in slacks]
-        for rule in rules:
+        rule_list = [None] + [Rule(kind="mult", slack=str(s)) for s in slacks] + list(rules)
+        native_ls = run.scheme.get("name") in ("ls_h", "ls_d")
+        if len(rule_list) > 1 and run.scheme.get("name", "chronoroute") != "chronoroute":
+            raise ValueError("offline rules apply only to ChronoRoute")
+        twin_mask = metrics.measurement_mask(twin, warmup_ns)
+        if flow is not None:
+            twin_mask &= twin.flow == flow
+        if check_plan_rules:
+            changes, checked = [], 0
+            from ..fwd.scenario import build_scenario
+            for data in (run, twin):
+                cfg = data.engine["config"]
+                sc = build_scenario(cfg) if cfg["schedule"]["plan_links"] == "instant" else None
+                for rule in rule_list[1:]:
+                    changed = check_plans(cfg, data, rule, scenario=sc)
+                    checked += len(data.schedule)
+                    changes.extend((str(data.dir), rule.label, row) for row in changed)
+            out["plan_checks"] = {"checked": checked, "violations": len(changes), "changed": changes}
+            if changes:
+                raise ValueError("offline rule changes planned paths; direct rerun or prospective amendment required")
+        for rule in rule_list:
             if rule is not None and run.engine.get("policy") != "continue":
                 raise ValueError("offline slack re-scoring needs a flag-and-continue run")
             f1 = detection.flags_for(run, rule)
             f0 = detection.flags_for(twin, rule)
+            f1 = replace(f1, flagged=f1.flagged & det_mask)
+            f0 = replace(f0, flagged=f0.flagged & twin_mask)
             rows = []
             # only the faults the twin does not have; check_twin (inside every call below)
             # refuses a twin whose other faults differ from the fault run's
             for f in faults:
                 rows.append({"fault": metrics.fault_element(f),
-                             "packet": detection.counterfactual(run, twin, f1, f0, f),
+                             "packet": detection.counterfactual(run, twin, f1, f0, f, det_mask),
                              "event": detection.event_detection(run, twin, f1, f0, f, k, window_ns),
                              "control_plane": detection.control_plane_detection(run, twin, f)})
             fe = detection.false_events_per_hour(twin, f0, k, window_ns)
+            if native_ls:
+                lo, hi = metrics.send_window(twin)
+                fe["events"] = sum(lo <= d["t_ns"] < hi and d["kind"] in ("adjacency_down", "metric") for d in twin.detections)
+                fe["per_hour"] = fe["events"] / fe["hours"] if fe["hours"] else None
             det.append({"rule": "as run" if rule is None else rule.label, "faults": rows,
-                        "false_events_per_hour_twin": fe["per_hour"]})
+                        "false_events_per_hour_twin": fe["per_hour"], "false_events_twin": fe,
+                        "fpr": None if native_ls else metrics.deadline_fpr(lab, f1.flagged),
+                        "fpr_twin": None if native_ls else metrics.deadline_fpr(metrics.packet_labels(twin, twin_mask, q_th_ns), f0.flagged)})
         out["detection"] = det
     return out
 
@@ -174,7 +206,9 @@ def _score_cmd(args):
     try:
         res = score_run(args.run, twin_dir=args.twin, slacks=args.slack or (), k=args.k,
                         window_ns=int(args.window_ms * 1_000_000), warmup_ns=int(args.warmup_s * 1e9),
-                        q_th_ns=None if args.q_th_ms is None else int(args.q_th_ms * 1_000_000))
+                        q_th_ns=None if args.q_th_ms is None else int(args.q_th_ms * 1_000_000),
+                        rules=[Rule(**r) for r in json.loads(Path(args.rules).read_text())] if args.rules else (),
+                        flow=args.flow, include_null=args.include_null, check_plan_rules=args.check_plans)
     except ValueError as exc:
         # e.g. detection.check_twin refusing a pair that is not a counterfactual pair: say why
         # and write nothing (a half-scored folder would look like a result)
@@ -182,7 +216,8 @@ def _score_cmd(args):
         return 2
     _write_outputs(args.out, res, _flat_rows(res), ["cr"] + list(args.argv),
                    {"run": str(args.run), "twin": args.twin, "slack": list(args.slack or []), "k": args.k,
-                    "window_ms": args.window_ms, "warmup_s": args.warmup_s, "q_th_ms": args.q_th_ms})
+                    "window_ms": args.window_ms, "warmup_s": args.warmup_s, "q_th_ms": args.q_th_ms,
+                    "rules": args.rules, "flow": args.flow, "include_null": args.include_null, "check_plans": args.check_plans})
     p = res["pdr"]
     print(f"cr eval score: PDR {p['pdr']} ({p['delivered']}/{p['sent']}), losses {p['losses']}")
     if "stretch" in res:
@@ -200,9 +235,14 @@ def _roc_cmd(args):
     for spec in args.pairs:
         a, b = spec.split(":", 1)
         pairs.append((load_run(a), load_run(b)))
-    rules = [Rule(kind="mult", slack=str(s)) for s in args.slack]
+    rules = [Rule(kind="mult", slack=str(s)) for s in args.slack or ()]
+    if args.rules:
+        rules += [Rule(**r) for r in json.loads(Path(args.rules).read_text())]
+    if not rules:
+        rules = [None]
     try:
-        rows = detection.event_roc(pairs, None, rules, k=args.k, window_ns=int(args.window_ms * 1_000_000))
+        rows = detection.event_roc(pairs, None, rules, k=args.k, window_ns=int(args.window_ms * 1_000_000),
+                                   flow=args.flow, include_null=args.include_null)
     except ValueError as exc:
         print(f"cr eval roc: {exc}", file=sys.stderr)
         return 2
@@ -211,7 +251,8 @@ def _roc_cmd(args):
              "value": r["p_det"], "n": r["fault_events"],
              "detail": json.dumps({k: v for k, v in r.items() if k != "p_det"}, sort_keys=True)} for r in rows]
     _write_outputs(args.out, doc, flat, ["cr"] + list(args.argv),
-                   {"pairs": args.pairs, "slack": list(args.slack), "k": args.k, "window_ms": args.window_ms})
+                   {"pairs": args.pairs, "slack": list(args.slack or ()), "k": args.k, "window_ms": args.window_ms,
+                    "rules": args.rules, "flow": args.flow, "include_null": args.include_null})
     for r in rows:
         print(f"cr eval roc: {r['rule']}: P_det {r['p_det']}, false events/h {r['false_events_per_hour']}, "
               f"clean FPR {r['clean_fpr']}")
@@ -234,10 +275,17 @@ def register(registry):
     p.add_argument("--window-ms", type=float, default=1000.0, help="event detector window")
     p.add_argument("--warmup-s", type=float, default=0.0)
     p.add_argument("--q-th-ms", type=float, default=None, help="queueing threshold of the 'congested' label")
+    p.add_argument("--rules", help="JSON array of offline.Rule parameter mappings")
+    p.add_argument("--flow", type=int, help="restrict packet flags and detection denominators to this flow")
+    p.add_argument("--include-null", action="store_true", help="explicitly score null faults against their twins")
+    p.add_argument("--check-plans", action="store_true", help="refuse offline rules that change any recorded path")
     p.add_argument("--out", required=True)
     p = registry.command("eval", "roc", help="event ROC over an offline slack sweep", func=_roc_cmd)
     p.add_argument("--pairs", nargs="+", required=True, help="FAULT_DIR:TWIN_DIR pairs")
-    p.add_argument("--slack", nargs="+", required=True)
+    p.add_argument("--slack", nargs="+")
+    p.add_argument("--rules", help="JSON array of offline.Rule parameter mappings; omitted rules use native flags")
+    p.add_argument("--flow", type=int)
+    p.add_argument("--include-null", action="store_true")
     p.add_argument("--k", type=int, default=1)
     p.add_argument("--window-ms", type=float, default=1000.0)
     p.add_argument("--out", required=True)

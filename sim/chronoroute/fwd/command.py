@@ -220,11 +220,19 @@ def run_config(cfg, out_dir, *, argv=None, write_manifest=True, run_extra=None):
 
 def _run(args):
     try:
-        cfg = config_mod.load_config(args.config, seed=args.seed)
+        if args.scheme:
+            from ..baselines import run as brun
+            cfg, scheme = brun.load_run_file(args.config, seed=args.seed)
+        else:
+            cfg = config_mod.load_config(args.config, seed=args.seed)
     except (config_mod.ConfigError, OSError) as exc:
         print(f"cr run: {exc}", file=sys.stderr)
         return 2
-    summary, written = run_config(cfg, args.out, argv=["cr"] + list(args.argv))
+    if args.scheme:
+        summary, written = brun.run_scheme(cfg, scheme, args.out, argv=["cr"] + list(args.argv))
+        summary["hop_events_per_s_end_to_end"] = round(summary["counts"]["hop_events"] / summary["wall_seconds_total"], 1)
+    else:
+        summary, written = run_config(cfg, args.out, argv=["cr"] + list(args.argv))
     c = summary["counts"]
     print(f"cr run: {c['sent']} packets sent, {c['delivered']} delivered, {c['dropped']} dropped, "
           f"{c['no_route']} without a route, {c['unfinished']} unfinished; {c['late']} flagged late; "
@@ -252,6 +260,7 @@ def register(registry):
 
 
 def _add_args(parser):
+    parser.add_argument("--scheme", action="store_true", help="include baseline accounting and offline-scoring arrivals; read scheme: settings")
     parser.add_argument("--config", required=True, help="run configuration (YAML subset or JSON), "
                                                          "see docs/sim-config.md")
     parser.add_argument("--seed", type=int, default=None, help="seed (overrides the config's seed)")

@@ -292,11 +292,13 @@ def _matches(fl, idx, fault, exposed):
     return int(fl.a[idx]) == el[1]
 
 
-def counterfactual(fault_run, twin_run, fl_fault, fl_twin, fault):
+def counterfactual(fault_run, twin_run, fl_fault, fl_twin, fault, mask=None):
     """Packet-level attributed detection for one fault (module docstring)."""
     check_twin(fault_run, twin_run, fault)
     reached, _t = metrics.exposure(fault_run, fault)                 # crossed it, or lost on it
     exposed, _t = metrics.exposure(fault_run, fault, "crossed")
+    mask = np.ones(fault_run.n, dtype=bool) if mask is None else np.asarray(mask, dtype=bool)
+    reached, exposed = reached & mask, exposed & mask
     lost = reached & ~exposed                                       # lost there, never got across
     f1, f0 = fl_fault.flagged, fl_twin.flagged
     tp = exposed & f1 & ~f0
@@ -307,8 +309,8 @@ def counterfactual(fault_run, twin_run, fl_fault, fl_twin, fault):
             "flagged_anyway": int((exposed & f1 & f0).sum()),
             # packets the fault LOST on its element (module docstring): never in P_det
             "lost_at_fault": int(lost.sum()), "reached": int(reached.sum()),
-            "induced_unexposed": int((~reached & f1 & ~f0).sum()),
-            "lost_flags": int((f0 & ~f1).sum()),
+            "induced_unexposed": int((mask & ~reached & f1 & ~f0).sum()),
+            "lost_flags": int((mask & f0 & ~f1).sum()),
             "localised_true_detections": int(loc.sum()) if loc.size else 0}
 
 
@@ -440,7 +442,7 @@ def km_median(durations, observed):
     return None
 
 
-def event_roc(pairs, faults_of, rules, *, k=1, window_ns=1_000_000_000, horizon_ns=None):
+def event_roc(pairs, faults_of, rules, *, k=1, window_ns=1_000_000_000, horizon_ns=None, flow=None, include_null=False):
     """Event ROC over a threshold sweep (offline re-scoring of T-CRH flag-and-continue runs).
 
     pairs      [(fault_run, twin_run)] loaded runs (same seed within a pair)
@@ -466,29 +468,45 @@ def event_roc(pairs, faults_of, rules, *, k=1, window_ns=1_000_000_000, horizon_
             for fault in actual or [None]:
                 check_twin(fr, tw, fault)
             faults = actual if faults_of is None else list(faults_of(fr))
+            if include_null and not faults:
+                faults = [f for f in fr.faults if is_null_fault(f)]
+            native_ls = fr.scheme.get("name") in ("ls_h", "ls_d")
+            if rule is not None and fr.scheme.get("name", "chronoroute") != "chronoroute":
+                raise ValueError("offline rules apply only to ChronoRoute, not native baseline detectors")
             f1 = flags_for(fr, rule)
             f0 = flags_for(tw, rule)
+            mask = metrics.measurement_mask(fr)
+            mask0 = metrics.measurement_mask(tw)
+            if flow is not None:
+                mask &= fr.flow == flow
+                mask0 &= tw.flow == flow
+            f1 = Flags(f1.flagged & mask, f1.node, f1.time, f1.a, f1.b, f1.localised)
+            f0 = Flags(f0.flagged & mask0, f0.node, f0.time, f0.a, f0.b, f0.localised)
             for fault in faults:
-                r = event_detection(fr, tw, f1, f0, fault, k, window_ns, horizon_ns)
+                r = (control_plane_detection(fr, tw, fault, window_ns=window_ns) if native_ls else
+                     event_detection(fr, tw, f1, f0, fault, k, window_ns, horizon_ns))
                 total += 1
                 det += int(r["detected"])
                 delays.append(r["delay_ns"] if r["detected"] else r["horizon_ns"])
                 observed.append(r["detected"])
-                c = counterfactual(fr, tw, f1, f0, fault)
+                c = counterfactual(fr, tw, f1, f0, fault, mask)
                 tp += c["true_detections"]
                 expo += c["exposed"]
             fe = false_events_per_hour(tw, f0, k, window_ns)
+            if native_ls:
+                lo, hi = metrics.send_window(tw)
+                fe["events"] = sum(lo <= d["t_ns"] < hi and d["kind"] in ("adjacency_down", "metric") for d in tw.detections)
             fa_events += fe["events"]
             hours += fe["hours"]
             lab = metrics.packet_labels(tw)
-            m = metrics.measurement_mask(tw)
+            m = mask0
             clean += int(((lab == 0) & m).sum())
             fp += int(((lab == 0) & m & f0.flagged).sum())
-        rows.append({"rule": rule.label, "fault_events": total, "detected": det,
+        rows.append({"rule": rule.label if rule is not None else "native", "fault_events": total, "detected": det,
                      "p_det": (det / total) if total else None,
                      "false_events_per_hour": (fa_events / hours) if hours else None,
-                     "p_det_packet": (tp / expo) if expo else None,
-                     "clean_fpr": (fp / clean) if clean else None,
+                     "p_det_packet": (tp / expo) if expo and not native_ls else None,
+                     "clean_fpr": (fp / clean) if clean and not native_ls else None,
                      "delay_km_median_ns": km_median(delays, observed)})
     return rows
 

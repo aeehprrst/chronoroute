@@ -84,3 +84,19 @@ def test_check_plans_and_refusals(tmp_path, base):
         offline.rescore(greedy, Rule(kind="mult", slack="1.1"))
     with pytest.raises(ValueError):
         Rule(kind="bogus")
+
+
+def test_instant_plan_reuse_validates_rows_and_refuses_stable(tmp_path, base):
+    from chronoroute.fwd.scenario import build_scenario
+    cfg = config.normalise(doc())
+    with pytest.raises(ValueError, match="instant"):
+        offline.check_plans(cfg, base, Rule(slack="1.1"), scenario=object())
+    d = doc()
+    d["schedule"]["plan_links"] = "instant"
+    cfg = config.normalise(d)
+    direct = run(tmp_path, "instant", d)
+    sc = build_scenario(cfg)
+    assert offline.check_plans(cfg, direct, Rule(slack="3"), scenario=sc) == []
+    key = next(iter(direct.schedule))
+    direct.schedule[key]["path"] = [99999]
+    assert key in offline.check_plans(cfg, direct, Rule(slack="3"), scenario=sc)

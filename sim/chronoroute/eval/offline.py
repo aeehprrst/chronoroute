@@ -203,7 +203,7 @@ def compare_with_run(res, direct):
             "deadline_mismatch": len(bad_dl), "examples": [int(x) for x in list(bad_first[:5]) + bad_dl[:5]]}
 
 
-def check_plans(cfg, run, rule):
+def check_plans(cfg, run, rule, *, scenario=None):
     """Rows whose planned path would change under `rule` (re-plans every row of the run).
 
     cfg: the run's normalised engine config (manifest "config.run"). Only the multiplicative
@@ -218,7 +218,11 @@ def check_plans(cfg, run, rule):
     c2["schedule"]["slack"] = str(rule.slack)
     if rule.unit_code is not None:
         c2["schedule"]["unit_code"] = int(rule.unit_code)
-    sc = build_scenario(c2)
+    if scenario is not None and cfg["schedule"]["plan_links"] != "instant":
+        raise ValueError("scenario reuse requires instant planning: stable look-ahead depends on budgets")
+    # With instant planning the Dijkstra graph and tie order do not depend on
+    # any budget. A caller can validate all rules against one actual scenario.
+    sc = scenario if scenario is not None else build_scenario(c2)
     r = sc.refresh_ms
     dur_ms = sc.duration_ns // 1_000_000
     changed = []
