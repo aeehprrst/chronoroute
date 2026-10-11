@@ -3,7 +3,6 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 import LabelChip from '../components/LabelChip.astro';
 import DataBadge from '../components/DataBadge.astro';
 import HeaderBytes from '../components/HeaderBytes.astro';
-import BuildingState from '../components/BuildingState.astro';
 import HomeGlobeSection from '../components/globe/HomeGlobeSection.astro';
 import DeadlineStory from '../components/protocol/DeadlineStory.astro';
 import { LABELS } from '../lib/labels';
@@ -155,15 +154,22 @@ const vector = await readTcrhEncodeVector('v0-3hop');
         <p class="eyebrow">Status</p>
         <h2 id="results-title">Results</h2>
       </div>
-      <BuildingState heading="How well does the alarm work?" phase="results" level={3}>
+      <div class="prose">
+        <h3>How well does the alarm work?</h3>
         <p>
-          The experiments will measure how often a deadline catches a real problem and how often it raises a false
-          alarm, on real Starlink orbit data. Their results will appear here once the simulations have run, each linked to
-          its run manifest (code commit, configuration, random seeds, orbit snapshot and file hashes) so that anyone
-          can reproduce it.
+          The registered experiments measured how often a deadline catches a real problem and how often it raises a
+          false alarm, on real Starlink orbit data. Each experiment has its own page with the question, the
+          pre-registered hypothesis, the verdict, charts with confidence intervals, the data to download and its run
+          manifest (code commit, configuration, random seeds, orbit snapshot and file hashes), so that anyone can
+          reproduce it.
         </p>
-        <p>No results are shown before then.</p>
-      </BuildingState>
+        <p>
+          In short: deadlines catch strong slow-downs and dead links with no extra control traffic, but at the
+          registered 1% false-alarm limit small delays stay hidden inside the slack, and a local queue monitor detects
+          more. Each page says where ChronoRoute loses.
+        </p>
+        <p><a href={pageHref('experiments')}>See the experiments <span class="arrow" aria-hidden="true">→</span></a></p>
+      </div>
     </div>
   </section>
 </BaseLayout>
