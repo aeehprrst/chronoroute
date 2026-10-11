@@ -1,7 +1,10 @@
 import type { APIRoute } from 'astro';
 import { EXPERIMENTS } from '../../../lib/experiments/catalog';
 import { loadExperiment } from '../../../lib/experiments/load';
-/** Byte-preserving downloads use exactly the evidence read by the page and its chart. */
+/**
+ * Byte-preserving downloads use exactly the evidence read by the page and its chart. The page's
+ * table fetches summary.csv from here and checks its SHA-256 against the manifest.
+ */
 export async function getStaticPaths() {
   return (
     await Promise.all(
@@ -19,6 +22,14 @@ export async function getStaticPaths() {
               type: 'application/json; charset=utf-8',
             },
           },
+          ...(data.contrasts
+            ? [
+                {
+                  params: { experiment: def.slug, file: data.contrasts.file },
+                  props: { text: data.contrasts.text, type: 'text/csv; charset=utf-8' },
+                },
+              ]
+            : []),
         ];
       }),
     )

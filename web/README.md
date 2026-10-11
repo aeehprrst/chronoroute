@@ -69,6 +69,9 @@ src/components/         SiteHeader, SiteFooter, LabelChip, DataBadge, BuildingSt
 src/components/globe/   the 3D globes (GlobeIsland, GlobeCanvas, engine, styles)
 src/components/protocol/ protocol tools (byte map, builder, decoder, stepper, sizes, home diagram)
 src/components/route/   the route planner island (RoutePlanner.tsx, route.css)
+src/components/experiments/ ResultsExplorer island: the build passes only the initial selection;
+                        the browser fetches the same summary.csv download and checks its SHA-256
+                        against the manifest before other selections unlock
 src/engine/             TypeScript port of the T-CRH/CRH reference (checked on the golden vectors)
   packet.ts             IPv6 + T-CRH + UDP packet and pcap writer (port of chronoroute.trace.pcap)
 src/workers/            orbit.worker.ts: SGP4 off the main thread (Float32 frames for the globe,
@@ -82,6 +85,13 @@ src/lib/route/          the route planner's core, a port of the Python router:
   cities.ts, sids.ts    cities.csv and the SID registry readers
   context.ts, frame.ts, load.ts  per-snapshot context, SGP4 frame -> ECEF, browser loader
   parity-summary.ts     public/data/parity.json: type, validator and the parity badge's wording
+src/lib/experiments/    experiment result pages:
+  catalog.ts            reviewed result releases (run folders), hypotheses, caveats, E0 check kinds
+  load.ts               build-time reader: summary.csv, manifest.json and paired_contrasts.csv,
+                        each refused unless it is a manifest output with matching SHA-256 and size
+  data.ts               strict CSV parser, charts, loss cases, island props, and the verdicts
+                        (supported / not supported / mixed) derived from the verified files;
+                        a stored p-value of 0 is shown as below numerical resolution
 src/lib/label-keys.ts   the shared label table (copy of sim/chronoroute/labels.py)
   paths.ts              base-path helpers: pageHref(), assetHref(), dataHref()
   data-types.ts         TypeScript types of the snapshot part of the data contract
@@ -93,9 +103,11 @@ src/lib/label-keys.ts   the shared label table (copy of sim/chronoroute/labels.p
   format.ts             UTC/age/integer formatting
 src/styles/tokens.css   design tokens (palette, type scale, spacing)
 src/styles/global.css   base styles and utilities
-src/pages/              index, live, route, protocol, methodology, about, 404
+src/pages/              index, live, route, protocol, experiments (+ one page and downloads per
+                        experiment), methodology, about, 404
 tests/                  vitest tests, including route-parity (+ parity-gate.ts, the rule), parity-gate,
-                        parity-summary, sgp4-parity, label-keys, data-contract, ci-scripts
+                        parity-summary, sgp4-parity, label-keys, data-contract, ci-scripts,
+                        experiments (evidence checks, verdicts, p-values, island size)
 ```
 
 ## Route parity (the deploy gate)

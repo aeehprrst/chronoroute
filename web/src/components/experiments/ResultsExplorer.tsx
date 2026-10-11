@@ -1,27 +1,37 @@
-import { useId, useState } from 'react';
-import type { ExperimentDefinition } from '../../lib/experiments/catalog';
+import { useEffect, useId, useState } from 'react';
 import {
   chartModel,
+  companionText,
+  FILTER_KEYS,
+  formatCell,
   formatValue,
   selectRows,
+  verifySummaryBytes,
+  type ExplorerProps,
   type Row,
   type Selection,
-  type ChartEvidence,
 } from '../../lib/experiments/data';
 
-interface Props {
-  definition: ExperimentDefinition;
-  rows: Row[];
-  columns: string[];
-  evidence: ChartEvidence;
-}
-/** Static first render remains usable without scripting; controls explore the same verified rows. */
+type Load =
+  | { state: 'complete'; rows: Row[]; fetched: boolean }
+  | { state: 'partial'; rows: Row[] }
+  | { state: 'error'; rows: Row[]; message: string };
+
+/**
+ * Static first render remains usable without scripting: the build passes only the rows of the
+ * initial selection. With scripting, the same summary.csv offered for download is fetched, its
+ * SHA-256 is checked against the manifest, and only then do other selections unlock.
+ */
 export default function ResultsExplorer({
   definition,
-  rows,
+  rows: initialRows,
+  totalRows,
   columns,
+  options,
+  selection: initialSelection,
+  csvHref,
   evidence,
-}: Props) {
+}: ExplorerProps) {
   if (
     !evidence ||
     evidence.dirty !== false ||
@@ -32,21 +42,42 @@ export default function ResultsExplorer({
   )
     throw new Error('A chart requires a verified clean manifest reference');
   const uid = useId();
-  const [selection, setSelection] = useState<Selection>({
-    const: definition.id === 'E16' ? '' : rows[0]?.['const'],
-    condition:
-      definition.id === 'E16'
-        ? ''
-        : definition.id === 'E05'
-          ? 'trigger'
-          : definition.id === 'E01'
-            ? 'rate-0.3-middle'
-            : rows[0]?.['condition'],
-    mode: rows[0]?.['mode'],
-    endpoint: rows[0]?.['endpoint'],
-    selected: true,
-    k: definition.id === 'E01' ? '2' : undefined,
-  });
+  const startsComplete = initialRows.length === totalRows;
+  const [load, setLoad] = useState<Load>(
+    startsComplete
+      ? { state: 'complete', rows: initialRows, fetched: false }
+      : { state: 'partial', rows: initialRows },
+  );
+  useEffect(() => {
+    if (startsComplete) return;
+    let live = true;
+    fetch(csvHref)
+      .then((response) => {
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+        return response.arrayBuffer();
+      })
+      .then((bytes) =>
+        verifySummaryBytes(bytes, evidence.summarySha, columns, totalRows),
+      )
+      .then((rows) => {
+        if (live) setLoad({ state: 'complete', rows, fetched: true });
+      })
+      .catch((error: unknown) => {
+        if (live)
+          setLoad({
+            state: 'error',
+            rows: initialRows,
+            message: error instanceof Error ? error.message : String(error),
+          });
+      });
+    return () => {
+      live = false;
+    };
+    // Runs once: the props are fixed for the lifetime of the page.
+  }, []);
+  const ready = load.state === 'complete';
+  const rows = load.rows;
+  const [selection, setSelection] = useState<Selection>(initialSelection);
   const [metricIndex, setMetricIndex] = useState(0);
   const [page, setPage] = useState(0);
   const [allColumns, setAllColumns] = useState(false);
@@ -69,38 +100,46 @@ export default function ResultsExplorer({
   ];
   return (
     <div className="results-explorer">
+      <p className="result-load" aria-live="polite">
+        {load.state === 'partial' &&
+          `This first view shows the ${initialRows.length} rows of the initial selection, out of ${totalRows}. With scripting, the page loads the same summary.csv offered for download and checks its SHA-256 against the manifest before other selections are enabled.`}
+        {load.state === 'complete' &&
+          load.fetched &&
+          `All ${totalRows} rows loaded; the downloaded summary.csv matches the manifest SHA-256.`}
+        {load.state === 'error' &&
+          `The full summary could not be verified (${load.message}). Only the initial selection is shown; use Download CSV for every row.`}
+      </p>
       <div className="result-controls">
-        {(['const', 'condition', 'mode', 'endpoint', 'k'] as const)
-          .filter((key) => rows.some((r) => r[key] !== undefined))
-          .map((key) => (
-            <label key={key}>
+        {FILTER_KEYS.filter((key) => options[key]).map((key) => (
+          <label key={key}>
+            {
               {
-                {
-                  const: 'Constellation',
-                  condition: 'Condition',
-                  mode: 'Insertion mode',
-                  endpoint: 'Endpoint',
-                  k: 'Consecutive alarms',
-                }[key]
-              }
-              <select
-                value={String(selection[key] ?? '')}
-                onChange={(e) => {
-                  setSelection({ ...selection, [key]: e.target.value });
-                  setPage(0);
-                }}
-              >
-                {(key === 'const' || key === 'condition') && (
-                  <option value="">All</option>
-                )}
-                {[...new Set(rows.map((r) => r[key]!))].map((value) => (
-                  <option key={value} value={value}>
-                    {value}
-                  </option>
-                ))}
-              </select>
-            </label>
-          ))}
+                const: 'Constellation',
+                condition: 'Condition',
+                mode: 'Insertion mode',
+                endpoint: 'Endpoint',
+                k: 'Consecutive alarms',
+              }[key]
+            }
+            <select
+              value={String(selection[key] ?? '')}
+              disabled={!ready}
+              onChange={(e) => {
+                setSelection({ ...selection, [key]: e.target.value });
+                setPage(0);
+              }}
+            >
+              {(key === 'const' || key === 'condition') && (
+                <option value="">All</option>
+              )}
+              {options[key]!.map((value) => (
+                <option key={value} value={value}>
+                  {value}
+                </option>
+              ))}
+            </select>
+          </label>
+        ))}
         <label>
           Chart metric
           <select
@@ -119,6 +158,7 @@ export default function ResultsExplorer({
             <input
               type="checkbox"
               checked={!!selection.selected}
+              disabled={!ready}
               onChange={(e) => {
                 setSelection({ ...selection, selected: e.target.checked });
                 setPage(0);
@@ -137,6 +177,7 @@ export default function ResultsExplorer({
           {chart.hasIntervals
             ? 'Shaded bands show recorded 95% confidence intervals over runs, not packets.'
             : 'Exact checks or accounting: sampling confidence intervals do not apply.'}
+          {metric.note && ` ${metric.note}`}
         </figcaption>
         <div className="result-chart-scroll">
           <svg
@@ -193,44 +234,47 @@ export default function ResultsExplorer({
                   strokeWidth="2"
                 />
               ))}
-            {chart.points.map((p, i) => (
-              <g key={i}>
-                <title>
-                  {`${p.label}: ${p.value}; ${
-                    chart.hasIntervals
-                      ? `95% CI [${p.lo}, ${p.hi}]`
-                      : 'exact accounting'
-                  }`}
-                </title>
-                {chart.hasIntervals && (
-                  <rect
-                    x={p.x - 7}
-                    y={p.highY}
-                    width="14"
-                    height={Math.max(p.lowY - p.highY, 1)}
-                    fill="var(--accent)"
-                    opacity="0.3"
+            {chart.points.map((p, i) => {
+              const companions = companionText(metric, p.row);
+              return (
+                <g key={i}>
+                  <title>
+                    {`${p.label}: ${p.value}; ${
+                      chart.hasIntervals
+                        ? `95% CI [${p.lo}, ${p.hi}]`
+                        : 'exact accounting'
+                    }${companions ? `; ${companions}` : ''}`}
+                  </title>
+                  {chart.hasIntervals && (
+                    <rect
+                      x={p.x - 7}
+                      y={p.highY}
+                      width="14"
+                      height={Math.max(p.lowY - p.highY, 1)}
+                      fill="var(--accent)"
+                      opacity="0.3"
+                    />
+                  )}
+                  <circle
+                    cx={p.x}
+                    cy={p.y}
+                    r="4"
+                    fill={colors[series.indexOf(p.series) % colors.length]}
                   />
-                )}
-                <circle
-                  cx={p.x}
-                  cy={p.y}
-                  r="4"
-                  fill={colors[series.indexOf(p.series) % colors.length]}
-                />
-                {definition.id !== 'E02' && (
-                  <text
-                    x={p.x}
-                    y="285"
-                    transform={`rotate(55 ${p.x} 285)`}
-                    fill="currentColor"
-                    fontSize="10"
-                  >
-                    {p.row['scheme'] ?? p.label}
-                  </text>
-                )}
-              </g>
-            ))}
+                  {definition.id !== 'E02' && (
+                    <text
+                      x={p.x}
+                      y="285"
+                      transform={`rotate(55 ${p.x} 285)`}
+                      fill="currentColor"
+                      fontSize="10"
+                    >
+                      {p.row['scheme'] ?? p.label}
+                    </text>
+                  )}
+                </g>
+              );
+            })}
             {definition.id === 'E02' &&
               [...new Set(filtered.map((r) => r['entries']))]
                 .filter((_, i) => i % 5 === 0)
@@ -266,11 +310,23 @@ export default function ResultsExplorer({
               ))}
           </svg>
         </div>
+        {metric.companions && chart.points.length > 0 && (
+          <ul className="result-companions">
+            {chart.points.map((p, i) => (
+              <li key={i}>
+                {p.label}: {formatValue(p.row[metric.key])} {metric.unit};{' '}
+                {companionText(metric, p.row)}
+              </li>
+            ))}
+          </ul>
+        )}
         {definition.id === 'E16' && (
           <p>
             Dashed lines are the registered equivalence margins. The table also
             contains the TOST equivalence intervals and both one-sided p-values;
-            the verdict uses the recorded TOST decision.
+            the verdict uses the recorded TOST decision. A stored p-value of 0
+            is shown as below numerical resolution: here it comes from the
+            zero-variance branch, because every paired difference is exactly 0.
           </p>
         )}
         {!chart.points.length && (
@@ -282,11 +338,15 @@ export default function ResultsExplorer({
               Infinite or undefined results; retained, not replaced
             </summary>
             <ul>
-              {chart.omitted.map((r, i) => (
-                <li key={i}>
-                  {r.label}: {r.reason}
-                </li>
-              ))}
+              {chart.omitted.map((r, i) => {
+                const companions = companionText(metric, r.row);
+                return (
+                  <li key={i}>
+                    {r.label}: {r.reason}
+                    {companions && `; ${companions}`}
+                  </li>
+                );
+              })}
             </ul>
           </details>
         )}
@@ -341,7 +401,8 @@ export default function ResultsExplorer({
         <table>
           <caption>
             Values from summary.csv. Empty fields are shown as undefined;
-            infinite effective latency remains infinite.
+            infinite effective latency remains infinite; a p-value stored as 0
+            is shown as below numerical resolution.
           </caption>
           <thead>
             <tr>
@@ -356,7 +417,7 @@ export default function ResultsExplorer({
             {shown.map((r, i) => (
               <tr key={i}>
                 {tableColumns.map((c) => (
-                  <td key={c}>{formatValue(r[c])}</td>
+                  <td key={c}>{formatCell(r, c)}</td>
                 ))}
               </tr>
             ))}
