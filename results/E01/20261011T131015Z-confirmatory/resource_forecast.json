@@ -1,0 +1,73 @@
+{
+ "label": "MODELLED",
+ "confirmation_allowed": true,
+ "deterministic_gate_passed": true,
+ "projected_campaign_wall_s": 20064.275756683004,
+ "remaining_work_s": {
+  "E04": 5547.203325,
+  "E05": 436.88497499999994,
+  "E16": 109.6002,
+  "E01_scoring_and_roc": 3858.6941999999995
+ },
+ "spent_prerequisites_s": 188.1454994300002,
+ "score_serial_allowance_s": {
+  "C5:chronoroute": 5.768046249999999,
+  "C5:ls_h": 0.87588375,
+  "C5:ls_d": 0.79270625,
+  "C5:e2e": 0.930115,
+  "C5:lq": 0.9006399999999999,
+  "C5:crh16": 0.93390875,
+  "C5:o_q": 0.8820074999999999,
+  "C2:chronoroute": 2.5411200000000003,
+  "C2:ls_h": 0.7476262499999999,
+  "C2:ls_d": 0.7220687499999999,
+  "C2:e2e": 0.72860875,
+  "C2:lq": 0.7031862499999999,
+  "C2:crh16": 0.6965049999999999,
+  "C2:o_q": 0.6419025
+ },
+ "simulation_serial_allowance_s": {
+  "C5:chronoroute": 4.9488075,
+  "C5:ls_h": 6.65138125,
+  "C5:ls_d": 12.025395,
+  "C5:e2e": 5.0648375,
+  "C5:lq": 4.9354837499999995,
+  "C5:crh16": 4.87530375,
+  "C5:o_q": 6.39989,
+  "C2:chronoroute": 3.15091,
+  "C2:ls_h": 4.1798975,
+  "C2:ls_d": 5.634585000000001,
+  "C2:e2e": 2.9861087499999996,
+  "C2:lq": 3.2235600000000004,
+  "C2:crh16": 2.6105125,
+  "C2:o_q": 3.232715
+ },
+ "e1_forecast": {
+  "label": "MODELLED",
+  "status": "blocked",
+  "confirmation_allowed": false,
+  "reason": "remaining E4/E5/E16 cost pilots and deterministic E16 gate required",
+  "measured_jobs": 66,
+  "measured_spent_s": 152.9373822530033,
+  "measured_batch_wall_s": 23.87012812299872,
+  "measured_batch_process_s": 180.759821,
+  "effective_workers": 6.0,
+  "conservative_serial_s_by_constellation": {
+   "C5": 5.295401666666666,
+   "C2": 3.0562283333333333
+  },
+  "e1_projected_s": 7970.810175,
+  "eight_worker_peak_bytes": 2820898816,
+  "remaining_pilot_jobs": 30,
+  "remaining_families_not_in_projection": [
+   "E4",
+   "E5",
+   "E16",
+   "analysis",
+   "reserve"
+  ]
+ },
+ "workers": 8,
+ "reason": "all gates passed",
+ "optimization_parity_passed": true
+}

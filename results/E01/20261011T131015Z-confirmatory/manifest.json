@@ -1,0 +1,193 @@
+{
+  "command": "/home/aeehprrst/chronoroute/venv/bin/python -B -",
+  "config": {
+    "complete": false,
+    "phase": "confirmatory",
+    "prereg_git_sha": "b87f08a7cc9431d139bf66372f03133035494b8c",
+    "prereg_sha256": "1d1541f60be8411f565c5eda4e64322354c276a7321181e2ee9ee92f065ea5d3",
+    "workers": 8
+  },
+  "config_sha256": "08a68cf23dc1d04a592bb23973576e0fd7c02453e63949690405af9ff9251545",
+  "dirty": false,
+  "ended_utc": null,
+  "extra": {
+    "checkpoint": {
+      "accounted_previous_e1_wall_s": 2015,
+      "accounting_source": "stopped-processes.txt; includes shutdown wait, excludes future pause",
+      "checkpoint_utc": "2026-10-11T13:47:13.327351+00:00",
+      "code_commit": "c4da3f07980915a41d7759196f149fdab5838756",
+      "complete": false,
+      "interrupted_at_user_request": true,
+      "note": "Interrupted jobs require validation; a present manifest alone does not prove parent scoring/metadata work completed. No final E1 estimates or verdict are claimed.",
+      "original_command": "OPENBLAS_NUM_THREADS=1 OMP_NUM_THREADS=1 MKL_NUM_THREADS=1 NUMEXPR_NUM_THREADS=1 venv/bin/python -B experiments/E01/confirm.py --pilot results/E01/20261011T113605Z-pilot --prerequisites results/E01/20261011T130817Z-calibration --e0 results/E00/20261011T100448Z --out results/E01/20261011T131015Z-confirmatory --workers 8",
+      "planned_jobs": 9576,
+      "scientific_results_final": false,
+      "status_counts": {
+        "completed_unflushed_group": 51,
+        "interrupted_requires_validation": 8,
+        "not_started": 6914,
+        "recorded_ok": 2603
+      },
+      "workers": 8
+    },
+    "checks": {
+      "make_check": "passed; see checks/make-check.log",
+      "ns3_test": "passed before prerequisite implementation commit; C++ unchanged afterward; see checks/ns3-test.log"
+    },
+    "complete": false,
+    "inputs": [
+      {
+        "path": "results/E01/20261011T131015Z-confirmatory-raw/manifest.json",
+        "sha256": "5bfe594baa95186fe48a88410fba405ba64e8683c167133b097a1b169ae98227"
+      }
+    ],
+    "interrupted_at_user_request": true,
+    "raw_cache": "results/E01/20261011T131015Z-confirmatory-raw",
+    "synthetic_positions": "C2 elements and positions MODELLED"
+  },
+  "git_sha": "c4da3f07980915a41d7759196f149fdab5838756",
+  "host": {
+    "cpu_model": "13th Gen Intel(R) Core(TM) i9-13900H",
+    "logical_cores": 20,
+    "machine": "x86_64",
+    "platform": "Linux-6.18.33.2-microsoft-standard-WSL2-x86_64-with-glibc2.43",
+    "ram_bytes": 8131358720
+  },
+  "labels": {
+    "fault_slow_link": "MODELLED",
+    "isl_topology_grid4": "MODELLED",
+    "orbital_elements": "REAL",
+    "routes_and_budgets": "DERIVED",
+    "traffic_probes": "MODELLED"
+  },
+  "outputs": [
+    {
+      "path": "RESUME.md",
+      "sha256": "55ab03ac53c52827cb5934c86af77780ff8429b14b290e8f468aa1e088687e63",
+      "size_bytes": 2643
+    },
+    {
+      "path": "campaign.log",
+      "sha256": "a01e04e296d20d96d05c6c1cf005dd157bae1059d8af0a141771b68558eff367",
+      "size_bytes": 12812
+    },
+    {
+      "path": "checkpoint.json",
+      "sha256": "1e8445945262fcb7dbe73507779ab089e562e203a7e674ab41229565d30fabcd",
+      "size_bytes": 1068
+    },
+    {
+      "path": "checkpoint_inventory.csv",
+      "sha256": "f2d9ffd5dc63415a6db78958376aaedd23e83ca72b7bc12d58a5300c8f009d07",
+      "size_bytes": 1007797
+    },
+    {
+      "path": "checks/make-check.log",
+      "sha256": "aa8434446009de77666e417f828fe39bbde1660d54323cd01b46b0ff1e232f09",
+      "size_bytes": 2075
+    },
+    {
+      "path": "checks/ns3-test.log",
+      "sha256": "a5981ed112f6f9e218f43b39061f8752de08020d0aa4d4dbf35a7e92b4d46a97",
+      "size_bytes": 13686
+    },
+    {
+      "path": "inputs/producer-manifests.jsonl.gz",
+      "sha256": "a5ebbc5181efbb23d9560766c59447b7be88fb5aac9351f8b0e1903ff854b91d",
+      "size_bytes": 5584834
+    },
+    {
+      "path": "inventory.csv",
+      "sha256": "edcca209e51658de3ad243dad43f20b5538ae703bc5c8b8886a04c4dde35fc62",
+      "size_bytes": 1938740
+    },
+    {
+      "path": "operating_points.json",
+      "sha256": "e3927c023db7d1f17d691c6c774c846fa9f23f4748d05693bdc6ad9400786c99",
+      "size_bytes": 13000
+    },
+    {
+      "path": "planned_jobs.json",
+      "sha256": "5589d37f6b45ca5f243af5e7cefa0f77674bdcc430ee65b003f86c3e669dcf27",
+      "size_bytes": 1704107
+    },
+    {
+      "path": "preflight.json",
+      "sha256": "919bdcfe8360dae8d0dd39f150e9f2e7a040be24aec9633c0f13e32349fd657b",
+      "size_bytes": 4721
+    },
+    {
+      "path": "resource_forecast.json",
+      "sha256": "785eeade8db19a8cd3547a00c964c9f2425d1202205c70741eaba12a78dac2f3",
+      "size_bytes": 1957
+    },
+    {
+      "path": "rules.json",
+      "sha256": "dd43a156287f2a6c2830b9d72a5ae9d74a13f92008517d23e8e79d347c966ed0",
+      "size_bytes": 640
+    },
+    {
+      "path": "stopped-processes.txt",
+      "sha256": "d47cb7f8da54e5f1ab410259838648398c6903f7ecd22cb03352af7b62c21773",
+      "size_bytes": 187
+    }
+  ],
+  "run_id": "a4b83898fd47356c",
+  "schema": "chronoroute.manifest/1",
+  "seeds": [
+    1000,
+    1001,
+    1002,
+    1003,
+    1004,
+    1005,
+    1006,
+    1007,
+    1008,
+    1009,
+    1010,
+    1011,
+    1012,
+    1013,
+    1014,
+    1015,
+    1016,
+    1017,
+    1018,
+    1019,
+    1020,
+    1021,
+    1022,
+    1023,
+    1024,
+    1025,
+    1026,
+    1027,
+    1028,
+    1029,
+    1030,
+    1031,
+    1032,
+    1033,
+    1034,
+    1035
+  ],
+  "snapshot": {
+    "id": "20261010T1358Z-celestrak",
+    "sha256": "c37e70812155c2d1d9eeb3e96681303c00c9fca91287939b21bf5313ce83aecd",
+    "sha256_of": "SHA256SUMS"
+  },
+  "started_utc": null,
+  "tool": "E01 stopped confirmatory checkpoint",
+  "tool_version": "1.0.0.dev0",
+  "versions": {
+    "chronoroute": "1.0.0.dev0",
+    "matplotlib": "3.11.1",
+    "networkx": "3.6.1",
+    "numpy": "2.5.3",
+    "python": "3.14.4",
+    "sgp4": "2.27"
+  },
+  "wall_seconds": null,
+  "written_utc": "2026-10-11T13:49:00.822597Z"
+}

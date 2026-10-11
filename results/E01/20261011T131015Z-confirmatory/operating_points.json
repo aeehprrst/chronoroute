@@ -1,0 +1,502 @@
+{
+ "C5": {
+  "rule_index": 2,
+  "rule": {
+   "kind": "mult",
+   "slack": "1.5",
+   "unit_code": 1
+  },
+  "fpr": 0.006388888888888889,
+  "score": 0.011527777777777777,
+  "crossed_by_family": {
+   "rate": 2400,
+   "delay": 2400,
+   "arq": 2400
+  },
+  "ineligible_reason": null,
+  "eligible": true,
+  "failed_fpr": false,
+  "candidates": [
+   {
+    "rule_index": 0,
+    "rule": {
+     "kind": "mult",
+     "slack": "1.1",
+     "unit_code": 1
+    },
+    "fpr": 0.18078703703703702,
+    "score": 0.11097222222222221,
+    "crossed_by_family": {
+     "rate": 2400,
+     "delay": 2400,
+     "arq": 2400
+    },
+    "ineligible_reason": "clean FPR undefined or above limit",
+    "eligible": false
+   },
+   {
+    "rule_index": 1,
+    "rule": {
+     "kind": "mult",
+     "slack": "1.25",
+     "unit_code": 1
+    },
+    "fpr": 0.046342592592592595,
+    "score": 0.019166666666666665,
+    "crossed_by_family": {
+     "rate": 2400,
+     "delay": 2400,
+     "arq": 2400
+    },
+    "ineligible_reason": "clean FPR undefined or above limit",
+    "eligible": false
+   },
+   {
+    "rule_index": 2,
+    "rule": {
+     "kind": "mult",
+     "slack": "1.5",
+     "unit_code": 1
+    },
+    "fpr": 0.006388888888888889,
+    "score": 0.011527777777777777,
+    "crossed_by_family": {
+     "rate": 2400,
+     "delay": 2400,
+     "arq": 2400
+    },
+    "ineligible_reason": null,
+    "eligible": true
+   },
+   {
+    "rule_index": 3,
+    "rule": {
+     "kind": "mult",
+     "slack": "2",
+     "unit_code": 1
+    },
+    "fpr": 0.0,
+    "score": 0.0011111111111111111,
+    "crossed_by_family": {
+     "rate": 2400,
+     "delay": 2400,
+     "arq": 2400
+    },
+    "ineligible_reason": null,
+    "eligible": true
+   },
+   {
+    "rule_index": 4,
+    "rule": {
+     "kind": "mult",
+     "slack": "3",
+     "unit_code": 1
+    },
+    "fpr": 0.0,
+    "score": 0.0,
+    "crossed_by_family": {
+     "rate": 2400,
+     "delay": 2400,
+     "arq": 2400
+    },
+    "ineligible_reason": null,
+    "eligible": true
+   },
+   {
+    "rule_index": 5,
+    "rule": {
+     "kind": "add",
+     "per_hop_ns": 250000,
+     "const_ns": 0,
+     "unit_code": 1
+    },
+    "fpr": 0.24125,
+    "score": 0.16125,
+    "crossed_by_family": {
+     "rate": 2400,
+     "delay": 2400,
+     "arq": 2400
+    },
+    "ineligible_reason": "clean FPR undefined or above limit",
+    "eligible": false
+   },
+   {
+    "rule_index": 6,
+    "rule": {
+     "kind": "add",
+     "per_hop_ns": 1000000,
+     "const_ns": 0,
+     "unit_code": 1
+    },
+    "fpr": 0.020972222222222222,
+    "score": 0.016805555555555556,
+    "crossed_by_family": {
+     "rate": 2400,
+     "delay": 2400,
+     "arq": 2400
+    },
+    "ineligible_reason": "clean FPR undefined or above limit",
+    "eligible": false
+   },
+   {
+    "rule_index": 7,
+    "rule": {
+     "kind": "quantile",
+     "alpha": "0.01",
+     "sigma_ns": 400000,
+     "unit_code": 1
+    },
+    "fpr": 0.06925925925925926,
+    "score": 0.13166666666666668,
+    "crossed_by_family": {
+     "rate": 2400,
+     "delay": 2400,
+     "arq": 2400
+    },
+    "ineligible_reason": "clean FPR undefined or above limit",
+    "eligible": false
+   },
+   {
+    "rule_index": 8,
+    "rule": {
+     "kind": "quantile",
+     "alpha": "0.001",
+     "sigma_ns": 400000,
+     "unit_code": 1
+    },
+    "fpr": 0.02625,
+    "score": 0.07111111111111111,
+    "crossed_by_family": {
+     "rate": 2400,
+     "delay": 2400,
+     "arq": 2400
+    },
+    "ineligible_reason": "clean FPR undefined or above limit",
+    "eligible": false
+   }
+  ]
+ },
+ "C2": {
+  "rule_index": 2,
+  "rule": {
+   "kind": "mult",
+   "slack": "1.5",
+   "unit_code": 1
+  },
+  "fpr": 0.004075394803871625,
+  "score": 0.013327780091628489,
+  "crossed_by_family": {
+   "rate": 2403,
+   "delay": 2402,
+   "arq": 2401
+  },
+  "ineligible_reason": null,
+  "eligible": true,
+  "failed_fpr": false,
+  "candidates": [
+   {
+    "rule_index": 0,
+    "rule": {
+     "kind": "mult",
+     "slack": "1.1",
+     "unit_code": 1
+    },
+    "fpr": 0.13527532070578427,
+    "score": 0.1147471760884778,
+    "crossed_by_family": {
+     "rate": 2403,
+     "delay": 2402,
+     "arq": 2401
+    },
+    "ineligible_reason": "clean FPR undefined or above limit",
+    "eligible": false
+   },
+   {
+    "rule_index": 1,
+    "rule": {
+     "kind": "mult",
+     "slack": "1.25",
+     "unit_code": 1
+    },
+    "fpr": 0.03593757236141342,
+    "score": 0.025404000885754795,
+    "crossed_by_family": {
+     "rate": 2403,
+     "delay": 2402,
+     "arq": 2401
+    },
+    "ineligible_reason": "clean FPR undefined or above limit",
+    "eligible": false
+   },
+   {
+    "rule_index": 2,
+    "rule": {
+     "kind": "mult",
+     "slack": "1.5",
+     "unit_code": 1
+    },
+    "fpr": 0.004075394803871625,
+    "score": 0.013327780091628489,
+    "crossed_by_family": {
+     "rate": 2403,
+     "delay": 2402,
+     "arq": 2401
+    },
+    "ineligible_reason": null,
+    "eligible": true
+   },
+   {
+    "rule_index": 3,
+    "rule": {
+     "kind": "mult",
+     "slack": "2",
+     "unit_code": 1
+    },
+    "fpr": 0.0,
+    "score": 0.0012494793835901706,
+    "crossed_by_family": {
+     "rate": 2403,
+     "delay": 2402,
+     "arq": 2401
+    },
+    "ineligible_reason": null,
+    "eligible": true
+   },
+   {
+    "rule_index": 4,
+    "rule": {
+     "kind": "mult",
+     "slack": "3",
+     "unit_code": 1
+    },
+    "fpr": 0.0,
+    "score": 0.0,
+    "crossed_by_family": {
+     "rate": 2403,
+     "delay": 2402,
+     "arq": 2401
+    },
+    "ineligible_reason": null,
+    "eligible": true
+   },
+   {
+    "rule_index": 5,
+    "rule": {
+     "kind": "add",
+     "per_hop_ns": 250000,
+     "const_ns": 0,
+     "unit_code": 1
+    },
+    "fpr": 0.23285323947575604,
+    "score": 0.2214362533159502,
+    "crossed_by_family": {
+     "rate": 2403,
+     "delay": 2402,
+     "arq": 2401
+    },
+    "ineligible_reason": "clean FPR undefined or above limit",
+    "eligible": false
+   },
+   {
+    "rule_index": 6,
+    "rule": {
+     "kind": "add",
+     "per_hop_ns": 1000000,
+     "const_ns": 0,
+     "unit_code": 1
+    },
+    "fpr": 0.020191728801000324,
+    "score": 0.02887113711396326,
+    "crossed_by_family": {
+     "rate": 2403,
+     "delay": 2402,
+     "arq": 2401
+    },
+    "ineligible_reason": "clean FPR undefined or above limit",
+    "eligible": false
+   },
+   {
+    "rule_index": 7,
+    "rule": {
+     "kind": "quantile",
+     "alpha": "0.01",
+     "sigma_ns": 400000,
+     "unit_code": 1
+    },
+    "fpr": 0.061084610753484925,
+    "score": 0.1644157553000383,
+    "crossed_by_family": {
+     "rate": 2403,
+     "delay": 2402,
+     "arq": 2401
+    },
+    "ineligible_reason": "clean FPR undefined or above limit",
+    "eligible": false
+   },
+   {
+    "rule_index": 8,
+    "rule": {
+     "kind": "quantile",
+     "alpha": "0.001",
+     "sigma_ns": 400000,
+     "unit_code": 1
+    },
+    "fpr": 0.022877784467188442,
+    "score": 0.10059865851323346,
+    "crossed_by_family": {
+     "rate": 2403,
+     "delay": 2402,
+     "arq": 2401
+    },
+    "ineligible_reason": "clean FPR undefined or above limit",
+    "eligible": false
+   }
+  ]
+ },
+ "inputs": [
+  {
+   "path": "runs/C2-chronoroute-s0000-arq-0.1-middle/score/manifest.json",
+   "sha256": "ef18d54f75477c6ccfe9a77f34b91efbed170be6462737da133b47e2ccdb37ab"
+  },
+  {
+   "path": "runs/C2-chronoroute-s0000-delay-1000000-middle/score/manifest.json",
+   "sha256": "5552b721e52aed2c317e34eb6c62cfb00a223a2558566bf97e08ddf2f7bf0c53"
+  },
+  {
+   "path": "runs/C2-chronoroute-s0000-rate-0.3-middle/score/manifest.json",
+   "sha256": "a120661b04c38a1c1c1b736239e3f0129daf9dd53a14fa8b8adf8e4d56f1bfd7"
+  },
+  {
+   "path": "runs/C2-chronoroute-s0001-arq-0.1-middle/score/manifest.json",
+   "sha256": "9f84b8beef77b3b9489430d01691bb56397d3cbf4f9c7657d33e571601f97f7a"
+  },
+  {
+   "path": "runs/C2-chronoroute-s0001-delay-1000000-middle/score/manifest.json",
+   "sha256": "803a2607e0136c27e9094f9004c867187eb3bfb0f590b1307db4b2c96e69a1ed"
+  },
+  {
+   "path": "runs/C2-chronoroute-s0001-rate-0.3-middle/score/manifest.json",
+   "sha256": "caeb2a8393039200cba642988c1a2637d0b9b26091404f5e3f64605dd53581a3"
+  },
+  {
+   "path": "runs/C2-chronoroute-s0002-arq-0.1-middle/score/manifest.json",
+   "sha256": "9b8ef43b0e36a4bf2facb5452277570c925dbbb579ef96db086e84ddf9b075d0"
+  },
+  {
+   "path": "runs/C2-chronoroute-s0002-delay-1000000-middle/score/manifest.json",
+   "sha256": "337cd5100fae48cc42756c162e7cecc6179d47039b7f50c7974092b0d94921a3"
+  },
+  {
+   "path": "runs/C2-chronoroute-s0002-rate-0.3-middle/score/manifest.json",
+   "sha256": "dca41bde87569ff41807bf0aeb1945cef0ff0122e8fd30cc416e769c3c0a4f04"
+  },
+  {
+   "path": "runs/C2-chronoroute-s0003-arq-0.1-middle/score/manifest.json",
+   "sha256": "128b62e2bcc99f82e9c89c82ea4ccea5b78f2ed354ce70771b0476b11274a96f"
+  },
+  {
+   "path": "runs/C2-chronoroute-s0003-delay-1000000-middle/score/manifest.json",
+   "sha256": "3859b09bb4d3e00e792f940c24c9546b115b356be42eb3ac1f0d1657d7eceb56"
+  },
+  {
+   "path": "runs/C2-chronoroute-s0003-rate-0.3-middle/score/manifest.json",
+   "sha256": "5028d4ad66f1b31bce44252f91d3b97aa81c8a71db559dedab29b992f3706a61"
+  },
+  {
+   "path": "runs/C2-chronoroute-s0004-arq-0.1-middle/score/manifest.json",
+   "sha256": "37febfdd89d673007232223fee6d31c0012b6bbc2295a7d5d4e5018609c2571a"
+  },
+  {
+   "path": "runs/C2-chronoroute-s0004-delay-1000000-middle/score/manifest.json",
+   "sha256": "2b724813351789d42078d777e06b415966429352e446236da61b3012da8fa314"
+  },
+  {
+   "path": "runs/C2-chronoroute-s0004-rate-0.3-middle/score/manifest.json",
+   "sha256": "f9303653872b787e95dcfb173ed6adcd3617b3eada9660459aeffd0f47dbf87a"
+  },
+  {
+   "path": "runs/C2-chronoroute-s0005-arq-0.1-middle/score/manifest.json",
+   "sha256": "d083c772277856894cc8eaceb1c01a89f0c3d9c927007d589f67b47c871069e3"
+  },
+  {
+   "path": "runs/C2-chronoroute-s0005-delay-1000000-middle/score/manifest.json",
+   "sha256": "8c4933b3b04660856eb979f5f869ead209624b8c11e9beadea4e4f3a2790541e"
+  },
+  {
+   "path": "runs/C2-chronoroute-s0005-rate-0.3-middle/score/manifest.json",
+   "sha256": "55e678a5eb0373813ff2a3af2e7428182404b428d1e92949da8e34d8de616b0c"
+  },
+  {
+   "path": "runs/C5-chronoroute-s0000-arq-0.1-middle/score/manifest.json",
+   "sha256": "98988d9f3828206d1d8789ab6466c2a82f79b1be98f9a08569e66e4717799d5e"
+  },
+  {
+   "path": "runs/C5-chronoroute-s0000-delay-1000000-middle/score/manifest.json",
+   "sha256": "b3ffbc55cf8b381cab06ff403a8ff1b72a338575fc246197312fb4c2bcab66da"
+  },
+  {
+   "path": "runs/C5-chronoroute-s0000-rate-0.3-middle/score/manifest.json",
+   "sha256": "c96f4084c0ed74af00988233ad29c28528657cf210bb75087a6cef30c17d12b2"
+  },
+  {
+   "path": "runs/C5-chronoroute-s0001-arq-0.1-middle/score/manifest.json",
+   "sha256": "0b6cf689079dcb006aa8965d42ecb6bb9ca7e1bd50caa714658a88198ca501f2"
+  },
+  {
+   "path": "runs/C5-chronoroute-s0001-delay-1000000-middle/score/manifest.json",
+   "sha256": "42e0a2e80417012a837440e063453b24eebcd9d18aa3523b0215b49c60f4d424"
+  },
+  {
+   "path": "runs/C5-chronoroute-s0001-rate-0.3-middle/score/manifest.json",
+   "sha256": "6c621b347ee2982607ff752edc2b73570e4f200d9473905f606a1c0dc50347fa"
+  },
+  {
+   "path": "runs/C5-chronoroute-s0002-arq-0.1-middle/score/manifest.json",
+   "sha256": "3e13b42350d9d548ccacaf4f8714348cfa11eff135672fe5767fb8af9cbaf450"
+  },
+  {
+   "path": "runs/C5-chronoroute-s0002-delay-1000000-middle/score/manifest.json",
+   "sha256": "27e39991de9173a0fb97098b4305162a30773f89fa1b270e54f5f040f1814e6b"
+  },
+  {
+   "path": "runs/C5-chronoroute-s0002-rate-0.3-middle/score/manifest.json",
+   "sha256": "07bd6f17bcbbdd55732159aa73fff4652bab0619f9b055355aad7df4388d8e60"
+  },
+  {
+   "path": "runs/C5-chronoroute-s0003-arq-0.1-middle/score/manifest.json",
+   "sha256": "df90e4d6656458e358d5da1a1e5e3de1637bc931c04db1a045c1ab451f593ed7"
+  },
+  {
+   "path": "runs/C5-chronoroute-s0003-delay-1000000-middle/score/manifest.json",
+   "sha256": "bcab40656fe4d86a9d83ac8846724975cba1d353df8b3b6384da8ae11ac19004"
+  },
+  {
+   "path": "runs/C5-chronoroute-s0003-rate-0.3-middle/score/manifest.json",
+   "sha256": "2339d32353829b2769ce955e90c4151c4041a910c9f9fb538f3f0f14c7ac4b04"
+  },
+  {
+   "path": "runs/C5-chronoroute-s0004-arq-0.1-middle/score/manifest.json",
+   "sha256": "ba44ab65d293cb2e97199442b296de55d55a083abf597122e29e3e903de681c6"
+  },
+  {
+   "path": "runs/C5-chronoroute-s0004-delay-1000000-middle/score/manifest.json",
+   "sha256": "7511c73194c21b1be283c6c513a12a9e8364fd713491e26c99cea13629a73f7e"
+  },
+  {
+   "path": "runs/C5-chronoroute-s0004-rate-0.3-middle/score/manifest.json",
+   "sha256": "a488d3cdb5fc56bc05cf85faa179ba15226b92afa033489bb16ec5900bb480dd"
+  },
+  {
+   "path": "runs/C5-chronoroute-s0005-arq-0.1-middle/score/manifest.json",
+   "sha256": "7ae323ca73222800ce714dd6c279e1ae2940c93991a51b540e31f928f024f466"
+  },
+  {
+   "path": "runs/C5-chronoroute-s0005-delay-1000000-middle/score/manifest.json",
+   "sha256": "43695b352f2f52e919f3ebaf3da7e4bb552975aa59c1a55e5eff218a5c2ae645"
+  },
+  {
+   "path": "runs/C5-chronoroute-s0005-rate-0.3-middle/score/manifest.json",
+   "sha256": "7ecb0a7a210f9efeae75714f80d31b9ab8c6c754954ecb2b253d673892df6ff7"
+  }
+ ]
+}

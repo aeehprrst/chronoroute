@@ -1,0 +1,19 @@
+{
+  "complete": false,
+  "interrupted_at_user_request": true,
+  "scientific_results_final": false,
+  "code_commit": "c4da3f07980915a41d7759196f149fdab5838756",
+  "workers": 8,
+  "planned_jobs": 9576,
+  "status_counts": {
+    "recorded_ok": 2603,
+    "completed_unflushed_group": 51,
+    "interrupted_requires_validation": 8,
+    "not_started": 6914
+  },
+  "accounted_previous_e1_wall_s": 2015,
+  "accounting_source": "stopped-processes.txt; includes shutdown wait, excludes future pause",
+  "original_command": "OPENBLAS_NUM_THREADS=1 OMP_NUM_THREADS=1 MKL_NUM_THREADS=1 NUMEXPR_NUM_THREADS=1 venv/bin/python -B experiments/E01/confirm.py --pilot results/E01/20261011T113605Z-pilot --prerequisites results/E01/20261011T130817Z-calibration --e0 results/E00/20261011T100448Z --out results/E01/20261011T131015Z-confirmatory --workers 8",
+  "note": "Interrupted jobs require validation; a present manifest alone does not prove parent scoring/metadata work completed. No final E1 estimates or verdict are claimed.",
+  "checkpoint_utc": "2026-10-11T13:47:13.327351+00:00"
+}
