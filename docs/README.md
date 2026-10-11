@@ -19,6 +19,8 @@ setup and the `make` targets.
 | [`docs/course-milestone.md`](course-milestone.md) | Course milestone: ns-3 LEO topology with a time-varying schedule on the real 463 km Starlink shell, real IPv6 Routing Type 253 packets, Python cross-check, how to reproduce. |
 | [`docs/bundle-format.md`](bundle-format.md) | The scenario bundle (nodes, laser and ground links, delays every 100 ms, positions, schedules) that the Python tools export and ns-3 reads, plus the website data files. |
 | [`docs/results-changelog.md`](results-changelog.md) | Every legacy number that changed in the corrected "v0.9" re-run, with the reason (bug number), and the claims to retire. |
+| [`docs/report/README.md`](report/README.md) | IEEE-style report draft from the reviewed experiment results, including methods, limitations and verified references. |
+| [`docs/claims.md`](claims.md) | Source ledger for report quantities and qualitative claims, with exact result paths and manifests. |
 | `results/legacy-v0/`, `results/legacy-v0-starlink/` | Original semester figures, kept unchanged for comparison. Known to contain bugs; do not quote them. |
 | [`results/legacy-v0.9/`](../results/legacy-v0.9/) | Corrected re-runs of the legacy experiments (`dev/`, `starlink/`) and the re-scored ns-3 sweep (`ns3/tcrh_sweep/`), each folder with a `manifest.json`. |
 
