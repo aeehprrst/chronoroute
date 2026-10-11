@@ -15,6 +15,7 @@ setup and the `make` targets.
 
 | Document | What it is |
 |---|---|
+| [`docs/NEXT_STEPS.md`](NEXT_STEPS.md) | **Start here to continue the project:** what exists, the rules for every change, and the remaining tasks in order with their checks. |
 | [`docs/course-milestone.md`](course-milestone.md) | Course milestone: ns-3 LEO topology with a time-varying schedule on the real 463 km Starlink shell, real IPv6 Routing Type 253 packets, Python cross-check, how to reproduce. |
 | [`docs/bundle-format.md`](bundle-format.md) | The scenario bundle (nodes, laser and ground links, delays every 100 ms, positions, schedules) that the Python tools export and ns-3 reads, plus the website data files. |
 | [`docs/results-changelog.md`](results-changelog.md) | Every legacy number that changed in the corrected "v0.9" re-run, with the reason (bug number), and the claims to retire. |
