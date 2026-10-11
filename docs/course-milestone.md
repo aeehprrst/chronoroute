@@ -373,11 +373,17 @@ bundle file's sha256), and repeated runs give byte-identical `packets.csv`, `cap
 `fault_log.csv`, `anim.xml` and analysis files (checked by rebuilding and rerunning the small
 bundle from its recipe; for the 60 s bundle two runs printed identical analysis results).
 
+Note for reruns with the current ns-3 program: for the E16 engine comparison the program now
+appends four columns to `packets.csv` (`tx_ns`, `wait_ns`, `tx_loss_at`, `link_down_at`). The
+committed milestone files were written before that change and have the original 26 columns.
+A rerun therefore gives a wider `packets.csv`; its first 26 columns are byte-identical to the
+committed files, so compare those columns (or drop the four new ones) when checking a rerun.
+
 ### Output files (per run folder)
 
 | File | What it holds |
 |---|---|
-| `nofault/`, `fault/`, `anim/packets.csv.gz` | One row per probe. Columns: planned and taken path, arrival time / clock / deadline / margin at every hop, first late hop, link-down hop, DEV, Dev Hop, outcome (`delivered`, `drop_link_down`, `drop_iface_down`, `drop_queue`), latency, whether it used the slowed link, fault phase |
+| `nofault/`, `fault/`, `anim/packets.csv.gz` | One row per probe. Columns: planned and taken path, arrival time / clock / deadline / margin at every hop, first late hop, link-down hop, DEV, Dev Hop, outcome (`delivered`, `drop_link_down`, `drop_iface_down`, `drop_queue`), latency, whether it used the slowed link, fault phase (26 columns in the committed files; the current program also writes `tx_ns`, `wait_ns`, `tx_loss_at` and `link_down_at`, see above) |
 | `sensitivity/<rate>/slowed_link_probes.csv.gz` | The same columns, only for the probes that met the slowed link (the other rows equal the no-fault run's) |
 | `*/capture.pcap.gz` | The T-CRH capture (Wireshark opens `.pcap.gz` directly) |
 | `*/fault_log.csv` | The fault as applied (ground truth); only a header in `nofault/` |

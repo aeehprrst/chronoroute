@@ -29,7 +29,7 @@ Repository: <https://github.com/aeehprrst/chronoroute> (local copy: `~/chronorou
 | Course milestone (ns-3 LEO run on the real 463 km shell) | `docs/course-milestone.md`, `results/course-milestone/` | Done |
 | Wireshark dissector | `tools/wireshark/` | Done |
 | Corrected semester results | `results/legacy-v0.9/`, `docs/results-changelog.md` | Done |
-| Website (Astro + React + three.js): live globe, protocol, route planner | `web/` | Done (live globe, `/protocol`, `/route` with Python parity tests); results pages still to do |
+| Website (Astro + React + three.js): live globe, protocol, route planner | `web/` | Done (live globe, `/protocol`, `/route` with Python parity tests, `/experiments` results pages) |
 | Website deploy + 4-hourly data refresh (GitHub Pages) | `.github/workflows/pages.yml`, `refresh-data.yml` | Done; public site: <https://aeehprrst.github.io/chronoroute/> |
 
 ---
@@ -71,7 +71,7 @@ Repository: <https://github.com/aeehprrst/chronoroute> (local copy: `~/chronorou
 Each task lists what to build, where, and the checks that prove it is done.
 
 ### Task 0: fix the open review findings first
-**Status: complete.** The findings below are retained as the review record. The initial
+**Status: done.** The findings below are retained as the review record. The initial
 checkout already contained the transmitter-loss exposure fix, configuration comparisons,
 mixed-infinity refusal, accumulated live-fault display and corrected OLSR reference, with
 regression tests for the code fixes. Those tests were verified; the remaining bugs were
@@ -136,6 +136,7 @@ Required checks: `make check`, and `cd web && npm test && npm run check && npm r
 **Done when:** every item above has a test and a fix, and `make check` and `cd web && npm test` pass.
 
 ### Task 1: Pre-registration (`experiments/PREREG.md`)
+**Status: done.** Frozen at commit `b87f08a`; that commit and the file hash are recorded in every confirmatory manifest.
 Write down, before running the main experiments: research questions, hypotheses, metrics
 (definitions as in `docs/baselines.md` / `sim/chronoroute/eval/`), constellations (C5 real
 463 km shell from the pinned snapshot; C2 72x22 @ 550 km as the literature reference),
@@ -145,12 +146,14 @@ hash goes into every confirmatory manifest.
 **Done when:** the file is committed and referenced by the experiment configs.
 
 ### Task 2: E0 correctness gate (`experiments/E00/`)
+**Status: done.** `results/E00/20261011T214507Z`, 0 violations; it supersedes the first run `results/E00/20261011T100448Z`, whose path check counted processing time.
 Orbit cross-check (python-sgp4 vs satellite.js on 200 satellites x many times), physics
 invariants over a full orbit (no link below 80 km, delay >= distance/c, latency >=
 great-circle/c), header bytes identical in Python, ns-3, the website engine and Wireshark.
 **Done when:** `results/E00/<run>/` has summary CSV + manifest, 0 violations.
 
 ### Task 3: E1 detection of up-but-slow links (`experiments/E01/`) — the main experiment
+**Status: done.** `results/E01/20261011T154940Z-confirmatory-resumed`, 36 seeds per cell, nulls score 0; the hypothesis holds only for the strong rate cut and some ARQ cells, and the LS-D comparator is flawed (see the report).
 On C5 (and C2), UDP probes on the city pairs; one fault per run on an on-path laser link
 (rate cut with background load, added delay, ARQ retransmissions; several magnitudes;
 first/middle/last third of the path). Record with deviation policy `continue`, then score
@@ -162,23 +165,28 @@ delay from fault onset, by fault size and position; CSVs + manifests + figures.
 **Done when:** every cell has >= 30 seeds with CIs; the null fault scores 0.
 
 ### Task 4: E2 header overhead (`experiments/E02/`)
+**Status: done.** `results/E02/20261011T214624Z-confirmatory` (re-run of `20261011T175659Z-confirmatory` with the same numbers).
 Sizes for 1-40 hops: T-CRH, CRH-16, CRH-32, SRv6 SRH, plus encapsulation mode (+40 B), and
 the measured on-wire sizes from the ns-3 course-milestone pcap. Percent of a 1400 B packet.
 
 ### Task 5: E4 hard failures (`experiments/E04/`)
+**Status: done.** `results/E04/20261011T185503Z-collected`; simulations ran at `b805d2d` and were re-collected at `a18cffb`.
 Links fail and recover (failure probability U, repair time MTTR), satellite outages.
 Delivery rate, blackhole time per failure, effective P99 latency (lost = infinite) for
 ChronoRoute variants vs O-T, SNAP (Hypatia-style tables), LS-H (+BFD), CRH-16.
 
 ### Task 6: E5 fallback policies (`experiments/E05/`)
+**Status: done.** `results/E05/20261011T185503Z-confirmatory`.
 Trigger deviation at random on-path nodes; compare greedy-with-visited, pure greedy, +Grid
 detour, continue, drop: stuck rate, latency stretch (>= 1), extra hops.
 
 ### Task 7: E16 Python vs ns-3 agreement (`experiments/E16/`)
+**Status: done.** `results/E16/20261011T194240Z-confirmatory`: 0 per-packet mismatches; no packet was lost, so the loss endpoints are uninformative.
 Extend `sim/chronoroute/export/ns3_crosscheck.py`: deterministic replay must be identical
 per packet; with randomness, 30 runs each side and equivalence (TOST) on PDR, FPR, P50/P99.
 
 ### Task 8: Website results pages (`web/`)
+**Status: done.** `/experiments` pages read the manifested summary CSVs through `web/src/lib/experiments/`.
 `/experiments` and one page per experiment, reading ONLY `results/*/summary.csv` and
 `manifest.json` (the build must fail if a chart has no manifest). Each page: question,
 pre-registered hypothesis, verdict, charts with CI bands, data table, "Download CSV" (the
@@ -186,6 +194,7 @@ same file), a "How this was made" panel from the manifest, limitations, and case
 ChronoRoute loses. Functionality only; visual design comes last.
 
 ### Task 9: Report draft (`docs/report/`)
+**Status: done.** `docs/report/README.md` and `docs/claims.md`, corrected after the 2026-10-12 review (see `docs/results-changelog.md`).
 IEEE-style report: introduction, background (RFC 8200, RFC 9631, SRv6, LEO routing, Hypatia),
 design (T-CRH), implementation (Python, ns-3, website), methodology (REAL vs MODELLED),
 results (from the CSVs only), discussion, limitations, related work (CGREB, SRTSN, CRH-20,
@@ -193,10 +202,12 @@ STARGLIDER, gray failures, IOAM/STAMP, IETF TVR), conclusion. Plus `docs/claims.
 claim with the result file that supports it.
 
 ### Task 10: Viva kit (`docs/viva/`)
+**Status: done.** `docs/viva/`.
 A 9-minute demo script (fleet report, 3D viewer, slowed link, Wireshark, ns-3 NetAnim, website),
 offline backups (pinned snapshot, recorded videos), likely questions with answers.
 
 ### Task 11 (last): website design upgrade
+**Status: pending.**
 Only after everything above is done and the public site works.
 
 ---

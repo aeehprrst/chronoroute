@@ -818,3 +818,112 @@ the sha256 of each output. Check one with:
 ```
 venv/bin/python -B -c "from chronoroute.provenance import validate_manifest as v; v('results/legacy-v0.9/dev/exp1_slack_sweep')"
 ```
+
+---
+
+## 15. 2026-10-12 review of the campaign report
+
+An independent review of the campaign report (`docs/report/README.md`) found that every
+copied number was correct but several interpretations were too soft or wrong. No experiment
+was rerun for these corrections apart from the E0 and E2 re-runs listed first, which were
+made before the review closed. Every number in the report still comes from a manifested
+result file through the claims ledger (`docs/claims.md`, `docs/report/claims.json`).
+
+**E0 re-run (`results/E00/20261011T214507Z` replaces `results/E00/20261011T100448Z`).**
+- The old `path_great_circle` check counted 0.5 ms of processing per link on the path side,
+  so it was far weaker than the preregistered great-circle light-time bound. It now compares
+  propagation only. Smallest margin: C5 3091493.1 ns → 1591493.1 ns, C2 6509144.1 ns →
+  3641655.5 ns; still 0 violations.
+- `gsl_elevation` now checks every visible ground-link candidate (C5 64908 → 238195 checks,
+  C2 64908 → 173144). New row `gsl_visibility_complete` (16227 checks per shell).
+- `wire_capture_bytes` now compares the frame bytes as tshark itself reads them; before,
+  Python re-read its own pcap. New row `wire_golden_fixed` compares the 70 golden vectors with
+  their fixed expected values.
+- The report now says which rows are external references (orbit rows, browser, ns-3,
+  Wireshark fields, fixed golden vectors) and which are self-consistency or model invariants
+  (`wire_python`, the geometry rows); that `isl_polar_cutoff` cannot fail on these shells
+  (highest latitude about 53.3 degrees against the 70 degree cutoff); and that the 138.07 km
+  grazing figure is a certified lower bound, not the exact minimum height.
+- Ledger labels of the E0 violation counts were DERIVED; they now equal the CSV row's own
+  label (REAL or MODELLED), as for the other columns of that row.
+
+**E2 re-run (`results/E02/20261011T214624Z-confirmatory` replaces
+`results/E02/20261011T175659Z-confirmatory`).** Same numbers, repository-relative paths, and
+the frame table is now `capture_frames.csv.gz`. The report table gains the 5 and 7 entry rows,
+where CRH-32 is smaller than T-CRH, and the text states the full crossover from `verdict.json`:
+CRH-32 smaller at 1, 2, 3, 5 and 7 entries; equal at 4, 6, 8-11, 13 and 15; larger at 12, 14
+and 16-40.
+
+**E1 interpretation (numbers unchanged).**
+- The report used "boundary" for the rate cut that the preregistration calls *nominal*
+  (factor 0.3, run at the first, middle and last path thirds). It now uses the registered name.
+- A one-line verdict was added: the E1 hypothesis is not supported for the nominal rate cut and
+  the added-delay family, and is supported only for the strong rate cut (0.2) and some ARQ
+  cells. The selected rule (S = 1.5) detects 0 of 36 runs at `rate-0.3-middle` in both shells,
+  9 of 36 at C5 `rate-0.3-first`, and at most 3 of 36 at any added delay in C5 (0 in C2),
+  including 4 ms. A new table shows its detection for every registered condition next to LQ.
+- Why: S = 1.5 leaves several milliseconds of spare time mid-path. Looser rules see these
+  faults only above the registered false-alarm limit: S = 1.1 detects the 4 ms delay in every
+  run and S = 1.25 in about half, at pooled clean FPR 0.175 and 0.044 in C5.
+- Wins, ties and losses per comparator are now stated. Wins against LS-H and CRH-16 hold by
+  construction (they detect nothing); E2E is never significantly better but runs with no clean
+  false flags, so it is not false-alarm matched; LQ never loses significantly to ChronoRoute and
+  wins at every nominal rate-cut cell and most ARQ cells. All registered material losses and
+  point disadvantages in `verdict.json` are against LQ or LS-D.
+- **LS-D comparator flaw.** The LS-D model used for the registered run reads the exact injected
+  fault delay and the expected ARQ delay, re-advertises any nonzero change and is scored
+  against a twin full of queue-noise advertisements (about 23183 false events per hour in C5).
+  In C2 its detection is identical for 0.25 ms and 4 ms delays. The report keeps the registered LS-D
+  numbers but states that the LS-D material losses and the ChronoRoute wins against LS-D are not
+  valid evidence about slowness detection; the LQ losses are robust.
+- Intervals: the representative contrast table showed bootstrap intervals for detection
+  differences. The paired Student-t interval, which the preregistration makes primary for
+  scheme differences, is now shown first and labelled; the run-bootstrap interval is labelled
+  (it stays primary for restricted delay). Zero-width t intervals for all-0/all-1 endpoints
+  are explained.
+- p-values recorded as exactly 0 (zero-variance differences or numerical cancellation) are no
+  longer printed; the report says they are below the numerical resolution of the computation.
+
+**E4 interpretation (numbers unchanged).**
+- The blackhole claim is qualified: the frozen metric does not count losses of fallback
+  packets to the hop limit or loops. The report now shows the counted blackhole losses, packets
+  sent and delivered and PDR. Example: C2 `link-B` visited fallback has blackhole 0 with 0
+  counted losses but loses 1068 packets (1038 at the hop limit), PDR 0.995056, against LS-H's
+  0.998704.
+- The paired blackhole difference against continue now shows the paired t interval
+  [-1.921, -0.571] s and labels the earlier interval [-1.866, -0.692] s as run-bootstrap.
+- The tail sentence was wrong: the registered hypothesis was *no material effective-tail
+  penalty relative to SNAP or LS-H*, not a tail advantage. It is not supported against LS-H:
+  the paired tail-failure indicator (visited minus LS-H) excludes zero in C5 `link-B`
+  0.167 [0.039, 0.295], `node-A` 0.111 [0.003, 0.219] and `node-B` 0.139 [0.020, 0.258]. The
+  empty list of tail material losses is empty by construction (the rule needs a finite ratio).
+- TTM is censored for every visited-fallback outage by construction; this is now stated.
+- Recovery disclosure: the simulations ran at commit `b805d2d`; the first collection crashed
+  writing the new tail-failure columns, and the tables were re-collected at `a18cffb`
+  without rerunning any simulation (`recovery.json`, `runtime.json`).
+
+**E16 interpretation (numbers unchanged).** The report said per-packet records matched
+"losses"; no packet was lost in any run on either engine (PDR 1 and FPR 0 everywhere). The PDR
+and FPR equivalence results are therefore at the boundary and uninformative, and the TOST is
+degenerate (all paired differences exactly 0) because both engines replay the same send lists,
+a common-random-numbers design declared in the preregistration. The agreement covers delivery,
+queueing and deadline flags, not loss paths. `docs/course-milestone.md` now notes the four
+`packets.csv` columns (`tx_ns`, `wait_ns`, `tx_loss_at`, `link_down_at`) that the current ns-3
+program appends; the original 26 columns are unchanged.
+
+**Abstract, discussion, limitations and conclusion** were rewritten to match the points above.
+
+**Related work and references.** The report wrongly marked CRH-20, SRTSN, gray failure, IOAM
+and TVR as unverified. They are now cited from primary sources: the Deterministic Routing
+Header draft (draft-pb-6man-deterministic-crh-00, the "CRH-20" of the task guide),
+draft-stein-srtsn-01, Huang et al. (HotOS 2017), RFC 9197 and RFC 9657, each with a sentence
+on how T-CRH differs (T-CRH carries cumulative deadlines to *detect* deviation; the drafts use
+per-hop timing to *schedule*). References are in IEEE style with authors and dates. CGREB could
+not be identified and stays marked UNVERIFIED.
+
+**Checking test.** `sim/tests/test_report_claims.py` now also checks that every table cell's
+CSV row agrees with the row's shell, condition, scheme, comparator, endpoint, check, label and
+unit cells and with its column (catching a correct value in the wrong cell), that interval
+parts appear in order, that ledger labels equal a CSV row's own label, that no p-value of zero
+is displayed, that backticks hold only identifiers, that only the reviewed releases are cited,
+and that every reference is a verified primary source.
