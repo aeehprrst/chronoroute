@@ -140,10 +140,10 @@ def test_five_untriggered_policies_are_packet_identical_and_hook_prefixes_match(
     with pytest.raises(ValueError):pc.check_prefix(active[0],base)
 
 
-def test_analysis_fixed_families_and_undefined_contrasts(tmp_path):
+def test_analysis_fixed_families_and_undefined_contrasts(tmp_path,monkeypatch):
     rows=[]
     for const in ('C5','C2'):
-        for profile in pc.PROFILES:
+        for profile in ('none',*pc.PROFILES):
             for scheme in pc.SCHEMES:
                 for seed in range(1000,1036):
                     rows.append(dict(const=const,condition=profile,scheme=scheme,seed=seed,pair_id=(seed-1000)%18,
@@ -155,6 +155,11 @@ def test_analysis_fixed_families_and_undefined_contrasts(tmp_path):
         assert len(cell)==40 and all(r['family_n']==40 for r in cell)
     assert all(r['adjusted_p'] is None for r in contrasts if r['endpoint']!='pdr')
     assert all(r['material_loss'] for r in contrasts if r['endpoint']=='pdr')
+    monkeypatch.setattr(pa,'plots',lambda *a:None)
+    assert pa.write_analysis(tmp_path,rows,'E04',n_boot=100)
+    import csv
+    saved=list(csv.DictReader((tmp_path/'paired_contrasts.csv').open()))
+    assert len(saved)==120 and 'tail_failure_mean_diff' in saved[0]
 
 
 def test_serialization_and_no_trigger_ratios_never_emit_nan(tmp_path,monkeypatch):
@@ -214,6 +219,8 @@ def test_budget_uses_manifested_spent_time_and_rejects_incomplete(monkeypatch,tm
     b=pc.validate_gates(tmp_path,tmp_path,tmp_path,'E04')
     assert b['previous_spent_s']==500 and b['available_s']==21600-500-1810-20
     assert pc.validate_gates(tmp_path,tmp_path,tmp_path,'E05',tmp_path)['previous_spent_s']==800
+    (tmp_path/'runtime.json').write_text(json.dumps({'wall_s':300,'previous_spent_s':200,'accounted_wall_s':2700}))
+    assert pc.validate_gates(tmp_path,tmp_path,tmp_path,'E05',tmp_path)['previous_spent_s']==3200
     good['extra']['complete']=False
     with pytest.raises(ValueError):pc.validate_gates(tmp_path,tmp_path,tmp_path,'E04')
 
@@ -273,3 +280,72 @@ def test_all_e4_schemes_keep_fault_losses_and_valid_stretch(tmp_path):
         assert row['stretch_min_adjusted'] is None or row['stretch_min_adjusted']>=1
         if name in ('continue','crh16'):
             assert row['delivered']<row['sent'] and row['blackhole_losses']>0
+
+
+def test_completed_recovery_validates_original_clean_producers(tmp_path,monkeypatch):
+    from chronoroute import provenance,labels
+    job=pc.jobs('E04')[0];design={'C5:1000':{'link':[1,2],'node':1}}
+    doc=pc.document(job,design);doc['job']=job
+    source=tmp_path/'source';source.mkdir();(source/'planned_jobs.json').write_text(json.dumps([job]))
+    raw=source.with_name('source-raw');folder=raw/'runs'/job['id'];(folder/'raw').mkdir(parents=True)
+    obs={**job,'status':'ok','wall_s':2.,'cpu_s':1.,'peak_rss_kb':1,'returncode':0,'command':['unit-fixture']}
+    (folder/'observation.json').write_text(json.dumps(obs));(folder/'metrics.json').write_text(json.dumps({**job,'effective_p99_s':'inf'}))
+    monkeypatch.setattr(provenance,'git_state',lambda *a,**k:{'dirty':False,'sha':'0'*40})
+    provenance.write_manifest(folder/'raw',tool='unit fixture',tool_version='1',command=['unit-fixture'],
+        config={'run':doc['engine'],'scheme':doc['scheme']},seeds=[1000],outputs=[],labels={})
+    provenance.write_manifest(folder,tool='unit fixture',tool_version='1',command=['unit-fixture'],config=doc,seeds=[1000],
+        outputs=[folder/'raw/manifest.json',folder/'observation.json',folder/'metrics.json'],labels={},extra={'observation':obs})
+    observations,records=pc.load_completed(source,raw,[job],design)
+    assert observations==[obs] and records[0]['effective_p99_s']==math.inf
+    before=(folder/'manifest.json').read_bytes()
+    changed=__import__('copy').deepcopy(design);changed['C5:1000']['node']=9
+    # A no-fault control has no target; changing a used engine setting is refused.
+    badjob={**job,'scheme':'continue'}
+    with pytest.raises(ValueError):pc.load_completed(source,raw,[badjob],design)
+    (folder/'metrics.json').write_text('{}')
+    with pytest.raises(ValueError):pc.load_completed(source,raw,[job],design)
+    assert (folder/'manifest.json').read_bytes()==before
+
+
+def test_recovery_runtime_requires_complete_logged_progress(tmp_path):
+    log=tmp_path/'campaign.log';log.write_text('setup\n'+json.dumps({'completed':2160,'total':2160,'wall_s':2371.25,'failures':0})+'\nTraceback\n')
+    assert pc.recovery_wall(log,2160)==2371.25
+    with pytest.raises(ValueError):pc.recovery_wall(log,432)
+    log.write_text(json.dumps({'completed':2160,'total':2160,'wall_s':float('nan'),'failures':0}))
+    with pytest.raises(ValueError):pc.recovery_wall(log,2160)
+
+
+def test_collection_reuses_producers_without_launching_or_rewriting_them(tmp_path,monkeypatch):
+    from chronoroute import provenance
+    job=pc.jobs('E04')[0];design={'C5:1000':{'link':[1,2],'node':1}}
+    doc=pc.document(job,design);doc['job']=job
+    source=tmp_path/'source';source.mkdir()
+    for name,value in [('planned_jobs.json',[job]),('design.json',design),('preflight.json',{'violations':0})]:
+        (source/name).write_text(json.dumps(value))
+    raw=source.with_name('source-raw');folder=raw/'runs'/job['id'];(folder/'raw').mkdir(parents=True)
+    obs={**job,'status':'ok','wall_s':2.,'cpu_s':1.,'peak_rss_kb':1,'returncode':0,'command':['unit-fixture']}
+    (folder/'observation.json').write_text(json.dumps(obs));(folder/'metrics.json').write_text(json.dumps({**job,'effective_p99_s':'inf'}))
+    monkeypatch.setattr(pc.provenance,'git_state',lambda *a,**k:{'dirty':False,'sha':'0'*40})
+    provenance.write_manifest(folder/'raw',tool='unit fixture',tool_version='1',command=['unit-fixture'],
+        config={'run':doc['engine'],'scheme':doc['scheme']},seeds=[1000],outputs=[],labels={})
+    provenance.write_manifest(folder,tool='unit fixture',tool_version='1',command=['unit-fixture'],config=doc,seeds=[1000],
+        outputs=[folder/'raw/manifest.json',folder/'observation.json',folder/'metrics.json'],labels={},extra={'observation':obs})
+    originals={p:p.read_bytes() for p in folder.rglob('*') if p.is_file()}
+    monkeypatch.setattr(pc,'jobs',lambda exp:[job]);monkeypatch.setattr(pc.e1,'validate_protocol',lambda:None)
+    monkeypatch.setattr(pc,'validate_gates',lambda *a:dict(available_s=1000,confirmation_allowed=True))
+    def forbidden(*a,**k):raise AssertionError('collection must not rerun simulations or preflight')
+    monkeypatch.setattr(pc,'run_job',forbidden);monkeypatch.setattr(pc,'preflight',forbidden)
+    monkeypatch.setattr(pc.analysis,'write_analysis',lambda *a:True)
+    for name in ('e1','gates','e0'):
+        p=tmp_path/name;p.mkdir();(p/'runtime.json').write_text('{}');(p/'resource_forecast.json').write_text('{}')
+        provenance.write_manifest(p,tool='unit fixture',tool_version='1',command=['unit-fixture'],config={},seeds=[],outputs=[],labels={})
+    log=tmp_path/'previous.log';log.write_text(json.dumps(dict(completed=1,total=1,wall_s=2.,failures=0)))
+    out=tmp_path/'collected'
+    assert pc.main(['--out',str(out),'--collect-from',str(source),'--collect-log',str(log),
+        '--e1',str(tmp_path/'e1'),'--gates',str(tmp_path/'gates'),'--e0',str(tmp_path/'e0')],experiment='E04')==0
+    assert all(p.read_bytes()==value for p,value in originals.items())
+    m=provenance.validate_manifest(out/'manifest.json')
+    assert m['extra']['complete'] and m['dirty'] is False
+    runtime=json.loads((out/'runtime.json').read_text())
+    assert runtime['accounted_wall_s']==runtime['wall_s']+302
+    assert '--collect-from' in m['command']

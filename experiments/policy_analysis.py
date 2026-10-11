@@ -64,6 +64,7 @@ def aggregate(rows,name,*,n_boot=10000):
     for field in ('stretch_min_exact','stretch_min_adjusted','stretch_min_raw'):
         values=[r[field] for r in rows if r.get(field) is not None];out[field]=min(values) if values else None
     for label,num,den in [('pdr_pooled','delivered','sent'),('stuck_pooled','stuck','triggered'),('triggered_pdr_pooled','triggered_delivered','triggered')]:
+        for key in ('estimate','lo','hi','n_boot_undefined'):out[label+'_'+key]=None
         if all(num in r and den in r for r in rows):
             ci=e1_analysis.ratio_ci([r[num] for r in rows],[r[den] for r in rows],name+label,n_boot=n_boot) if sum(r[den] for r in rows) else dict(estimate=None,lo=None,hi=None,n_boot_undefined=n_boot)
             for key in ('estimate','lo','hi','n_boot_undefined'):out[label+'_'+key]=ci[key]
@@ -79,7 +80,8 @@ def contrast(a,b,endpoint,name,*,n_boot=10000):
     defined=[(x,y) for x,y in pairs if x is not None and y is not None]
     out=dict(n=len(defined),missing_pairs=len(pairs)-len(defined),mean_diff=None,lo=None,hi=None,p=None,
              bootstrap_lo=None,bootstrap_hi=None,reason=None,both_infinite=0,a_only_infinite=0,b_only_infinite=0,
-             ratio=None,ratio_lo=None,ratio_hi=None)
+             ratio=None,ratio_lo=None,ratio_hi=None,
+             tail_failure_mean_diff=None,tail_failure_lo=None,tail_failure_hi=None)
     if not defined:out['reason']='no paired defined endpoints';return out
     if endpoint!='blackhole_s' and len(defined)!=len(pairs):
         out['reason']='undefined run endpoints preclude a complete paired contrast';return out

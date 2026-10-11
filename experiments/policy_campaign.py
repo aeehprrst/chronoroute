@@ -5,6 +5,7 @@ import gzip
 import json
 import math
 from pathlib import Path
+import shutil
 import sys
 import time
 
@@ -245,7 +246,8 @@ def validate_gates(e1_result,gates,e0,experiment,prior=None):
     if prior:
         pm=provenance.validate_manifest(prior/'manifest.json')
         if pm['dirty'] is not False or not pm['extra']['complete']:raise ValueError('prior policy campaign incomplete')
-        spent+=json.loads((prior/'runtime.json').read_text())['wall_s']
+        prior_runtime=json.loads((prior/'runtime.json').read_text())
+        spent+=prior_runtime.get('accounted_wall_s',prior_runtime['wall_s'])
     reserve=forecast['remaining_work_s']['E16']+1800
     future=forecast['remaining_work_s']['E05'] if experiment=='E04' else 0
     projected=spent+forecast['remaining_work_s'][experiment]+future+reserve
@@ -253,6 +255,44 @@ def validate_gates(e1_result,gates,e0,experiment,prior=None):
     return dict(label='MODELLED projection; REAL manifested active wall observations',previous_spent_s=spent,
                 reserved_future_s=reserve+future,available_s=21600-spent-reserve-future,
                 projected_campaign_s=projected,confirmation_allowed=True)
+
+
+def load_completed(source,raw_root,planned,design):
+    """Validate original clean producers before collecting completed simulations again."""
+    if json.loads((source/'planned_jobs.json').read_text())!=planned:raise ValueError('recovery design differs')
+    observations=[];records=[];producer_sha=None
+    for job in planned:
+        folder=raw_root/'runs'/job['id']
+        wrapper=provenance.validate_manifest(folder/'manifest.json')
+        raw=provenance.validate_manifest(folder/'raw/manifest.json')
+        doc=document(job,design);doc['job']=job
+        if wrapper['config']!=doc or raw['config']!={'run':doc['engine'],'scheme':doc['scheme']}:
+            raise ValueError('recovery configuration differs')
+        for manifest in (wrapper,raw):
+            if manifest['dirty'] is not False:raise ValueError('dirty recovery producer')
+            if producer_sha is None:producer_sha=manifest['git_sha']
+            if manifest['git_sha']!=producer_sha:raise ValueError('recovery producer commits differ')
+        obs=json.loads((folder/'observation.json').read_text())
+        if obs!=wrapper['extra']['observation'] or any(obs.get(k)!=v for k,v in job.items()) or obs['status']!='ok':
+            raise ValueError('recovery observation differs or failed')
+        record=analysis.decode(json.loads((folder/'metrics.json').read_text()))
+        if any(record.get(k)!=job[k] for k in ('const','scheme','condition','seed','pair_id')):
+            raise ValueError('recovery metric identity differs')
+        observations.append(obs);records.append(record)
+    return observations,records
+
+
+def recovery_wall(log,expected):
+    """Read a completed progress checkpoint; retain failed analysis time as a separate reserve."""
+    checkpoint=None
+    for line in log.read_text().splitlines():
+        try:row=json.loads(line)
+        except json.JSONDecodeError:continue
+        if isinstance(row,dict) and row.get('completed')==expected and row.get('total')==expected and row.get('failures')==0:
+            checkpoint=row
+    if checkpoint is None or not math.isfinite(checkpoint['wall_s']) or checkpoint['wall_s']<0:
+        raise ValueError('no valid complete simulation checkpoint')
+    return checkpoint['wall_s']
 
 
 def main(argv=None,*,experiment=None):
@@ -263,27 +303,45 @@ def main(argv=None,*,experiment=None):
     parser.add_argument('--e1',type=Path,default=REPO/'results/E01/20261011T154940Z-confirmatory-resumed')
     parser.add_argument('--gates',type=Path,default=REPO/'results/E01/20261011T130817Z-calibration')
     parser.add_argument('--e0',type=Path,default=REPO/'results/E00/20261011T100448Z');parser.add_argument('--prior',type=Path)
+    parser.add_argument('--collect-from',type=Path);parser.add_argument('--collect-log',type=Path)
     args=parser.parse_args(argv)
     if args.child_config:return run_child(args.child_config,args.out)
     if args.experiment is None:parser.error('--experiment required')
+    if bool(args.collect_from)!=bool(args.collect_log):parser.error('--collect-from and --collect-log are required together')
     launch=[sys.executable,'-B',str(Path(__file__).resolve()),*(argv if argv is not None else sys.argv[1:]),'--experiment',args.experiment]
     e1.validate_protocol()
     if provenance.git_state(REPO)['dirty'] is not False:raise ValueError('commit implementation before experiments')
-    args.out=args.out.resolve();args.out.mkdir(parents=True,exist_ok=False);raw_root=args.out.with_name(args.out.name+'-raw');raw_root.mkdir()
+    args.out=args.out.resolve();args.out.mkdir(parents=True,exist_ok=False)
+    raw_source=args.collect_from.resolve() if args.collect_from else args.out
+    raw_root=raw_source.with_name(raw_source.name+'-raw')
+    if not args.collect_from:raw_root.mkdir()
     planned=jobs(args.experiment);observations=[];records=[]
+    previous_wall=0;analysis_reserve=0
     with provenance.RunTimer() as timer:
         budget=validate_gates(args.e1,args.gates,args.e0,args.experiment,args.prior);write_json(args.out/'resource_forecast.json',budget)
-        deadline=time.monotonic()+budget['available_s'];design=preflight(planned,args.out)
+        if args.collect_from:
+            previous_wall=recovery_wall(args.collect_log,len(planned));analysis_reserve=300
+            if previous_wall+analysis_reserve>budget['available_s']:raise ValueError('recovery exceeds campaign budget')
+            design=json.loads((raw_source/'design.json').read_text())
+            observations,records=load_completed(raw_source,raw_root,planned,design)
+            for name in ('design.json','preflight.json'):shutil.copyfile(raw_source/name,args.out/name)
+            shutil.copyfile(args.collect_log,args.out/'previous-attempt.log')
+            write_json(args.out/'recovery.json',dict(source=str(raw_source),observed_wall_s=previous_wall,
+                unmeasured_analysis_reserve_s=analysis_reserve,label='REAL logged simulation wall; MODELLED conservative failed-analysis reserve',
+                reason='Original simulations completed; CSV export rejected heterogeneous endpoint columns. No simulations rerun.'))
+        else:design=preflight(planned,args.out)
+        deadline=time.monotonic()+budget['available_s']-previous_wall-analysis_reserve
         write_json(args.out/'planned_jobs.json',planned);(args.out/'configs').mkdir()
         for job in planned:
             d=document(job,design);d['job']=job;write_json(args.out/'configs'/(job['id']+'.json'),d)
-        with ThreadPoolExecutor(max_workers=args.workers) as pool:
-            futures=[pool.submit(run_job,j,args.out,raw_root,design,deadline) for j in planned]
-            for f in as_completed(futures):
-                observation=f.result();observations.append(observation)
-                if observation['status']=='ok':records.append(analysis.decode(json.loads((raw_root/'runs'/observation['id']/'metrics.json').read_text())))
-                if len(observations)%24==0:
-                    print(json.dumps(dict(completed=len(observations),total=len(planned),wall_s=timer.wall_seconds,failures=sum(r['status']!='ok' for r in observations))),flush=True)
+        if not args.collect_from:
+            with ThreadPoolExecutor(max_workers=args.workers) as pool:
+                futures=[pool.submit(run_job,j,args.out,raw_root,design,deadline) for j in planned]
+                for f in as_completed(futures):
+                    observation=f.result();observations.append(observation)
+                    if observation['status']=='ok':records.append(analysis.decode(json.loads((raw_root/'runs'/observation['id']/'metrics.json').read_text())))
+                    if len(observations)%24==0:
+                        print(json.dumps(dict(completed=len(observations),total=len(planned),wall_s=timer.wall_seconds,failures=sum(r['status']!='ok' for r in observations))),flush=True)
         observations.sort(key=lambda x:x['id']);records.sort(key=lambda x:(x['const'],x['condition'],x['scheme'],x['seed']))
         e1.write_csv(args.out/'inventory.csv',observations)
         prefix=[]
@@ -299,17 +357,21 @@ def main(argv=None,*,experiment=None):
         success=complete and len(observations)==len(planned) and all(r['status']=='ok' for r in observations) and not any(x['violations'] for x in prefix)
         provenance.write_manifest(raw_root,tool=args.experiment+' raw collection',tool_version=__version__,command=launch,
             config={'prereg_git_sha':e1.PREREG_SHA,'prereg_sha256':e1.PREREG_HASH,'experiment':args.experiment},seeds=list(range(1000,1036)),
-            outputs=sorted(p for p in raw_root.rglob('*') if p.is_file()),labels=labels.pick('routes_and_budgets','traffic_probes','isl_topology_grid4'),
+            outputs=sorted(p for p in raw_root.rglob('*') if p.is_file() and p!=raw_root/'manifest.json'),labels=labels.pick('routes_and_budgets','traffic_probes','isl_topology_grid4'),
             extra={'complete':success},timer=timer)
         (args.out/'inputs').mkdir()
         inputs=[args.e1/'manifest.json',args.e1/'runtime.json',args.gates/'manifest.json',args.gates/'resource_forecast.json',args.e0/'manifest.json',raw_root/'manifest.json']
         if args.prior:inputs.extend((args.prior/'manifest.json',args.prior/'runtime.json'))
+        if args.collect_from:inputs.extend((raw_source/'planned_jobs.json',raw_source/'design.json',args.out/'previous-attempt.log'))
         with gzip.open(args.out/'inputs/producer-manifests.jsonl.gz','wt',encoding='utf-8') as fh:
             for p in [*(p for p in inputs if p.name=='manifest.json'),*raw_root.glob('runs/*/manifest.json'),*raw_root.glob('runs/*/raw/manifest.json')]:
                 m=provenance.validate_manifest(p)
                 if m['dirty'] is not False:raise ValueError('dirty evidence producer')
                 fh.write(json.dumps(dict(path=str(p),sha256=provenance.file_sha256(p),manifest=m),sort_keys=True)+'\n')
-        write_json(args.out/'runtime.json',dict(label='REAL host observations',wall_s=timer.wall_seconds,workers=args.workers,
+        wall=timer.wall_seconds
+        write_json(args.out/'runtime.json',dict(label='REAL host observations; MODELLED failed-analysis reserve when recovering',wall_s=wall,workers=args.workers,
+            previous_attempt_observed_wall_s=previous_wall,previous_analysis_reserve_s=analysis_reserve,
+            accounted_wall_s=wall+previous_wall+analysis_reserve,
             cpu_s=sum(r['cpu_s'] for r in observations),max_rss_kb=max((r['peak_rss_kb'] for r in observations),default=0),complete=success))
     campaign=dict(prereg_path='experiments/PREREG.md',prereg_git_sha=e1.PREREG_SHA,prereg_sha256=e1.PREREG_HASH,
                   phase='confirmatory',experiment=args.experiment,cell_id='full-registered-grid',pair_id='balanced-18',seed=None)
