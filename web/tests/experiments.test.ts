@@ -87,9 +87,10 @@ describe('experiment evidence contract', () => {
     ]);
     for (const def of EXPERIMENTS) {
       const data = await loadExperiment(def);
-      expect(Buffer.from(data.csvText)).toEqual(
-        await readFile(path.join(RESULTS_ROOT, def.id, def.run, 'summary.csv')),
+      const source = await readFile(
+        path.join(RESULTS_ROOT, def.id, def.run, 'summary.csv'),
       );
+      expect(Buffer.from(data.csvText).equals(source)).toBe(true);
       expect(data.manifest.dirty).toBe(false);
       expect(data.rows.length).toBeGreaterThan(0);
       expect(verdict(def, data.rows)).not.toBe('');
@@ -248,6 +249,9 @@ describe('results presentation', () => {
     expect(html).toContain('confidence');
     expect(html).toContain('<table');
     expect(html).not.toContain('NaN');
+    // Every SVG tooltip carries text (an array child renders an empty <title> in React 19).
+    expect(html).toContain('<title>');
+    expect(html).not.toContain('<title></title>');
     const injected = renderToStaticMarkup(
       createElement(ResultsExplorer, {
         definition: e16(),
@@ -324,13 +328,12 @@ it('serves the same CSV and manifest through each static download endpoint', asy
     const response = await endpoint.GET({
       props: entry.props,
     } as unknown as Parameters<typeof endpoint.GET>[0]);
-    expect(Buffer.from(await response.arrayBuffer())).toEqual(
-      await readFile(
-        path.join(RESULTS_ROOT, def.id, def.run, entry.params.file),
-      ),
+    const source = await readFile(
+      path.join(RESULTS_ROOT, def.id, def.run, entry.params.file),
     );
+    expect(Buffer.from(await response.arrayBuffer()).equals(source)).toBe(true);
   }
-}, 30000);
+});
 
 it('keeps failed constraints and infinite-tail disadvantages in the verdict', () => {
   const e0 = EXPERIMENTS.find((e) => e.id === 'E00')!;

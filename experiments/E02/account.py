@@ -16,6 +16,12 @@ sys.path.insert(0,str(REPO/'experiments/E01'))
 import campaign as e1
 
 
+def _repo_relative(path):
+    """Repository-relative POSIX path, so committed outputs carry no machine-specific prefix."""
+    path=Path(path).resolve()
+    return path.relative_to(REPO).as_posix() if path.is_relative_to(REPO) else str(path)
+
+
 def size_rows():
     """Exact byte counts; validate available encoders, without calling SRH captured."""
     rows=[]
@@ -64,7 +70,7 @@ def capture_rows(path):
         predicted=l2+40+sizes.tcrh_size(h.num_hops)+8+payload
         violation=int(payload<0 or len(udp)!=udplen or len(ip)!=40+int.from_bytes(ip[4:6],'big') or
                       consumed!=(ip[41]+1)*8 or consumed!=sizes.tcrh_size(h.num_hops) or predicted!=wire)
-        rows.append(dict(capture=str(path),frame=frames,entries=h.num_hops,linktype=linktype,l2_bytes=l2,
+        rows.append(dict(capture=_repo_relative(path),frame=frames,entries=h.num_hops,linktype=linktype,l2_bytes=l2,
                          ipv6_bytes=40,header_bytes=consumed,udp_bytes=8,payload_bytes=payload,
                          frame_bytes=wire,predicted_frame_bytes=predicted,violations=violation,label='REAL'))
     return rows,dict(frames=frames,tcrh_frames=len(rows),skipped_frames=skipped,violations=sum(r['violations'] for r in rows),
@@ -112,8 +118,12 @@ def main(argv=None):
             c,info=capture_rows(source)
             if not c:raise ValueError('capture has no T-CRH frames')
             capture.extend(c);checks.append(dict(capture=relative,**info))
-            inputs.extend(dict(path=str(p),sha256=provenance.file_sha256(p)) for p in (source,manifest))
+            inputs.extend(dict(path=_repo_relative(p),sha256=provenance.file_sha256(p)) for p in (source,manifest))
+        # One row per captured frame; gzip keeps the repeated rows small (mtime 0: reproducible bytes).
         e1.write_csv(args.out/'capture_frames.csv',capture)
+        frames_csv=args.out/'capture_frames.csv'
+        with gzip.GzipFile(args.out/'capture_frames.csv.gz','wb',mtime=0) as fh:fh.write(frames_csv.read_bytes())
+        frames_csv.unlink()
         counts=Counter((r['entries'],r['header_bytes'],r['frame_bytes']) for r in capture)
         e1.write_csv(args.out/'capture_summary.csv',[dict(entries=n,header_bytes=h,frame_bytes=f,frames=count,label='REAL') for (n,h,f),count in sorted(counts.items())])
         v=verdict(rows);v.update(captures=checks,complete=not v['encoder_violations'] and not any(c['violations'] for c in checks))
@@ -122,7 +132,7 @@ def main(argv=None):
             'The reference percentage divides added bytes by the pre-insertion reference; final percentage has a different denominator. '
             'No confidence intervals apply to exact byte counts. Only T-CRH is measured in the captures. '
             'SRH is exact accounting without a captured SRH encoder. See summary.csv, capture_summary.csv and verdict.json for all sizes, padding ties and checks.\n')
-    provenance.write_manifest(args.out,tool='E02 exact accounting',tool_version=__version__,command=[sys.executable,'-B',__file__,*(argv or sys.argv[1:])],
+    provenance.write_manifest(args.out,tool='E02 exact accounting',tool_version=__version__,command=[sys.executable,'-B','experiments/E02/account.py',*(argv or sys.argv[1:])],
         config=config,seeds=[],snapshot=REPO/'data/pinned/20261010T1358Z-celestrak',outputs=sorted(p for p in args.out.rglob('*') if p.is_file()),
         labels=labels.pick('tcrh_header_bytes','routes_and_budgets','pcap_addresses','pcap_timestamps'),
         extra=dict(campaign=config['campaign'],inputs=inputs,complete=v['complete']),timer=timer)

@@ -2,6 +2,7 @@
 
 import importlib.util
 import json
+import shutil
 import subprocess
 from pathlib import Path
 from types import SimpleNamespace
@@ -16,6 +17,20 @@ REPO = Path(__file__).resolve().parents[2]
 SPEC = importlib.util.spec_from_file_location("e00_gate", REPO / "experiments/E00/gate.py")
 gate = importlib.util.module_from_spec(SPEC)
 SPEC.loader.exec_module(gate)
+
+# The adapters compile and run the real production engines: the website engine through
+# Node + esbuild (web/node_modules), the ns-3 chronoroute library, and tshark. CI has none
+# of them, so those tests are skipped there; they run on the development machine.
+_NS3_LIB = Path.home() / "ns-3-dev/build/lib"
+ADAPTER_TOOLS = {
+    "node": (Path.home() / ".local/opt/node/bin/node").is_file(),
+    "esbuild": (REPO / "web/node_modules/esbuild/lib/main.js").is_file(),
+    "ns-3": any(_NS3_LIB.glob("libns3.44-chronoroute-default.so")) if _NS3_LIB.is_dir() else False,
+    "tshark": shutil.which("tshark") is not None,
+    "c++": shutil.which("c++") is not None,
+}
+needs_adapters = pytest.mark.skipif(not all(ADAPTER_TOOLS.values()), reason="E0 adapters need "
+                                    + ", ".join(k for k, v in ADAPTER_TOOLS.items() if not v))
 
 
 def test_fixed_config_matches_preregistration():
@@ -123,7 +138,43 @@ def test_physics_pipeline_checks_all_samples_and_exports_schedules():
     rows, paths, schedules, records, times = gate.physics_run(cfg, "C2", fleet, "53.0deg-550km")
     assert all(r["violations"] == 0 for r in rows)
     assert len(paths) == 2 and all(p["reachable"] for p in paths)
+    # The physical bound is checked on propagation only: processing is taken out per link.
+    for p in paths:
+        assert p["path_light_ns"] == p["cost_ns"] - p["hops"] * gate.geometry.PROCESSING_NS
+    checks = {r["check"] for r in rows}
+    assert {"gsl_elevation", "gsl_visibility_complete", "path_great_circle"} <= checks
     assert len(schedules) == 1 and len(records) == 2 and times == [t0, t0 + 6000_000_000_000]
+
+
+def test_golden_fixed_row_uses_the_golden_files_not_python(monkeypatch):
+    cases = gate.make_cases([])
+    rows = gate.golden_fixed_rows(cases)
+    assert rows[0]["check"] == "wire_golden_fixed" and rows[0]["violations"] == 0
+    assert rows[0]["checked"] == sum(1 for c in cases if c["name"].startswith(("golden/", "crh-golden/")))
+    real = gate.python_case
+    def wrong_bytes(c):
+        out = dict(real(c))
+        if c["name"] == cases[0]["name"]:
+            out["hex"] = "00" + out["hex"][2:]
+        return out
+    monkeypatch.setattr(gate, "python_case", wrong_bytes)
+    assert gate.golden_fixed_rows(cases)[0]["violations"] == 1
+
+
+def test_link_gate_counts_a_visible_satellite_missing_from_the_candidates():
+    station = gate.gsl.GroundStation(g=0, name="X", lat_deg=0.0, lon_deg=0.0, lat_text="0", lon_text="0")
+    # Two satellites high above the station, one laser link, and no visible candidate listed.
+    pos = np.array([[[6378.137 + 550.0, 0.0, 0.0]], [[6378.137 + 550.0, 100.0, 0.0]]])
+    sc = SimpleNamespace(
+        sat_pos_km=pos, ground_stations=(station,), n_sats=2,
+        isl_a=np.array([0]), isl_b=np.array([1]), isl_up=np.array([[True]]),
+        gsl_visible=np.empty((0, 1), bool), gsl_sat=np.array([], int), gsl_gs=np.array([], int),
+        gsl_up=np.empty((0, 1), bool), gsl_params=SimpleNamespace(min_elevation_deg=25, max_links_per_gs=4),
+        grid_params=SimpleNamespace(polar_cutoff_deg=70), isl_kind=np.array([0]),
+        sat_lat_deg=np.zeros((2, 1)), graph=SimpleNamespace(prop_ns=np.array([[333564]])))
+    rows = gate.link_metrics(sc, 0, "C2")
+    complete = next(r for r in rows if r["check"] == "gsl_visibility_complete")
+    assert complete["checked"] == 1 and complete["violations"] == 1 and complete["worst"] == 2
 
 
 def test_adapter_comparison_never_accepts_missing_or_duplicate_cases():
@@ -154,6 +205,7 @@ def adapters(tmp_path_factory):
     return out, cases, json.loads((out / "browser.json").read_text()), [json.loads(x) for x in cpp.splitlines()], commands
 
 
+@needs_adapters
 def test_real_browser_and_ns3_adapters_on_every_golden_case(adapters):
     out, cases, browser, cpp, commands = adapters
     assert commands and all(x["returncode"] == 0 for x in commands)
@@ -165,6 +217,7 @@ def test_real_browser_and_ns3_adapters_on_every_golden_case(adapters):
     assert commands[-1]["returncode"] != 0
 
 
+@needs_adapters
 def test_browser_adapter_propagates_both_input_paths(adapters):
     out, _, browser, _, _ = adapters
     orbit = json.loads((out / "wire.json").read_text())["orbits"][0]
@@ -177,6 +230,7 @@ def test_browser_adapter_propagates_both_input_paths(adapters):
     assert all(r["violations"] == 0 for r in rows)
 
 
+@needs_adapters
 def test_wireshark_actual_bytes_fields_and_expected_rejections(adapters):
     out, cases, _, _, commands = adapters
     frames = gate.write_wire_pcap(cases, out / "wire.pcap")
@@ -226,6 +280,7 @@ def test_cli_retains_failed_run_with_valid_manifest(tmp_path, monkeypatch):
         gate.main(["--out", str(out)])
 
 
+@needs_adapters
 def test_cli_complete_pipeline_and_manifest(tmp_path, monkeypatch):
     # A small synthetic fixture exercises orchestration; it is not campaign evidence.
     cfg = json.loads((REPO / "experiments/E00/config.json").read_text())

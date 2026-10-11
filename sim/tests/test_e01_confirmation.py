@@ -6,7 +6,7 @@ import sys
 import numpy as np
 import pytest
 
-REPO = Path('/home/aeehprrst/chronoroute')
+REPO = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(REPO / 'experiments/E01'))
 SPEC = importlib.util.spec_from_file_location('e01_analysis', REPO / 'experiments/E01/analysis.py')
 a = importlib.util.module_from_spec(SPEC)

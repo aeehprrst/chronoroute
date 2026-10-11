@@ -177,7 +177,7 @@ export default function ResultsExplorer({
                 stroke="currentColor"
                 strokeDasharray="5 5"
               >
-                <title>Registered equivalence bound: {b}</title>
+                <title>{`Registered equivalence bound: ${b}`}</title>
               </line>
             ))}
             {definition.id === 'E02' &&
@@ -196,10 +196,11 @@ export default function ResultsExplorer({
             {chart.points.map((p, i) => (
               <g key={i}>
                 <title>
-                  {p.label}: {p.value};{' '}
-                  {chart.hasIntervals
-                    ? `95% CI [${p.lo}, ${p.hi}]`
-                    : 'exact accounting'}
+                  {`${p.label}: ${p.value}; ${
+                    chart.hasIntervals
+                      ? `95% CI [${p.lo}, ${p.hi}]`
+                      : 'exact accounting'
+                  }`}
                 </title>
                 {chart.hasIntervals && (
                   <rect

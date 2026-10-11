@@ -28,6 +28,10 @@ jobs:
     steps:
       - name: Check out the repository
         uses: actions/checkout@v4
+        with:
+          # Full history: the experiment gates verify experiments/PREREG.md against its
+          # preregistration commit with git show, which a shallow clone does not contain.
+          fetch-depth: 0
 
       - name: Set up Python 3.14
         uses: actions/setup-python@v5

@@ -148,13 +148,22 @@ def link_metrics(sc, k, constellation):
         rows.append(metric("gsl_light_time", constellation, "REAL" if constellation == "C5" else "MODELLED", gp - geometry.light_time_ns_exact(gd),
                            -0.5, "ns", lower=True))
     selected = sc.gsl_up[:, k]
-    if np.any(selected):
-        # Recompute elevations from positions, rather than trust the selected table.
+    if np.any(visible):
+        # Recompute elevations from positions, rather than trust the visibility table:
+        # every visible candidate (not only the selected links) must clear the mask.
         elevations = [float(gsl.elevation_deg(sc.ground_stations[int(g)], pos[int(s)]))
-                      for g, s in zip(sc.gsl_gs[selected], sc.gsl_sat[selected])]
+                      for g, s in zip(sc.gsl_gs[visible], sc.gsl_sat[visible])]
         rows.append(metric("gsl_elevation", constellation, "MODELLED", elevations,
                            sc.gsl_params.min_elevation_deg, "degrees", lower=True))
     if sc.ground_stations:
+        # Completeness: every satellite above the mask must be a visible candidate.
+        missing = []
+        for g, station in enumerate(sc.ground_stations):
+            elev = np.asarray(gsl.elevation_deg(station, pos), dtype=float)
+            above = set(np.flatnonzero(np.isfinite(elev) & (elev >= sc.gsl_params.min_elevation_deg)).tolist())
+            listed = set(sc.gsl_sat[visible & (sc.gsl_gs == g)].tolist())
+            missing.append(len(above ^ listed))
+        rows.append(metric("gsl_visibility_complete", constellation, "MODELLED", missing, 0, "satellites"))
         counts = np.bincount(sc.gsl_gs[selected], minlength=len(sc.ground_stations))
         rows.append(metric("gsl_degree", constellation, "MODELLED", counts,
                            sc.gsl_params.max_links_per_gs, "links"))
@@ -182,13 +191,16 @@ def physics_run(cfg, constellation, fleet, shell_id):
             cost, path = dijkstra.shortest_path(csr, node[src], node[dst])
             gc = cities.great_circle_km(by_city[src], by_city[dst])
             bound = float(geometry.light_time_ns_exact(gc))
+            # Edge weights are propagation + processing; the physical bound applies to the
+            # propagation part only, so the per-link processing is taken out again.
+            light = cost - (len(path) - 1) * sc.graph.processing_ns if path else None
             detail.append({"constellation": constellation, "offset_s": offset, "src": src, "dst": dst,
                            "reachable": path is not None, "hops": len(path) - 1 if path else None,
-                           "cost_ns": cost, "great_circle_light_ns": bound,
+                           "cost_ns": cost, "path_light_ns": light, "great_circle_light_ns": bound,
                            "rounding_allowance_ns": (len(path) - 1) * 0.5 if path else None})
             if path:
                 rows.append(metric("path_great_circle", constellation, "DERIVED",
-                                   [cost + (len(path) - 1) * 0.5 - bound], 0, "ns", lower=True))
+                                   [light + (len(path) - 1) * 0.5 - bound], 0, "ns", lower=True))
                 if k == 0:
                     e = scheduler.plan_path(sc, node[src], node[dst], k)
                     schedules.append({"constellation": constellation, "pair": f"{src}-{dst}",
@@ -306,6 +318,38 @@ def make_cases(schedules):
     return cases
 
 
+def golden_fixed_rows(cases):
+    """Python against the fixed expectations stored in spec/golden (not derived from Python).
+
+    The wire_python row compares Python with expectations that Python itself produced for the
+    schedule cases; this row counts only the vectors whose expected values are written down in
+    the golden files, so it is the part of the Python check with an external reference.
+    """
+    by_name = {}
+    for c in cases:
+        if c["name"] in by_name:
+            raise ValueError(f"duplicate case name {c['name']}")
+        by_name[c["name"]] = c
+    vectors = json.loads((REPO / "spec/golden/tcrh_vectors.json").read_text())
+    crh = json.loads((REPO / "spec/golden/crh_vectors.json").read_text())
+    groups = [("golden/", vectors[s]) for s in ("encode", "process", "link_down")]
+    groups += [("crh-golden/", crh[s]) for s in ("encode", "process")]
+    bad = []
+    for prefix, group in groups:
+        for v in group:
+            want = {k.removeprefix("expect_").replace("hex_out", "hex"): val
+                    for k, val in v.items() if k.startswith("expect_")}
+            got = python_case(by_name[prefix + v["name"]])
+            # Compare every expectation Python reports directly (the bytes and, for processing
+            # vectors, the full forwarding decision); encode-side extras such as deadlines and
+            # size are functions of the bytes.
+            common = [field for field in want if field in got]
+            if "hex" not in common:
+                raise ValueError(f"golden vector {v['name']} has no byte expectation to compare")
+            bad.append(int(any(got[field] != want[field] for field in common)))
+    return [metric("wire_golden_fixed", "golden", "REAL", bad, 0, "mismatch")]
+
+
 def wire_line(c):
     """Lossless, narrow TSV input to the C++ adapter; it receives no expected values."""
     op = c["op"]
@@ -407,6 +451,9 @@ def check_wireshark(path, expected, out, commands):
               "tcrh.epoch_base", "tcrh.sid", "tcrh.delta", "tcrh.current_deadline", "tcrh.late", "_ws.lua.error",
               "ipv6.routing.nxt", "ipv6.routing.len", "ipv6.routing.type", "ipv6.routing.segleft",
               "tcrh.reserved", "tcrh.padding", "tcrh.deadline", "ipv6.routing.crh16.sid", "ipv6.routing.crh32.sid"]
+    # "@frame" is the raw frame as tshark itself read it from the capture file, so the
+    # byte check uses Wireshark's pcap reader rather than the Python writer's own parser.
+    fields = fields + ["@frame"]
     command = ["tshark", "-n", "-r", str(path), "-X", f"lua_script:{REPO / 'tools/wireshark/tcrh.lua'}",
                "-o", "tcrh.timebase:offset", "-o", f"tcrh.offset_ns:{-pcap.GPS_TO_PCAP_NS}",
                "-T", "fields", "-E", "separator=/t", "-E", "occurrence=a", "-E", "aggregator=,"]
@@ -416,22 +463,13 @@ def check_wireshark(path, expected, out, commands):
     lines = text.splitlines()
     if len(lines) != len(expected):
         raise ValueError("Wireshark frame coverage differs")
-    # Read raw capture bytes independently of the expected list.
-    import struct
-    data = Path(path).read_bytes()
-    packets = []
-    offset = 24
-    while offset < len(data):
-        _, _, caplen, _ = struct.unpack_from("<IIII", data, offset)
-        offset += 16
-        packets.append(data[offset:offset + caplen])
-        offset += caplen
     mismatches, byte_bad, field_bad = [], [], []
-    for i, (line, exp, packet) in enumerate(zip(lines, expected, packets)):
+    for i, (line, exp) in enumerate(zip(lines, expected)):
         values = line.split("\t")
         if len(values) != len(fields) or int(values[0]) != i + 1:
             raise ValueError("Wireshark fields or frame order differs")
         r = dict(zip(fields, values))
+        packet = bytes.fromhex(r["@frame"].replace(":", ""))
         raw = bytes.fromhex(exp["hex"])
         bad_bytes = packet[40:40 + len(raw)] != raw
         bad_fields = bool(r["_ws.lua.error"])
@@ -574,6 +612,7 @@ def main(argv=None):
             cases = make_cases(schedules)
             for c in cases:
                 rows.append(metric("wire_python", "C5+C2+golden", "REAL", [int(python_case(c) != c["expected"])], 0, "mismatch"))
+            rows.extend(golden_fixed_rows(cases))
             inp = out / "inputs.json"
             inp.write_text(json.dumps({"cases": cases, "orbits": inputs}) + "\n")
             browser_output = out / "browser.json"
@@ -619,12 +658,12 @@ def main(argv=None):
              "input_hashes": {str(p.relative_to(REPO)): provenance.file_sha256(p) for p in
                               [args.config.resolve(), REPO / "spec/golden/tcrh_vectors.json", REPO / "spec/golden/crh_vectors.json", REPO / "tools/wireshark/tcrh.lua",
                                REPO / "web/package-lock.json"]},
-             "ns3_libraries": {str(p): provenance.file_sha256(p) for p in libraries if "-test-" not in p.name},
+             "ns3_libraries": {"ns-3-dev/build/lib/" + p.name: provenance.file_sha256(p) for p in libraries if "-test-" not in p.name},
              "selected_norads": {i["constellation"]: [r["NORAD_CAT_ID"] for r in i["records"]] for i in inputs},
              "constellation_labels": {"C5": {"orbital_elements": "REAL", "satellite_positions_sgp4": "REAL"},
                                       "C2": {"orbital_elements": "MODELLED", "satellite_positions_sgp4": "MODELLED"}},
              "path_checks": len(path_detail), "no_route_samples": sum(not p["reachable"] for p in path_detail),
-             "limitations": "Sampled geometry, not continuous-time proof; MODELLED topology and traffic, DERIVED routes; real Starlink routing UNKNOWN. Wireshark suppresses timing verdicts beyond 120 s clock margin, and its native CRH decoder cannot list SIDs when SL indexes beyond the header."}
+             "limitations": "Sampled geometry, not continuous-time proof; MODELLED topology and traffic, DERIVED routes; real Starlink routing UNKNOWN. Wireshark suppresses timing verdicts beyond 120 s clock margin, and its native CRH decoder cannot list SIDs when SL indexes beyond the header. The top-level labels describe C5 (REAL elements); C2 is a MODELLED Walker preset, see constellation_labels and the per-row labels. isl_polar_cutoff cannot fail on 53 deg shells and wire_python mostly compares Python with Python-made expectations; wire_golden_fixed, wire_browser, wire_ns3 and wire_wireshark_fields are the external references."}
     provenance.write_manifest(out, tool="experiments/E00/gate.py", tool_version=__version__,
                               command=[sys.executable, "-B", "experiments/E00/gate.py", *(argv or sys.argv[1:])],
                               config=cfg, seeds=[], snapshot=REPO / cfg["snapshot"], outputs=files,
