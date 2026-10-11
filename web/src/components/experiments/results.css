@@ -1,0 +1,58 @@
+/* Functional result controls and overflow handling; shared site tokens supply the appearance. */
+.results-explorer {
+  margin-top: var(--space-5);
+}
+.result-controls,
+.result-labels {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-4);
+  margin-block: var(--space-4);
+  align-items: end;
+}
+.result-controls label {
+  display: grid;
+  gap: var(--space-2);
+}
+.result-controls select,
+.result-controls input,
+.result-controls button {
+  max-width: 100%;
+}
+.result-chart-scroll {
+  overflow-x: auto;
+}
+.result-chart-scroll svg {
+  display: block;
+  max-width: none;
+}
+.results-explorer figure {
+  margin: var(--space-5) 0;
+}
+.results-explorer figcaption {
+  color: var(--muted);
+  margin-bottom: var(--space-3);
+}
+.result-source,
+.result-provenance dd {
+  overflow-wrap: anywhere;
+}
+.result-provenance {
+  display: grid;
+  grid-template-columns: minmax(7rem, 1fr) minmax(0, 4fr);
+  gap: var(--space-3);
+}
+.result-provenance dd {
+  margin: 0;
+}
+.result-provenance pre,
+.section details pre {
+  overflow-x: auto;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+@media (max-width: 40em) {
+  .result-provenance {
+    grid-template-columns: 1fr;
+  }
+}

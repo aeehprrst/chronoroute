@@ -9,8 +9,9 @@ import { readLatestManifest } from '../lib/data-build';
 
 const DEFAULT_ATTRIBUTION =
   'Orbit data courtesy of CelesTrak (celestrak.org); SupGP elements derived from SpaceX ephemerides.';
-const snapshot = await readLatestManifest();
-const attribution = snapshot.ok ? snapshot.manifest.attribution : DEFAULT_ATTRIBUTION;
+interface Props { evidenceOnly?: boolean; }
+const snapshot = Astro.props.evidenceOnly ? null : await readLatestManifest();
+const attribution = snapshot?.ok ? snapshot.manifest.attribution : DEFAULT_ATTRIBUTION;
 ---
 
 <footer class="site-footer">

@@ -26,6 +26,7 @@ export const NAV_ITEMS: readonly NavItem[] = [
   { path: 'live', label: 'Live globe' },
   { path: 'route', label: 'Route planner' },
   { path: 'protocol', label: 'Protocol' },
+  { path: 'experiments', label: 'Experiments' },
   { path: 'methodology', label: 'Methodology' },
   { path: 'about', label: 'About' },
 ];
