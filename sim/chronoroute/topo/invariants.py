@@ -141,14 +141,14 @@ def gsl_geometry(scenario):
 
 
 def hop_delay(scenario):
-    """Every up edge: prop is round(d/c), weight = prop + processing >= d/c."""
+    """Every up edge: nearest-ns propagation, with at most half-ns rounding."""
     g = scenario.graph
     dist = np.concatenate([scenario.isl_dist_km, scenario.gsl_dist_km])
     li, ti = np.nonzero(g.up)
     exact = geometry.light_time_ns_exact(dist[li, ti])
     prop = g.prop_ns[li, ti]
     weight = prop + g.processing_ns
-    bad = (np.abs(prop - exact) > 0.5 + 1e-6) | (weight < exact) | (prop < 0)
+    bad = (np.abs(prop - exact) > 0.5 + 1e-6) | (weight + 0.5 + 1e-6 < exact) | (prop < 0) | (g.processing_ns < 0)
     worst = float(np.max(np.abs(prop - exact))) if li.size else None
     return _result(li.size, int(np.sum(bad)), max_rounding_ns=worst,
                    processing_ns=g.processing_ns)
@@ -176,14 +176,14 @@ def path_latency(scenario, entries):
         k = e.step
         for (u, v), d_ns in zip(zip(e.path[:-1], e.path[1:]), e.hop_delays_ns):
             dist = float(np.linalg.norm(scenario.node_ecef_km(v, k) - scenario.node_ecef_km(u, k)))
-            if d_ns < geometry.light_time_ns_exact(dist):
+            if d_ns + 0.5 + 1e-6 < geometry.light_time_ns_exact(dist):
                 viol += 1
         a = scenario.ground_stations[e.src - scenario.n_sats]
         b = scenario.ground_stations[e.dst - scenario.n_sats]
         gc_ns = geometry.light_time_ns_exact(cities_mod.great_circle_km(a, b))
         ratio = e.prop_total_ns / gc_ns
         worst_ratio = ratio if worst_ratio is None else min(worst_ratio, ratio)
-        if e.prop_total_ns < gc_ns:
+        if e.prop_total_ns + 0.5 * e.num_hops + 1e-6 < gc_ns:
             viol += 1
     return _result(len(entries), viol, min_light_time_over_great_circle=worst_ratio)
 

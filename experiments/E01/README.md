@@ -35,6 +35,29 @@ preserve the evidence and commit a prospective amendment before reading
 confirmatory outcomes. Do not silently remove cells, seeds, accounting or
 null controls.
 
+After the E1 pilot, run the remaining registered cost pilots and deterministic
+replay gate from a clean, tested commit (build ns-3 first):
+
+```bash
+venv/bin/python -B experiments/E01/prerequisites.py \
+  --e1-pilot results/E01/<campaign>-pilot \
+  --out results/E01/<new-campaign>-prerequisites --workers 8
+```
+
+The E5 hook is an explicit MODELLED intervention. It invokes the ordinary
+late-policy handler with a forced checker input, recording that input and
+the actual clock separately. It adds no service delay, changes no link and
+does not count as a real deadline alarm or an FPR observation. It records
+visited-set entries and the Python set object's memory cost; the visited
+set has no support in the current wire header. Regression tests compare
+all pre-trigger paths/times and the full untriggered controls across policies.
+
+E16 exports common geometry and schedules with explicit zero processing,
+then sends exactly the same packet-ID/time list on Python and ns-3. The
+comparison reads actual queue/loss replay output from both engines; it
+does not use the light-time-only predictor. Lost packets, absent delivery
+times, paths, clocks, deadlines and header decisions remain in the check.
+
 The network, queues, jitter and faults are MODELLED. C5 elements and SGP4
 physics are REAL; C2 positions are MODELLED; routes and budgets are DERIVED.
 Starlink's operational routing is UNKNOWN and Starlink does not use T-CRH.

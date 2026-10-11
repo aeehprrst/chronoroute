@@ -57,6 +57,7 @@ COMPONENTS = {
     "link_fault": (6, 64),        # alternating-renewal up/down periods, per (fault, link)
     "node_fault": (7, 64),        # alternating-renewal satellite outages, per (fault, node)
     "sample": (8, 4096),          # which packets are traced in full, per flow
+    "experiment_target": (9, 64), # frozen controlled-deviation target, per flow (MODELLED)
 }
 
 BLOCK = 4096               # the default block size (per-flow streams)

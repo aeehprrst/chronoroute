@@ -32,6 +32,7 @@ build_lib(
     model/tcrh-timebase.h
     helper/tcrh-helper.h
     helper/leo-bundle-helper.h
+    helper/probe-times.h
   LIBRARIES_TO_LINK
     ${libinternet}
     ${libpoint-to-point}

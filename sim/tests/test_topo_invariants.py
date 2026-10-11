@@ -37,6 +37,16 @@ ORBIT_S = 95 * 60
 ROUTE_EVERY = 6                 # plan the flows once a minute (every 6th 10 s step)
 
 
+def test_zero_processing_allows_only_nearest_ns_rounding():
+    from types import SimpleNamespace
+    dist = np.array([[1.49 * geometry.C_M_PER_S / 1e12]])
+    g = SimpleNamespace(up=np.array([[True]]), prop_ns=np.array([[1]]), processing_ns=0)
+    sc = SimpleNamespace(graph=g, isl_dist_km=dist, gsl_dist_km=np.zeros((0, 1)))
+    assert invariants.hop_delay(sc)["ok"]
+    g.prop_ns[0, 0] = 0
+    assert not invariants.hop_delay(sc)["ok"]
+
+
 @cache
 def orbit():
     fleet = snapshot.load_pinned(PINNED, "supgp")

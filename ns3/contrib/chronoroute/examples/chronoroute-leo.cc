@@ -62,6 +62,7 @@
 #include "ns3/ipv6-extension-tcrh.h"
 #include "ns3/ipv6-l3-protocol.h"
 #include "ns3/leo-bundle-helper.h"
+#include "ns3/probe-times.h"
 #include "ns3/packet.h"
 #include "ns3/pcap-file-wrapper.h"
 #include "ns3/point-to-point-net-device.h"
@@ -647,6 +648,8 @@ main(int argc, char* argv[])
     std::string dataRate = "1Gbps";
     std::string queueSize = "100p";
     int64_t drainMs = 2000;
+    int64_t sendStopMs = -1;
+    std::string sendTimes;
     bool pcap = true;
     std::string pcapNodesArg;
     bool anim = false;
@@ -671,6 +674,8 @@ main(int argc, char* argv[])
     cmd.AddValue("dataRate", "data rate of every link", dataRate);
     cmd.AddValue("queueSize", "DropTail size of every device queue", queueSize);
     cmd.AddValue("drainMs", "simulated time after the last probe", drainMs);
+    cmd.AddValue("sendStopMs", "end of sending window, within exported truth (-1: bundle window)", sendStopMs);
+    cmd.AddValue("sendTimes", "explicit CSV flow_id,seq,send_ns shared with another engine", sendTimes);
     cmd.AddValue("pcap", "write capture.pcap", pcap);
     cmd.AddValue("pcapNodes", "bundle node ids to capture at, comma separated (default: auto)", pcapNodesArg);
     cmd.AddValue("anim", "NetAnim slice run: build only satellites around the fault flow", anim);
@@ -722,7 +727,8 @@ main(int argc, char* argv[])
     std::vector<uint32_t> flows = bundle.Flows();
     std::vector<bool> include;
     int64_t sendFromNs = 0;
-    int64_t sendToNs = windowNs;
+    int64_t sendToNs = sendStopMs < 0 ? windowNs : sendStopMs * 1000000;
+    NS_ABORT_MSG_UNLESS(sendToNs > 0 && sendToNs <= windowNs, "invalid sending window");
     if (anim)
     {
         if (animFromMs < 0)
@@ -867,8 +873,26 @@ main(int argc, char* argv[])
         g_flows.push_back(fs);
     }
     uint64_t scheduledProbes = 0;
+    std::map<uint32_t, std::vector<std::pair<uint32_t, int64_t>>> explicitTimes;
+    if (!sendTimes.empty())
+    {
+        std::ifstream input(sendTimes);
+        explicitTimes = tcrh::ReadProbeTimes(input, flows, sendToNs);
+    }
     for (uint32_t fi = 0; fi < g_flows.size(); ++fi)
     {
+        if (!sendTimes.empty())
+        {
+            for (const auto& [seq, tp] : explicitTimes.at(g_flows[fi].flow))
+            {
+                if (tp >= sendFromNs)
+                {
+                    Simulator::Schedule(NanoSeconds(tp), &SendProbe, fi, seq);
+                    scheduledProbes++;
+                }
+            }
+            continue;
+        }
         // probe n at offset + n * interval; seq = n in every mode
         for (int64_t tp = g_flows[fi].offsetNs, n = 0; tp < sendToNs; tp += intervalNs, ++n)
         {

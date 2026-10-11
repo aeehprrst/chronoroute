@@ -25,6 +25,33 @@ def small_config(**kw):
     return bundle.BundleConfig(**base)
 
 
+def test_zero_processing_bundle_is_explicit_and_changes_the_budgets():
+    cfg = small_config(processing_ns=0)
+    b = bundle.build_bundle(fleet(), cfg, sids.SidRegistry.load())
+    assert b.scenario.graph.processing_ns == 0
+    assert cfg.as_dict()["processing_ns"] == 0
+    assert bundle.scenario_doc(b, {})["models"]["delay"]["processing_ns"] == 0
+    for *_, entry in b.entries:
+        assert entry.hop_delays_ns == entry.prop_ns
+    with pytest.raises(ValueError):
+        small_config(processing_ns=-1).validate()
+
+
+def test_synthetic_bundle_labels_and_input_hashes(tmp_path):
+    from chronoroute.fwd import presets
+    from chronoroute.orbit import planes
+    f = presets.walker_fleet(presets.WALKER_PRESETS["C2"], T0)
+    shell = planes.build_fleet_geometry(f.records, T0, satrecs=f.satrecs).shells[0].shell_id
+    cfg = small_config(shell_id=shell, window_ms=1000)
+    b = bundle.build_bundle(f, cfg, sids.SidRegistry.load())
+    bundle.write_bundle(b, tmp_path, command=["unit-fixture", "walker"])
+    m = provenance.validate_manifest(tmp_path / "manifest.json")
+    d = json.loads((tmp_path / "scenario.json").read_text())
+    assert d["labels"]["satellite_positions_sgp4"] == "MODELLED"
+    assert "REAL" not in d["shell"]["label"]
+    assert (tmp_path / "synthetic_omm.json").is_file()
+
+
 @cache
 def fleet():
     return snapshot.load_pinned(PINNED, "supgp")

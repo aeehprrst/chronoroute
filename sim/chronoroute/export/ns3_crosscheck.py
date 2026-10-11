@@ -403,6 +403,55 @@ def read_packets(path):
     return out
 
 
+def compare_replays(run, packets):
+    """Compare actual Python queue/loss replay with actual ns-3 packet output.
+
+    This uses no light-time predictor. Lost packets remain in the inventory,
+    with absent delivery timestamps compared consistently. Every recorded
+    arrival, clock, deadline, path, header decision and outcome is checked.
+    """
+    other, duplicate = {}, 0
+    for row in packets:
+        key = (row["flow_id"], row["seq"])
+        duplicate += key in other
+        other[key] = row
+    mine = {(int(run.flow[i]), int(run.seq[i])): i for i in range(run.n)}
+    examples = [{"packet": list(k), "field": "packet_inventory"} for k in sorted(set(mine) ^ set(other))]
+    violations = len(examples) + duplicate
+    checked = 0
+    outcomes = {"delivered": (0, ""), "drop_queue": (1, "buffer_overflow"),
+                "drop_link_down": (1, "next_link_down"), "drop_iface_down": (1, "in_flight_link_down"),
+                "no_route": (2, "no_route"), "pending": (3, "unfinished")}
+    for key in sorted(set(mine) & set(other)):
+        i, row = mine[key], other[key]
+        outcome, reason = outcomes.get(row["outcome"], (-999, row["outcome"]))
+        schedule = run.schedule.get((key[0], int(run.row_from_ms[i])))
+        fields = {
+            "send_ns": (int(run.send_ns[i]), row["send_ns"]),
+            "outcome": (int(run.outcome[i]), outcome),
+            "drop_reason": (run.reason[i] if outcome == 1 else "", reason if outcome == 1 else ""),
+            "latency_ns": (int(run.latency_ns[i]), -1 if row["latency_ns"] is None else row["latency_ns"]),
+            "path": (list(map(int, run.paths[i])), row["taken_path"]),
+            "planned_path": (list(schedule["path"]) if schedule else [], row["planned_path"]),
+            "arrival_ns": (list(map(int, run.arr_ns(i))), row["hop_t_ns"]),
+            "arrival_u": (list(map(int, run.arrival_u[i])), row["hop_now_u"]),
+            "deadline_u": (list(map(int, run.deadline_u[i])), row["hop_deadline_u"]),
+            "first_late": (int(run.first_late[i]), -1 if row["first_late_hop"] is None else row["first_late_hop"]),
+            "dev": (bool(run.dev[i]), bool(row["dev"])),
+            "dev_hop": (max(0, int(run.dev_hop[i])), row["dev_hop"]),
+            "row_from_ms": (int(run.row_from_ms[i]), -1 if row["row_from_ms"] is None else row["row_from_ms"]),
+            "wire_bytes": (int(run.wire[i]), row["wire_bytes"]),
+        }
+        for field, (left, right) in fields.items():
+            checked += 1
+            if left != right:
+                violations += 1
+                if len(examples) < 20:
+                    examples.append({"packet": list(key), "field": field, "python": left, "ns3": right})
+    return {"packets_python": run.n, "packets_ns3": len(packets), "checked_fields": checked,
+            "duplicate_ns3_ids": duplicate, "violations": violations, "examples": examples}
+
+
 # ======================================================================= cross-check
 
 def _quantiles(values, qs=(0.0, 0.5, 0.99, 1.0)):

@@ -101,7 +101,7 @@ def write_scheme_events(path, detections):
     raw.close()
 
 
-def run_scheme(cfg, scheme, out_dir, *, argv=None, write_manifest=True, run_extra=None):
+def run_scheme(cfg, scheme, out_dir, *, argv=None, write_manifest=True, run_extra=None, engine_factory=SchemeEngine):
     """Run one scheme. Returns (summary, written paths). cfg and scheme are normalised dicts.
     run_extra: further top-level run.json keys (fwd/rerun.py adds "rerun")."""
     out_dir = Path(out_dir)
@@ -116,7 +116,7 @@ def run_scheme(cfg, scheme, out_dir, *, argv=None, write_manifest=True, run_extr
     # the pcap writer shows T-CRH bytes; only the chronoroute scheme really carries them
     frames = [] if (out["pcap"] and scheme["name"] == "chronoroute") else None
     try:
-        eng = SchemeEngine(sc, scheme, trace=events, packets_csv=packets, pcap_frames=frames, extras=extras)
+        eng = engine_factory(sc, scheme, trace=events, packets_csv=packets, pcap_frames=frames, extras=extras)
         summary = eng.run()
         eng.finish_control()
     except BaseException:

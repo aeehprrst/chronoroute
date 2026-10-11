@@ -45,7 +45,7 @@ The exact formats are in docs/bundle-format.md. Design choices:
 import json
 import os
 import tempfile
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, replace
 from pathlib import Path
 
 import numpy as np
@@ -109,8 +109,11 @@ class BundleConfig:
     grid: isl_grid4.Grid4Params = field(default_factory=isl_grid4.Grid4Params)
     gsl: gsl_mod.GslParams = field(default_factory=gsl_mod.GslParams)
     plan_links: str = PLAN_STABLE
+    processing_ns: int = geometry.PROCESSING_NS
 
     def validate(self):
+        if isinstance(self.processing_ns, bool) or not isinstance(self.processing_ns, int) or self.processing_ns < 0:
+            raise ValueError("processing_ns must be a nonnegative integer")
         if self.plan_links not in PLAN_MODES:
             raise ValueError(f"plan_links must be one of {PLAN_MODES}, got {self.plan_links!r}")
         for name in ("window_ms", "step_ms", "position_step_ms", "refresh_ms"):
@@ -141,7 +144,7 @@ class BundleConfig:
             "flows": [[s, d] for s, d in self.flows], "slack": str(scheduler.exact_slack(self.slack)),
             "unit_code": self.unit_code, "next_header": self.next_header,
             "isl_model": {"name": isl_grid4.MODEL_NAME, **self.grid.as_dict()},
-            "gsl_model": self.gsl.as_dict(), "processing_ns": geometry.PROCESSING_NS,
+            "gsl_model": self.gsl.as_dict(), "processing_ns": self.processing_ns,
         }
 
 
@@ -171,6 +174,7 @@ def build_bundle(fleet, config, registry):
     times = [config.t0_ns + k * config.step_ms * NS_PER_MS for k in range(n_steps + 1)]
     sc = graph_mod.build_scenario(fleet, config.shell_id, stations, times, registry=registry,
                                   grid_params=config.grid, gsl_params=config.gsl)
+    sc = replace(sc, graph=replace(sc.graph, processing_ns=config.processing_ns))
 
     flows = []
     for fid, (src, dst) in enumerate(config.flows):
@@ -345,6 +349,12 @@ def scenario_doc(b, snapshot_info):
     t0_gps = scheduler.utc_ns_to_gps_ns(cfg.t0_ns)
     unit = timebase.unit_ns(cfg.unit_code)
     shell = sc.shell
+    synthetic = sc.fleet.layout == "synthetic"
+    output_labels = dict(LABELS)
+    output_notes = dict(LABEL_NOTES)
+    if synthetic:
+        output_labels.update(orbital_elements="MODELLED", satellite_positions_sgp4="MODELLED")
+        output_notes["satellite_positions_sgp4"] = "SGP4 physics on MODELLED Walker element sets"
     counts = {
         "nodes": sc.graph.n_nodes, "satellites": sc.n_sats, "ground_stations": len(sc.ground_stations),
         "isl_links": int(len(sc.isl_a)), **{f"isl_{k}": v for k, v in sc.grid4.counts().items()},
@@ -354,8 +364,8 @@ def scenario_doc(b, snapshot_info):
     }
     return {
         "schema": SCHEMA,
-        "labels": LABELS,
-        "label_notes": LABEL_NOTES,
+        "labels": output_labels,
+        "label_notes": output_notes,
         "snapshot": snapshot_info,
         "shell": {
             "shell_id": shell.shell_id, "layer": shell.shell.layer,
@@ -365,7 +375,7 @@ def scenario_doc(b, snapshot_info):
             "off_grid_left_out": sc.excluded["off_grid"], "n_planes": len(shell.planes),
             "plane_quality": round(float(shell.quality["score"]), 4),
             "shares_planes_with": shell.shell.shares_planes_with,
-            "label": "DERIVED (inferred from REAL element sets)",
+            "label": "DERIVED (inferred from MODELLED element sets)" if synthetic else "DERIVED (inferred from REAL element sets)",
         },
         "time": {
             "t0_utc": omm.format_utc_ns(cfg.t0_ns), "t0_unix_ns": cfg.t0_ns, "t0_gps_ns": t0_gps,
@@ -390,7 +400,7 @@ def scenario_doc(b, snapshot_info):
                         ("a schedule row uses the links that are up at valid_from only (links may "
                          "go down inside the interval; Sprint A variant)"),
             },
-            "delay": {"speed_of_light_m_s": geometry.C_M_PER_S, "processing_ns": geometry.PROCESSING_NS,
+            "delay": {"speed_of_light_m_s": geometry.C_M_PER_S, "processing_ns": cfg.processing_ns,
                       "delay_ns": "round(distance / c) to the nearest ns (halves up); -1 if a position is missing",
                       "edge_weight_ns": "delay_ns + processing_ns (what the router minimises)",
                       "between_steps": "linear interpolation of delay_ns between the two neighbouring "
@@ -418,7 +428,9 @@ def scenario_doc(b, snapshot_info):
 
 def snapshot_info_of(fleet):
     """Snapshot identity for scenario.json and the manifest."""
-    if fleet.layout == "pinned":
+    if fleet.layout == "synthetic":
+        snap = {"id": fleet.snapshot_id, "sha256": fleet.sha256_raw, "sha256_of": "synthetic_omm.json"}
+    elif fleet.layout == "pinned":
         snap = provenance.snapshot_from_dir(fleet.folder)
     else:
         omm_path = Path(fleet.folder) / snapshot.WEB_OMM
@@ -440,6 +452,12 @@ def write_bundle(b, out_dir, *, command, timer=None):
     writers = {"nodes.csv": _write_nodes, "isl.csv": _write_isl, "isl_delay.csv": _write_isl_delay,
                "gsl.csv": _write_gsl, "positions.csv": _write_positions, "schedule.csv": _write_schedule}
     paths = {}
+    if b.scenario.fleet.layout == "synthetic":
+        from ..fwd.presets import walker_omm_bytes, WALKER_PRESETS
+        name = b.scenario.fleet.snapshot_id.removeprefix("synthetic-walker-")
+        raw = walker_omm_bytes(WALKER_PRESETS[name], b.config.t0_ns)
+        (out_dir / "synthetic_omm.json").write_bytes(raw)
+        paths["synthetic_omm.json"] = out_dir / "synthetic_omm.json"
     for name, writer in writers.items():
         with _AtomicText(out_dir / name) as fh:
             writer(fh, b)
@@ -452,7 +470,7 @@ def write_bundle(b, out_dir, *, command, timer=None):
               **b.config.as_dict()}
     manifest = provenance.write_manifest(
         out_dir, tool="cr export bundle", tool_version=__version__, command=command, config=config,
-        seeds=[], snapshot=snap, outputs=list(paths.values()), labels=LABELS,
+        seeds=[], snapshot=snap, outputs=list(paths.values()), labels=doc["labels"],
         extra={"bundle_schema": SCHEMA, "counts": doc["counts"], "invariants_all_ok": b.invariants["all_ok"],
                "spec": "tcrh-v1"},
         timer=timer)
