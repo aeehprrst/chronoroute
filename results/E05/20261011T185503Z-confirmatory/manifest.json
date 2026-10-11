@@ -1,0 +1,2395 @@
+{
+  "command": "/home/aeehprrst/chronoroute/venv/bin/python -B /home/aeehprrst/chronoroute/experiments/policy_campaign.py --out results/E05/20261011T185503Z-confirmatory --workers 8 --prior results/E04/20261011T185503Z-collected --experiment E05",
+  "config": {
+    "analysis_seed": 91000,
+    "bootstrap_resamples": 10000,
+    "campaign": {
+      "cell_id": "full-registered-grid",
+      "experiment": "E05",
+      "pair_id": "balanced-18",
+      "phase": "confirmatory",
+      "prereg_git_sha": "b87f08a7cc9431d139bf66372f03133035494b8c",
+      "prereg_path": "experiments/PREREG.md",
+      "prereg_sha256": "1d1541f60be8411f565c5eda4e64322354c276a7321181e2ee9ee92f065ea5d3",
+      "seed": null
+    },
+    "workers": 8
+  },
+  "config_sha256": "6cdfbf1c65becdefa1499f461e68ccf145296cd2082f768a94c1de85e093d95b",
+  "dirty": false,
+  "ended_utc": "2026-10-11T19:01:20.883292Z",
+  "extra": {
+    "campaign": {
+      "cell_id": "full-registered-grid",
+      "experiment": "E05",
+      "pair_id": "balanced-18",
+      "phase": "confirmatory",
+      "prereg_git_sha": "b87f08a7cc9431d139bf66372f03133035494b8c",
+      "prereg_path": "experiments/PREREG.md",
+      "prereg_sha256": "1d1541f60be8411f565c5eda4e64322354c276a7321181e2ee9ee92f065ea5d3",
+      "seed": null
+    },
+    "complete": true,
+    "inputs": [
+      {
+        "path": "/home/aeehprrst/chronoroute/results/E01/20261011T154940Z-confirmatory-resumed/manifest.json",
+        "sha256": "8792397240710809e1f897f693b60962c6a54702920767ee8d82437c9c3a735f"
+      },
+      {
+        "path": "/home/aeehprrst/chronoroute/results/E01/20261011T154940Z-confirmatory-resumed/runtime.json",
+        "sha256": "b876099f08f21e632c0725a862dc4d8246197a8a7ecaba9dd60f4ce40cb97e97"
+      },
+      {
+        "path": "/home/aeehprrst/chronoroute/results/E01/20261011T130817Z-calibration/manifest.json",
+        "sha256": "8b3aa6900c7f0ead8de9d380a82ffd20d6a94b467a3f8277fefdd347dcf1d093"
+      },
+      {
+        "path": "/home/aeehprrst/chronoroute/results/E01/20261011T130817Z-calibration/resource_forecast.json",
+        "sha256": "785eeade8db19a8cd3547a00c964c9f2425d1202205c70741eaba12a78dac2f3"
+      },
+      {
+        "path": "/home/aeehprrst/chronoroute/results/E00/20261011T100448Z/manifest.json",
+        "sha256": "b1f58b7d21c330f4b67b1208c30e8e461a237b57229e1e1f0ed4e03de3cb1dd6"
+      },
+      {
+        "path": "/home/aeehprrst/chronoroute/results/E05/20261011T185503Z-confirmatory-raw/manifest.json",
+        "sha256": "7ee09d9f26ef0353262ae3e3eb826e0acd69b614e7be20fec02f1e9f784440ab"
+      },
+      {
+        "path": "results/E04/20261011T185503Z-collected/manifest.json",
+        "sha256": "9fb6277632ed790a270125a4ac3c0aca36aa5fb0ffc57c127b2d0a3c1ed15f70"
+      },
+      {
+        "path": "results/E04/20261011T185503Z-collected/runtime.json",
+        "sha256": "4cf24ff8a5aa1d2975668cb61c003b8e08f172f58a1e946bc08bb59816427b30"
+      }
+    ],
+    "raw_cache": "/home/aeehprrst/chronoroute/results/E05/20261011T185503Z-confirmatory-raw",
+    "synthetic_positions": "C2 elements and positions MODELLED"
+  },
+  "git_sha": "a18cffb6da450ea4449acf46f455b474fee2dcbf",
+  "host": {
+    "cpu_model": "13th Gen Intel(R) Core(TM) i9-13900H",
+    "logical_cores": 20,
+    "machine": "x86_64",
+    "platform": "Linux-6.18.33.2-microsoft-standard-WSL2-x86_64-with-glibc2.43",
+    "ram_bytes": 8131358720
+  },
+  "labels": {
+    "isl_topology_grid4": "MODELLED",
+    "link_rate_and_queues": "MODELLED",
+    "orbital_elements": "REAL",
+    "routes_and_budgets": "DERIVED",
+    "traffic_probes": "MODELLED"
+  },
+  "outputs": [
+    {
+      "path": "REPORT.md",
+      "sha256": "2221f2f2d20949743c5df1506caf5f8270d31b88b9bc5ac0f835926fa7964b41",
+      "size_bytes": 1443
+    },
+    {
+      "path": "city_descriptive.csv",
+      "sha256": "4fb79c6eef24271ac4392dcdc72ebc083426a7a77ededb8600e0adfeefcfb870",
+      "size_bytes": 13165
+    },
+    {
+      "path": "configs/C2-continue-trigger-s1000.json",
+      "sha256": "80b63cfcbfd94d0b5404e902bf3d1ba209450ec52b52be484ba6e6562c8c8f02",
+      "size_bytes": 3706
+    },
+    {
+      "path": "configs/C2-continue-trigger-s1001.json",
+      "sha256": "ff768aa987542b5d173d08cdede96fc85c7474829063ae8f6ba42dcb5aa31ce0",
+      "size_bytes": 3706
+    },
+    {
+      "path": "configs/C2-continue-trigger-s1002.json",
+      "sha256": "f43dc279f4393e0b1f1f58733f8728618783e69120f7898ad791f504722e0f3d",
+      "size_bytes": 3712
+    },
+    {
+      "path": "configs/C2-continue-trigger-s1003.json",
+      "sha256": "7248057e01cf82d3e542270fd3c2c83ae1e0407058432cfbe0d65f442ca1e33f",
+      "size_bytes": 3714
+    },
+    {
+      "path": "configs/C2-continue-trigger-s1004.json",
+      "sha256": "e671ad63a894fae2609776f4979b5bad853eb04c831548b3bb33fa7c49a721f4",
+      "size_bytes": 3716
+    },
+    {
+      "path": "configs/C2-continue-trigger-s1005.json",
+      "sha256": "92485659298c7a3c7327cd2716ccb69b5cab078a69901b813e66dec8d775a236",
+      "size_bytes": 3712
+    },
+    {
+      "path": "configs/C2-continue-trigger-s1006.json",
+      "sha256": "d45ea50b3fa7640d4a614f6af1b96f5392eca40803919d79b468c48946fffd7f",
+      "size_bytes": 3711
+    },
+    {
+      "path": "configs/C2-continue-trigger-s1007.json",
+      "sha256": "3bd8a5c0e9fb0d344be6c82d429fbedcd5a0bd6cfe0cda40176af18da10828f5",
+      "size_bytes": 3704
+    },
+    {
+      "path": "configs/C2-continue-trigger-s1008.json",
+      "sha256": "806534bc30d8ef03fa31ea32509043d0c2796220b24a887dfceadf12ad2b426b",
+      "size_bytes": 3713
+    },
+    {
+      "path": "configs/C2-continue-trigger-s1009.json",
+      "sha256": "21893cfd161d54e3c84a12fa92c07c8b5b38f2e12cc8a2a5c88d355fa8fb8677",
+      "size_bytes": 3710
+    },
+    {
+      "path": "configs/C2-continue-trigger-s1010.json",
+      "sha256": "aabf518ec0147a095320433220d27bab74986753ad88f0e47bd8d1d0d814f732",
+      "size_bytes": 3720
+    },
+    {
+      "path": "configs/C2-continue-trigger-s1011.json",
+      "sha256": "02158bf62f1391575a525b5e215194a46589edb41cdadf85d751de4b3680d639",
+      "size_bytes": 3719
+    },
+    {
+      "path": "configs/C2-continue-trigger-s1012.json",
+      "sha256": "8914ff4f814d9e89abb919c888be234351283ca69b14f4cde3ad5f20393cb283",
+      "size_bytes": 3722
+    },
+    {
+      "path": "configs/C2-continue-trigger-s1013.json",
+      "sha256": "283ada093cf540abf3e6eec21db84ec7c02fbe5af51edd964197ec847f2d3d8f",
+      "size_bytes": 3718
+    },
+    {
+      "path": "configs/C2-continue-trigger-s1014.json",
+      "sha256": "39ea78aeb09bd3a64f264ebf56b6bf8fae3fbdb4eca0bbb3cdee6d790006d337",
+      "size_bytes": 3706
+    },
+    {
+      "path": "configs/C2-continue-trigger-s1015.json",
+      "sha256": "0b3a3c3f7cf79c93256a1c44db4932148fe9398d9ac2e7ebadf7473057508ddf",
+      "size_bytes": 3718
+    },
+    {
+      "path": "configs/C2-continue-trigger-s1016.json",
+      "sha256": "19086f2a834d75862e3a7494c4788f2dd5685e6d51c65cd735e18d5acc59d391",
+      "size_bytes": 3714
+    },
+    {
+      "path": "configs/C2-continue-trigger-s1017.json",
+      "sha256": "f173597294f6d37ce545ad08dff83be2623fcd9fbabbde1ba102e1e3590e4516",
+      "size_bytes": 3715
+    },
+    {
+      "path": "configs/C2-continue-trigger-s1018.json",
+      "sha256": "aec487d08cd4f4b19c0d554c5a08370a10a2480ea32f41b4d48d92937df13619",
+      "size_bytes": 3706
+    },
+    {
+      "path": "configs/C2-continue-trigger-s1019.json",
+      "sha256": "45afc70e82fb16b9f50c7ed2cb9069bd8685fe32e68b9a467ef928ec98484657",
+      "size_bytes": 3706
+    },
+    {
+      "path": "configs/C2-continue-trigger-s1020.json",
+      "sha256": "0aa6b535b07772c05fb4e387fb8aca11e39db11e6f66a619b1668d4b800bef10",
+      "size_bytes": 3712
+    },
+    {
+      "path": "configs/C2-continue-trigger-s1021.json",
+      "sha256": "c4f3f007f6bfba9481bd1250a345c6f7c9aedb7da8a0173c2f641b4870ffd1b2",
+      "size_bytes": 3714
+    },
+    {
+      "path": "configs/C2-continue-trigger-s1022.json",
+      "sha256": "a88b4a54bde7ce95d5a15cd8708768487f73615496c00606714e690c82bc1def",
+      "size_bytes": 3716
+    },
+    {
+      "path": "configs/C2-continue-trigger-s1023.json",
+      "sha256": "ab7d4cb85464db374c9cdb63b34317c3b6d3dbbb3a19e9fa7d482f08f302382e",
+      "size_bytes": 3712
+    },
+    {
+      "path": "configs/C2-continue-trigger-s1024.json",
+      "sha256": "bfe0d7cf9c0b26ef54a4f875a42a4d54b9f3745cdcd1182a37ef973d120692fe",
+      "size_bytes": 3711
+    },
+    {
+      "path": "configs/C2-continue-trigger-s1025.json",
+      "sha256": "1d9350b025e01a199085db6f34ca289efa69dfe64c28c0df0e94aaa9d18f7448",
+      "size_bytes": 3704
+    },
+    {
+      "path": "configs/C2-continue-trigger-s1026.json",
+      "sha256": "bc627a7f773f53e73fd0bffdfbd0cd13139998a73a01503293795ce3dc722fa3",
+      "size_bytes": 3713
+    },
+    {
+      "path": "configs/C2-continue-trigger-s1027.json",
+      "sha256": "b7d5384f15e36f9c23cf12260acd9304edaa30902b6ff72af7abb35278fbbb8b",
+      "size_bytes": 3710
+    },
+    {
+      "path": "configs/C2-continue-trigger-s1028.json",
+      "sha256": "59c97a6c93194c309a2c873d67458b013af6f1d57d63601b8a9eba6a73d0908c",
+      "size_bytes": 3720
+    },
+    {
+      "path": "configs/C2-continue-trigger-s1029.json",
+      "sha256": "8a1179e8517b3c5c1cb075d373c08409517625bcb3d16f3fd53448483df7df17",
+      "size_bytes": 3719
+    },
+    {
+      "path": "configs/C2-continue-trigger-s1030.json",
+      "sha256": "698bbf48bcfed531ce6a06f0d1108370ab2f3c873ad040cd98d3720945d9caa5",
+      "size_bytes": 3722
+    },
+    {
+      "path": "configs/C2-continue-trigger-s1031.json",
+      "sha256": "ca7e1d4072bb939d9e31c101343651ff117fc1625255f28d92c737ff24003064",
+      "size_bytes": 3718
+    },
+    {
+      "path": "configs/C2-continue-trigger-s1032.json",
+      "sha256": "2e35c4b6ceb8cb94c1f6605df1912a8591e9b916fa5a4e215fdff278a85f8492",
+      "size_bytes": 3706
+    },
+    {
+      "path": "configs/C2-continue-trigger-s1033.json",
+      "sha256": "0a9c9643d8a0bfcb4122da88873baa447a0f16e4d33835a70786ef8921dc2bb4",
+      "size_bytes": 3718
+    },
+    {
+      "path": "configs/C2-continue-trigger-s1034.json",
+      "sha256": "49501a88a6f6b27a6d84d3719cde207042fa261a45f49304b8640e84acd5ad56",
+      "size_bytes": 3714
+    },
+    {
+      "path": "configs/C2-continue-trigger-s1035.json",
+      "sha256": "dab6a4e4537bcbd7c7469be0df026c62def6ee6614b11b487936923e3b9aa8f3",
+      "size_bytes": 3715
+    },
+    {
+      "path": "configs/C2-drop-trigger-s1000.json",
+      "sha256": "4640a9193ec7788484ba68b3426bea63fa50772e3e833f9a964cb9947a3a8a00",
+      "size_bytes": 3690
+    },
+    {
+      "path": "configs/C2-drop-trigger-s1001.json",
+      "sha256": "238ca8793a12b041669402481fa161efc2f990d337a71b2d03367f4bba07e406",
+      "size_bytes": 3690
+    },
+    {
+      "path": "configs/C2-drop-trigger-s1002.json",
+      "sha256": "4cea0d4c4f8a3e9c5318b377da934ee45f90019cf1fb297727273127e8a3b854",
+      "size_bytes": 3696
+    },
+    {
+      "path": "configs/C2-drop-trigger-s1003.json",
+      "sha256": "c83bdc0a6296d44217e76396c46732eae548ae88c92341ca1a182dc1dee8c098",
+      "size_bytes": 3698
+    },
+    {
+      "path": "configs/C2-drop-trigger-s1004.json",
+      "sha256": "fd318d983fde9fc81a0773c6d592dad577fda58dd0cf3f07e978c9c71288699d",
+      "size_bytes": 3700
+    },
+    {
+      "path": "configs/C2-drop-trigger-s1005.json",
+      "sha256": "507d2f0208947332a74b2e3841624cdff13d083ec6f18662789b182c5e2cba22",
+      "size_bytes": 3696
+    },
+    {
+      "path": "configs/C2-drop-trigger-s1006.json",
+      "sha256": "994fb92209c60fac0ee5f28c4ae6118d4f7b013fa4e196ec39be4b5d14c4d070",
+      "size_bytes": 3695
+    },
+    {
+      "path": "configs/C2-drop-trigger-s1007.json",
+      "sha256": "78ec4353f9e7f60bb497f2cf693a2c79b61082144744755a425a6b468be4c409",
+      "size_bytes": 3688
+    },
+    {
+      "path": "configs/C2-drop-trigger-s1008.json",
+      "sha256": "0faf344b5e4927fbc81f07255f31a9d738a1648a5f800959fe0d2771e44fdcdb",
+      "size_bytes": 3697
+    },
+    {
+      "path": "configs/C2-drop-trigger-s1009.json",
+      "sha256": "0b3d50c3c3b4a9f7067e4090b053b9e1ddf218051e2ccf163a809c33719e081d",
+      "size_bytes": 3694
+    },
+    {
+      "path": "configs/C2-drop-trigger-s1010.json",
+      "sha256": "490a9c621e6474f1c97fe57648c6c8e10188ae5f84affa5c60314b17d422463a",
+      "size_bytes": 3704
+    },
+    {
+      "path": "configs/C2-drop-trigger-s1011.json",
+      "sha256": "f777172b34302f278435a5d3c5b412df5be08ef8fc5561cce1f326c4a3f8ba14",
+      "size_bytes": 3703
+    },
+    {
+      "path": "configs/C2-drop-trigger-s1012.json",
+      "sha256": "fdb072ed71bfab5f4bac65011ca20c77d5f251dc5506ab31b88477d66b8c2868",
+      "size_bytes": 3706
+    },
+    {
+      "path": "configs/C2-drop-trigger-s1013.json",
+      "sha256": "47c71043d3237b102dc76bf6f74fe5a9a1bbd4a45a3f65ba4d6424e15a606dbf",
+      "size_bytes": 3702
+    },
+    {
+      "path": "configs/C2-drop-trigger-s1014.json",
+      "sha256": "66aebe94a82c306ac2e60a92e8e9d1c7fec9f8a20b7a475131bf7c390bf02f1e",
+      "size_bytes": 3690
+    },
+    {
+      "path": "configs/C2-drop-trigger-s1015.json",
+      "sha256": "2b44a3f62e611de06c3ee453a70e5762970a49ef8da1445b021239e2a1989c20",
+      "size_bytes": 3702
+    },
+    {
+      "path": "configs/C2-drop-trigger-s1016.json",
+      "sha256": "091e89bf16fc00fedde15ac2527f4ed2fdf82430994e04479278353944bc3fdf",
+      "size_bytes": 3698
+    },
+    {
+      "path": "configs/C2-drop-trigger-s1017.json",
+      "sha256": "232d202a15683f0f86f404c0f4e5da9d49ded71b8649d5d52739390e6221e670",
+      "size_bytes": 3699
+    },
+    {
+      "path": "configs/C2-drop-trigger-s1018.json",
+      "sha256": "2453b41f0688651d7e5b7b2ca2dd35798097274022c26594f201345fda451180",
+      "size_bytes": 3690
+    },
+    {
+      "path": "configs/C2-drop-trigger-s1019.json",
+      "sha256": "9d670f6c4e3078220e9e033370acfef69a749ba40ab22932f3871378deef8f0e",
+      "size_bytes": 3690
+    },
+    {
+      "path": "configs/C2-drop-trigger-s1020.json",
+      "sha256": "f23ab40de61a52ada3ee975c8b1b536d625c410556dfd69508031752d99ee662",
+      "size_bytes": 3696
+    },
+    {
+      "path": "configs/C2-drop-trigger-s1021.json",
+      "sha256": "b86fb5baf0b05e69f33ad15796b9f09e32b40f38f404a4067ae3d54c0c555e3a",
+      "size_bytes": 3698
+    },
+    {
+      "path": "configs/C2-drop-trigger-s1022.json",
+      "sha256": "14b81981375ec1c5ecea359ea0f428c5e5422e4984d620a1614f0950d23891dc",
+      "size_bytes": 3700
+    },
+    {
+      "path": "configs/C2-drop-trigger-s1023.json",
+      "sha256": "70df9a2670058227076cc720d18ca0888415e8393d611f645effadb1d501e375",
+      "size_bytes": 3696
+    },
+    {
+      "path": "configs/C2-drop-trigger-s1024.json",
+      "sha256": "be552a0ff22d10804290ae216f873e4904c1bc68ff1b6e8b12a42e0c6c8c508c",
+      "size_bytes": 3695
+    },
+    {
+      "path": "configs/C2-drop-trigger-s1025.json",
+      "sha256": "6d024e5b8461164957428f41df26464ce7fd17d7120b0a68f34f2ec036aeb249",
+      "size_bytes": 3688
+    },
+    {
+      "path": "configs/C2-drop-trigger-s1026.json",
+      "sha256": "fcf39efdd37a42abd01d01803d6679cc950a3a915d5fd3f4a936176b8d1d7c1e",
+      "size_bytes": 3697
+    },
+    {
+      "path": "configs/C2-drop-trigger-s1027.json",
+      "sha256": "1046e73c1594587a07eefd7438907fee3a3976a1669e1d138b91f01dd29f0053",
+      "size_bytes": 3694
+    },
+    {
+      "path": "configs/C2-drop-trigger-s1028.json",
+      "sha256": "241cf6abac5de323ed5a7d21d3aabcea669222a3553fe1d9ffa3837b9cd4daec",
+      "size_bytes": 3704
+    },
+    {
+      "path": "configs/C2-drop-trigger-s1029.json",
+      "sha256": "a6784d22511d872278ce27278781b38bca8334e54444f3aabc0a6e16ff5df82d",
+      "size_bytes": 3703
+    },
+    {
+      "path": "configs/C2-drop-trigger-s1030.json",
+      "sha256": "abe7e45ec49f6cd2ca1aa036264e2606984995b0c2988d7fd430de002093f28d",
+      "size_bytes": 3706
+    },
+    {
+      "path": "configs/C2-drop-trigger-s1031.json",
+      "sha256": "23e0234c42d171717c1e28afa16088062e672a19b8d53fab836aec710e882bab",
+      "size_bytes": 3702
+    },
+    {
+      "path": "configs/C2-drop-trigger-s1032.json",
+      "sha256": "ee9206566fd9db55bc3e5eae554dc5febb063f74d1f22d769095b5378cb93a12",
+      "size_bytes": 3690
+    },
+    {
+      "path": "configs/C2-drop-trigger-s1033.json",
+      "sha256": "8b870564071d8f97d738655c2b34568885ba5961958a17beab110ff170fac9fc",
+      "size_bytes": 3702
+    },
+    {
+      "path": "configs/C2-drop-trigger-s1034.json",
+      "sha256": "c5dabfd8516dedc220bd8aea0f6ba840fddbfc42f3d33b980c4cf61a42bc5de4",
+      "size_bytes": 3698
+    },
+    {
+      "path": "configs/C2-drop-trigger-s1035.json",
+      "sha256": "b3d21ff1ddcdbc32212972995d74eb80358aa38959d62241a81fc5f8a7e3f6a2",
+      "size_bytes": 3699
+    },
+    {
+      "path": "configs/C2-greedy_pure-trigger-s1000.json",
+      "sha256": "edaa204b7bdd45d1b4e8a2989ca664083c4d257f17bc3c6810c7f96b3f43becc",
+      "size_bytes": 3710
+    },
+    {
+      "path": "configs/C2-greedy_pure-trigger-s1001.json",
+      "sha256": "189cc28551d2bdcc3f58393761091510513624eaed0cba11793fb817288b9fb7",
+      "size_bytes": 3710
+    },
+    {
+      "path": "configs/C2-greedy_pure-trigger-s1002.json",
+      "sha256": "6428439913d5df4e142fe7d0b43a9bbcfd05126dacd0dafeaf647a8cf5e690f2",
+      "size_bytes": 3716
+    },
+    {
+      "path": "configs/C2-greedy_pure-trigger-s1003.json",
+      "sha256": "9cf7da666f7f6837bf10ff1c70512e43e432b08e0188ee6413e92061bb5cc800",
+      "size_bytes": 3718
+    },
+    {
+      "path": "configs/C2-greedy_pure-trigger-s1004.json",
+      "sha256": "1916846202175afd046fd5bc955a7ffd879a5c29104008444d3014a74e57ee4e",
+      "size_bytes": 3720
+    },
+    {
+      "path": "configs/C2-greedy_pure-trigger-s1005.json",
+      "sha256": "1c62389d294a1f717f2929e95afa2d2d2a28bed520a73a0cc83be016a85f4f23",
+      "size_bytes": 3716
+    },
+    {
+      "path": "configs/C2-greedy_pure-trigger-s1006.json",
+      "sha256": "4dc5f4c9afc8e8b8d15ef5432a778e62b0526154839261a75de01424bfce6617",
+      "size_bytes": 3715
+    },
+    {
+      "path": "configs/C2-greedy_pure-trigger-s1007.json",
+      "sha256": "a48aa28a0ddcbb3e5545565f4ddc316433e55ac01ce43a79cc45fb4bbf992b34",
+      "size_bytes": 3708
+    },
+    {
+      "path": "configs/C2-greedy_pure-trigger-s1008.json",
+      "sha256": "67c2dfadc36ecef99158006780c0e35a04e0fdcc70ccf8942b67214cca27f4f4",
+      "size_bytes": 3717
+    },
+    {
+      "path": "configs/C2-greedy_pure-trigger-s1009.json",
+      "sha256": "7261bd055379862ba87f17e270233138c639d66a580b4d083c9918636175e89d",
+      "size_bytes": 3714
+    },
+    {
+      "path": "configs/C2-greedy_pure-trigger-s1010.json",
+      "sha256": "1ee29e00393a4766d9c36729e801e55fba8d9b0d89dba4155cd2dac90f5ba9ef",
+      "size_bytes": 3724
+    },
+    {
+      "path": "configs/C2-greedy_pure-trigger-s1011.json",
+      "sha256": "0803d4161d5d710fdd9fd0ad08225e44687df61ddb9f991d71177522ed9569dd",
+      "size_bytes": 3723
+    },
+    {
+      "path": "configs/C2-greedy_pure-trigger-s1012.json",
+      "sha256": "2f82723369666bad0cebaa9b171e812400f4b295c94655a0ab28f45959538cc7",
+      "size_bytes": 3726
+    },
+    {
+      "path": "configs/C2-greedy_pure-trigger-s1013.json",
+      "sha256": "60f97922019607c54513fc1207048f901e5761a3723a106dea620050b37674a6",
+      "size_bytes": 3722
+    },
+    {
+      "path": "configs/C2-greedy_pure-trigger-s1014.json",
+      "sha256": "d975473c3ff3b12e8169e3e4e70bd5e1d10ef2f82c831cec97d77dc2781f4c12",
+      "size_bytes": 3710
+    },
+    {
+      "path": "configs/C2-greedy_pure-trigger-s1015.json",
+      "sha256": "40d8f2387b33f5e79cd8a6df1889521679ca37cdc3358a4f83b9b609a7f73a7b",
+      "size_bytes": 3722
+    },
+    {
+      "path": "configs/C2-greedy_pure-trigger-s1016.json",
+      "sha256": "d9a479f986fb57c79afe7076634485a04409066cdc3fb6109941955189712727",
+      "size_bytes": 3718
+    },
+    {
+      "path": "configs/C2-greedy_pure-trigger-s1017.json",
+      "sha256": "1da359b089b72268204a753ce702d6c94365e94ecea8ecf13ffbfa49a9120443",
+      "size_bytes": 3719
+    },
+    {
+      "path": "configs/C2-greedy_pure-trigger-s1018.json",
+      "sha256": "be968ba8db8a252cbf53957e59b63f31545bdf8e81a1cd7a3ecdce6df0e76da0",
+      "size_bytes": 3710
+    },
+    {
+      "path": "configs/C2-greedy_pure-trigger-s1019.json",
+      "sha256": "6145fe3afb266cdb9fe218462f37a6ff075d331280540384c9c77b454198e5d9",
+      "size_bytes": 3710
+    },
+    {
+      "path": "configs/C2-greedy_pure-trigger-s1020.json",
+      "sha256": "ea768283cce3c4eb3792aaa8ba0432464b8866800646ca0a8ed963e97f8c336b",
+      "size_bytes": 3716
+    },
+    {
+      "path": "configs/C2-greedy_pure-trigger-s1021.json",
+      "sha256": "ec121b2b880ccc77f18e1c9c371803c2f57d0ef205ca00a3a5a2b88e7ffcc891",
+      "size_bytes": 3718
+    },
+    {
+      "path": "configs/C2-greedy_pure-trigger-s1022.json",
+      "sha256": "9cdac4d94a1c0abfa7d50f8add1c5ed340fba0e308bd04b09ae63e9c253f27a3",
+      "size_bytes": 3720
+    },
+    {
+      "path": "configs/C2-greedy_pure-trigger-s1023.json",
+      "sha256": "ecf832cdaf231d698e4878706b879d6dc2a987166cb34d32a64a3c0483b4a944",
+      "size_bytes": 3716
+    },
+    {
+      "path": "configs/C2-greedy_pure-trigger-s1024.json",
+      "sha256": "bde7592f358476a8ff45eea7016cf37e9b8d5e41256ef93180bb8a9f9e5a74db",
+      "size_bytes": 3715
+    },
+    {
+      "path": "configs/C2-greedy_pure-trigger-s1025.json",
+      "sha256": "482812903ee5cedb79241e02f6bcf83f0f58df9297cf4d809f53a8394163d1fc",
+      "size_bytes": 3708
+    },
+    {
+      "path": "configs/C2-greedy_pure-trigger-s1026.json",
+      "sha256": "83226c94d101f9581bacd2f63058c83696acc3298fefb0d6e8040e1e07b1c629",
+      "size_bytes": 3717
+    },
+    {
+      "path": "configs/C2-greedy_pure-trigger-s1027.json",
+      "sha256": "1482babf9e16e7bb46ca938267da12ac6e3820e9d4162e54476bedd9ceac9d10",
+      "size_bytes": 3714
+    },
+    {
+      "path": "configs/C2-greedy_pure-trigger-s1028.json",
+      "sha256": "4cad86941055678ab33017d93d64e073cd21213400bb86f07c05847ba060381d",
+      "size_bytes": 3724
+    },
+    {
+      "path": "configs/C2-greedy_pure-trigger-s1029.json",
+      "sha256": "419e66fc85016561534458fd8918f6963cf159cc02002f0116be933d5714eb7a",
+      "size_bytes": 3723
+    },
+    {
+      "path": "configs/C2-greedy_pure-trigger-s1030.json",
+      "sha256": "2ebd9d3c9af45a5956a2c24cb7663a1a299d7b46aa1c54d6409e0bd6b3922300",
+      "size_bytes": 3726
+    },
+    {
+      "path": "configs/C2-greedy_pure-trigger-s1031.json",
+      "sha256": "1f044e5e42b2dfca9e0a90a4dba392d6d6e02b497b85fc83a0d0ad260a078e72",
+      "size_bytes": 3722
+    },
+    {
+      "path": "configs/C2-greedy_pure-trigger-s1032.json",
+      "sha256": "719d43985749bfb388bd1ade0ab94b53968c2aeb8c104aa52a654b43da351c97",
+      "size_bytes": 3710
+    },
+    {
+      "path": "configs/C2-greedy_pure-trigger-s1033.json",
+      "sha256": "a1e17f9b0a35e071c0a809db7669e6dacff28d38ac67e3a991bddfe834d8d3b9",
+      "size_bytes": 3722
+    },
+    {
+      "path": "configs/C2-greedy_pure-trigger-s1034.json",
+      "sha256": "d8c147bb026b5ac956d539a2f73600685f0742a017485eb7329dee5e373abd0d",
+      "size_bytes": 3718
+    },
+    {
+      "path": "configs/C2-greedy_pure-trigger-s1035.json",
+      "sha256": "b0b8e2081c74e20780cc6c4ba39abb67f4cb64e721b384ed534b498811759f4f",
+      "size_bytes": 3719
+    },
+    {
+      "path": "configs/C2-greedy_visited-none-s1000.json",
+      "sha256": "fc3f288ce8182667dcd172bcb0e62e2279efafddbfc3e23f582eee45f827cdfa",
+      "size_bytes": 3712
+    },
+    {
+      "path": "configs/C2-greedy_visited-none-s1001.json",
+      "sha256": "92a2af7f95f695bf77bdf095918f5fcfd75a4b140959f0c9406bddd2c4aace37",
+      "size_bytes": 3712
+    },
+    {
+      "path": "configs/C2-greedy_visited-none-s1002.json",
+      "sha256": "2b53faafa7f445241af44cacc418d4a97ebaf19e353f4cc350372238d56128d9",
+      "size_bytes": 3718
+    },
+    {
+      "path": "configs/C2-greedy_visited-none-s1003.json",
+      "sha256": "0fd5ae0544ab2ab9dfec9bfb142bc7a2728615d3e3e32b8a28e332106bc74cb9",
+      "size_bytes": 3720
+    },
+    {
+      "path": "configs/C2-greedy_visited-none-s1004.json",
+      "sha256": "5c899b308dddb248d9d8b2855e409a46b7a6194bf629180411dd26b01d1a674f",
+      "size_bytes": 3722
+    },
+    {
+      "path": "configs/C2-greedy_visited-none-s1005.json",
+      "sha256": "828424f310711236d9d91fb1ab9f57e89ceaf41c48530624d17fdfdef09a71bd",
+      "size_bytes": 3718
+    },
+    {
+      "path": "configs/C2-greedy_visited-none-s1006.json",
+      "sha256": "b32c3158137d2aabc476f4483e812d281d80d76fe4ee201c4eb8607d7c784fc2",
+      "size_bytes": 3716
+    },
+    {
+      "path": "configs/C2-greedy_visited-none-s1007.json",
+      "sha256": "a8a35b75ceb48f79a5c0ed132577f541606bc14f1cde0f563dd026d841294392",
+      "size_bytes": 3710
+    },
+    {
+      "path": "configs/C2-greedy_visited-none-s1008.json",
+      "sha256": "a01ca8fad10269ec1b670b137d18784ab57924d3bf527b901a7d897d005ba797",
+      "size_bytes": 3718
+    },
+    {
+      "path": "configs/C2-greedy_visited-none-s1009.json",
+      "sha256": "9a433c3a846c009163e48dfadf571ae78620687acd0410bc5c72937f7365428e",
+      "size_bytes": 3716
+    },
+    {
+      "path": "configs/C2-greedy_visited-none-s1010.json",
+      "sha256": "c51a82dad3d7b1d29e2378cd84027268a4e40fc36f28331bf35c6e799985d5f3",
+      "size_bytes": 3726
+    },
+    {
+      "path": "configs/C2-greedy_visited-none-s1011.json",
+      "sha256": "6804956a8eeca31eff903fcff9f048bfcc0b87ba60dcd9b7047c1a488e3af54f",
+      "size_bytes": 3724
+    },
+    {
+      "path": "configs/C2-greedy_visited-none-s1012.json",
+      "sha256": "7481d30b58fa9da740a5f03d05f2e28483da168ba40990c42b7ede64956a6747",
+      "size_bytes": 3728
+    },
+    {
+      "path": "configs/C2-greedy_visited-none-s1013.json",
+      "sha256": "ea8a30126030bdbc9b95a2a58af310927dcc5f0bc63901d2e49f378e1494080d",
+      "size_bytes": 3724
+    },
+    {
+      "path": "configs/C2-greedy_visited-none-s1014.json",
+      "sha256": "accbcd9b9e3fe8c4c04573f01c77552e1ee14ccfbbe8b78bcb2475b3ff9b2ea0",
+      "size_bytes": 3712
+    },
+    {
+      "path": "configs/C2-greedy_visited-none-s1015.json",
+      "sha256": "8592cd77b63766847430fb2dc28c058a274b8940ba75b43621c57eb57459e19d",
+      "size_bytes": 3724
+    },
+    {
+      "path": "configs/C2-greedy_visited-none-s1016.json",
+      "sha256": "b2535a975615013ed8b739cb3bd4c72b3a0f03e531010c408917c3c8b7f27fc4",
+      "size_bytes": 3720
+    },
+    {
+      "path": "configs/C2-greedy_visited-none-s1017.json",
+      "sha256": "a65f843890357a9a8a37919950835af844065b9982ec7f5e56cae032382fbd8b",
+      "size_bytes": 3720
+    },
+    {
+      "path": "configs/C2-greedy_visited-none-s1018.json",
+      "sha256": "eda08a60f63c25ab61b72287db18a25db3995e0341325d9b21d1de984583d47a",
+      "size_bytes": 3712
+    },
+    {
+      "path": "configs/C2-greedy_visited-none-s1019.json",
+      "sha256": "05dbc18f2ca4d3f1f9dc5ca5ebdcc8dfb100a9590bd1cb7c39b453d57f5ac7d1",
+      "size_bytes": 3712
+    },
+    {
+      "path": "configs/C2-greedy_visited-none-s1020.json",
+      "sha256": "2afb04f1bc6db97dfe8aaa6f3dcd73bf5265efd0a40edfe0c85421653a25cd76",
+      "size_bytes": 3718
+    },
+    {
+      "path": "configs/C2-greedy_visited-none-s1021.json",
+      "sha256": "19c36a715f50ce7d79f653288a18ad1bfd116de20d3843796bcacbe5f96d3571",
+      "size_bytes": 3720
+    },
+    {
+      "path": "configs/C2-greedy_visited-none-s1022.json",
+      "sha256": "68092af60dfd545f43eab8feddcfc1b67c1d5cb21cdb5a81460bb9ab4452c857",
+      "size_bytes": 3722
+    },
+    {
+      "path": "configs/C2-greedy_visited-none-s1023.json",
+      "sha256": "3f79dfd271c35bc6a15885cb4f13efae51c4ec9835543f55975711d5f7197635",
+      "size_bytes": 3718
+    },
+    {
+      "path": "configs/C2-greedy_visited-none-s1024.json",
+      "sha256": "e2988ed28b27f7a24dd74856c9c63027c6fd041d2f578309ec5ceb99c59d16f0",
+      "size_bytes": 3716
+    },
+    {
+      "path": "configs/C2-greedy_visited-none-s1025.json",
+      "sha256": "2d3384e2d6d26c145c26d985fc469b3e2e8cd067a6b633b374cf04b561d30ca4",
+      "size_bytes": 3710
+    },
+    {
+      "path": "configs/C2-greedy_visited-none-s1026.json",
+      "sha256": "a4c2b5f2f335242e556b09a9df986407886f41db02587b2d2b3030f56747fa6d",
+      "size_bytes": 3718
+    },
+    {
+      "path": "configs/C2-greedy_visited-none-s1027.json",
+      "sha256": "7acf1601d1c3d026e31bc9f9bc4a6f43af57d09d037bc50126812fce00979cd4",
+      "size_bytes": 3716
+    },
+    {
+      "path": "configs/C2-greedy_visited-none-s1028.json",
+      "sha256": "a72248e282e3550e664c56b6399bf3c763d08bf7fd1bcb72dd429b338c8d1f6e",
+      "size_bytes": 3726
+    },
+    {
+      "path": "configs/C2-greedy_visited-none-s1029.json",
+      "sha256": "10f8ae50a016d4ee4a6265d746cfa79a32ad711849c3a30035247753c0b0ecd4",
+      "size_bytes": 3724
+    },
+    {
+      "path": "configs/C2-greedy_visited-none-s1030.json",
+      "sha256": "ec64a93ff57d4d845a4822bfb2263566ae223588083d82c3ee0d94f261c806f7",
+      "size_bytes": 3728
+    },
+    {
+      "path": "configs/C2-greedy_visited-none-s1031.json",
+      "sha256": "63e8817b5ed535479ff4d6ac80f721bde9be39a2a09a5f5839cc4ab37950f3bd",
+      "size_bytes": 3724
+    },
+    {
+      "path": "configs/C2-greedy_visited-none-s1032.json",
+      "sha256": "165d17ca0e568febd5a7c7d4094caa1077815294ddb6561097216238c2234b8c",
+      "size_bytes": 3712
+    },
+    {
+      "path": "configs/C2-greedy_visited-none-s1033.json",
+      "sha256": "66befca179522e4d79612dfc2af0f8b2f7e4d707ea1bf0b49ebefbeee27d48ec",
+      "size_bytes": 3724
+    },
+    {
+      "path": "configs/C2-greedy_visited-none-s1034.json",
+      "sha256": "b0608cc4be47babe6b2714fbb4a87ad5ab32a378fa2fa09c11d8d280bed86c9d",
+      "size_bytes": 3720
+    },
+    {
+      "path": "configs/C2-greedy_visited-none-s1035.json",
+      "sha256": "1480c44c83bfd923b592ec3a2d780e388437989d784500d50b442b00d768286d",
+      "size_bytes": 3720
+    },
+    {
+      "path": "configs/C2-greedy_visited-trigger-s1000.json",
+      "sha256": "5310f2bc5cb851106ace73912411f89338fda5eb1ebea78f743780c6f93d22d3",
+      "size_bytes": 3722
+    },
+    {
+      "path": "configs/C2-greedy_visited-trigger-s1001.json",
+      "sha256": "79d5c4cc1088c8fc2fdd3074fbe6a790b173c87718e59d40bd074b22ebb33c27",
+      "size_bytes": 3722
+    },
+    {
+      "path": "configs/C2-greedy_visited-trigger-s1002.json",
+      "sha256": "f91c8bbba5ee0cb96e7d76e7e14b99f703c3e65f35962505682e68e5f6e0307c",
+      "size_bytes": 3728
+    },
+    {
+      "path": "configs/C2-greedy_visited-trigger-s1003.json",
+      "sha256": "34adb267f6619d7030c5208b9e4ff0394c56a8d0c3a9eeb89e877d90b2c6e66d",
+      "size_bytes": 3730
+    },
+    {
+      "path": "configs/C2-greedy_visited-trigger-s1004.json",
+      "sha256": "1ad2c221812061e254a02f693d2a50d5970e2d950518725fcc9ed8b6a7f8d03f",
+      "size_bytes": 3732
+    },
+    {
+      "path": "configs/C2-greedy_visited-trigger-s1005.json",
+      "sha256": "6e4cbb6512a2165c68effe8905fc167562c281ab3351a75437a990efcb745f08",
+      "size_bytes": 3728
+    },
+    {
+      "path": "configs/C2-greedy_visited-trigger-s1006.json",
+      "sha256": "55eb4a01e7d1fbc78521e7e323b679c2212169550737dacd46f54b88a4a47978",
+      "size_bytes": 3727
+    },
+    {
+      "path": "configs/C2-greedy_visited-trigger-s1007.json",
+      "sha256": "b11a1aa6b43f1e48595d4508829787b147dbd987cae66b70b38022edf9e836c1",
+      "size_bytes": 3720
+    },
+    {
+      "path": "configs/C2-greedy_visited-trigger-s1008.json",
+      "sha256": "f9198075f4904f7e63c007b8c482e51b0c3a82988eb815746fb62a8e68d87b6d",
+      "size_bytes": 3729
+    },
+    {
+      "path": "configs/C2-greedy_visited-trigger-s1009.json",
+      "sha256": "4d5378ef6dc3cf2926346591b78402bebb5bc5ce86166341dc116db6fef55eaa",
+      "size_bytes": 3726
+    },
+    {
+      "path": "configs/C2-greedy_visited-trigger-s1010.json",
+      "sha256": "d8be33d4c63f5b1159312b85c0f17d45d85b75a331588288ebeebc5e2eca0f3d",
+      "size_bytes": 3736
+    },
+    {
+      "path": "configs/C2-greedy_visited-trigger-s1011.json",
+      "sha256": "f8c7559849b9ffc79d6306fd5c29a7f89f1ff68ca3351ff1680fd10d52e7f2b5",
+      "size_bytes": 3735
+    },
+    {
+      "path": "configs/C2-greedy_visited-trigger-s1012.json",
+      "sha256": "5a432a3f2b47848f8b151d915cab080e1111f33b0dc0f83064f7090d49ca51dd",
+      "size_bytes": 3738
+    },
+    {
+      "path": "configs/C2-greedy_visited-trigger-s1013.json",
+      "sha256": "eda832ee7643a6817cd2ef95d68968c86516a2d563328f334aeab8eec596fe31",
+      "size_bytes": 3734
+    },
+    {
+      "path": "configs/C2-greedy_visited-trigger-s1014.json",
+      "sha256": "73dbd2cd861135134c936320f81d906ecfda3c0ef8fcc3128edea33df5c7d9ed",
+      "size_bytes": 3722
+    },
+    {
+      "path": "configs/C2-greedy_visited-trigger-s1015.json",
+      "sha256": "87f44c64ef1f013336e3aeaed3d9a1ab752b1019ed610fc2853ec601747eb422",
+      "size_bytes": 3734
+    },
+    {
+      "path": "configs/C2-greedy_visited-trigger-s1016.json",
+      "sha256": "5714b510d94543d8f6986fa5ce14f8b3ac4621a27155ce848cafcf20085ea88b",
+      "size_bytes": 3730
+    },
+    {
+      "path": "configs/C2-greedy_visited-trigger-s1017.json",
+      "sha256": "b56d8dfc81364c2c5dd24ff7c22de39e8b215200c1ff6f9a472d12bfa48f1d70",
+      "size_bytes": 3731
+    },
+    {
+      "path": "configs/C2-greedy_visited-trigger-s1018.json",
+      "sha256": "d80aaf9060aa5c12ff22f87a6b9eb2ce980c0e274e5d52e761c0d480f0dbb930",
+      "size_bytes": 3722
+    },
+    {
+      "path": "configs/C2-greedy_visited-trigger-s1019.json",
+      "sha256": "ce4515122ecb1fb9b98adf80ddde73eb1dfee888d6ce3a77437d0e35e4012b32",
+      "size_bytes": 3722
+    },
+    {
+      "path": "configs/C2-greedy_visited-trigger-s1020.json",
+      "sha256": "471a9ec9d04891497904b08e021b005bc416839b649e057f2c2cd163a3fd79ee",
+      "size_bytes": 3728
+    },
+    {
+      "path": "configs/C2-greedy_visited-trigger-s1021.json",
+      "sha256": "3820397dd46f6f18feeefb8cc25c3205fefd96a51559b9e51d07cc8c2a64e895",
+      "size_bytes": 3730
+    },
+    {
+      "path": "configs/C2-greedy_visited-trigger-s1022.json",
+      "sha256": "773604a5fdf6d47eb3a130af01461d75a9c1a65cb585026cbef0c405029ce4e7",
+      "size_bytes": 3732
+    },
+    {
+      "path": "configs/C2-greedy_visited-trigger-s1023.json",
+      "sha256": "52e926f55f8ed1a641f3a1cbe8a33bcc77c8e3862972642630c79a77a0b8bc08",
+      "size_bytes": 3728
+    },
+    {
+      "path": "configs/C2-greedy_visited-trigger-s1024.json",
+      "sha256": "e3b5a8ab1f767604e15fbeaaab355ea08812136695e8c264f5032d176ce65b3b",
+      "size_bytes": 3727
+    },
+    {
+      "path": "configs/C2-greedy_visited-trigger-s1025.json",
+      "sha256": "f6b470bd441d87e700dc419922c595ff9c4565ca0eb9066606058a7c7f0a3f40",
+      "size_bytes": 3720
+    },
+    {
+      "path": "configs/C2-greedy_visited-trigger-s1026.json",
+      "sha256": "50ab895268f619b90bbeab7b41a5bb11eedb4df691f6d034bb6473d10fae02b1",
+      "size_bytes": 3729
+    },
+    {
+      "path": "configs/C2-greedy_visited-trigger-s1027.json",
+      "sha256": "c850c67ebd60645cde8c7b4638f89736a417ee0b874dedc00935b26accd1d947",
+      "size_bytes": 3726
+    },
+    {
+      "path": "configs/C2-greedy_visited-trigger-s1028.json",
+      "sha256": "4597d5cff1a18f5da912100148017b1878b7ffd965b65af5d90cb4647b43740d",
+      "size_bytes": 3736
+    },
+    {
+      "path": "configs/C2-greedy_visited-trigger-s1029.json",
+      "sha256": "161e7dac242568d43f12962828b9bd599b11e980a6cd5ff2f610c44a1006b5ef",
+      "size_bytes": 3735
+    },
+    {
+      "path": "configs/C2-greedy_visited-trigger-s1030.json",
+      "sha256": "b4083047e6803911a994463952644cd172cf36baefac0d46762b38e6ed53fe2e",
+      "size_bytes": 3738
+    },
+    {
+      "path": "configs/C2-greedy_visited-trigger-s1031.json",
+      "sha256": "5091936077419c087541f0d0059ca61291c0ee1a2176f9b30e6648e9e8789c7c",
+      "size_bytes": 3734
+    },
+    {
+      "path": "configs/C2-greedy_visited-trigger-s1032.json",
+      "sha256": "988ba39233ac1fbdca425e659bfa0f406740ea89d06bd493b0d15f43cc2824ad",
+      "size_bytes": 3722
+    },
+    {
+      "path": "configs/C2-greedy_visited-trigger-s1033.json",
+      "sha256": "a1c3cf48c8a8f28501575d4560081fa6fcf0c168cea03feadfe8cadae60c94ea",
+      "size_bytes": 3734
+    },
+    {
+      "path": "configs/C2-greedy_visited-trigger-s1034.json",
+      "sha256": "0ccca99dcfbf81742c435139fc309eb69fe6dca3c46511fc4b0c90258bb255ca",
+      "size_bytes": 3730
+    },
+    {
+      "path": "configs/C2-greedy_visited-trigger-s1035.json",
+      "sha256": "dad81176fbcfcf5106a348acece32284c6c5fa0975983f9d8b63b5858905ee8e",
+      "size_bytes": 3731
+    },
+    {
+      "path": "configs/C2-grid_detour-trigger-s1000.json",
+      "sha256": "6e55249822084363b6eeb1a0c2f5370a2340df8491a67dc18928a7598afc7374",
+      "size_bytes": 3710
+    },
+    {
+      "path": "configs/C2-grid_detour-trigger-s1001.json",
+      "sha256": "d29aea68246e81d9a7256c432dbbf5ee49bad8b6e9ef7c86c9f8e739b7598bef",
+      "size_bytes": 3710
+    },
+    {
+      "path": "configs/C2-grid_detour-trigger-s1002.json",
+      "sha256": "f1bf1d86df97e44221b4544c9009ef2b8a5d42f027443464d098ea00f4477764",
+      "size_bytes": 3716
+    },
+    {
+      "path": "configs/C2-grid_detour-trigger-s1003.json",
+      "sha256": "5eeb3ab16ca20bfde474a7cd156ed66cd87a9204a918ea8c76678db9688bdf41",
+      "size_bytes": 3718
+    },
+    {
+      "path": "configs/C2-grid_detour-trigger-s1004.json",
+      "sha256": "7a3e6431b4634dd7755e51bed7b88d89f996dc7ec8213c5d1376aa1264f82185",
+      "size_bytes": 3720
+    },
+    {
+      "path": "configs/C2-grid_detour-trigger-s1005.json",
+      "sha256": "7302a2b0f990d73eddf38196afbc407520ffc5210e93ece4dfd06c8de0721922",
+      "size_bytes": 3716
+    },
+    {
+      "path": "configs/C2-grid_detour-trigger-s1006.json",
+      "sha256": "85ae4cba769106096eee50bf4a801d6cfef61115b5e60d97d8fa5c2bb425688d",
+      "size_bytes": 3715
+    },
+    {
+      "path": "configs/C2-grid_detour-trigger-s1007.json",
+      "sha256": "a1e7f41005ade1bcbf626c63de30fa1d575a9e3c5be550736c7becf6f233390b",
+      "size_bytes": 3708
+    },
+    {
+      "path": "configs/C2-grid_detour-trigger-s1008.json",
+      "sha256": "6686590fe771ed9ad88c0c9497d1f0ae0a55dd9abaadf493bced71714e9aab16",
+      "size_bytes": 3717
+    },
+    {
+      "path": "configs/C2-grid_detour-trigger-s1009.json",
+      "sha256": "103aa08e38a0b1165558d79a1d19a240e03434a1b30ac8ade05b37912c49e2a0",
+      "size_bytes": 3714
+    },
+    {
+      "path": "configs/C2-grid_detour-trigger-s1010.json",
+      "sha256": "be4b1608e304ee014570572f3c448ae1a8bffdd727a5a62fa1545943bda7d5b2",
+      "size_bytes": 3724
+    },
+    {
+      "path": "configs/C2-grid_detour-trigger-s1011.json",
+      "sha256": "9c8064a1c49ca7e884198a12226d40d31f96beb2816a961b9156eb76ce44235f",
+      "size_bytes": 3723
+    },
+    {
+      "path": "configs/C2-grid_detour-trigger-s1012.json",
+      "sha256": "0e30024f4fa5bab2c5b7c78c89dc10eac7b4bde95d6e2ce74a5afa542a36eabb",
+      "size_bytes": 3726
+    },
+    {
+      "path": "configs/C2-grid_detour-trigger-s1013.json",
+      "sha256": "dd8b809e3b3daeed24c373309ac9da811807724c971bb87e8dc2a386b01d42ae",
+      "size_bytes": 3722
+    },
+    {
+      "path": "configs/C2-grid_detour-trigger-s1014.json",
+      "sha256": "bb210c73f4d158505ead99c0a05e5c9d9861ac644ee442581a2c3bb0b4fe8a0a",
+      "size_bytes": 3710
+    },
+    {
+      "path": "configs/C2-grid_detour-trigger-s1015.json",
+      "sha256": "4005c9cb2042a529cf9308c45b63202e8b711a1531c62ad2086ceb0faed66ee8",
+      "size_bytes": 3722
+    },
+    {
+      "path": "configs/C2-grid_detour-trigger-s1016.json",
+      "sha256": "ba69ea2f271ffb1757cb66ad041ce98740bcf8c21d0c37fcd2edc14b682fdcb7",
+      "size_bytes": 3718
+    },
+    {
+      "path": "configs/C2-grid_detour-trigger-s1017.json",
+      "sha256": "2b0963c2bf364427978ec6345fc914a2582ce3f075910220514b91c2f9f50e4f",
+      "size_bytes": 3719
+    },
+    {
+      "path": "configs/C2-grid_detour-trigger-s1018.json",
+      "sha256": "723e91590bccf13b931b2255fc1ada8c2681a603b64f62779d555e9cab107845",
+      "size_bytes": 3710
+    },
+    {
+      "path": "configs/C2-grid_detour-trigger-s1019.json",
+      "sha256": "9975a42d9e62b24a85a9d94ac80d8f18865957f4e71b9c27b6cc7fa825384481",
+      "size_bytes": 3710
+    },
+    {
+      "path": "configs/C2-grid_detour-trigger-s1020.json",
+      "sha256": "f91b63fc9f827c0039eb25f392df4f9f39c2fe993733a4bbc482b66fdd178d11",
+      "size_bytes": 3716
+    },
+    {
+      "path": "configs/C2-grid_detour-trigger-s1021.json",
+      "sha256": "f8765a57ab3e92e9e685fc7e77dafbdac675de584faf6197923e1fc38d3fa57d",
+      "size_bytes": 3718
+    },
+    {
+      "path": "configs/C2-grid_detour-trigger-s1022.json",
+      "sha256": "f8306f6512c89b2e4e04ab3ba50d1368ee4dc8662f6583ba531abe116e39be98",
+      "size_bytes": 3720
+    },
+    {
+      "path": "configs/C2-grid_detour-trigger-s1023.json",
+      "sha256": "c6da8a04514e0492cfb393df1ac0877f66d53f0fc53de7abd5fc25d8b8c96917",
+      "size_bytes": 3716
+    },
+    {
+      "path": "configs/C2-grid_detour-trigger-s1024.json",
+      "sha256": "bf517fe0854d5c2d5690bfdac058d510775fc18f803fb73a72d199a5386c1697",
+      "size_bytes": 3715
+    },
+    {
+      "path": "configs/C2-grid_detour-trigger-s1025.json",
+      "sha256": "4d0d9cfbef69bd163774a92fd7308cf70f3116badb6dd2583bbf244111b65321",
+      "size_bytes": 3708
+    },
+    {
+      "path": "configs/C2-grid_detour-trigger-s1026.json",
+      "sha256": "0095f3b828151aac41d535d744728fa56370dbe41d490dafe5af5df181383bdb",
+      "size_bytes": 3717
+    },
+    {
+      "path": "configs/C2-grid_detour-trigger-s1027.json",
+      "sha256": "a67595ba35ff1de25ef17aae110b997e00740f5d8f4952d376bae5df2b1a028f",
+      "size_bytes": 3714
+    },
+    {
+      "path": "configs/C2-grid_detour-trigger-s1028.json",
+      "sha256": "d81afa97be7c0d12946121d9723070cc9e25376583d5b4dfc5e71750415ad0a6",
+      "size_bytes": 3724
+    },
+    {
+      "path": "configs/C2-grid_detour-trigger-s1029.json",
+      "sha256": "65303f024944caa7b0b6bb2cc0ee345ee1cd8d99061e0b4a3629a5aa89e5a487",
+      "size_bytes": 3723
+    },
+    {
+      "path": "configs/C2-grid_detour-trigger-s1030.json",
+      "sha256": "2335f43cbed2cfb98371724b533fefc045336104f72399405e0de37cb8ecd602",
+      "size_bytes": 3726
+    },
+    {
+      "path": "configs/C2-grid_detour-trigger-s1031.json",
+      "sha256": "58be91d6167dd28442b7da818213adf13d3ccad47137bdecd5090aac89d4f091",
+      "size_bytes": 3722
+    },
+    {
+      "path": "configs/C2-grid_detour-trigger-s1032.json",
+      "sha256": "f9a138dd044305fd91c5b457f6e6fc33af477e4a187541e97c9e901980d5acbd",
+      "size_bytes": 3710
+    },
+    {
+      "path": "configs/C2-grid_detour-trigger-s1033.json",
+      "sha256": "dba65b1e96e290f1d0d1b4647b9a719f09bd986d0d3bbaa325b229ff6658f1e3",
+      "size_bytes": 3722
+    },
+    {
+      "path": "configs/C2-grid_detour-trigger-s1034.json",
+      "sha256": "6d01c22175353f1b52a040a7988f0308023d194876cf208e95e430b245305753",
+      "size_bytes": 3718
+    },
+    {
+      "path": "configs/C2-grid_detour-trigger-s1035.json",
+      "sha256": "609298cd6342f8daba1e56a2a46f9c35213a599b1aceb2cc7acaf6d5da3f570e",
+      "size_bytes": 3719
+    },
+    {
+      "path": "configs/C5-continue-trigger-s1000.json",
+      "sha256": "77a45fb4c2cad132e8fd3c736f8bbf97c949af0ee68f2b555bf181f2e07581ac",
+      "size_bytes": 3705
+    },
+    {
+      "path": "configs/C5-continue-trigger-s1001.json",
+      "sha256": "e0b9a16d32815f5edee55dc8db15e2ad569235ebc645af1d9a2d2052a917908a",
+      "size_bytes": 3704
+    },
+    {
+      "path": "configs/C5-continue-trigger-s1002.json",
+      "sha256": "b9e662ebcc5b6e9c41bb1e0ce54c50f20f67dfd11cb393271c327b705c53514a",
+      "size_bytes": 3711
+    },
+    {
+      "path": "configs/C5-continue-trigger-s1003.json",
+      "sha256": "2b1e0a15c4ebd2d8c960b7609a3fda1f0b6c6512914b365d8697cade305cb4a8",
+      "size_bytes": 3713
+    },
+    {
+      "path": "configs/C5-continue-trigger-s1004.json",
+      "sha256": "e656a1f52b1a63edf500b2a7a4bf155a17991f5768ec7d618f153c6aa8001de1",
+      "size_bytes": 3714
+    },
+    {
+      "path": "configs/C5-continue-trigger-s1005.json",
+      "sha256": "be30ed963cc81963e31675bba9faa0a051520e844df11662bc926562fa1e291a",
+      "size_bytes": 3711
+    },
+    {
+      "path": "configs/C5-continue-trigger-s1006.json",
+      "sha256": "c4a3242dbbc569ca258b8be7f92a9adea8191e97f82ff59e41104c0aaa66c244",
+      "size_bytes": 3708
+    },
+    {
+      "path": "configs/C5-continue-trigger-s1007.json",
+      "sha256": "3ddd21fba13f4a2c561297533a10c2ce7b157bbf96fb567fa9144c130db7d716",
+      "size_bytes": 3702
+    },
+    {
+      "path": "configs/C5-continue-trigger-s1008.json",
+      "sha256": "cbdc59faff4dd4e848ab3f75f1c5cfe07f86ece5053bd9aad81e37a7d5aa0aab",
+      "size_bytes": 3709
+    },
+    {
+      "path": "configs/C5-continue-trigger-s1009.json",
+      "sha256": "eba2d673af366520494eb0442479a99f4140a8136cdd84c37ffa2f134303087d",
+      "size_bytes": 3709
+    },
+    {
+      "path": "configs/C5-continue-trigger-s1010.json",
+      "sha256": "75e576b9f6ea51cc6c9ccba9c97488a514074302a060e5776193cf575ec57dcf",
+      "size_bytes": 3719
+    },
+    {
+      "path": "configs/C5-continue-trigger-s1011.json",
+      "sha256": "adeaddc770420a58ff6b6bb8a16b55eb690a8dc1ab2a135117244614ea4a28e7",
+      "size_bytes": 3716
+    },
+    {
+      "path": "configs/C5-continue-trigger-s1012.json",
+      "sha256": "26298a982c53e82f01d07a6580de0bea4ce65f35dfae42375070f00135db3159",
+      "size_bytes": 3720
+    },
+    {
+      "path": "configs/C5-continue-trigger-s1013.json",
+      "sha256": "c5e82b201ad8d51c78e40b5ff0df000230cb79b82a8b5ba4301ce764ce6bc06c",
+      "size_bytes": 3716
+    },
+    {
+      "path": "configs/C5-continue-trigger-s1014.json",
+      "sha256": "c4a7e1d296d7773bc8c7c5e3a1846270982bbad571c6d32d2dbe1e84cfb83da4",
+      "size_bytes": 3704
+    },
+    {
+      "path": "configs/C5-continue-trigger-s1015.json",
+      "sha256": "ce195eb8fd03373ed28db2eeac3fa8c6de9329467739fd4d213cc565a753fe3a",
+      "size_bytes": 3717
+    },
+    {
+      "path": "configs/C5-continue-trigger-s1016.json",
+      "sha256": "7bbcafe925ba4896e7d6430a459bc28807468e583a33d52aba4315ddd70dbcee",
+      "size_bytes": 3713
+    },
+    {
+      "path": "configs/C5-continue-trigger-s1017.json",
+      "sha256": "f1311e9e10781b191585fcb2b4b2900c08a7e38b7cc2491949773744070802d8",
+      "size_bytes": 3713
+    },
+    {
+      "path": "configs/C5-continue-trigger-s1018.json",
+      "sha256": "700980bd69489b36178657dc9b44bb61068dd8429c4d43204b752ed3f7127c4f",
+      "size_bytes": 3705
+    },
+    {
+      "path": "configs/C5-continue-trigger-s1019.json",
+      "sha256": "d87edb9dc651c45b9d51309da42a540b01971cdadc0d17c0b0b35e98498483d9",
+      "size_bytes": 3704
+    },
+    {
+      "path": "configs/C5-continue-trigger-s1020.json",
+      "sha256": "9101922ff42e47ac88c863eb79015e066ed51e8a6ba63c1e9167a01cbcd61e55",
+      "size_bytes": 3711
+    },
+    {
+      "path": "configs/C5-continue-trigger-s1021.json",
+      "sha256": "486f88b9af1df107e1d0644e0894e821501a71b929bbafe411a301bebf948cc6",
+      "size_bytes": 3712
+    },
+    {
+      "path": "configs/C5-continue-trigger-s1022.json",
+      "sha256": "0a038e35d0716563afae8ee71b07ea9aac32c7be4451f51069a51ff399ef002f",
+      "size_bytes": 3714
+    },
+    {
+      "path": "configs/C5-continue-trigger-s1023.json",
+      "sha256": "3ce05dc535be93fc834e41b566ca915e8569e218675a837f24a8f6485b46df82",
+      "size_bytes": 3710
+    },
+    {
+      "path": "configs/C5-continue-trigger-s1024.json",
+      "sha256": "50e426c11aa6202a196c6ddb69186a68502b9039d6cf1eeaffb15514b6712d9f",
+      "size_bytes": 3709
+    },
+    {
+      "path": "configs/C5-continue-trigger-s1025.json",
+      "sha256": "0e476141bb69308291c52c2366259169b663a389913f7ff9497046c4b29ab20a",
+      "size_bytes": 3702
+    },
+    {
+      "path": "configs/C5-continue-trigger-s1026.json",
+      "sha256": "68aa72e273f607f4dcb0388cbbd63f7070c9d5a24ed11f8f07c89d2ac0518c21",
+      "size_bytes": 3710
+    },
+    {
+      "path": "configs/C5-continue-trigger-s1027.json",
+      "sha256": "5dc734cbeef63ddfdbcb89b1f84762447094233fc6dc2d886bfc0e76822748bb",
+      "size_bytes": 3709
+    },
+    {
+      "path": "configs/C5-continue-trigger-s1028.json",
+      "sha256": "f1bb0c12d274a3e5fb5ee6fe4c586e7c14e41e6580b7354d1f8eff415a7ae2c7",
+      "size_bytes": 3719
+    },
+    {
+      "path": "configs/C5-continue-trigger-s1029.json",
+      "sha256": "6d841bf76be10eb46d31466f35fdddccf947ce84caacfd09197b02bd0e918393",
+      "size_bytes": 3714
+    },
+    {
+      "path": "configs/C5-continue-trigger-s1030.json",
+      "sha256": "a0029841ade22296a266c702586c3b969fb1fe70c96da6219177b39f0dbbbe45",
+      "size_bytes": 3721
+    },
+    {
+      "path": "configs/C5-continue-trigger-s1031.json",
+      "sha256": "0c334498e862278b3a887f8927b09772f938dcdb40d300816faf1c26edc6ead7",
+      "size_bytes": 3716
+    },
+    {
+      "path": "configs/C5-continue-trigger-s1032.json",
+      "sha256": "83c43a4b134353972bc7947948fe5045ebf8cc8aa437e6ce3cea1c56729371af",
+      "size_bytes": 3705
+    },
+    {
+      "path": "configs/C5-continue-trigger-s1033.json",
+      "sha256": "516dd59860cce7b41baa00daad94f88eba68dad74eec93f9f73770e99c704899",
+      "size_bytes": 3717
+    },
+    {
+      "path": "configs/C5-continue-trigger-s1034.json",
+      "sha256": "ff2f3329eb90ff862eef3533f2d108afa67e8cb97039049f778536082d30e2da",
+      "size_bytes": 3713
+    },
+    {
+      "path": "configs/C5-continue-trigger-s1035.json",
+      "sha256": "1b1b464b61c0ac072f37891f7835d68700bd9720b5b99455932113b8313b3e29",
+      "size_bytes": 3713
+    },
+    {
+      "path": "configs/C5-drop-trigger-s1000.json",
+      "sha256": "7f6f5b27fdc4fcdf90f0b5bbb84cc7f8c1d92c7a5057b0c3131bfb050745b53b",
+      "size_bytes": 3689
+    },
+    {
+      "path": "configs/C5-drop-trigger-s1001.json",
+      "sha256": "0ffcc5d5b3f10c64ec7b1bd40f952f3990fa5ada8a4366ac6dd20c51e0652af9",
+      "size_bytes": 3688
+    },
+    {
+      "path": "configs/C5-drop-trigger-s1002.json",
+      "sha256": "faaf523721c24e29c788c34cde9a882e164c548017d9e52429c8d6a1a0374127",
+      "size_bytes": 3695
+    },
+    {
+      "path": "configs/C5-drop-trigger-s1003.json",
+      "sha256": "7db41ae2ffb8601cb6099b887f4444507b2820b0e5bd068510f5e00733c4de0b",
+      "size_bytes": 3697
+    },
+    {
+      "path": "configs/C5-drop-trigger-s1004.json",
+      "sha256": "ece5face0474db9083b82ceb35969232371008cef560c8e599952b4dcfa7c6af",
+      "size_bytes": 3698
+    },
+    {
+      "path": "configs/C5-drop-trigger-s1005.json",
+      "sha256": "291eece6bb307d1219e8988e2c47140484ebcd6f00d8290ff0387ef6ef649148",
+      "size_bytes": 3695
+    },
+    {
+      "path": "configs/C5-drop-trigger-s1006.json",
+      "sha256": "47f67616b712d85b4b7da6cbf5ec6d3131cda65f2b90f945e1be1bbfcd429cac",
+      "size_bytes": 3692
+    },
+    {
+      "path": "configs/C5-drop-trigger-s1007.json",
+      "sha256": "5b279601395ff1ca467270ecc14e23d6ddfa0faf9e5956360a01adfaab8fd184",
+      "size_bytes": 3686
+    },
+    {
+      "path": "configs/C5-drop-trigger-s1008.json",
+      "sha256": "e6cf1af19530fc2fa6735cf701e64130d29d92e8b1b5c825510bfcd0c3f31516",
+      "size_bytes": 3693
+    },
+    {
+      "path": "configs/C5-drop-trigger-s1009.json",
+      "sha256": "4b73a3b8643b6861c182d3fafec97af08210fbfa69235fc9052fa59c5aa2013d",
+      "size_bytes": 3693
+    },
+    {
+      "path": "configs/C5-drop-trigger-s1010.json",
+      "sha256": "3eaab8c6639192fbc1b97b8d1697246a91dda992fefbf379be2ba3670449358c",
+      "size_bytes": 3703
+    },
+    {
+      "path": "configs/C5-drop-trigger-s1011.json",
+      "sha256": "37f8c86b18c92172640dc9cb7d295e4bf38b9a33e50505f65404a39f49c768b8",
+      "size_bytes": 3700
+    },
+    {
+      "path": "configs/C5-drop-trigger-s1012.json",
+      "sha256": "716751e8afb65da2525cb1c6948d5e8f20adf76562c8006c7aa0eba0ed266a60",
+      "size_bytes": 3704
+    },
+    {
+      "path": "configs/C5-drop-trigger-s1013.json",
+      "sha256": "b45da698ace18b886cfad5a3f1f642f5b65a487b4fa5944f3f60b59be411cbce",
+      "size_bytes": 3700
+    },
+    {
+      "path": "configs/C5-drop-trigger-s1014.json",
+      "sha256": "1930ae71b0fcb790b9c97c980812762a1da6f9c137004518949d117314690c6f",
+      "size_bytes": 3688
+    },
+    {
+      "path": "configs/C5-drop-trigger-s1015.json",
+      "sha256": "29290a238ba020c965143b49cc151b5c0fcc544da369743630ca4eb522550371",
+      "size_bytes": 3701
+    },
+    {
+      "path": "configs/C5-drop-trigger-s1016.json",
+      "sha256": "49ca616a26d7ef7e5f916455e76c634c0a9f0ab7e596e898998f47435bc380c5",
+      "size_bytes": 3697
+    },
+    {
+      "path": "configs/C5-drop-trigger-s1017.json",
+      "sha256": "b738f0b4b49b46e5113a7e7a68582e5226aa805697978658da234247665538a4",
+      "size_bytes": 3697
+    },
+    {
+      "path": "configs/C5-drop-trigger-s1018.json",
+      "sha256": "689e0e802139df6cda7954748a9cc73f19d3eb4cc7d3ac9040d18b8593843428",
+      "size_bytes": 3689
+    },
+    {
+      "path": "configs/C5-drop-trigger-s1019.json",
+      "sha256": "af54fd4f4afd1149abc97a752edddc5abc876ceff308240a47b00b82be6fde8a",
+      "size_bytes": 3688
+    },
+    {
+      "path": "configs/C5-drop-trigger-s1020.json",
+      "sha256": "fba21c498467f4e8ff4b2451d1e5a82e832f2d0b4ddb487f5b6af8a1a029ba57",
+      "size_bytes": 3695
+    },
+    {
+      "path": "configs/C5-drop-trigger-s1021.json",
+      "sha256": "b8ff09fddf85d2c82f3c97bc3f3b84a0da6de60d003d4d90e6b367c8544d75eb",
+      "size_bytes": 3696
+    },
+    {
+      "path": "configs/C5-drop-trigger-s1022.json",
+      "sha256": "4a6d3e9d517752e46f171af20c172899a0c3a880e1d3d6f66db00afd46a6ee8d",
+      "size_bytes": 3698
+    },
+    {
+      "path": "configs/C5-drop-trigger-s1023.json",
+      "sha256": "f4806260666f8ee89104345c2f3872bdb1c0bbed550e75c9144b746cd6d44d4a",
+      "size_bytes": 3694
+    },
+    {
+      "path": "configs/C5-drop-trigger-s1024.json",
+      "sha256": "9b1ad7e33871085c80b0ab2414e00823f9927bc5136e760f7d8982e9d33a87e7",
+      "size_bytes": 3693
+    },
+    {
+      "path": "configs/C5-drop-trigger-s1025.json",
+      "sha256": "bedba7d7235ffd56513e9515ec50253ab27893b88d6fb5285f6d846fa277736a",
+      "size_bytes": 3686
+    },
+    {
+      "path": "configs/C5-drop-trigger-s1026.json",
+      "sha256": "7704139009a13e9436478920597a371f6ce71a58490dfc48d744fe9e613fe9c5",
+      "size_bytes": 3694
+    },
+    {
+      "path": "configs/C5-drop-trigger-s1027.json",
+      "sha256": "27ad9cb157835de2205e1a08ce02b87cd6f79d5bacc4a8aedc1f0f1527ce9772",
+      "size_bytes": 3693
+    },
+    {
+      "path": "configs/C5-drop-trigger-s1028.json",
+      "sha256": "9ef6c401eeb4f7770df8caa5ee331efefb0bf1c1b887b6de3239fc35ea39dd98",
+      "size_bytes": 3703
+    },
+    {
+      "path": "configs/C5-drop-trigger-s1029.json",
+      "sha256": "ac81e57ae06ea63695ecb99365cc2caf6950c9acfe4cfbd3be64e8f83edb2998",
+      "size_bytes": 3698
+    },
+    {
+      "path": "configs/C5-drop-trigger-s1030.json",
+      "sha256": "bacf76b8dfa15aa02343798d1f67e39e226ade4ac82c61cced2e619546efb6f1",
+      "size_bytes": 3705
+    },
+    {
+      "path": "configs/C5-drop-trigger-s1031.json",
+      "sha256": "1b2ac69c64e461860350c553e31f64cd20f0e7ae24cf5329f947c5b8c89fda6a",
+      "size_bytes": 3700
+    },
+    {
+      "path": "configs/C5-drop-trigger-s1032.json",
+      "sha256": "238c3e6abde4dc9a4960597dca9907acf3c3a0b69251d60d8dbb9cb57db5b791",
+      "size_bytes": 3689
+    },
+    {
+      "path": "configs/C5-drop-trigger-s1033.json",
+      "sha256": "23e9ee71094c6dba0b8366c0b707425b06f762dfd44294d309268a26fa0874d1",
+      "size_bytes": 3701
+    },
+    {
+      "path": "configs/C5-drop-trigger-s1034.json",
+      "sha256": "5213bd4d2c3874a7569a43e102d2f289cea18c5d5982d0ccc6eb9c8ce50669bb",
+      "size_bytes": 3697
+    },
+    {
+      "path": "configs/C5-drop-trigger-s1035.json",
+      "sha256": "a258155d646162b6d7cec5f4c756b9c696d6b9b890ede5ca4a0048ab07879880",
+      "size_bytes": 3697
+    },
+    {
+      "path": "configs/C5-greedy_pure-trigger-s1000.json",
+      "sha256": "e0d7a051288456b1bc9ce32a22b9b3788e98e6c825657c903e357f8f748bff5f",
+      "size_bytes": 3709
+    },
+    {
+      "path": "configs/C5-greedy_pure-trigger-s1001.json",
+      "sha256": "fa76caa5e1bf8c71e8c6c065c1082f3b67a8800382bd6960437a4e88cabfc208",
+      "size_bytes": 3708
+    },
+    {
+      "path": "configs/C5-greedy_pure-trigger-s1002.json",
+      "sha256": "66361cd4b118340d627135000dc328eb457df3b5c5503be763fef89ccd037563",
+      "size_bytes": 3715
+    },
+    {
+      "path": "configs/C5-greedy_pure-trigger-s1003.json",
+      "sha256": "45f8987f4d5e4caf1b804ba076012f8ba6d6806b89a014ec669871de64f5476f",
+      "size_bytes": 3717
+    },
+    {
+      "path": "configs/C5-greedy_pure-trigger-s1004.json",
+      "sha256": "6327541149f8aa094320e4414c1a0a5846522275a9a45a1b313a312fa41df7e7",
+      "size_bytes": 3718
+    },
+    {
+      "path": "configs/C5-greedy_pure-trigger-s1005.json",
+      "sha256": "026fe61c5b626ec70622a51259e4e771cd3714e5c55477e18fb80003d5dc55e6",
+      "size_bytes": 3715
+    },
+    {
+      "path": "configs/C5-greedy_pure-trigger-s1006.json",
+      "sha256": "72b93ae7efe667149082e83ffe77d4e02ec01ea93d5f7fef0510f36e1ad9fef7",
+      "size_bytes": 3712
+    },
+    {
+      "path": "configs/C5-greedy_pure-trigger-s1007.json",
+      "sha256": "5844d537693e92cc9fb662cb6d3993a1395c7ba7efd760e26597ba18c09983d2",
+      "size_bytes": 3706
+    },
+    {
+      "path": "configs/C5-greedy_pure-trigger-s1008.json",
+      "sha256": "93a8f82d256d6fce2d955922b830cdb764a01604dd53cf6928598e5e89ab97b7",
+      "size_bytes": 3713
+    },
+    {
+      "path": "configs/C5-greedy_pure-trigger-s1009.json",
+      "sha256": "c7d7f4ddca28ef6c67a6aa782863b5f9e9183ed531f6084f85a15dbe92742a81",
+      "size_bytes": 3713
+    },
+    {
+      "path": "configs/C5-greedy_pure-trigger-s1010.json",
+      "sha256": "f0eae0b2186c8370f15d65279c78e7a7f3ea58787e841dee5b5f881417b0aac4",
+      "size_bytes": 3723
+    },
+    {
+      "path": "configs/C5-greedy_pure-trigger-s1011.json",
+      "sha256": "789b88e081c8b33649613cf60c34c148b88767857ac5b4a078525faad1723764",
+      "size_bytes": 3720
+    },
+    {
+      "path": "configs/C5-greedy_pure-trigger-s1012.json",
+      "sha256": "e2eb6307d79bbdb3af141371dc5d299d946dae1b0bd59e7cce9a4ffec05ad6e7",
+      "size_bytes": 3724
+    },
+    {
+      "path": "configs/C5-greedy_pure-trigger-s1013.json",
+      "sha256": "ef962b645a3b79a527955c4a55c89251d53e29706c85be92b19bd5f6c486eba4",
+      "size_bytes": 3720
+    },
+    {
+      "path": "configs/C5-greedy_pure-trigger-s1014.json",
+      "sha256": "cf7188c3c30a96364cd534b369ad5c0a52d9fdee1afc03c49b78154e7e49dc74",
+      "size_bytes": 3708
+    },
+    {
+      "path": "configs/C5-greedy_pure-trigger-s1015.json",
+      "sha256": "58bab81a8ac490293b12dc9a82ee8f84a939a446a191979feabda799cabf0e20",
+      "size_bytes": 3721
+    },
+    {
+      "path": "configs/C5-greedy_pure-trigger-s1016.json",
+      "sha256": "d0debd3a9505ed84ff0886df5482ef49b79515ae6cc9dde41708f266f155f73f",
+      "size_bytes": 3717
+    },
+    {
+      "path": "configs/C5-greedy_pure-trigger-s1017.json",
+      "sha256": "65fc54820c1fefefaedf933d3c0d2214c4e8453a71998d54c94edbe88b243168",
+      "size_bytes": 3717
+    },
+    {
+      "path": "configs/C5-greedy_pure-trigger-s1018.json",
+      "sha256": "8f59e16852d0b80ea91fd34cdc58be4250c1e7bd963632346c515ecb9fbebc3f",
+      "size_bytes": 3709
+    },
+    {
+      "path": "configs/C5-greedy_pure-trigger-s1019.json",
+      "sha256": "52196c1aa398aa1909bd7224812241f0a448e465a2c5e07101534dfb13346584",
+      "size_bytes": 3708
+    },
+    {
+      "path": "configs/C5-greedy_pure-trigger-s1020.json",
+      "sha256": "297c920840212c0c44b53021e9a5d1303ee6d797f23ad791fab054e93a2f9dc2",
+      "size_bytes": 3715
+    },
+    {
+      "path": "configs/C5-greedy_pure-trigger-s1021.json",
+      "sha256": "4ed87f5f0a7657d5375a2c8e32365597d685f0a636c7672af3bb8eaf743372b6",
+      "size_bytes": 3716
+    },
+    {
+      "path": "configs/C5-greedy_pure-trigger-s1022.json",
+      "sha256": "7e27d8f77d6107c7540a5f502daabb76605fb39924ccf94c6d03b146f9d8b249",
+      "size_bytes": 3718
+    },
+    {
+      "path": "configs/C5-greedy_pure-trigger-s1023.json",
+      "sha256": "99b7cb764e3defb1c1f786ddbc3ac553e4b362ced807a728f8279d0301be7c42",
+      "size_bytes": 3714
+    },
+    {
+      "path": "configs/C5-greedy_pure-trigger-s1024.json",
+      "sha256": "310e32b678c5b5f22aee90099956c604816fa8b1e11077732eddc295fff9d95e",
+      "size_bytes": 3713
+    },
+    {
+      "path": "configs/C5-greedy_pure-trigger-s1025.json",
+      "sha256": "a35a848f7c04a321a7cf6430188644ad6d1aae7eabd886a6b8a759084dac6afb",
+      "size_bytes": 3706
+    },
+    {
+      "path": "configs/C5-greedy_pure-trigger-s1026.json",
+      "sha256": "5c77f63f9d5c02947d11697b341278a039968801e90c64930c34e163aa5168d2",
+      "size_bytes": 3714
+    },
+    {
+      "path": "configs/C5-greedy_pure-trigger-s1027.json",
+      "sha256": "f0d67012e13a97824790b0ad12ffc85a5a9700be3b402e99011c5b14fea0b020",
+      "size_bytes": 3713
+    },
+    {
+      "path": "configs/C5-greedy_pure-trigger-s1028.json",
+      "sha256": "76942bff29a4e91f8c54442063ece572da72bab8d7fb04c97bb124fc48b210c7",
+      "size_bytes": 3723
+    },
+    {
+      "path": "configs/C5-greedy_pure-trigger-s1029.json",
+      "sha256": "7c4c80dbb8ffd6ef161ad05811e70f3dd1c14191fb64b0132dba2aab383778ec",
+      "size_bytes": 3718
+    },
+    {
+      "path": "configs/C5-greedy_pure-trigger-s1030.json",
+      "sha256": "ff763beee7b86cbaa19222d9db835a59e44e7b8e6cbd47149614abfbac77db97",
+      "size_bytes": 3725
+    },
+    {
+      "path": "configs/C5-greedy_pure-trigger-s1031.json",
+      "sha256": "1f7ca1bd316d0cb477819dca70b4cda3bdbebaeef1fd5e67551e7d3bee8bf1b9",
+      "size_bytes": 3720
+    },
+    {
+      "path": "configs/C5-greedy_pure-trigger-s1032.json",
+      "sha256": "8ae320feb377af8d203c95cab7797f4cfcfe89906bed183645426146ff1df33d",
+      "size_bytes": 3709
+    },
+    {
+      "path": "configs/C5-greedy_pure-trigger-s1033.json",
+      "sha256": "a1c25e51cd3e4e35e5054bfdc5008b7b7a31381bc4a83aea27a5b31a898661a9",
+      "size_bytes": 3721
+    },
+    {
+      "path": "configs/C5-greedy_pure-trigger-s1034.json",
+      "sha256": "9ce4a4b80a830549ddbfb3ce4db61a5a294e11f6763a43847810c65398d7c82b",
+      "size_bytes": 3717
+    },
+    {
+      "path": "configs/C5-greedy_pure-trigger-s1035.json",
+      "sha256": "28f8c454f006b8124c4301f7b53d508672e426ac5a42fae204f8fb0b6c6a5867",
+      "size_bytes": 3717
+    },
+    {
+      "path": "configs/C5-greedy_visited-none-s1000.json",
+      "sha256": "12f0b46e3a22256d61f0a4df9f2a121dbc7ff1d7836c8595cb2f6714d765a57d",
+      "size_bytes": 3710
+    },
+    {
+      "path": "configs/C5-greedy_visited-none-s1001.json",
+      "sha256": "1a13bf798d06fad6cd65ec4a5721b59de5b699cecfe864d2cd709044aed51f54",
+      "size_bytes": 3710
+    },
+    {
+      "path": "configs/C5-greedy_visited-none-s1002.json",
+      "sha256": "5a8b3f74afde0c7b5a6f4be49a6a452db3370746176a6c6b965f382782723bc3",
+      "size_bytes": 3716
+    },
+    {
+      "path": "configs/C5-greedy_visited-none-s1003.json",
+      "sha256": "a105bf4fd6a00031bef4fe19417ba055a321c558a646a3af66fcda373917ed7f",
+      "size_bytes": 3718
+    },
+    {
+      "path": "configs/C5-greedy_visited-none-s1004.json",
+      "sha256": "340fdfce2876feb2edd5ed498756119f481e22bee5785ff8a6dca78979cc0d10",
+      "size_bytes": 3720
+    },
+    {
+      "path": "configs/C5-greedy_visited-none-s1005.json",
+      "sha256": "9a1b1c6b0c60ff6a9d21de535e6e60ad82d627a0945a5a1cc124e844f7b28edf",
+      "size_bytes": 3716
+    },
+    {
+      "path": "configs/C5-greedy_visited-none-s1006.json",
+      "sha256": "4f36649cd78c8d0cd36722f6d930164c5f754f41b6d9c971243a5c2fa6210152",
+      "size_bytes": 3714
+    },
+    {
+      "path": "configs/C5-greedy_visited-none-s1007.json",
+      "sha256": "d9060882f7ef20053c946d04d3b5188f4530cc4d49ac326f1507c2c3872d6522",
+      "size_bytes": 3708
+    },
+    {
+      "path": "configs/C5-greedy_visited-none-s1008.json",
+      "sha256": "cbe3616157b04718d1274694029724196a1e80ccdc9c287e9f6b2864b3779e31",
+      "size_bytes": 3716
+    },
+    {
+      "path": "configs/C5-greedy_visited-none-s1009.json",
+      "sha256": "45c96dfda2f30c62f720ef72afb0f2dedeabfb2ed7fc375dd30caec2c90741f5",
+      "size_bytes": 3714
+    },
+    {
+      "path": "configs/C5-greedy_visited-none-s1010.json",
+      "sha256": "de25b2b28968b0dfa9132db642423a27aa4cdf5e47d753a963a370cf1472ade8",
+      "size_bytes": 3724
+    },
+    {
+      "path": "configs/C5-greedy_visited-none-s1011.json",
+      "sha256": "398d5aef7a14a89e01d75815d92d84818133a1fa1559c39fef5524bc698174dd",
+      "size_bytes": 3722
+    },
+    {
+      "path": "configs/C5-greedy_visited-none-s1012.json",
+      "sha256": "9af3ab216f910ed68e2e97f966a160c177ad073268bd3be7ed1529a6eb4db64c",
+      "size_bytes": 3726
+    },
+    {
+      "path": "configs/C5-greedy_visited-none-s1013.json",
+      "sha256": "f3b48fae004fe1ac60795120d804ff8906e169993ea2d027d8c2b2ab333d6683",
+      "size_bytes": 3722
+    },
+    {
+      "path": "configs/C5-greedy_visited-none-s1014.json",
+      "sha256": "e9edbe3c9f4e972fdc1a2ab1f1f8b9af86020ca0681c56e3b802cf3aeeae4f8f",
+      "size_bytes": 3710
+    },
+    {
+      "path": "configs/C5-greedy_visited-none-s1015.json",
+      "sha256": "7b11585078316aa5d00c68907d3b37af3039a022036800b54a87d8ad3927a982",
+      "size_bytes": 3722
+    },
+    {
+      "path": "configs/C5-greedy_visited-none-s1016.json",
+      "sha256": "d9119cc1d626857613c2c1e605d5e813a57b6f96f7c2e780b1fa0454fd32e443",
+      "size_bytes": 3718
+    },
+    {
+      "path": "configs/C5-greedy_visited-none-s1017.json",
+      "sha256": "b1e910065c22ec1db4d6c310854a6a306b1afe0c1e86a80ddf3070daaff3fb21",
+      "size_bytes": 3718
+    },
+    {
+      "path": "configs/C5-greedy_visited-none-s1018.json",
+      "sha256": "b56a0a19a7a312e0017db694b5992e0bd546b3986db821da17d41609362cca38",
+      "size_bytes": 3710
+    },
+    {
+      "path": "configs/C5-greedy_visited-none-s1019.json",
+      "sha256": "f8e9e3a6c80a0096311d390b67af52d73ffcf6c529a7a4dbf6d03201f21bb376",
+      "size_bytes": 3710
+    },
+    {
+      "path": "configs/C5-greedy_visited-none-s1020.json",
+      "sha256": "8e5a1f5438ea92a472f06055f8813c49a97bb080eb31e44938eb5ed47a3c8542",
+      "size_bytes": 3716
+    },
+    {
+      "path": "configs/C5-greedy_visited-none-s1021.json",
+      "sha256": "829d36d72c57b3f7d55b0c57b6e18ef2cc1d780a816e6d062838af1bb2871b64",
+      "size_bytes": 3718
+    },
+    {
+      "path": "configs/C5-greedy_visited-none-s1022.json",
+      "sha256": "41912e3720973d5ee22833ccc23557d722c53100631ee8cc13f68768124c0496",
+      "size_bytes": 3720
+    },
+    {
+      "path": "configs/C5-greedy_visited-none-s1023.json",
+      "sha256": "047682c99ab1d4b1690eba2f1ee1644310961f59d9f5e4a559655393e380f55f",
+      "size_bytes": 3716
+    },
+    {
+      "path": "configs/C5-greedy_visited-none-s1024.json",
+      "sha256": "4c492b8642f8219f6503d09d84a25be7ace860dc78b808386c92b7c958c422f6",
+      "size_bytes": 3714
+    },
+    {
+      "path": "configs/C5-greedy_visited-none-s1025.json",
+      "sha256": "cc8d89025fa4ffeaaa219df544cab23d4148649c8321e0222b17432e657add0d",
+      "size_bytes": 3708
+    },
+    {
+      "path": "configs/C5-greedy_visited-none-s1026.json",
+      "sha256": "c4dcaef126977b4198d7d4590f527e1034462f72ac9ea426a96eb94e29911e0e",
+      "size_bytes": 3716
+    },
+    {
+      "path": "configs/C5-greedy_visited-none-s1027.json",
+      "sha256": "7e049630826bbb6913fbd0170df8ad1138476b156aef4a43bcb13e0f962a769a",
+      "size_bytes": 3714
+    },
+    {
+      "path": "configs/C5-greedy_visited-none-s1028.json",
+      "sha256": "c5c57f7aa6da621bdd7a067dad294c03612109ee8fe84131a94b1fd6b892beba",
+      "size_bytes": 3724
+    },
+    {
+      "path": "configs/C5-greedy_visited-none-s1029.json",
+      "sha256": "bbb5c9a9ab6c518f34c22d1a09a26dce778f19c4ff68b8ec4eb026a431d0245f",
+      "size_bytes": 3722
+    },
+    {
+      "path": "configs/C5-greedy_visited-none-s1030.json",
+      "sha256": "4028cc0354bdc2842d52ee4800d42f4fbbc6589d9db92cb48376523653cc9b97",
+      "size_bytes": 3726
+    },
+    {
+      "path": "configs/C5-greedy_visited-none-s1031.json",
+      "sha256": "64816f75fa4dd5673c7f11c217cca947732f58f0edcdc32e1682e73a21cc96dc",
+      "size_bytes": 3722
+    },
+    {
+      "path": "configs/C5-greedy_visited-none-s1032.json",
+      "sha256": "f0bdf4b5612b5c225b3da8fed8181307b2ef3fe7088076d167b6f91f16e4c70f",
+      "size_bytes": 3710
+    },
+    {
+      "path": "configs/C5-greedy_visited-none-s1033.json",
+      "sha256": "b5ae21f6903e3092badabd5081a2041f7a66b0b11230aeb86df3dd698968b994",
+      "size_bytes": 3722
+    },
+    {
+      "path": "configs/C5-greedy_visited-none-s1034.json",
+      "sha256": "40d8599cc57adeacf59188e71c55b419389b260820a314a331148be4e4c48519",
+      "size_bytes": 3718
+    },
+    {
+      "path": "configs/C5-greedy_visited-none-s1035.json",
+      "sha256": "45539d601522835285c1a3e49e76fe5d6aa4f78025ef123c57ae0697f2050361",
+      "size_bytes": 3718
+    },
+    {
+      "path": "configs/C5-greedy_visited-trigger-s1000.json",
+      "sha256": "00c255bae60a16119a9028cb237a8fefbee404961e0b7c44f1c9e603243cea12",
+      "size_bytes": 3721
+    },
+    {
+      "path": "configs/C5-greedy_visited-trigger-s1001.json",
+      "sha256": "84dadb8a07f9cbd042d62cd49a30262e46aff7da41e60c2be420aac33309a666",
+      "size_bytes": 3720
+    },
+    {
+      "path": "configs/C5-greedy_visited-trigger-s1002.json",
+      "sha256": "74d509c324a85d0eaa9751a3b55e5bbaab6af82a4b7371e2cb5cab8c1c6863cf",
+      "size_bytes": 3727
+    },
+    {
+      "path": "configs/C5-greedy_visited-trigger-s1003.json",
+      "sha256": "bc363527a20ecb8f130565c78e4665b0317d587a9bed1cc42d2eaab455110748",
+      "size_bytes": 3729
+    },
+    {
+      "path": "configs/C5-greedy_visited-trigger-s1004.json",
+      "sha256": "2e86690366a59ca2c3947ca04e58c870b52ca6cf520ae981a5cd037d80704b55",
+      "size_bytes": 3730
+    },
+    {
+      "path": "configs/C5-greedy_visited-trigger-s1005.json",
+      "sha256": "ce9f46859e1516ee7bcfbe37e5c5c88a8510f1244b2b57f0f99b9ef43d065ded",
+      "size_bytes": 3727
+    },
+    {
+      "path": "configs/C5-greedy_visited-trigger-s1006.json",
+      "sha256": "fd26d4ed7b7ae713e10e28f83353d7f14bda33b8fae3a4ee04583044473a6083",
+      "size_bytes": 3724
+    },
+    {
+      "path": "configs/C5-greedy_visited-trigger-s1007.json",
+      "sha256": "011e52722e4597f94e214bccc4d53f116dd87673866a09cbb2d90f94e6dd396b",
+      "size_bytes": 3718
+    },
+    {
+      "path": "configs/C5-greedy_visited-trigger-s1008.json",
+      "sha256": "b522d7d23530281ab52f375ac96acb06e7dc7c70b514209f291053472a326d20",
+      "size_bytes": 3725
+    },
+    {
+      "path": "configs/C5-greedy_visited-trigger-s1009.json",
+      "sha256": "dfb2f3b775e24f34c9f32df13caf54bb53bbc6517b01aa2e1e1d3c4703de13f1",
+      "size_bytes": 3725
+    },
+    {
+      "path": "configs/C5-greedy_visited-trigger-s1010.json",
+      "sha256": "ea04effe58885ca7c2d71d6178dc3a3864abe3e1c10e364060b89d288610dd73",
+      "size_bytes": 3735
+    },
+    {
+      "path": "configs/C5-greedy_visited-trigger-s1011.json",
+      "sha256": "d93fad20cede8d53c6c61a801667cbd560298791c805f66c5e695ab61981931d",
+      "size_bytes": 3732
+    },
+    {
+      "path": "configs/C5-greedy_visited-trigger-s1012.json",
+      "sha256": "d13301fe893b6382ef1e6fd92af8b2620126b3bd211651e98c04dd6624cfafe9",
+      "size_bytes": 3736
+    },
+    {
+      "path": "configs/C5-greedy_visited-trigger-s1013.json",
+      "sha256": "5e6a887db0fcc8cba7c769d8fc71afd172b6245ea4f31179cfaf1609e6136895",
+      "size_bytes": 3732
+    },
+    {
+      "path": "configs/C5-greedy_visited-trigger-s1014.json",
+      "sha256": "d59aa313c746dc54d8fac9c2f5273d5a2c1e1cac4735c1f63a700e0704c53d58",
+      "size_bytes": 3720
+    },
+    {
+      "path": "configs/C5-greedy_visited-trigger-s1015.json",
+      "sha256": "b7f6adfd3f41c045b6777a69acc9e8bed56cdc39d2f85e26ec9d7dde68ea66fb",
+      "size_bytes": 3733
+    },
+    {
+      "path": "configs/C5-greedy_visited-trigger-s1016.json",
+      "sha256": "3c05d40d8dbcd42d556178606d96b0624bd304bff323aa8ea57639e858a1f72a",
+      "size_bytes": 3729
+    },
+    {
+      "path": "configs/C5-greedy_visited-trigger-s1017.json",
+      "sha256": "509be40abcca4b3f5a77e7ebd762c055aa5eb15edd0e89ddb70fc866241de220",
+      "size_bytes": 3729
+    },
+    {
+      "path": "configs/C5-greedy_visited-trigger-s1018.json",
+      "sha256": "aeb95e2bc5fce4d1591086cf8127663ab7abaacc9a4642b959e9b0e0e027d515",
+      "size_bytes": 3721
+    },
+    {
+      "path": "configs/C5-greedy_visited-trigger-s1019.json",
+      "sha256": "35418d3b037e9c5ae1dd7590fb5196281fddd4eb9585ddcee6ae57a0db0db72f",
+      "size_bytes": 3720
+    },
+    {
+      "path": "configs/C5-greedy_visited-trigger-s1020.json",
+      "sha256": "72103e745e6f638d097fe22be560120c19338f906d9b3344b6be4c46f6b4b994",
+      "size_bytes": 3727
+    },
+    {
+      "path": "configs/C5-greedy_visited-trigger-s1021.json",
+      "sha256": "a8cf45db427932fbc677a8346626672af7fb36bb7fbedbc5d2947473b66f1f6b",
+      "size_bytes": 3728
+    },
+    {
+      "path": "configs/C5-greedy_visited-trigger-s1022.json",
+      "sha256": "ef27a883e6817be58d07cd113ebb2d006d78e905fab5af5430033060e7677f8b",
+      "size_bytes": 3730
+    },
+    {
+      "path": "configs/C5-greedy_visited-trigger-s1023.json",
+      "sha256": "6620e035b6a25418e044d09cfb191de4915f638e7063039229d5915c7b759082",
+      "size_bytes": 3726
+    },
+    {
+      "path": "configs/C5-greedy_visited-trigger-s1024.json",
+      "sha256": "8f708bf0d83b9292f2c724535392a230e782118f519aa60ad7b878ad42d0fe4e",
+      "size_bytes": 3725
+    },
+    {
+      "path": "configs/C5-greedy_visited-trigger-s1025.json",
+      "sha256": "e36fcac6af8e6368da9558182ce6b455c8f55c744fdb6683f7d19153e172218f",
+      "size_bytes": 3718
+    },
+    {
+      "path": "configs/C5-greedy_visited-trigger-s1026.json",
+      "sha256": "b85daa0b6f8b219e9e705c5e89993b6a9ba1e83553e4abe4da34fd6b15b0b8c3",
+      "size_bytes": 3726
+    },
+    {
+      "path": "configs/C5-greedy_visited-trigger-s1027.json",
+      "sha256": "f500f6e68be7da03cba1617941fb91695bd4b397054c520116434a51b45d69fa",
+      "size_bytes": 3725
+    },
+    {
+      "path": "configs/C5-greedy_visited-trigger-s1028.json",
+      "sha256": "1a3b0537dfb62fb8d9ba4b7b62f6e03f3e8463199e54d7f09b9dbb8982868674",
+      "size_bytes": 3735
+    },
+    {
+      "path": "configs/C5-greedy_visited-trigger-s1029.json",
+      "sha256": "390e901b25007d7b1552836da2f72d710cc6cacd412632649ac7c3fe917f0a47",
+      "size_bytes": 3730
+    },
+    {
+      "path": "configs/C5-greedy_visited-trigger-s1030.json",
+      "sha256": "a300daa72723b3e102985dd58edd7733dc4e5dc4b6ffdb969e321055efefcea0",
+      "size_bytes": 3737
+    },
+    {
+      "path": "configs/C5-greedy_visited-trigger-s1031.json",
+      "sha256": "2cf020a33e00674ccba184906271b7b9d6eaf7fcdb467036e91e1e265afcd0fd",
+      "size_bytes": 3732
+    },
+    {
+      "path": "configs/C5-greedy_visited-trigger-s1032.json",
+      "sha256": "142eb95f81b6124cb99780c8484e47917a34fab7d4975abca56d5cba1033dae1",
+      "size_bytes": 3721
+    },
+    {
+      "path": "configs/C5-greedy_visited-trigger-s1033.json",
+      "sha256": "ed47b849dd53c2348ae667c2f1fca3a60f13ef8b11252cca7722dfa0edc2f24c",
+      "size_bytes": 3733
+    },
+    {
+      "path": "configs/C5-greedy_visited-trigger-s1034.json",
+      "sha256": "0aba3e01e337033d31a98804f0893948f3b3675999d19c27541818703506fbb2",
+      "size_bytes": 3729
+    },
+    {
+      "path": "configs/C5-greedy_visited-trigger-s1035.json",
+      "sha256": "ab8b664036b5fb1a6fbb0fa664934d97a5d2eeb7a2019f2f63a01c7704aafb52",
+      "size_bytes": 3729
+    },
+    {
+      "path": "configs/C5-grid_detour-trigger-s1000.json",
+      "sha256": "0aebf59e15d6d3b0e00164100a8e453df23a0bfcfca6c19194e9d99e8c3fec54",
+      "size_bytes": 3709
+    },
+    {
+      "path": "configs/C5-grid_detour-trigger-s1001.json",
+      "sha256": "083659e52aa15efc290deafd0e4f9d8a85ee24134b786eff7486394d8647b654",
+      "size_bytes": 3708
+    },
+    {
+      "path": "configs/C5-grid_detour-trigger-s1002.json",
+      "sha256": "b7dfa537ddf8503ee9940e7b416433fa9d59c936c3e8d997863e50b16f925e9c",
+      "size_bytes": 3715
+    },
+    {
+      "path": "configs/C5-grid_detour-trigger-s1003.json",
+      "sha256": "627290c6d68c1d961b522bbf326d532f4df43ab37b04c8e8a532fa6e65123855",
+      "size_bytes": 3717
+    },
+    {
+      "path": "configs/C5-grid_detour-trigger-s1004.json",
+      "sha256": "8e7788a39fe18618492fe4054b4838bf0bd86f8daacbd8a15ce66cdd5eadba6a",
+      "size_bytes": 3718
+    },
+    {
+      "path": "configs/C5-grid_detour-trigger-s1005.json",
+      "sha256": "e5aad825692271d44d3ffb06f9eb23f1149c3afe0fbe23e5f8dd1bee5118da30",
+      "size_bytes": 3715
+    },
+    {
+      "path": "configs/C5-grid_detour-trigger-s1006.json",
+      "sha256": "804f8a5cfed7e1378a108e1ca59e37681274ce17ccb655192a77d611ecbfe55f",
+      "size_bytes": 3712
+    },
+    {
+      "path": "configs/C5-grid_detour-trigger-s1007.json",
+      "sha256": "4f684469fb60f3ec877df6be6773e396c3021a27f7cd39c06cfc1a745cd9e8dc",
+      "size_bytes": 3706
+    },
+    {
+      "path": "configs/C5-grid_detour-trigger-s1008.json",
+      "sha256": "ef1d554c76551e3f3e987c8c740fe3f95d3aae34ff8449b6baf7778f7ee04d35",
+      "size_bytes": 3713
+    },
+    {
+      "path": "configs/C5-grid_detour-trigger-s1009.json",
+      "sha256": "c5a58799347e284a1b274c5e9952e7fee460a0ac166beb4b591932887aed5b16",
+      "size_bytes": 3713
+    },
+    {
+      "path": "configs/C5-grid_detour-trigger-s1010.json",
+      "sha256": "0a4af0e9306c72d8f49308e690b46f57f71825fb97a6af0310146a8ddc937ca6",
+      "size_bytes": 3723
+    },
+    {
+      "path": "configs/C5-grid_detour-trigger-s1011.json",
+      "sha256": "e3e07c65bb82b87e55ba2463114e8685a892ad2c07d2111ce4e3c70052356d72",
+      "size_bytes": 3720
+    },
+    {
+      "path": "configs/C5-grid_detour-trigger-s1012.json",
+      "sha256": "6846b65d1a34b157f9bd1feefc967ef07fd76b3d0fcfee679e21a2780cc610d2",
+      "size_bytes": 3724
+    },
+    {
+      "path": "configs/C5-grid_detour-trigger-s1013.json",
+      "sha256": "f3d47abc6a0c8f576573473af61477c290e99fb2f2258700183bcf33b954193d",
+      "size_bytes": 3720
+    },
+    {
+      "path": "configs/C5-grid_detour-trigger-s1014.json",
+      "sha256": "7b207bb4ed3540d813b2388702765e7b8f5adf980270b63d39dd307c2dbc731d",
+      "size_bytes": 3708
+    },
+    {
+      "path": "configs/C5-grid_detour-trigger-s1015.json",
+      "sha256": "6e95ef14dfdd002688856ae8d96ed5825a919cf9b717166cbdee10fee8603a89",
+      "size_bytes": 3721
+    },
+    {
+      "path": "configs/C5-grid_detour-trigger-s1016.json",
+      "sha256": "77d7bbb5b56a930f5564306572322381bd6558699e7270f40a019de1709a4227",
+      "size_bytes": 3717
+    },
+    {
+      "path": "configs/C5-grid_detour-trigger-s1017.json",
+      "sha256": "71590beee0734a6718f8ddba3c07f849c3d2b338ad1a7216fb657d097d912a64",
+      "size_bytes": 3717
+    },
+    {
+      "path": "configs/C5-grid_detour-trigger-s1018.json",
+      "sha256": "d38483d6d2d6495ad952f926318bfa8b74a1fb7054ec9540bb4bd0cf4054159c",
+      "size_bytes": 3709
+    },
+    {
+      "path": "configs/C5-grid_detour-trigger-s1019.json",
+      "sha256": "c96d8149b45168aec8a1fa54f0d8a7775a2c95a33263accf72f5440e055e0ab3",
+      "size_bytes": 3708
+    },
+    {
+      "path": "configs/C5-grid_detour-trigger-s1020.json",
+      "sha256": "d4f696b3f573ce0f1b20c806a072d197d331b06201d130ce6795e6eae042232b",
+      "size_bytes": 3715
+    },
+    {
+      "path": "configs/C5-grid_detour-trigger-s1021.json",
+      "sha256": "9fd397bea3a2257afc469e4dbad599fe0071e065e8561793349d2160c5798a77",
+      "size_bytes": 3716
+    },
+    {
+      "path": "configs/C5-grid_detour-trigger-s1022.json",
+      "sha256": "2bc02fbd89c119270effdb33b3550128d2736664cf467560dd174d7d373e15ae",
+      "size_bytes": 3718
+    },
+    {
+      "path": "configs/C5-grid_detour-trigger-s1023.json",
+      "sha256": "0e2de6c99a14db96e034a5da0eba363b862d0b4389793881c3f434e5dbb3a711",
+      "size_bytes": 3714
+    },
+    {
+      "path": "configs/C5-grid_detour-trigger-s1024.json",
+      "sha256": "229d9b5e04577f981c7fd92e03542c48a3ef8dc5319f5b80d10550cbba743612",
+      "size_bytes": 3713
+    },
+    {
+      "path": "configs/C5-grid_detour-trigger-s1025.json",
+      "sha256": "b2b02250d3f56ccf82cfdccccf2a8ba0affc0d70171b7080d6cd17ece31a7bd2",
+      "size_bytes": 3706
+    },
+    {
+      "path": "configs/C5-grid_detour-trigger-s1026.json",
+      "sha256": "aa11efe323ab9abae6fc62db4b032fe8f2f2bb70b145b8bfc952dbfa2b66f400",
+      "size_bytes": 3714
+    },
+    {
+      "path": "configs/C5-grid_detour-trigger-s1027.json",
+      "sha256": "b9deff578134f8f67795b4045359ceffd85fae53558a3e875f841c108ed5a6e8",
+      "size_bytes": 3713
+    },
+    {
+      "path": "configs/C5-grid_detour-trigger-s1028.json",
+      "sha256": "04cce83f091a1225a6b88461a2554f826ce545feb218f338390f83b97ca51ebe",
+      "size_bytes": 3723
+    },
+    {
+      "path": "configs/C5-grid_detour-trigger-s1029.json",
+      "sha256": "0419de71cf23e15a9b96e543ddee28b5116abd55399dacc2850d880ef4e345da",
+      "size_bytes": 3718
+    },
+    {
+      "path": "configs/C5-grid_detour-trigger-s1030.json",
+      "sha256": "c1e109ed288b10e6089cb80be93415fb45fb9d5127a224694714d16f1b4f1274",
+      "size_bytes": 3725
+    },
+    {
+      "path": "configs/C5-grid_detour-trigger-s1031.json",
+      "sha256": "d0b0f6bd865a50690fcb0921e956ff997906ad10f29b79287c1eff5778a2471b",
+      "size_bytes": 3720
+    },
+    {
+      "path": "configs/C5-grid_detour-trigger-s1032.json",
+      "sha256": "56ce03ca1458dc6a88c60136febd45e9f28aef24e18288ca14daa4bba64629e7",
+      "size_bytes": 3709
+    },
+    {
+      "path": "configs/C5-grid_detour-trigger-s1033.json",
+      "sha256": "cad5e19e3981ad925e46d9cb5340f2dc65e0117bf31036a350560c40723772c3",
+      "size_bytes": 3721
+    },
+    {
+      "path": "configs/C5-grid_detour-trigger-s1034.json",
+      "sha256": "70972900ee18259169b4c9e317c4e25b14d567024119b9f19948d4c36755c2ae",
+      "size_bytes": 3717
+    },
+    {
+      "path": "configs/C5-grid_detour-trigger-s1035.json",
+      "sha256": "f447d40750f482af3bca4d9061fca00c797f4976c03ca6324f63af9cbe4d98b3",
+      "size_bytes": 3717
+    },
+    {
+      "path": "design.json",
+      "sha256": "4dd0dd4fc5177714552d93ad7381f0506b4f73cf3a554f1e3ad99d0f3d19daf5",
+      "size_bytes": 11387
+    },
+    {
+      "path": "figures/stuck_rate.png",
+      "sha256": "03b4a4dc9b9b27a855a183f8eac154e43c13059cfd9170a7912614ee59a46392",
+      "size_bytes": 99874
+    },
+    {
+      "path": "figures/triggered_extra_hops_mean.png",
+      "sha256": "14d2096947e80551e60a2d521b657dd2aba690f9dafabc6b769407bf551719a4",
+      "size_bytes": 102668
+    },
+    {
+      "path": "figures/triggered_pdr.png",
+      "sha256": "cddf2c28ec637909d31e05d14e7daee3f0f1ad1e524b7ba8fa4eccb5e5d408ee",
+      "size_bytes": 99492
+    },
+    {
+      "path": "figures/triggered_stretch_mean.png",
+      "sha256": "b3ae8cb664b9b7653c79216154344f1fc9ef09564dbf048ab13246d0e082c2da",
+      "size_bytes": 100885
+    },
+    {
+      "path": "inputs/producer-manifests.jsonl.gz",
+      "sha256": "99b01e892bb7f815c2367badf937c04e190fd457267edf833ed433b82cb6bf87",
+      "size_bytes": 1192834
+    },
+    {
+      "path": "inventory.csv",
+      "sha256": "298e9bdb5ba2c374ef56b2fb786a496ee2235aac92b0f04d136d67f02a665428",
+      "size_bytes": 209873
+    },
+    {
+      "path": "paired_contrasts.csv",
+      "sha256": "a221c1c49cefa741f6fa970fde7fa067f767f2de94bdd19c1c57c3638af03f3c",
+      "size_bytes": 4356
+    },
+    {
+      "path": "per_run.csv",
+      "sha256": "453d8949fbaa348bd8298ed090abb2677b4632602efb33a9217bb4e112cca8af",
+      "size_bytes": 1581133
+    },
+    {
+      "path": "planned_jobs.json",
+      "sha256": "d096b223aee811b70e66cab86a2245769dc55d002a969eda3fb01dde841a46c4",
+      "size_bytes": 84723
+    },
+    {
+      "path": "prefix_checks.csv",
+      "sha256": "c7e6c1150729014159618964fce633d9a168acbccb5d7603d875f97e6bac6c26",
+      "size_bytes": 11064
+    },
+    {
+      "path": "preflight.json",
+      "sha256": "5f38af024c70dff4b2a8f01bb00c5a62409bce2a15414b7d79c0e330e8443fc7",
+      "size_bytes": 38
+    },
+    {
+      "path": "resource_forecast.json",
+      "sha256": "e2636381e441ccf5d23ee839bfb2c3884598982e8358cfaca6017025611f4fb7",
+      "size_bytes": 263
+    },
+    {
+      "path": "runtime.json",
+      "sha256": "ad6ecf415e22fa21e1d2bf28f712b9531ff621841ae8a5ecbc6028a5207b162d",
+      "size_bytes": 312
+    },
+    {
+      "path": "summary.csv",
+      "sha256": "4df763a2e9a0ea8ba5cfcc5a31826cca04a73c9f91e457d5239b0b0ee3976df3",
+      "size_bytes": 17090
+    },
+    {
+      "path": "verdict.json",
+      "sha256": "57f0fd91b78e2e3e3a4f9bb33342ca4b24843e7177a11b3511bbf33608852688",
+      "size_bytes": 2125
+    }
+  ],
+  "run_id": "9610fa72ee94fe54",
+  "schema": "chronoroute.manifest/1",
+  "seeds": [
+    1000,
+    1001,
+    1002,
+    1003,
+    1004,
+    1005,
+    1006,
+    1007,
+    1008,
+    1009,
+    1010,
+    1011,
+    1012,
+    1013,
+    1014,
+    1015,
+    1016,
+    1017,
+    1018,
+    1019,
+    1020,
+    1021,
+    1022,
+    1023,
+    1024,
+    1025,
+    1026,
+    1027,
+    1028,
+    1029,
+    1030,
+    1031,
+    1032,
+    1033,
+    1034,
+    1035
+  ],
+  "snapshot": {
+    "id": "20261010T1358Z-celestrak",
+    "sha256": "c37e70812155c2d1d9eeb3e96681303c00c9fca91287939b21bf5313ce83aecd",
+    "sha256_of": "SHA256SUMS"
+  },
+  "started_utc": "2026-10-11T18:56:03.141804Z",
+  "tool": "E05 confirmatory campaign",
+  "tool_version": "1.0.0.dev0",
+  "versions": {
+    "chronoroute": "1.0.0.dev0",
+    "matplotlib": "3.11.1",
+    "networkx": "3.6.1",
+    "numpy": "2.5.3",
+    "python": "3.14.4",
+    "sgp4": "2.27"
+  },
+  "wall_seconds": 317.741477,
+  "written_utc": "2026-10-11T19:01:20.953967Z"
+}

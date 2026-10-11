@@ -1,0 +1,41 @@
+{
+  "label": "DERIVED validation of manifested outputs",
+  "experiments": [
+    {
+      "experiment": "E02",
+      "result": "results/E02/20261011T175659Z-confirmatory",
+      "git_sha": "b805d2def53aefe7e8ad788d67986252691a2967",
+      "dirty": false,
+      "complete": true,
+      "rows": 320,
+      "encoder_violations": 0,
+      "capture_violations": 0
+    },
+    {
+      "experiment": "E04",
+      "result": "results/E04/20261011T185503Z-collected",
+      "git_sha": "a18cffb6da450ea4449acf46f455b474fee2dcbf",
+      "dirty": false,
+      "complete": true,
+      "jobs": 2160,
+      "cells": 60,
+      "seeds_per_cell": 36,
+      "stretch_violations": 0,
+      "producer_manifests": 4324
+    },
+    {
+      "experiment": "E05",
+      "result": "results/E05/20261011T185503Z-confirmatory",
+      "git_sha": "a18cffb6da450ea4449acf46f455b474fee2dcbf",
+      "dirty": false,
+      "complete": true,
+      "jobs": 432,
+      "cells": 12,
+      "seeds_per_cell": 36,
+      "stretch_violations": 0,
+      "producer_manifests": 869,
+      "prefix_checks": 360,
+      "prefix_violations": 0
+    }
+  ]
+}

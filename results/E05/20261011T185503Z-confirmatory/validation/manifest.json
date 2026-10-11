@@ -1,0 +1,112 @@
+{
+  "command": "make check",
+  "config": {
+    "audit": "audit.json",
+    "checks": [
+      "full Python suite",
+      "golden reproducibility",
+      "clean producer manifests",
+      "complete registered grids",
+      "36 seeds per policy cell",
+      "stretch bounds",
+      "control prefixes"
+    ]
+  },
+  "config_sha256": "f485b9c4e663177e6bb522c532c2dcb0dae316683b76538935d161d3cd66418c",
+  "dirty": false,
+  "ended_utc": null,
+  "extra": {
+    "complete": true,
+    "inputs": [
+      {
+        "path": "results/E02/20261011T175659Z-confirmatory/manifest.json",
+        "sha256": "5f4db2876b92f652e13873a2e4ad9d3d4ce7832bce9511d1a6d746e7d5c812a0"
+      },
+      {
+        "path": "results/E04/20261011T185503Z-collected/manifest.json",
+        "sha256": "9fb6277632ed790a270125a4ac3c0aca36aa5fb0ffc57c127b2d0a3c1ed15f70"
+      },
+      {
+        "path": "results/E05/20261011T185503Z-confirmatory/manifest.json",
+        "sha256": "ab0f2e9ae56c364fa4e91557a3c3ec34f07dfd945effd60dbeca931dc2b7f4d1"
+      }
+    ]
+  },
+  "git_sha": "a18cffb6da450ea4449acf46f455b474fee2dcbf",
+  "host": {
+    "cpu_model": "13th Gen Intel(R) Core(TM) i9-13900H",
+    "logical_cores": 20,
+    "machine": "x86_64",
+    "platform": "Linux-6.18.33.2-microsoft-standard-WSL2-x86_64-with-glibc2.43",
+    "ram_bytes": 8131358720
+  },
+  "labels": {
+    "isl_topology_grid4": "MODELLED",
+    "routes_and_budgets": "DERIVED",
+    "traffic_probes": "MODELLED"
+  },
+  "outputs": [
+    {
+      "path": "README.md",
+      "sha256": "29b6176e6399185f460797be31c3457fc568d24e94dc4b09dd50c37dec57ecf0",
+      "size_bytes": 561
+    },
+    {
+      "path": "audit.json",
+      "sha256": "825974af775b1c84d728d1f5454539e64aaced82cfd93bbc640d02609ea94b2e",
+      "size_bytes": 1100
+    },
+    {
+      "path": "e04-collection.log",
+      "sha256": "c32a91411edada7faef5cda8cc3612914a4e6ebdba47703a4772158e9e8cddbe",
+      "size_bytes": 99
+    },
+    {
+      "path": "e05-campaign.log",
+      "sha256": "8eeb6bb533a5db7d9672539804e0c272c41f41b0fce73767e1361fda7786ce7a",
+      "size_bytes": 1496
+    },
+    {
+      "path": "final-make-check.log",
+      "sha256": "6044d21ef5d9f5677fd07b009fe02222aa9aea88a42fc9b09c30eb528a2c5af7",
+      "size_bytes": 2075
+    },
+    {
+      "path": "implementation-make-check.log",
+      "sha256": "6e9fb64ec02a4460615dba4178744997232d2d39f9b057bcd4980adff796e2d3",
+      "size_bytes": 2075
+    },
+    {
+      "path": "recovery-make-check.log",
+      "sha256": "5142806bfe9fbd7b3c5e4decd950dba8ef8f3a2fdf3f34271f6ea4eb3393d1f3",
+      "size_bytes": 2075
+    },
+    {
+      "path": "targeted-tests.log",
+      "sha256": "e2289c230135b682d66e48107f8caab30f5b37878e8daf2e9fb92df9aebb1375",
+      "size_bytes": 80
+    },
+    {
+      "path": "tests-first-red.log",
+      "sha256": "7d5ecc1d1fc88fa4f20f0590ccfebbb2cfa192b7785c207af68e05603e49406c",
+      "size_bytes": 5986
+    }
+  ],
+  "run_id": "f1733b3f34a9cf3c",
+  "schema": "chronoroute.manifest/1",
+  "seeds": [],
+  "snapshot": null,
+  "started_utc": null,
+  "tool": "E2 E4 E5 result validation",
+  "tool_version": "1.0.0.dev0",
+  "versions": {
+    "chronoroute": "1.0.0.dev0",
+    "matplotlib": "3.11.1",
+    "networkx": "3.6.1",
+    "numpy": "2.5.3",
+    "python": "3.14.4",
+    "sgp4": "2.27"
+  },
+  "wall_seconds": null,
+  "written_utc": "2026-10-11T19:12:17.612206Z"
+}

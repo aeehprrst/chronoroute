@@ -1,0 +1,188 @@
+{
+ "campaign": {
+  "prereg_path": "experiments/PREREG.md",
+  "prereg_git_sha": "b87f08a7cc9431d139bf66372f03133035494b8c",
+  "prereg_sha256": "1d1541f60be8411f565c5eda4e64322354c276a7321181e2ee9ee92f065ea5d3",
+  "phase": "confirmatory",
+  "experiment": "E04",
+  "cell_id": "C5-ls_h-node-B",
+  "pair_id": 5,
+  "seed": 1005
+ },
+ "engine": {
+  "seed": 1005,
+  "scenario": {
+   "kind": "real",
+   "snapshot": "data/pinned/20261010T1358Z-celestrak",
+   "source": "supgp",
+   "shell": "53.2deg-463km",
+   "preset": "C2",
+   "start_utc": "2026-10-10T14:00:00Z",
+   "duration_s": 30,
+   "drain_s": 2,
+   "step_ms": 100,
+   "chunk_steps": 200,
+   "cities": null,
+   "gsl": {
+    "min_elevation_deg": 25.0,
+    "max_links_per_gs": 4,
+    "policy": "sticky_top_k"
+   },
+   "isl": {
+    "polar_cutoff_deg": 70.0,
+    "max_range_km": null
+   }
+  },
+  "traffic": {
+   "flows": [
+    {
+     "src": "Lagos",
+     "dst": "Sao Paulo"
+    },
+    {
+     "src": "Sao Paulo",
+     "dst": "Lagos"
+    }
+   ],
+   "rate_pps": 100,
+   "payload_bytes": 200,
+   "model": "cbr",
+   "start_offset": "random",
+   "ingress_mode": "source",
+   "l2_overhead_bytes": 2
+  },
+  "schedule": {
+   "refresh_ms": 1000,
+   "slack": "1.5",
+   "unit_code": 1,
+   "plan_links": "stable",
+   "planner_processing_ns": 500000
+  },
+  "forwarding": {
+   "policy": "continue",
+   "fallback": "none",
+   "hop_limit": 64,
+   "processing_ns": 500000,
+   "jitter": {
+    "model": "none",
+    "mean_ns": 400000
+   },
+   "link_rate_bps": 1000000000,
+   "buffer_ms": 20,
+   "background": {
+    "model": "none",
+    "rho": 0,
+    "packet_bytes": 1500,
+    "window_ms": 10,
+    "links": "all"
+   },
+   "hop_mode": "fast",
+   "verify_every": 100,
+   "slow_queue_ns": null,
+   "carrier_detect_ms": 0
+  },
+  "faults": [],
+  "output": {
+   "trace": "sampled",
+   "sample_every": 100,
+   "pcap": false,
+   "pcap_max_packets": 20,
+   "packets_csv": true,
+   "invariants": "all",
+   "invariant_sample_every": 100
+  }
+ },
+ "scheme": {
+  "name": "ls_h",
+  "feedback": {
+   "mode": "fb0",
+   "delay_ms": 50,
+   "penalty": 10,
+   "hold_s": 10,
+   "report_bytes": 64,
+   "min_interval_ms": 0
+  },
+  "e2e": {
+   "report_delay_ms": 50,
+   "localize": "path",
+   "penalty": 10,
+   "hold_s": 10,
+   "report_bytes": 64,
+   "deadline_bytes": 8,
+   "feedback": true,
+   "window_s": 1
+  },
+  "lq": {
+   "q_th_ms": 1,
+   "action": "flag",
+   "arq_window_ms": 100
+  },
+  "snap": {
+   "update_s": 1,
+   "telemetry_s": 10,
+   "upload_latency_ms": 0,
+   "at_dead_next_hop": "drop",
+   "entry_bytes": 6,
+   "upload_header_bytes": 56,
+   "telemetry_bytes": 64,
+   "count_uploads": true
+  },
+  "ls": {
+   "preset": "olsr_leo",
+   "hello_s": "1",
+   "dead_s": "3",
+   "min_ls_interval_s": "0",
+   "bfd": true,
+   "bfd_interval_ms": 100,
+   "bfd_mult": 3,
+   "spf_delay_ms": 50,
+   "lsa_hop_ns": null,
+   "carrier_detect_ms": null,
+   "adjacency_ms": 0,
+   "fault_detection": "carrier"
+  },
+  "crh_state": {
+   "count": true,
+   "fib_refresh_s": 14400,
+   "ephemeris_upload_s": 14400,
+   "upload_header_bytes": 56,
+   "fib_entry_bytes": 4,
+   "tle_bytes": 140,
+   "gs_coord_bytes": 12
+  },
+  "ls_d": {
+   "window_s": 30,
+   "threshold": 0.2,
+   "variant": "avg",
+   "inter_update_s": 120,
+   "min_interval_s": 1,
+   "probe_ms": 100
+  },
+  "outputs": {
+   "stretch_oracle": true
+  }
+ },
+ "intervention": {
+  "label": "MODELLED",
+  "records": [],
+  "target": 164,
+  "stream": [
+   "node_fault",
+   [
+    164
+   ]
+  ],
+  "profile": "node-B",
+  "intervals": []
+ },
+ "job": {
+  "id": "C5-ls_h-node-B-s1005",
+  "experiment": "E04",
+  "const": "C5",
+  "seed": 1005,
+  "pair_id": 5,
+  "phase": "confirmatory",
+  "scheme": "ls_h",
+  "condition": "node-B"
+ }
+}

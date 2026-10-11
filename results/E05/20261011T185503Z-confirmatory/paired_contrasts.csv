@@ -1,0 +1,21 @@
+const,condition,primary,comparator,endpoint,family,n,missing_pairs,mean_diff,lo,hi,p,bootstrap_lo,bootstrap_hi,reason,both_infinite,a_only_infinite,b_only_infinite,ratio,ratio_lo,ratio_hi,tail_failure_mean_diff,tail_failure_lo,tail_failure_hi,complete,family_n,adjusted_p,point_disadvantage,material_loss
+C5,trigger,greedy_visited,greedy_pure,stuck_rate,visited_vs_pure,36,0,-0.2222222222222222,-0.3648836655386001,-0.07956077890584437,0.00322802105047848,-0.3611111111111111,-0.08333333333333333,,0,0,0,,,,,,,True,2,0.00322802105047848,False,False
+C5,trigger,greedy_visited,greedy_pure,triggered_pdr,visited_vs_pure,36,0,0.2222222222222222,0.07956077890584437,0.3648836655386001,0.00322802105047848,0.08333333333333333,0.3611111111111111,,0,0,0,,,,,,,True,2,0.00322802105047848,False,False
+C5,trigger,greedy_visited,greedy_pure,triggered_stretch_mean,visited_vs_pure,22,14,,,,,,,undefined run endpoints preclude a complete paired contrast,0,0,0,,,,,,,True,2,,False,False
+C5,trigger,greedy_visited,greedy_pure,triggered_extra_hops_mean,visited_vs_pure,22,14,,,,,,,undefined run endpoints preclude a complete paired contrast,0,0,0,,,,,,,True,2,,False,False
+C5,trigger,greedy_visited,greedy_pure,triggered_effective_mean_s,visited_vs_pure,36,0,,,,,,,latency contrast undefined with infinite tails; retain paired PDR and tail indicators,6,0,8,,,,-0.2222222222222222,-0.3648836655386001,-0.07956077890584437,True,2,,False,False
+C5,trigger,grid_detour,greedy_visited,stuck_rate,grid_vs_visited,36,0,0.05555555555555555,-0.023047071394696264,0.13415818250580736,0.1602030580239724,0.0,0.1388888888888889,,0,0,0,,,,,,,True,2,0.3204061160479448,True,False
+C5,trigger,grid_detour,greedy_visited,triggered_pdr,grid_vs_visited,36,0,-0.05555555555555555,-0.13415818250580736,0.023047071394696264,0.1602030580239724,-0.1388888888888889,0.0,,0,0,0,,,,,,,True,2,0.3204061160479448,True,False
+C5,trigger,grid_detour,greedy_visited,triggered_stretch_mean,grid_vs_visited,28,8,,,,,,,undefined run endpoints preclude a complete paired contrast,0,0,0,,,,,,,True,2,,False,False
+C5,trigger,grid_detour,greedy_visited,triggered_extra_hops_mean,grid_vs_visited,28,8,,,,,,,undefined run endpoints preclude a complete paired contrast,0,0,0,,,,,,,True,2,,False,False
+C5,trigger,grid_detour,greedy_visited,triggered_effective_mean_s,grid_vs_visited,36,0,,,,,,,latency contrast undefined with infinite tails; retain paired PDR and tail indicators,6,2,0,,,,0.05555555555555555,-0.023047071394696264,0.13415818250580736,True,2,,False,False
+C2,trigger,greedy_visited,greedy_pure,stuck_rate,visited_vs_pure,36,0,-0.3055555555555556,-0.4636253728254013,-0.14748573828570985,0.00038843153190804003,-0.4722222222222222,-0.16666666666666666,,0,0,0,,,,,,,True,2,0.0007768630638160801,False,False
+C2,trigger,greedy_visited,greedy_pure,triggered_pdr,visited_vs_pure,36,0,0.3055555555555556,0.14748573828570985,0.4636253728254013,0.00038843153190804003,0.16666666666666666,0.4722222222222222,,0,0,0,,,,,,,True,2,0.0007768630638160801,False,False
+C2,trigger,greedy_visited,greedy_pure,triggered_stretch_mean,visited_vs_pure,25,11,,,,,,,undefined run endpoints preclude a complete paired contrast,0,0,0,,,,,,,True,2,,False,False
+C2,trigger,greedy_visited,greedy_pure,triggered_extra_hops_mean,visited_vs_pure,25,11,,,,,,,undefined run endpoints preclude a complete paired contrast,0,0,0,,,,,,,True,2,,False,False
+C2,trigger,greedy_visited,greedy_pure,triggered_effective_mean_s,visited_vs_pure,36,0,,,,,,,latency contrast undefined with infinite tails; retain paired PDR and tail indicators,0,0,11,,,,-0.3055555555555556,-0.4636253728254013,-0.14748573828570985,True,2,,False,False
+C2,trigger,grid_detour,greedy_visited,stuck_rate,grid_vs_visited,36,0,0.0,0.0,0.0,1.0,0.0,0.0,,0,0,0,,,,,,,True,2,1.0,False,False
+C2,trigger,grid_detour,greedy_visited,triggered_pdr,grid_vs_visited,36,0,0.0,0.0,0.0,1.0,0.0,0.0,,0,0,0,,,,,,,True,2,1.0,False,False
+C2,trigger,grid_detour,greedy_visited,triggered_stretch_mean,grid_vs_visited,36,0,0.0,0.0,0.0,1.0,0.0,0.0,,0,0,0,,,,,,,True,2,1.0,False,False
+C2,trigger,grid_detour,greedy_visited,triggered_extra_hops_mean,grid_vs_visited,36,0,0.0,0.0,0.0,1.0,0.0,0.0,,0,0,0,,,,,,,True,2,1.0,False,False
+C2,trigger,grid_detour,greedy_visited,triggered_effective_mean_s,grid_vs_visited,36,0,0.0,0.0,0.0,1.0,0.0,0.0,,0,0,0,,,,,,,True,2,1.0,False,False

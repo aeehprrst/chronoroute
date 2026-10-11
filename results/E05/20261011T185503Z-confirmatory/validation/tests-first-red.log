@@ -1,0 +1,88 @@
+FFF                                                                      [100%]
+=================================== FAILURES ===================================
+_____________ test_analysis_fixed_families_and_undefined_contrasts _____________
+
+tmp_path = PosixPath('/tmp/pytest-of-aeehprrst/pytest-106/test_analysis_fixed_families_a0')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7ac80076e3f0>
+
+    def test_analysis_fixed_families_and_undefined_contrasts(tmp_path,monkeypatch):
+        rows=[]
+        for const in ('C5','C2'):
+            for profile in pc.PROFILES:
+                for scheme in pc.SCHEMES:
+                    for seed in range(1000,1036):
+                        rows.append(dict(const=const,condition=profile,scheme=scheme,seed=seed,pair_id=(seed-1000)%18,
+                            pdr=.98 if scheme=='greedy_visited' else 1.,blackhole_s=None,effective_p99_s=math.inf,
+                            tail_ineligible=0,outages=0,stretch_violations=0))
+        contrasts=pa.comparisons(rows,'E04',n_boot=100)
+        for field in ('pdr','blackhole_s','effective_p99_s'):
+            cell=[r for r in contrasts if r['endpoint']==field]
+            assert len(cell)==40 and all(r['family_n']==40 for r in cell)
+        assert all(r['adjusted_p'] is None for r in contrasts if r['endpoint']!='pdr')
+        assert all(r['material_loss'] for r in contrasts if r['endpoint']=='pdr')
+        monkeypatch.setattr(pa,'plots',lambda *a:None)
+>       assert pa.write_analysis(tmp_path,rows,'E04',n_boot=100)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+sim/tests/test_policy_campaign.py:159: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+experiments/policy_analysis.py:166: in write_analysis
+    e1.write_csv(out/'per_run.csv',records);e1.write_csv(out/'summary.csv',summary)
+                                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+experiments/E01/campaign.py:339: in write_csv
+    w.writerows(rows)
+/usr/lib/python3.14/csv.py:228: in writerows
+    return self.writer.writerows(map(self._dict_to_list, rowdicts))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <csv.DictWriter object at 0x7ac800185f90>
+rowdict = {'const': 'C2', 'condition': 'none', 'scheme': 'continue', 'n': 0, ...}
+
+    def _dict_to_list(self, rowdict):
+        if self.extrasaction == "raise":
+            wrong_fields = rowdict.keys() - self.fieldnames
+            if wrong_fields:
+>               raise ValueError("dict contains fields not in fieldnames: "
+                                 + ", ".join([repr(x) for x in wrong_fields]))
+E               ValueError: dict contains fields not in fieldnames: 'triggered_pdr_pooled_n_boot_undefined', 'pdr_pooled_hi', 'triggered_pdr_pooled_lo', 'pdr_pooled_n_boot_undefined', 'triggered_pdr_pooled_hi', 'triggered_pdr_pooled_estimate', 'stuck_pooled_n_boot_undefined', 'stuck_pooled_lo', 'stuck_pooled_hi', 'stuck_pooled_estimate', 'pdr_pooled_estimate', 'pdr_pooled_lo'
+
+/usr/lib/python3.14/csv.py:220: ValueError
+__________ test_completed_recovery_validates_original_clean_producers __________
+
+tmp_path = PosixPath('/tmp/pytest-of-aeehprrst/pytest-106/test_completed_recovery_valida0')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7ac8001dd940>
+
+    def test_completed_recovery_validates_original_clean_producers(tmp_path,monkeypatch):
+        from chronoroute import provenance,labels
+        job=pc.jobs('E04')[0];design={'C5:1000':{'link':[1,2],'node':1}}
+        doc=pc.document(job,design);doc['job']=job
+        source=tmp_path/'source';source.mkdir();(source/'planned_jobs.json').write_text(json.dumps([job]))
+        raw=source.with_name('source-raw');folder=raw/'runs'/job['id'];(folder/'raw').mkdir(parents=True)
+        obs={**job,'status':'ok','wall_s':2.,'cpu_s':1.,'peak_rss_kb':1,'returncode':0,'command':['unit-fixture']}
+        (folder/'observation.json').write_text(json.dumps(obs));(folder/'metrics.json').write_text(json.dumps({**job,'effective_p99_s':'inf'}))
+        monkeypatch.setattr(provenance,'git_state',lambda *a,**k:{'dirty':False,'sha':'0'*40})
+        provenance.write_manifest(folder/'raw',tool='unit fixture',tool_version='1',command=['unit-fixture'],
+            config={'run':doc['engine'],'scheme':doc['scheme']},seeds=[1000],outputs=[],labels={})
+        provenance.write_manifest(folder,tool='unit fixture',tool_version='1',command=['unit-fixture'],config=doc,seeds=[1000],
+            outputs=[folder/'raw/manifest.json',folder/'observation.json',folder/'metrics.json'],labels={},extra={'observation':obs})
+>       observations,records=pc.load_completed(source,raw,[job],design)
+                             ^^^^^^^^^^^^^^^^^
+E       AttributeError: module 'policy_campaign' has no attribute 'load_completed'. Did you mean: 'as_completed'?
+
+sim/tests/test_policy_campaign.py:296: AttributeError
+___________ test_recovery_runtime_requires_complete_logged_progress ____________
+
+tmp_path = PosixPath('/tmp/pytest-of-aeehprrst/pytest-106/test_recovery_runtime_requires0')
+
+    def test_recovery_runtime_requires_complete_logged_progress(tmp_path):
+        log=tmp_path/'campaign.log';log.write_text('setup\n'+json.dumps({'completed':2160,'total':2160,'wall_s':2371.25,'failures':0})+'\nTraceback\n')
+>       assert pc.recovery_wall(log,2160)==2371.25
+               ^^^^^^^^^^^^^^^^
+E       AttributeError: module 'policy_campaign' has no attribute 'recovery_wall'
+
+sim/tests/test_policy_campaign.py:310: AttributeError
+=========================== short test summary info ============================
+FAILED sim/tests/test_policy_campaign.py::test_analysis_fixed_families_and_undefined_contrasts
+FAILED sim/tests/test_policy_campaign.py::test_completed_recovery_validates_original_clean_producers
+FAILED sim/tests/test_policy_campaign.py::test_recovery_runtime_requires_complete_logged_progress
