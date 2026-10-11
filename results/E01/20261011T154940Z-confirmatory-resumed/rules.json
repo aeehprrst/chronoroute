@@ -1,0 +1,51 @@
+[
+ {
+  "kind": "mult",
+  "slack": "1.1",
+  "unit_code": 1
+ },
+ {
+  "kind": "mult",
+  "slack": "1.25",
+  "unit_code": 1
+ },
+ {
+  "kind": "mult",
+  "slack": "1.5",
+  "unit_code": 1
+ },
+ {
+  "kind": "mult",
+  "slack": "2",
+  "unit_code": 1
+ },
+ {
+  "kind": "mult",
+  "slack": "3",
+  "unit_code": 1
+ },
+ {
+  "kind": "add",
+  "per_hop_ns": 250000,
+  "const_ns": 0,
+  "unit_code": 1
+ },
+ {
+  "kind": "add",
+  "per_hop_ns": 1000000,
+  "const_ns": 0,
+  "unit_code": 1
+ },
+ {
+  "kind": "quantile",
+  "alpha": "0.01",
+  "sigma_ns": 400000,
+  "unit_code": 1
+ },
+ {
+  "kind": "quantile",
+  "alpha": "0.001",
+  "sigma_ns": 400000,
+  "unit_code": 1
+ }
+]

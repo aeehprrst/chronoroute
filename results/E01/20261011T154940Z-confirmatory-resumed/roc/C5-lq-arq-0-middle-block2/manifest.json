@@ -1,0 +1,147 @@
+{
+ "command": "cr eval roc --pairs /home/aeehprrst/chronoroute/results/E01/20261011T154940Z-confirmatory-resumed-raw/runs/C5-lq-s1012-arq-0-middle/raw:/home/aeehprrst/chronoroute/results/E01/20261011T154940Z-confirmatory-resumed-raw/runs/C5-lq-s1012-none/raw /home/aeehprrst/chronoroute/results/E01/20261011T154940Z-confirmatory-resumed-raw/runs/C5-lq-s1013-arq-0-middle/raw:/home/aeehprrst/chronoroute/results/E01/20261011T154940Z-confirmatory-resumed-raw/runs/C5-lq-s1013-none/raw /home/aeehprrst/chronoroute/results/E01/20261011T154940Z-confirmatory-resumed-raw/runs/C5-lq-s1014-arq-0-middle/raw:/home/aeehprrst/chronoroute/results/E01/20261011T154940Z-confirmatory-resumed-raw/runs/C5-lq-s1014-none/raw /home/aeehprrst/chronoroute/results/E01/20261011T154940Z-confirmatory-resumed-raw/runs/C5-lq-s1015-arq-0-middle/raw:/home/aeehprrst/chronoroute/results/E01/20261011T154940Z-confirmatory-resumed-raw/runs/C5-lq-s1015-none/raw /home/aeehprrst/chronoroute/results/E01/20261011T154940Z-confirmatory-resumed-raw/runs/C5-lq-s1016-arq-0-middle/raw:/home/aeehprrst/chronoroute/results/E01/20261011T154940Z-confirmatory-resumed-raw/runs/C5-lq-s1016-none/raw /home/aeehprrst/chronoroute/results/E01/20261011T154940Z-confirmatory-resumed-raw/runs/C5-lq-s1017-arq-0-middle/raw:/home/aeehprrst/chronoroute/results/E01/20261011T154940Z-confirmatory-resumed-raw/runs/C5-lq-s1017-none/raw --flow 0 --include-null --k 2 --window-ms 1000 --out /home/aeehprrst/chronoroute/results/E01/20261011T154940Z-confirmatory-resumed/roc/C5-lq-arq-0-middle-block2",
+ "config": {
+  "flow": 0,
+  "include_null": true,
+  "k": 2,
+  "pairs": [
+   "/home/aeehprrst/chronoroute/results/E01/20261011T154940Z-confirmatory-resumed-raw/runs/C5-lq-s1012-arq-0-middle/raw:/home/aeehprrst/chronoroute/results/E01/20261011T154940Z-confirmatory-resumed-raw/runs/C5-lq-s1012-none/raw",
+   "/home/aeehprrst/chronoroute/results/E01/20261011T154940Z-confirmatory-resumed-raw/runs/C5-lq-s1013-arq-0-middle/raw:/home/aeehprrst/chronoroute/results/E01/20261011T154940Z-confirmatory-resumed-raw/runs/C5-lq-s1013-none/raw",
+   "/home/aeehprrst/chronoroute/results/E01/20261011T154940Z-confirmatory-resumed-raw/runs/C5-lq-s1014-arq-0-middle/raw:/home/aeehprrst/chronoroute/results/E01/20261011T154940Z-confirmatory-resumed-raw/runs/C5-lq-s1014-none/raw",
+   "/home/aeehprrst/chronoroute/results/E01/20261011T154940Z-confirmatory-resumed-raw/runs/C5-lq-s1015-arq-0-middle/raw:/home/aeehprrst/chronoroute/results/E01/20261011T154940Z-confirmatory-resumed-raw/runs/C5-lq-s1015-none/raw",
+   "/home/aeehprrst/chronoroute/results/E01/20261011T154940Z-confirmatory-resumed-raw/runs/C5-lq-s1016-arq-0-middle/raw:/home/aeehprrst/chronoroute/results/E01/20261011T154940Z-confirmatory-resumed-raw/runs/C5-lq-s1016-none/raw",
+   "/home/aeehprrst/chronoroute/results/E01/20261011T154940Z-confirmatory-resumed-raw/runs/C5-lq-s1017-arq-0-middle/raw:/home/aeehprrst/chronoroute/results/E01/20261011T154940Z-confirmatory-resumed-raw/runs/C5-lq-s1017-none/raw"
+  ],
+  "rules": null,
+  "slack": [],
+  "window_ms": 1000.0
+ },
+ "config_sha256": "1f5f72cfa4063bc5ad8d59b9097a12c7b4d4f1b1f4241bfad69a00bd157a8beb",
+ "dirty": false,
+ "ended_utc": null,
+ "extra": {
+  "campaign": {
+   "prereg_git_sha": "b87f08a7cc9431d139bf66372f03133035494b8c",
+   "prereg_sha256": "1d1541f60be8411f565c5eda4e64322354c276a7321181e2ee9ee92f065ea5d3",
+   "phase": "confirmatory",
+   "experiment": "E01"
+  },
+  "measured_command": {
+   "id": "C5-lq-arq-0-middle-block2",
+   "reason": "",
+   "command": [
+    "/home/aeehprrst/chronoroute/venv/bin/python",
+    "-B",
+    "-m",
+    "chronoroute.cli",
+    "eval",
+    "roc",
+    "--pairs",
+    "/home/aeehprrst/chronoroute/results/E01/20261011T154940Z-confirmatory-resumed-raw/runs/C5-lq-s1012-arq-0-middle/raw:/home/aeehprrst/chronoroute/results/E01/20261011T154940Z-confirmatory-resumed-raw/runs/C5-lq-s1012-none/raw",
+    "/home/aeehprrst/chronoroute/results/E01/20261011T154940Z-confirmatory-resumed-raw/runs/C5-lq-s1013-arq-0-middle/raw:/home/aeehprrst/chronoroute/results/E01/20261011T154940Z-confirmatory-resumed-raw/runs/C5-lq-s1013-none/raw",
+    "/home/aeehprrst/chronoroute/results/E01/20261011T154940Z-confirmatory-resumed-raw/runs/C5-lq-s1014-arq-0-middle/raw:/home/aeehprrst/chronoroute/results/E01/20261011T154940Z-confirmatory-resumed-raw/runs/C5-lq-s1014-none/raw",
+    "/home/aeehprrst/chronoroute/results/E01/20261011T154940Z-confirmatory-resumed-raw/runs/C5-lq-s1015-arq-0-middle/raw:/home/aeehprrst/chronoroute/results/E01/20261011T154940Z-confirmatory-resumed-raw/runs/C5-lq-s1015-none/raw",
+    "/home/aeehprrst/chronoroute/results/E01/20261011T154940Z-confirmatory-resumed-raw/runs/C5-lq-s1016-arq-0-middle/raw:/home/aeehprrst/chronoroute/results/E01/20261011T154940Z-confirmatory-resumed-raw/runs/C5-lq-s1016-none/raw",
+    "/home/aeehprrst/chronoroute/results/E01/20261011T154940Z-confirmatory-resumed-raw/runs/C5-lq-s1017-arq-0-middle/raw:/home/aeehprrst/chronoroute/results/E01/20261011T154940Z-confirmatory-resumed-raw/runs/C5-lq-s1017-none/raw",
+    "--flow",
+    "0",
+    "--include-null",
+    "--k",
+    "2",
+    "--window-ms",
+    "1000",
+    "--out",
+    "/home/aeehprrst/chronoroute/results/E01/20261011T154940Z-confirmatory-resumed/roc/C5-lq-arq-0-middle-block2"
+   ],
+   "wall_s": 1.905876557000738,
+   "cpu_s": 1.8269789999999997,
+   "peak_rss_kb": 435400,
+   "returncode": 0,
+   "status": "ok"
+  },
+  "rng_components": {
+   "flow_offset": [
+    1,
+    16
+   ],
+   "traffic": [
+    2,
+    4096
+   ],
+   "jitter_j1": [
+    3,
+    4096
+   ],
+   "background": [
+    4,
+    4096
+   ],
+   "arq": [
+    5,
+    4096
+   ],
+   "link_fault": [
+    6,
+    64
+   ],
+   "node_fault": [
+    7,
+    64
+   ],
+   "sample": [
+    8,
+    4096
+   ],
+   "experiment_target": [
+    9,
+    64
+   ]
+  },
+  "inputs": [
+   {
+    "path": "/home/aeehprrst/chronoroute/results/E01/20261011T154940Z-confirmatory-resumed/operating_points.json",
+    "sha256": "e3927c023db7d1f17d691c6c774c846fa9f23f4748d05693bdc6ad9400786c99"
+   }
+  ]
+ },
+ "git_sha": "b896bad3bbc13bd1f715d69ca1e8fc7e2b2c477d",
+ "host": {
+  "cpu_model": "13th Gen Intel(R) Core(TM) i9-13900H",
+  "logical_cores": 20,
+  "machine": "x86_64",
+  "platform": "Linux-6.18.33.2-microsoft-standard-WSL2-x86_64-with-glibc2.43",
+  "ram_bytes": 8131358720
+ },
+ "labels": {
+  "evaluation_metrics": "DERIVED"
+ },
+ "outputs": [
+  {
+   "path": "summary.csv",
+   "sha256": "af682d77f84cc0a21fe220c2bff18f2af86a8a82c7f8a84dec063d843d02bd76",
+   "size_bytes": 1581
+  },
+  {
+   "path": "summary.json",
+   "sha256": "3b2803b5a627f95af49e4dc81a19a063a303a82aa2aa269e058681c7ccb4d04a",
+   "size_bytes": 1632
+  }
+ ],
+ "run_id": "15717e77fe69f918",
+ "schema": "chronoroute.manifest/1",
+ "seeds": [],
+ "snapshot": null,
+ "started_utc": null,
+ "tool": "cr eval",
+ "tool_version": "1.0.0.dev0",
+ "versions": {
+  "chronoroute": "1.0.0.dev0",
+  "matplotlib": "3.11.1",
+  "networkx": "3.6.1",
+  "numpy": "2.5.3",
+  "python": "3.14.4",
+  "sgp4": "2.27"
+ },
+ "wall_seconds": null,
+ "written_utc": "2026-10-11T16:52:14.722593Z"
+}

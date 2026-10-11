@@ -1,0 +1,9 @@
+cr eval roc: S=1.1 u1: P_det 0.6666666666666666, false events/h 23400.0, clean FPR 0.1401388888888889
+cr eval roc: S=1.25 u1: P_det 0.0, false events/h 5900.0, clean FPR 0.035138888888888886
+cr eval roc: S=1.5 u1: P_det 0.0, false events/h 550.0, clean FPR 0.005416666666666667
+cr eval roc: S=2 u1: P_det 0.0, false events/h 0.0, clean FPR 0.0
+cr eval roc: S=3 u1: P_det 0.0, false events/h 0.0, clean FPR 0.0
+cr eval roc: add 250000/hop+0 u1: P_det 0.6666666666666666, false events/h 40250.0, clean FPR 0.23541666666666666
+cr eval roc: add 1000000/hop+0 u1: P_det 0.0, false events/h 3050.0, clean FPR 0.020416666666666666
+cr eval roc: q alpha=0.01 sigma=400000 u1: P_det 1.0, false events/h 7550.0, clean FPR 0.056805555555555554
+cr eval roc: q alpha=0.001 sigma=400000 u1: P_det 1.0, false events/h 2250.0, clean FPR 0.023055555555555555

@@ -1,0 +1,110 @@
+{
+  "command": "/home/aeehprrst/chronoroute/venv/bin/python -B - results/E01/20261011T154940Z-confirmatory-resumed",
+  "config": {
+    "scientific_output_unchanged": true,
+    "stage": "results-validation"
+  },
+  "config_sha256": "476f42cd3d224f711ce09f259a3163c53e85bb7589fb64231f6903c3219c7b94",
+  "dirty": false,
+  "ended_utc": null,
+  "extra": {
+    "inputs": [
+      {
+        "path": "results/E01/20261011T154940Z-confirmatory-resumed/manifest.json",
+        "sha256": "8792397240710809e1f897f693b60962c6a54702920767ee8d82437c9c3a735f"
+      },
+      {
+        "path": "results/E01/20261011T154940Z-confirmatory-resumed-raw/manifest.json",
+        "sha256": "fe6595045052bae141d5461c0575500ab3d2ea4367a91c9f9c34730f1fe3bf42"
+      }
+    ]
+  },
+  "git_sha": "b896bad3bbc13bd1f715d69ca1e8fc7e2b2c477d",
+  "host": {
+    "cpu_model": "13th Gen Intel(R) Core(TM) i9-13900H",
+    "logical_cores": 20,
+    "machine": "x86_64",
+    "platform": "Linux-6.18.33.2-microsoft-standard-WSL2-x86_64-with-glibc2.43",
+    "ram_bytes": 8131358720
+  },
+  "labels": {
+    "validation_accounting": "DERIVED",
+    "validation_logs": "REAL"
+  },
+  "outputs": [
+    {
+      "path": "campaign.log",
+      "sha256": "d246b582144a9bf496d45bf6dd726744c1e94ca5a297d020b365ab4dbe77930e",
+      "size_bytes": 47670
+    },
+    {
+      "path": "implementation-make-check.log",
+      "sha256": "853ee38eb0b5376f5fcfe6739a3bdb0e7a6ca70219b7deaf6c3b262b25e27ff6",
+      "size_bytes": 2075
+    },
+    {
+      "path": "results-make-check.log",
+      "sha256": "ffe9d984aae54b8d1182ead5b341aa73f7b4357da016e70c78974d993d90ce27",
+      "size_bytes": 2075
+    },
+    {
+      "path": "validation.json",
+      "sha256": "7f02e543b7ad6dc45fd6327afcdb7208955627ab2ba0d315d7e32395d3033fa2",
+      "size_bytes": 187
+    }
+  ],
+  "run_id": "b294c70e1957efa5",
+  "schema": "chronoroute.manifest/1",
+  "seeds": [
+    1000,
+    1001,
+    1002,
+    1003,
+    1004,
+    1005,
+    1006,
+    1007,
+    1008,
+    1009,
+    1010,
+    1011,
+    1012,
+    1013,
+    1014,
+    1015,
+    1016,
+    1017,
+    1018,
+    1019,
+    1020,
+    1021,
+    1022,
+    1023,
+    1024,
+    1025,
+    1026,
+    1027,
+    1028,
+    1029,
+    1030,
+    1031,
+    1032,
+    1033,
+    1034,
+    1035
+  ],
+  "snapshot": null,
+  "started_utc": null,
+  "tool": "E01 final validation evidence",
+  "tool_version": "1.0.0.dev0",
+  "versions": {
+    "chronoroute": "1.0.0.dev0",
+    "matplotlib": "3.11.1",
+    "networkx": "3.6.1",
+    "numpy": "2.5.3",
+    "python": "3.14.4",
+    "sgp4": "2.27"
+  },
+  "wall_seconds": null,
+  "written_utc": "2026-10-11T17:08:31.679330Z"
+}

@@ -1,0 +1,104 @@
+{
+ "pairs": [
+  "/home/aeehprrst/chronoroute/results/E01/20261011T154940Z-confirmatory-resumed-raw/runs/C5-chronoroute-s1024-arq-0-middle/raw:/home/aeehprrst/chronoroute/results/E01/20261011T154940Z-confirmatory-resumed-raw/runs/C5-chronoroute-s1024-none/raw",
+  "/home/aeehprrst/chronoroute/results/E01/20261011T154940Z-confirmatory-resumed-raw/runs/C5-chronoroute-s1025-arq-0-middle/raw:/home/aeehprrst/chronoroute/results/E01/20261011T154940Z-confirmatory-resumed-raw/runs/C5-chronoroute-s1025-none/raw",
+  "/home/aeehprrst/chronoroute/results/E01/20261011T154940Z-confirmatory-resumed-raw/runs/C5-chronoroute-s1026-arq-0-middle/raw:/home/aeehprrst/chronoroute/results/E01/20261011T154940Z-confirmatory-resumed-raw/runs/C5-chronoroute-s1026-none/raw",
+  "/home/aeehprrst/chronoroute/results/E01/20261011T154940Z-confirmatory-resumed-raw/runs/C5-chronoroute-s1027-arq-0-middle/raw:/home/aeehprrst/chronoroute/results/E01/20261011T154940Z-confirmatory-resumed-raw/runs/C5-chronoroute-s1027-none/raw",
+  "/home/aeehprrst/chronoroute/results/E01/20261011T154940Z-confirmatory-resumed-raw/runs/C5-chronoroute-s1028-arq-0-middle/raw:/home/aeehprrst/chronoroute/results/E01/20261011T154940Z-confirmatory-resumed-raw/runs/C5-chronoroute-s1028-none/raw",
+  "/home/aeehprrst/chronoroute/results/E01/20261011T154940Z-confirmatory-resumed-raw/runs/C5-chronoroute-s1029-arq-0-middle/raw:/home/aeehprrst/chronoroute/results/E01/20261011T154940Z-confirmatory-resumed-raw/runs/C5-chronoroute-s1029-none/raw"
+ ],
+ "k": 2,
+ "window_ms": 1000.0,
+ "rows": [
+  {
+   "rule": "S=1.1 u1",
+   "fault_events": 6,
+   "detected": 0,
+   "p_det": 0.0,
+   "false_events_per_hour": 29050.0,
+   "p_det_packet": 0.0,
+   "clean_fpr": 0.17458333333333334,
+   "delay_km_median_ns": null
+  },
+  {
+   "rule": "S=1.25 u1",
+   "fault_events": 6,
+   "detected": 0,
+   "p_det": 0.0,
+   "false_events_per_hour": 6950.0,
+   "p_det_packet": 0.0,
+   "clean_fpr": 0.043333333333333335,
+   "delay_km_median_ns": null
+  },
+  {
+   "rule": "S=1.5 u1",
+   "fault_events": 6,
+   "detected": 0,
+   "p_det": 0.0,
+   "false_events_per_hour": 500.0,
+   "p_det_packet": 0.0,
+   "clean_fpr": 0.006111111111111111,
+   "delay_km_median_ns": null
+  },
+  {
+   "rule": "S=2 u1",
+   "fault_events": 6,
+   "detected": 0,
+   "p_det": 0.0,
+   "false_events_per_hour": 50.0,
+   "p_det_packet": 0.0,
+   "clean_fpr": 0.0005555555555555556,
+   "delay_km_median_ns": null
+  },
+  {
+   "rule": "S=3 u1",
+   "fault_events": 6,
+   "detected": 0,
+   "p_det": 0.0,
+   "false_events_per_hour": 0.0,
+   "p_det_packet": 0.0,
+   "clean_fpr": 0.0,
+   "delay_km_median_ns": null
+  },
+  {
+   "rule": "add 250000/hop+0 u1",
+   "fault_events": 6,
+   "detected": 0,
+   "p_det": 0.0,
+   "false_events_per_hour": 40250.0,
+   "p_det_packet": 0.0,
+   "clean_fpr": 0.24444444444444444,
+   "delay_km_median_ns": null
+  },
+  {
+   "rule": "add 1000000/hop+0 u1",
+   "fault_events": 6,
+   "detected": 0,
+   "p_det": 0.0,
+   "false_events_per_hour": 2900.0,
+   "p_det_packet": 0.0,
+   "clean_fpr": 0.020833333333333332,
+   "delay_km_median_ns": null
+  },
+  {
+   "rule": "q alpha=0.01 sigma=400000 u1",
+   "fault_events": 6,
+   "detected": 0,
+   "p_det": 0.0,
+   "false_events_per_hour": 9350.0,
+   "p_det_packet": 0.0,
+   "clean_fpr": 0.07833333333333334,
+   "delay_km_median_ns": null
+  },
+  {
+   "rule": "q alpha=0.001 sigma=400000 u1",
+   "fault_events": 6,
+   "detected": 0,
+   "p_det": 0.0,
+   "false_events_per_hour": 2500.0,
+   "p_det_packet": 0.0,
+   "clean_fpr": 0.029722222222222223,
+   "delay_km_median_ns": null
+  }
+ ]
+}

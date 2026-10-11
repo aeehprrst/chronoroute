@@ -1,0 +1,541 @@
+const,scheme,condition,rule,k,defined_runs,undefined_runs,min,q25,median,q75,max
+C2,chronoroute,arq-0-middle,S=1.1 u1,2,36,0,0.0,0.0,0.0,0.0,0.0
+C2,chronoroute,arq-0-middle,S=1.25 u1,2,36,0,0.0,0.0,0.0,0.0,0.0
+C2,chronoroute,arq-0-middle,S=1.5 u1,2,36,0,0.0,0.0,0.0,0.0,0.0
+C2,chronoroute,arq-0-middle,S=2 u1,2,36,0,0.0,0.0,0.0,0.0,0.0
+C2,chronoroute,arq-0-middle,S=3 u1,2,36,0,0.0,0.0,0.0,0.0,0.0
+C2,chronoroute,arq-0-middle,add 1000000/hop+0 u1,2,36,0,0.0,0.0,0.0,0.0,0.0
+C2,chronoroute,arq-0-middle,add 250000/hop+0 u1,2,36,0,0.0,0.0,0.0,0.0,0.0
+C2,chronoroute,arq-0-middle,q alpha=0.001 sigma=400000 u1,2,36,0,0.0,0.0,0.0,0.0,0.0
+C2,chronoroute,arq-0-middle,q alpha=0.01 sigma=400000 u1,2,36,0,0.0,0.0,0.0,0.0,0.0
+C2,chronoroute,arq-0.01-middle,S=1.1 u1,2,36,0,0.0,0.006860972568578554,0.009987531172069825,0.010625,0.02
+C2,chronoroute,arq-0.01-middle,S=1.25 u1,2,36,0,0.0,0.0,0.0025,0.010625,0.0225
+C2,chronoroute,arq-0.01-middle,S=1.5 u1,2,36,0,0.0,0.0,0.0,0.003125,0.0175
+C2,chronoroute,arq-0.01-middle,S=2 u1,2,36,0,0.0,0.0,0.0,0.0,0.0
+C2,chronoroute,arq-0.01-middle,S=3 u1,2,36,0,0.0,0.0,0.0,0.0,0.0
+C2,chronoroute,arq-0.01-middle,add 1000000/hop+0 u1,2,36,0,0.0,0.0,0.002496882793017456,0.010625,0.0225
+C2,chronoroute,arq-0.01-middle,add 250000/hop+0 u1,2,36,0,0.0,0.005,0.008737531172069825,0.0125,0.015
+C2,chronoroute,arq-0.01-middle,q alpha=0.001 sigma=400000 u1,2,36,0,0.0025,0.0075,0.01,0.013125000000000001,0.0225
+C2,chronoroute,arq-0.01-middle,q alpha=0.01 sigma=400000 u1,2,36,0,0.0025,0.0075,0.01,0.015,0.0225
+C2,chronoroute,arq-0.1-first,S=1.1 u1,2,36,0,0.06,0.074375,0.08385338345864662,0.0925,0.1125
+C2,chronoroute,arq-0.1-first,S=1.25 u1,2,36,0,0.0275,0.084375,0.08760964912280701,0.1025,0.125
+C2,chronoroute,arq-0.1-first,S=1.5 u1,2,36,0,0.0,0.0125,0.09,0.1025,0.1275
+C2,chronoroute,arq-0.1-first,S=2 u1,2,36,0,0.0,0.0,0.0125,0.09,0.1275
+C2,chronoroute,arq-0.1-first,S=3 u1,2,36,0,0.0,0.0,0.0,0.0075,0.02
+C2,chronoroute,arq-0.1-first,add 1000000/hop+0 u1,2,36,0,0.03,0.08537360990415738,0.0925,0.1025,0.125
+C2,chronoroute,arq-0.1-first,add 250000/hop+0 u1,2,36,0,0.0575,0.065,0.07017543859649122,0.08,0.1025
+C2,chronoroute,arq-0.1-first,q alpha=0.001 sigma=400000 u1,2,36,0,0.07,0.0875,0.095,0.105,0.1225
+C2,chronoroute,arq-0.1-first,q alpha=0.01 sigma=400000 u1,2,36,0,0.0675,0.0825,0.08875,0.09830827067669173,0.115
+C2,chronoroute,arq-0.1-last,S=1.1 u1,2,36,0,0.025,0.055,0.0725,0.0825,0.1125
+C2,chronoroute,arq-0.1-last,S=1.25 u1,2,36,0,0.0,0.0025046992481203008,0.01125,0.0825,0.12
+C2,chronoroute,arq-0.1-last,S=1.5 u1,2,36,0,0.0,0.0,0.0,0.008125,0.10526315789473684
+C2,chronoroute,arq-0.1-last,S=2 u1,2,36,0,0.0,0.0,0.0,0.0,0.007518796992481203
+C2,chronoroute,arq-0.1-last,S=3 u1,2,36,0,0.0,0.0,0.0,0.0,0.0
+C2,chronoroute,arq-0.1-last,add 1000000/hop+0 u1,2,36,0,0.0,0.006875,0.042475062344139655,0.08484102244389027,0.12
+C2,chronoroute,arq-0.1-last,add 250000/hop+0 u1,2,36,0,0.0325,0.059375,0.07,0.0775,0.1
+C2,chronoroute,arq-0.1-last,q alpha=0.001 sigma=400000 u1,2,36,0,0.04,0.061875,0.08010025062656642,0.09375,0.1225
+C2,chronoroute,arq-0.1-last,q alpha=0.01 sigma=400000 u1,2,36,0,0.05,0.07495324189526184,0.08364401496259352,0.093125,0.1125
+C2,chronoroute,arq-0.1-middle,S=1.1 u1,2,36,0,0.0625,0.071875,0.0825,0.093125,0.1175
+C2,chronoroute,arq-0.1-middle,S=1.25 u1,2,36,0,0.0025,0.009993765586034913,0.018750000000000003,0.089375,0.1225
+C2,chronoroute,arq-0.1-middle,S=1.5 u1,2,36,0,0.0,0.0,0.0,0.06,0.1075
+C2,chronoroute,arq-0.1-middle,S=2 u1,2,36,0,0.0,0.0,0.0,0.00375,0.02
+C2,chronoroute,arq-0.1-middle,S=3 u1,2,36,0,0.0,0.0,0.0,0.0,0.0
+C2,chronoroute,arq-0.1-middle,add 1000000/hop+0 u1,2,36,0,0.0,0.009375,0.02,0.0925,0.1225
+C2,chronoroute,arq-0.1-middle,add 250000/hop+0 u1,2,36,0,0.0525,0.0675,0.075,0.083125,0.0975
+C2,chronoroute,arq-0.1-middle,q alpha=0.001 sigma=400000 u1,2,36,0,0.05,0.079375,0.0925,0.103125,0.125
+C2,chronoroute,arq-0.1-middle,q alpha=0.01 sigma=400000 u1,2,36,0,0.0725,0.086875,0.0973784289276808,0.103125,0.1175
+C2,chronoroute,arq-0.3-middle,S=1.1 u1,2,36,0,0.19047619047619047,0.23139254385964914,0.2496819581202453,0.26348407741537516,0.29
+C2,chronoroute,arq-0.3-middle,S=1.25 u1,2,36,0,0.03787878787878788,0.07759976473295913,0.09056732740943267,0.28688672438672436,0.3075
+C2,chronoroute,arq-0.3-middle,S=1.5 u1,2,36,0,0.0,0.002506265664160401,0.021331595319958187,0.20924433249370278,0.30808080808080807
+C2,chronoroute,arq-0.3-middle,S=2 u1,2,36,0,0.0,0.0,0.0,0.07120957687708318,0.11838790931989925
+C2,chronoroute,arq-0.3-middle,S=3 u1,2,36,0,0.0,0.0,0.0,0.0,0.02512562814070352
+C2,chronoroute,arq-0.3-middle,add 1000000/hop+0 u1,2,36,0,0.02506265664160401,0.07687231254611607,0.10263157894736842,0.295603649560936,0.314070351758794
+C2,chronoroute,arq-0.3-middle,add 250000/hop+0 u1,2,36,0,0.18295739348370926,0.2117224880382775,0.22236111111111112,0.23281926406926406,0.25440806045340053
+C2,chronoroute,arq-0.3-middle,q alpha=0.001 sigma=400000 u1,2,36,0,0.18295739348370926,0.2546005343171554,0.28014936585796985,0.29611181606408965,0.314070351758794
+C2,chronoroute,arq-0.3-middle,q alpha=0.01 sigma=400000 u1,2,36,0,0.22055137844611528,0.262594696969697,0.2720356834678443,0.28823174006444685,0.3020304568527919
+C2,chronoroute,delay-0-middle,S=1.1 u1,2,36,0,0.0,0.0,0.0,0.0,0.0
+C2,chronoroute,delay-0-middle,S=1.25 u1,2,36,0,0.0,0.0,0.0,0.0,0.0
+C2,chronoroute,delay-0-middle,S=1.5 u1,2,36,0,0.0,0.0,0.0,0.0,0.0
+C2,chronoroute,delay-0-middle,S=2 u1,2,36,0,0.0,0.0,0.0,0.0,0.0
+C2,chronoroute,delay-0-middle,S=3 u1,2,36,0,0.0,0.0,0.0,0.0,0.0
+C2,chronoroute,delay-0-middle,add 1000000/hop+0 u1,2,36,0,0.0,0.0,0.0,0.0,0.0
+C2,chronoroute,delay-0-middle,add 250000/hop+0 u1,2,36,0,0.0,0.0,0.0,0.0,0.0
+C2,chronoroute,delay-0-middle,q alpha=0.001 sigma=400000 u1,2,36,0,0.0,0.0,0.0,0.0,0.0
+C2,chronoroute,delay-0-middle,q alpha=0.01 sigma=400000 u1,2,36,0,0.0,0.0,0.0,0.0,0.0
+C2,chronoroute,delay-1000000-first,S=1.1 u1,2,36,0,0.0275,0.060742481203007515,0.1375,0.169375,0.275
+C2,chronoroute,delay-1000000-first,S=1.25 u1,2,36,0,0.0,0.0,0.0025,0.005,0.02
+C2,chronoroute,delay-1000000-first,S=1.5 u1,2,36,0,0.0,0.0,0.0,0.0,0.0025
+C2,chronoroute,delay-1000000-first,S=2 u1,2,36,0,0.0,0.0,0.0,0.0,0.0
+C2,chronoroute,delay-1000000-first,S=3 u1,2,36,0,0.0,0.0,0.0,0.0,0.0
+C2,chronoroute,delay-1000000-first,add 1000000/hop+0 u1,2,36,0,0.0,0.001875,0.005,0.023125,0.0425
+C2,chronoroute,delay-1000000-first,add 250000/hop+0 u1,2,36,0,0.2125,0.2868045112781955,0.3175,0.4725,0.5275
+C2,chronoroute,delay-1000000-first,q alpha=0.001 sigma=400000 u1,2,36,0,0.0325,0.05,0.0625,0.0775,0.11
+C2,chronoroute,delay-1000000-first,q alpha=0.01 sigma=400000 u1,2,36,0,0.1,0.1325,0.1525,0.18875,0.2475
+C2,chronoroute,delay-1000000-last,S=1.1 u1,2,36,0,0.0,0.0018703241895261845,0.00625,0.013125000000000001,0.1225
+C2,chronoroute,delay-1000000-last,S=1.25 u1,2,36,0,0.0,0.0,0.0,0.0,0.005
+C2,chronoroute,delay-1000000-last,S=1.5 u1,2,36,0,0.0,0.0,0.0,0.0,0.0
+C2,chronoroute,delay-1000000-last,S=2 u1,2,36,0,0.0,0.0,0.0,0.0,0.0
+C2,chronoroute,delay-1000000-last,S=3 u1,2,36,0,0.0,0.0,0.0,0.0,0.0
+C2,chronoroute,delay-1000000-last,add 1000000/hop+0 u1,2,36,0,0.0,0.0,0.0,0.0,0.0075
+C2,chronoroute,delay-1000000-last,add 250000/hop+0 u1,2,36,0,0.005,0.0312672305764411,0.06125,0.085,0.32
+C2,chronoroute,delay-1000000-last,q alpha=0.001 sigma=400000 u1,2,36,0,0.002506265664160401,0.01,0.018750000000000003,0.027448566084788028,0.05
+C2,chronoroute,delay-1000000-last,q alpha=0.01 sigma=400000 u1,2,36,0,0.0125,0.039375,0.051250000000000004,0.06737375311720697,0.1225
+C2,chronoroute,delay-1000000-middle,S=1.1 u1,2,36,0,0.0,0.0125,0.0225,0.043125000000000004,0.1225
+C2,chronoroute,delay-1000000-middle,S=1.25 u1,2,36,0,0.0,0.0,0.0,0.0,0.005
+C2,chronoroute,delay-1000000-middle,S=1.5 u1,2,36,0,0.0,0.0,0.0,0.0,0.0
+C2,chronoroute,delay-1000000-middle,S=2 u1,2,36,0,0.0,0.0,0.0,0.0,0.0
+C2,chronoroute,delay-1000000-middle,S=3 u1,2,36,0,0.0,0.0,0.0,0.0,0.0
+C2,chronoroute,delay-1000000-middle,add 1000000/hop+0 u1,2,36,0,0.0,0.0,0.0,0.0,0.0075
+C2,chronoroute,delay-1000000-middle,add 250000/hop+0 u1,2,36,0,0.0475,0.07735037406483791,0.14375,0.1875,0.32
+C2,chronoroute,delay-1000000-middle,q alpha=0.001 sigma=400000 u1,2,36,0,0.014962593516209476,0.024328241895261844,0.03125,0.043125000000000004,0.0575
+C2,chronoroute,delay-1000000-middle,q alpha=0.01 sigma=400000 u1,2,36,0,0.0375,0.065,0.0875,0.1,0.1425
+C2,chronoroute,delay-250000-middle,S=1.1 u1,2,36,0,0.0,0.0024984413965087283,0.0025,0.005,0.015
+C2,chronoroute,delay-250000-middle,S=1.25 u1,2,36,0,0.0,0.0,0.0,0.0,0.0
+C2,chronoroute,delay-250000-middle,S=1.5 u1,2,36,0,0.0,0.0,0.0,0.0,0.0
+C2,chronoroute,delay-250000-middle,S=2 u1,2,36,0,0.0,0.0,0.0,0.0,0.0
+C2,chronoroute,delay-250000-middle,S=3 u1,2,36,0,0.0,0.0,0.0,0.0,0.0
+C2,chronoroute,delay-250000-middle,add 1000000/hop+0 u1,2,36,0,0.0,0.0,0.0,0.0,0.0
+C2,chronoroute,delay-250000-middle,add 250000/hop+0 u1,2,36,0,0.0024937655860349127,0.01,0.01625,0.0225,0.055
+C2,chronoroute,delay-250000-middle,q alpha=0.001 sigma=400000 u1,2,36,0,0.0,0.0024984413965087283,0.005,0.005,0.01
+C2,chronoroute,delay-250000-middle,q alpha=0.01 sigma=400000 u1,2,36,0,0.0,0.007495324189526184,0.01,0.0125,0.0275
+C2,chronoroute,delay-4000000-middle,S=1.1 u1,2,36,0,0.115,0.6774688279301746,0.8375,0.868125,0.9025
+C2,chronoroute,delay-4000000-middle,S=1.25 u1,2,36,0,0.0,0.0018703241895261845,0.00875,0.035625000000000004,0.7425
+C2,chronoroute,delay-4000000-middle,S=1.5 u1,2,36,0,0.0,0.0,0.0,0.0,0.0025
+C2,chronoroute,delay-4000000-middle,S=2 u1,2,36,0,0.0,0.0,0.0,0.0,0.0
+C2,chronoroute,delay-4000000-middle,S=3 u1,2,36,0,0.0,0.0,0.0,0.0,0.0
+C2,chronoroute,delay-4000000-middle,add 1000000/hop+0 u1,2,36,0,0.0,0.0075,0.0875,0.314375,0.93
+C2,chronoroute,delay-4000000-middle,add 250000/hop+0 u1,2,36,0,0.6675,0.739375,0.7540586034912717,0.768125,0.7925
+C2,chronoroute,delay-4000000-middle,q alpha=0.001 sigma=400000 u1,2,36,0,0.47381546134663344,0.684375,0.8725,0.9725,0.9875
+C2,chronoroute,delay-4000000-middle,q alpha=0.01 sigma=400000 u1,2,36,0,0.755,0.868125,0.92625,0.943125,0.96
+C2,chronoroute,rate-0.2-middle,S=1.1 u1,2,36,0,0.5833333333333334,0.7361660079051383,0.8178053830227743,0.8260869565217391,0.9565217391304348
+C2,chronoroute,rate-0.2-middle,S=1.25 u1,2,36,0,0.7083333333333334,0.8260869565217391,0.8695652173913043,0.9130434782608695,1.0
+C2,chronoroute,rate-0.2-middle,S=1.5 u1,2,36,0,0.6521739130434783,0.7727272727272727,0.782608695652174,0.8260869565217391,0.9130434782608695
+C2,chronoroute,rate-0.2-middle,S=2 u1,2,36,0,0.43478260869565216,0.6042490118577075,0.6521739130434783,0.6956521739130435,0.8260869565217391
+C2,chronoroute,rate-0.2-middle,S=3 u1,2,36,0,0.0,0.37215909090909094,0.43478260869565216,0.4782608695652174,0.6521739130434783
+C2,chronoroute,rate-0.2-middle,add 1000000/hop+0 u1,2,36,0,0.75,0.8636363636363636,0.8695652173913043,0.9234189723320158,1.0
+C2,chronoroute,rate-0.2-middle,add 250000/hop+0 u1,2,36,0,0.5217391304347826,0.6521739130434783,0.6956521739130435,0.8116883116883117,0.8695652173913043
+C2,chronoroute,rate-0.2-middle,q alpha=0.001 sigma=400000 u1,2,36,0,0.8260869565217391,0.9120553359683794,0.9565217391304348,0.9565217391304348,1.0
+C2,chronoroute,rate-0.2-middle,q alpha=0.01 sigma=400000 u1,2,36,0,0.7391304347826086,0.8680830039525691,0.9130434782608695,0.9130434782608695,1.0
+C2,chronoroute,rate-0.3-first,S=1.1 u1,2,36,0,0.2325,0.291875,0.4344513715710723,0.49220386533665833,0.515
+C2,chronoroute,rate-0.3-first,S=1.25 u1,2,36,0,0.0,0.006860972568578554,0.05,0.090625,0.2275
+C2,chronoroute,rate-0.3-first,S=1.5 u1,2,36,0,0.0,0.0,0.0,0.0,0.005
+C2,chronoroute,rate-0.3-first,S=2 u1,2,36,0,0.0,0.0,0.0,0.0,0.0
+C2,chronoroute,rate-0.3-first,S=3 u1,2,36,0,0.0,0.0,0.0,0.0,0.0
+C2,chronoroute,rate-0.3-first,add 1000000/hop+0 u1,2,36,0,0.0075,0.05,0.06875,0.2475,0.31
+C2,chronoroute,rate-0.3-first,add 250000/hop+0 u1,2,36,0,0.43,0.476875,0.5049999999999999,0.535625,0.595
+C2,chronoroute,rate-0.3-first,q alpha=0.001 sigma=400000 u1,2,36,0,0.22942643391521197,0.2625,0.29,0.370625,0.4125
+C2,chronoroute,rate-0.3-first,q alpha=0.01 sigma=400000 u1,2,36,0,0.34,0.39899749373433585,0.415,0.48375,0.555
+C2,chronoroute,rate-0.3-last,S=1.1 u1,2,36,0,0.0,0.019337593516209478,0.04,0.076875,0.395
+C2,chronoroute,rate-0.3-last,S=1.25 u1,2,36,0,0.0,0.0,0.0,0.0,0.025
+C2,chronoroute,rate-0.3-last,S=1.5 u1,2,36,0,0.0,0.0,0.0,0.0,0.0
+C2,chronoroute,rate-0.3-last,S=2 u1,2,36,0,0.0,0.0,0.0,0.0,0.0
+C2,chronoroute,rate-0.3-last,S=3 u1,2,36,0,0.0,0.0,0.0,0.0,0.0
+C2,chronoroute,rate-0.3-last,add 1000000/hop+0 u1,2,36,0,0.0,0.0,0.0,0.0,0.0625
+C2,chronoroute,rate-0.3-last,add 250000/hop+0 u1,2,36,0,0.05,0.13874999999999998,0.2275,0.27919731920199503,0.485
+C2,chronoroute,rate-0.3-last,q alpha=0.001 sigma=400000 u1,2,36,0,0.0425,0.057464152119700754,0.085,0.10875,0.2425
+C2,chronoroute,rate-0.3-last,q alpha=0.01 sigma=400000 u1,2,36,0,0.0925,0.14098347880299253,0.19125,0.225,0.3875
+C2,chronoroute,rate-0.3-middle,S=1.1 u1,2,36,0,0.0,0.09856296758104738,0.12094763092269326,0.1825,0.395
+C2,chronoroute,rate-0.3-middle,S=1.25 u1,2,36,0,0.0,0.0,0.0,0.0025,0.025
+C2,chronoroute,rate-0.3-middle,S=1.5 u1,2,36,0,0.0,0.0,0.0,0.0,0.0
+C2,chronoroute,rate-0.3-middle,S=2 u1,2,36,0,0.0,0.0,0.0,0.0,0.0
+C2,chronoroute,rate-0.3-middle,S=3 u1,2,36,0,0.0,0.0,0.0,0.0,0.0
+C2,chronoroute,rate-0.3-middle,add 1000000/hop+0 u1,2,36,0,0.0,0.0,0.00125,0.01,0.0675
+C2,chronoroute,rate-0.3-middle,add 250000/hop+0 u1,2,36,0,0.1825,0.27375000000000005,0.34581670822942645,0.4098675187032419,0.5
+C2,chronoroute,rate-0.3-middle,q alpha=0.001 sigma=400000 u1,2,36,0,0.07,0.1075,0.14125,0.18625,0.255
+C2,chronoroute,rate-0.3-middle,q alpha=0.01 sigma=400000 u1,2,36,0,0.18,0.224375,0.273067331670823,0.33041770573566087,0.3875
+C2,chronoroute,rate-0.6-middle,S=1.1 u1,2,36,0,0.0,0.0,0.0,0.0,0.0
+C2,chronoroute,rate-0.6-middle,S=1.25 u1,2,36,0,0.0,0.0,0.0,0.0,0.0
+C2,chronoroute,rate-0.6-middle,S=1.5 u1,2,36,0,0.0,0.0,0.0,0.0,0.0
+C2,chronoroute,rate-0.6-middle,S=2 u1,2,36,0,0.0,0.0,0.0,0.0,0.0
+C2,chronoroute,rate-0.6-middle,S=3 u1,2,36,0,0.0,0.0,0.0,0.0,0.0
+C2,chronoroute,rate-0.6-middle,add 1000000/hop+0 u1,2,36,0,0.0,0.0,0.0,0.0,0.0
+C2,chronoroute,rate-0.6-middle,add 250000/hop+0 u1,2,36,0,0.0,0.0,0.0,0.0,0.0025
+C2,chronoroute,rate-0.6-middle,q alpha=0.001 sigma=400000 u1,2,36,0,0.0,0.0,0.0,0.0,0.0
+C2,chronoroute,rate-0.6-middle,q alpha=0.01 sigma=400000 u1,2,36,0,0.0,0.0,0.0,0.0,0.0
+C2,chronoroute,rate-1-middle,S=1.1 u1,2,36,0,0.0,0.0,0.0,0.0,0.0
+C2,chronoroute,rate-1-middle,S=1.25 u1,2,36,0,0.0,0.0,0.0,0.0,0.0
+C2,chronoroute,rate-1-middle,S=1.5 u1,2,36,0,0.0,0.0,0.0,0.0,0.0
+C2,chronoroute,rate-1-middle,S=2 u1,2,36,0,0.0,0.0,0.0,0.0,0.0
+C2,chronoroute,rate-1-middle,S=3 u1,2,36,0,0.0,0.0,0.0,0.0,0.0
+C2,chronoroute,rate-1-middle,add 1000000/hop+0 u1,2,36,0,0.0,0.0,0.0,0.0,0.0
+C2,chronoroute,rate-1-middle,add 250000/hop+0 u1,2,36,0,0.0,0.0,0.0,0.0,0.0
+C2,chronoroute,rate-1-middle,q alpha=0.001 sigma=400000 u1,2,36,0,0.0,0.0,0.0,0.0,0.0
+C2,chronoroute,rate-1-middle,q alpha=0.01 sigma=400000 u1,2,36,0,0.0,0.0,0.0,0.0,0.0
+C2,crh16,arq-0-middle,as run,2,36,0,0.0,0.0,0.0,0.0,0.0
+C2,crh16,arq-0.01-middle,as run,2,36,0,0.0,0.0,0.0,0.0,0.0
+C2,crh16,arq-0.1-first,as run,2,36,0,0.0,0.0,0.0,0.0,0.0
+C2,crh16,arq-0.1-last,as run,2,36,0,0.0,0.0,0.0,0.0,0.0
+C2,crh16,arq-0.1-middle,as run,2,36,0,0.0,0.0,0.0,0.0,0.0
+C2,crh16,arq-0.3-middle,as run,2,36,0,0.0,0.0,0.0,0.0,0.0
+C2,crh16,delay-0-middle,as run,2,36,0,0.0,0.0,0.0,0.0,0.0
+C2,crh16,delay-1000000-first,as run,2,36,0,0.0,0.0,0.0,0.0,0.0
+C2,crh16,delay-1000000-last,as run,2,36,0,0.0,0.0,0.0,0.0,0.0
+C2,crh16,delay-1000000-middle,as run,2,36,0,0.0,0.0,0.0,0.0,0.0
+C2,crh16,delay-250000-middle,as run,2,36,0,0.0,0.0,0.0,0.0,0.0
+C2,crh16,delay-4000000-middle,as run,2,36,0,0.0,0.0,0.0,0.0,0.0
+C2,crh16,rate-0.2-middle,as run,2,36,0,0.0,0.0,0.0,0.0,0.0
+C2,crh16,rate-0.3-first,as run,2,36,0,0.0,0.0,0.0,0.0,0.0
+C2,crh16,rate-0.3-last,as run,2,36,0,0.0,0.0,0.0,0.0,0.0
+C2,crh16,rate-0.3-middle,as run,2,36,0,0.0,0.0,0.0,0.0,0.0
+C2,crh16,rate-0.6-middle,as run,2,36,0,0.0,0.0,0.0,0.0,0.0
+C2,crh16,rate-1-middle,as run,2,36,0,0.0,0.0,0.0,0.0,0.0
+C2,e2e,arq-0-middle,as run,2,36,0,0.0,0.0,0.0,0.0,0.0
+C2,e2e,arq-0.01-middle,as run,2,36,0,0.0,0.0,0.0,0.0,0.0025
+C2,e2e,arq-0.1-first,as run,2,36,0,0.0,0.0,0.00625,0.0125,0.1
+C2,e2e,arq-0.1-last,as run,2,36,0,0.0,0.0,0.0,0.0075,0.03007518796992481
+C2,e2e,arq-0.1-middle,as run,2,36,0,0.0,0.0,0.0,0.0075,0.035
+C2,e2e,arq-0.3-middle,as run,2,36,0,0.0,0.0,0.0,0.08344065453305809,0.135678391959799
+C2,e2e,delay-0-middle,as run,2,36,0,0.0,0.0,0.0,0.0,0.0
+C2,e2e,delay-1000000-first,as run,2,36,0,0.0,0.0,0.0,0.0,0.0
+C2,e2e,delay-1000000-last,as run,2,36,0,0.0,0.0,0.0,0.0,0.0
+C2,e2e,delay-1000000-middle,as run,2,36,0,0.0,0.0,0.0,0.0,0.0
+C2,e2e,delay-250000-middle,as run,2,36,0,0.0,0.0,0.0,0.0,0.0
+C2,e2e,delay-4000000-middle,as run,2,36,0,0.0,0.0,0.0,0.0,0.0
+C2,e2e,rate-0.2-middle,as run,2,36,0,0.5,0.625,0.6956521739130435,0.7302371541501976,0.8695652173913043
+C2,e2e,rate-0.3-first,as run,2,36,0,0.0,0.0,0.0,0.0,0.0
+C2,e2e,rate-0.3-last,as run,2,36,0,0.0,0.0,0.0,0.0,0.0
+C2,e2e,rate-0.3-middle,as run,2,36,0,0.0,0.0,0.0,0.0,0.0
+C2,e2e,rate-0.6-middle,as run,2,36,0,0.0,0.0,0.0,0.0,0.0
+C2,e2e,rate-1-middle,as run,2,36,0,0.0,0.0,0.0,0.0,0.0
+C2,lq,arq-0-middle,as run,2,36,0,0.0,0.0,0.0,0.0,0.0
+C2,lq,arq-0.01-middle,as run,2,36,0,0.0,0.0,0.0,0.084375,0.175
+C2,lq,arq-0.1-first,as run,2,36,0,0.03,0.22625,0.5927324120603015,0.6425,0.7325
+C2,lq,arq-0.1-last,as run,2,36,0,0.0399002493765586,0.09580827067669173,0.15,0.6074999999999999,0.755
+C2,lq,arq-0.1-middle,as run,2,36,0,0.0375,0.119375,0.1625,0.61375,0.7375
+C2,lq,arq-0.3-middle,as run,2,36,0,0.6265664160401002,0.7307233502538071,0.7777777777777778,0.9552038012365469,0.9975
+C2,lq,delay-0-middle,as run,2,36,0,0.0,0.0,0.0,0.0,0.0
+C2,lq,delay-1000000-first,as run,2,36,0,0.0,0.0,0.0,0.0,0.0
+C2,lq,delay-1000000-last,as run,2,36,0,0.0,0.0,0.0,0.0,0.0
+C2,lq,delay-1000000-middle,as run,2,36,0,0.0,0.0,0.0,0.0,0.0
+C2,lq,delay-250000-middle,as run,2,36,0,0.0,0.0,0.0,0.0,0.0
+C2,lq,delay-4000000-middle,as run,2,36,0,0.0,0.0,0.0,0.0,0.0
+C2,lq,rate-0.2-middle,as run,2,36,0,0.9545454545454546,0.9565217391304348,1.0,1.0,1.0
+C2,lq,rate-0.3-first,as run,2,36,0,0.6475,0.6575,0.6575,0.6675,0.675
+C2,lq,rate-0.3-last,as run,2,36,0,0.6475,0.6575,0.6575,0.6677072942643392,0.6758104738154613
+C2,lq,rate-0.3-middle,as run,2,36,0,0.6475,0.6575,0.6575,0.6675,0.6758104738154613
+C2,lq,rate-0.6-middle,as run,2,36,0,0.0,0.0,0.0,0.0,0.0
+C2,lq,rate-1-middle,as run,2,36,0,0.0,0.0,0.0,0.0,0.0
+C2,ls_d,arq-0-middle,as run,2,0,36,,,,,
+C2,ls_d,arq-0.01-middle,as run,2,0,36,,,,,
+C2,ls_d,arq-0.1-first,as run,2,0,36,,,,,
+C2,ls_d,arq-0.1-last,as run,2,0,36,,,,,
+C2,ls_d,arq-0.1-middle,as run,2,0,36,,,,,
+C2,ls_d,arq-0.3-middle,as run,2,0,36,,,,,
+C2,ls_d,delay-0-middle,as run,2,0,36,,,,,
+C2,ls_d,delay-1000000-first,as run,2,0,36,,,,,
+C2,ls_d,delay-1000000-last,as run,2,0,36,,,,,
+C2,ls_d,delay-1000000-middle,as run,2,0,36,,,,,
+C2,ls_d,delay-250000-middle,as run,2,0,36,,,,,
+C2,ls_d,delay-4000000-middle,as run,2,0,36,,,,,
+C2,ls_d,rate-0.2-middle,as run,2,0,36,,,,,
+C2,ls_d,rate-0.3-first,as run,2,0,36,,,,,
+C2,ls_d,rate-0.3-last,as run,2,0,36,,,,,
+C2,ls_d,rate-0.3-middle,as run,2,0,36,,,,,
+C2,ls_d,rate-0.6-middle,as run,2,0,36,,,,,
+C2,ls_d,rate-1-middle,as run,2,0,36,,,,,
+C2,ls_h,arq-0-middle,as run,2,0,36,,,,,
+C2,ls_h,arq-0.01-middle,as run,2,0,36,,,,,
+C2,ls_h,arq-0.1-first,as run,2,0,36,,,,,
+C2,ls_h,arq-0.1-last,as run,2,0,36,,,,,
+C2,ls_h,arq-0.1-middle,as run,2,0,36,,,,,
+C2,ls_h,arq-0.3-middle,as run,2,0,36,,,,,
+C2,ls_h,delay-0-middle,as run,2,0,36,,,,,
+C2,ls_h,delay-1000000-first,as run,2,0,36,,,,,
+C2,ls_h,delay-1000000-last,as run,2,0,36,,,,,
+C2,ls_h,delay-1000000-middle,as run,2,0,36,,,,,
+C2,ls_h,delay-250000-middle,as run,2,0,36,,,,,
+C2,ls_h,delay-4000000-middle,as run,2,0,36,,,,,
+C2,ls_h,rate-0.2-middle,as run,2,0,36,,,,,
+C2,ls_h,rate-0.3-first,as run,2,0,36,,,,,
+C2,ls_h,rate-0.3-last,as run,2,0,36,,,,,
+C2,ls_h,rate-0.3-middle,as run,2,0,36,,,,,
+C2,ls_h,rate-0.6-middle,as run,2,0,36,,,,,
+C2,ls_h,rate-1-middle,as run,2,0,36,,,,,
+C2,o_q,arq-0-middle,as run,2,0,36,,,,,
+C2,o_q,arq-0.01-middle,as run,2,0,36,,,,,
+C2,o_q,arq-0.1-first,as run,2,0,36,,,,,
+C2,o_q,arq-0.1-last,as run,2,0,36,,,,,
+C2,o_q,arq-0.1-middle,as run,2,0,36,,,,,
+C2,o_q,arq-0.3-middle,as run,2,0,36,,,,,
+C2,o_q,delay-0-middle,as run,2,0,36,,,,,
+C2,o_q,delay-1000000-first,as run,2,0,36,,,,,
+C2,o_q,delay-1000000-last,as run,2,0,36,,,,,
+C2,o_q,delay-1000000-middle,as run,2,0,36,,,,,
+C2,o_q,delay-250000-middle,as run,2,0,36,,,,,
+C2,o_q,delay-4000000-middle,as run,2,0,36,,,,,
+C2,o_q,rate-0.2-middle,as run,2,0,36,,,,,
+C2,o_q,rate-0.3-first,as run,2,0,36,,,,,
+C2,o_q,rate-0.3-last,as run,2,0,36,,,,,
+C2,o_q,rate-0.3-middle,as run,2,0,36,,,,,
+C2,o_q,rate-0.6-middle,as run,2,0,36,,,,,
+C2,o_q,rate-1-middle,as run,2,0,36,,,,,
+C5,chronoroute,arq-0-middle,S=1.1 u1,2,36,0,0.0,0.0,0.0,0.0,0.0
+C5,chronoroute,arq-0-middle,S=1.25 u1,2,36,0,0.0,0.0,0.0,0.0,0.0
+C5,chronoroute,arq-0-middle,S=1.5 u1,2,36,0,0.0,0.0,0.0,0.0,0.0
+C5,chronoroute,arq-0-middle,S=2 u1,2,36,0,0.0,0.0,0.0,0.0,0.0
+C5,chronoroute,arq-0-middle,S=3 u1,2,36,0,0.0,0.0,0.0,0.0,0.0
+C5,chronoroute,arq-0-middle,add 1000000/hop+0 u1,2,36,0,0.0,0.0,0.0,0.0,0.0
+C5,chronoroute,arq-0-middle,add 250000/hop+0 u1,2,36,0,0.0,0.0,0.0,0.0,0.0
+C5,chronoroute,arq-0-middle,q alpha=0.001 sigma=400000 u1,2,36,0,0.0,0.0,0.0,0.0,0.0
+C5,chronoroute,arq-0-middle,q alpha=0.01 sigma=400000 u1,2,36,0,0.0,0.0,0.0,0.0,0.0
+C5,chronoroute,arq-0.01-middle,S=1.1 u1,2,36,0,0.0,0.0025,0.00625,0.0125,0.020050125313283207
+C5,chronoroute,arq-0.01-middle,S=1.25 u1,2,36,0,0.0,0.0,0.0025,0.009981296758104738,0.0225
+C5,chronoroute,arq-0.01-middle,S=1.5 u1,2,36,0,0.0,0.0,0.0,0.000625,0.0175
+C5,chronoroute,arq-0.01-middle,S=2 u1,2,36,0,0.0,0.0,0.0,0.0,0.0175
+C5,chronoroute,arq-0.01-middle,S=3 u1,2,36,0,0.0,0.0,0.0,0.0,0.0
+C5,chronoroute,arq-0.01-middle,add 1000000/hop+0 u1,2,36,0,0.0,0.0,0.0,0.01,0.0225
+C5,chronoroute,arq-0.01-middle,add 250000/hop+0 u1,2,36,0,0.0,0.0025,0.005,0.01,0.017543859649122806
+C5,chronoroute,arq-0.01-middle,q alpha=0.001 sigma=400000 u1,2,36,0,0.0,0.0025,0.0075,0.015,0.0225
+C5,chronoroute,arq-0.01-middle,q alpha=0.01 sigma=400000 u1,2,36,0,0.0,0.0025,0.00875,0.015,0.0225
+C5,chronoroute,arq-0.1-first,S=1.1 u1,2,36,0,0.045,0.066875,0.08,0.0875,0.1125
+C5,chronoroute,arq-0.1-first,S=1.25 u1,2,36,0,0.0025,0.041249999999999995,0.08625,0.098125,0.12
+C5,chronoroute,arq-0.1-first,S=1.5 u1,2,36,0,0.0,0.004375,0.043803258145363407,0.1,0.1275
+C5,chronoroute,arq-0.1-first,S=2 u1,2,36,0,0.0,0.0,0.005,0.035,0.1275
+C5,chronoroute,arq-0.1-first,S=3 u1,2,36,0,0.0,0.0,0.0,0.005625,0.02
+C5,chronoroute,arq-0.1-first,add 1000000/hop+0 u1,2,36,0,0.0,0.011875,0.09125,0.10056109725685786,0.125
+C5,chronoroute,arq-0.1-first,add 250000/hop+0 u1,2,36,0,0.0475,0.06,0.0725,0.0800501253132832,0.105
+C5,chronoroute,arq-0.1-first,q alpha=0.001 sigma=400000 u1,2,36,0,0.0125,0.044375,0.09,0.1,0.1225
+C5,chronoroute,arq-0.1-first,q alpha=0.01 sigma=400000 u1,2,36,0,0.0275,0.069375,0.08625,0.09625,0.115
+C5,chronoroute,arq-0.1-last,S=1.1 u1,2,36,0,0.0,0.0225,0.06875,0.0775485588972431,0.1075
+C5,chronoroute,arq-0.1-last,S=1.25 u1,2,36,0,0.0,0.0,0.0325,0.08,0.1175
+C5,chronoroute,arq-0.1-last,S=1.5 u1,2,36,0,0.0,0.0,0.0025,0.01,0.1075
+C5,chronoroute,arq-0.1-last,S=2 u1,2,36,0,0.0,0.0,0.0,0.0,0.02
+C5,chronoroute,arq-0.1-last,S=3 u1,2,36,0,0.0,0.0,0.0,0.0,0.0025
+C5,chronoroute,arq-0.1-last,add 1000000/hop+0 u1,2,36,0,0.0,0.0,0.015018796992481202,0.08557044887780549,0.12
+C5,chronoroute,arq-0.1-last,add 250000/hop+0 u1,2,36,0,0.005,0.041859413965087286,0.06625,0.075,0.09975062344139651
+C5,chronoroute,arq-0.1-last,q alpha=0.001 sigma=400000 u1,2,36,0,0.0,0.068781328320802,0.0825,0.09329887218045113,0.12030075187969924
+C5,chronoroute,arq-0.1-last,q alpha=0.01 sigma=400000 u1,2,36,0,0.005,0.07375,0.08,0.09,0.1172069825436409
+C5,chronoroute,arq-0.1-middle,S=1.1 u1,2,36,0,0.0,0.049375,0.06875,0.08755482456140351,0.1125
+C5,chronoroute,arq-0.1-middle,S=1.25 u1,2,36,0,0.0,0.0025,0.036250000000000004,0.090625,0.1175
+C5,chronoroute,arq-0.1-middle,S=1.5 u1,2,36,0,0.0,0.0,0.0025,0.038125,0.1175
+C5,chronoroute,arq-0.1-middle,S=2 u1,2,36,0,0.0,0.0,0.0,0.0,0.1175
+C5,chronoroute,arq-0.1-middle,S=3 u1,2,36,0,0.0,0.0,0.0,0.0,0.01
+C5,chronoroute,arq-0.1-middle,add 1000000/hop+0 u1,2,36,0,0.0,0.0,0.0275,0.089375,0.12
+C5,chronoroute,arq-0.1-middle,add 250000/hop+0 u1,2,36,0,0.0075,0.051875,0.0675,0.08,0.10473815461346633
+C5,chronoroute,arq-0.1-middle,q alpha=0.001 sigma=400000 u1,2,36,0,0.007481296758104738,0.04375,0.085,0.1075,0.13466334164588528
+C5,chronoroute,arq-0.1-middle,q alpha=0.01 sigma=400000 u1,2,36,0,0.0075,0.06625,0.08010025062656642,0.099375,0.12967581047381546
+C5,chronoroute,arq-0.3-middle,S=1.1 u1,2,36,0,0.005,0.1863174939868563,0.22798223350253807,0.25599591875777195,0.32160804020100503
+C5,chronoroute,arq-0.3-middle,S=1.25 u1,2,36,0,0.0,0.053938372379311,0.1583666615392504,0.28661253370125184,0.35678391959798994
+C5,chronoroute,arq-0.3-middle,S=1.5 u1,2,36,0,0.0,0.0,0.04275154108071846,0.15724772854169838,0.31155778894472363
+C5,chronoroute,arq-0.3-middle,S=2 u1,2,36,0,0.0,0.0,0.0,0.036207824838478106,0.2947103274559194
+C5,chronoroute,arq-0.3-middle,S=3 u1,2,36,0,0.0,0.0,0.0,0.0,0.07556675062972293
+C5,chronoroute,arq-0.3-middle,add 1000000/hop+0 u1,2,36,0,0.0,0.02210113892325751,0.12716994061215167,0.2906673519110705,0.3592964824120603
+C5,chronoroute,arq-0.3-middle,add 250000/hop+0 u1,2,36,0,0.035,0.18227314152627114,0.21241161503151812,0.23588568398325788,0.2964824120603015
+C5,chronoroute,arq-0.3-middle,q alpha=0.001 sigma=400000 u1,2,36,0,0.03535353535353535,0.15303687430162308,0.28211586901763225,0.3008190118152524,0.3592964824120603
+C5,chronoroute,arq-0.3-middle,q alpha=0.01 sigma=400000 u1,2,36,0,0.04,0.2069941857161796,0.2685990891280564,0.2886171156119879,0.35175879396984927
+C5,chronoroute,delay-0-middle,S=1.1 u1,2,36,0,0.0,0.0,0.0,0.0,0.0
+C5,chronoroute,delay-0-middle,S=1.25 u1,2,36,0,0.0,0.0,0.0,0.0,0.0
+C5,chronoroute,delay-0-middle,S=1.5 u1,2,36,0,0.0,0.0,0.0,0.0,0.0
+C5,chronoroute,delay-0-middle,S=2 u1,2,36,0,0.0,0.0,0.0,0.0,0.0
+C5,chronoroute,delay-0-middle,S=3 u1,2,36,0,0.0,0.0,0.0,0.0,0.0
+C5,chronoroute,delay-0-middle,add 1000000/hop+0 u1,2,36,0,0.0,0.0,0.0,0.0,0.0
+C5,chronoroute,delay-0-middle,add 250000/hop+0 u1,2,36,0,0.0,0.0,0.0,0.0,0.0
+C5,chronoroute,delay-0-middle,q alpha=0.001 sigma=400000 u1,2,36,0,0.0,0.0,0.0,0.0,0.0
+C5,chronoroute,delay-0-middle,q alpha=0.01 sigma=400000 u1,2,36,0,0.0,0.0,0.0,0.0,0.0
+C5,chronoroute,delay-1000000-first,S=1.1 u1,2,36,0,0.0075,0.0875,0.175,0.250625,0.565
+C5,chronoroute,delay-1000000-first,S=1.25 u1,2,36,0,0.0,0.0,0.005,0.015625,0.15538847117794485
+C5,chronoroute,delay-1000000-first,S=1.5 u1,2,36,0,0.0,0.0,0.0,0.0,0.010025062656641603
+C5,chronoroute,delay-1000000-first,S=2 u1,2,36,0,0.0,0.0,0.0,0.0,0.0
+C5,chronoroute,delay-1000000-first,S=3 u1,2,36,0,0.0,0.0,0.0,0.0,0.0
+C5,chronoroute,delay-1000000-first,add 1000000/hop+0 u1,2,36,0,0.0,0.0,0.0025,0.019359413965087283,0.0375
+C5,chronoroute,delay-1000000-first,add 250000/hop+0 u1,2,36,0,0.05,0.18125,0.2475,0.44916302992518703,0.5575
+C5,chronoroute,delay-1000000-first,q alpha=0.001 sigma=400000 u1,2,36,0,0.0225,0.044375,0.0575,0.07236440149625936,0.095
+C5,chronoroute,delay-1000000-first,q alpha=0.01 sigma=400000 u1,2,36,0,0.0775,0.10875,0.14,0.171875,0.2075
+C5,chronoroute,delay-1000000-last,S=1.1 u1,2,36,0,0.0,0.0,0.005,0.01,0.19
+C5,chronoroute,delay-1000000-last,S=1.25 u1,2,36,0,0.0,0.0,0.0,0.0,0.0125
+C5,chronoroute,delay-1000000-last,S=1.5 u1,2,36,0,0.0,0.0,0.0,0.0,0.0
+C5,chronoroute,delay-1000000-last,S=2 u1,2,36,0,0.0,0.0,0.0,0.0,0.0
+C5,chronoroute,delay-1000000-last,S=3 u1,2,36,0,0.0,0.0,0.0,0.0,0.0
+C5,chronoroute,delay-1000000-last,add 1000000/hop+0 u1,2,36,0,0.0,0.0,0.0,0.0,0.0075
+C5,chronoroute,delay-1000000-last,add 250000/hop+0 u1,2,36,0,0.0,0.006860972568578554,0.021249999999999998,0.0825,0.3375
+C5,chronoroute,delay-1000000-last,q alpha=0.001 sigma=400000 u1,2,36,0,0.004987531172069825,0.0075,0.01375,0.02,0.055
+C5,chronoroute,delay-1000000-last,q alpha=0.01 sigma=400000 u1,2,36,0,0.007481296758104738,0.025,0.042499999999999996,0.055,0.1125
+C5,chronoroute,delay-1000000-middle,S=1.1 u1,2,36,0,0.0,0.005,0.02,0.0425,0.19
+C5,chronoroute,delay-1000000-middle,S=1.25 u1,2,36,0,0.0,0.0,0.0,0.0,0.0125
+C5,chronoroute,delay-1000000-middle,S=1.5 u1,2,36,0,0.0,0.0,0.0,0.0,0.0
+C5,chronoroute,delay-1000000-middle,S=2 u1,2,36,0,0.0,0.0,0.0,0.0,0.0
+C5,chronoroute,delay-1000000-middle,S=3 u1,2,36,0,0.0,0.0,0.0,0.0,0.0
+C5,chronoroute,delay-1000000-middle,add 1000000/hop+0 u1,2,36,0,0.0,0.0,0.0,0.0,0.0075
+C5,chronoroute,delay-1000000-middle,add 250000/hop+0 u1,2,36,0,0.0,0.034309538653366584,0.06125,0.186875,0.3375
+C5,chronoroute,delay-1000000-middle,q alpha=0.001 sigma=400000 u1,2,36,0,0.0075,0.02,0.026250000000000002,0.030625,0.0575
+C5,chronoroute,delay-1000000-middle,q alpha=0.01 sigma=400000 u1,2,36,0,0.025,0.05246726932668329,0.06875,0.094375,0.1125
+C5,chronoroute,delay-250000-middle,S=1.1 u1,2,36,0,0.0,0.0,0.002496882793017456,0.005625,0.0175
+C5,chronoroute,delay-250000-middle,S=1.25 u1,2,36,0,0.0,0.0,0.0,0.0,0.0025
+C5,chronoroute,delay-250000-middle,S=1.5 u1,2,36,0,0.0,0.0,0.0,0.0,0.0
+C5,chronoroute,delay-250000-middle,S=2 u1,2,36,0,0.0,0.0,0.0,0.0,0.0
+C5,chronoroute,delay-250000-middle,S=3 u1,2,36,0,0.0,0.0,0.0,0.0,0.0
+C5,chronoroute,delay-250000-middle,add 1000000/hop+0 u1,2,36,0,0.0,0.0,0.0,0.0,0.0
+C5,chronoroute,delay-250000-middle,add 250000/hop+0 u1,2,36,0,0.0,0.0025,0.01,0.0225,0.0375
+C5,chronoroute,delay-250000-middle,q alpha=0.001 sigma=400000 u1,2,36,0,0.0,0.001875,0.0025,0.005,0.01
+C5,chronoroute,delay-250000-middle,q alpha=0.01 sigma=400000 u1,2,36,0,0.0,0.0075,0.009987531172069825,0.01,0.0225
+C5,chronoroute,delay-4000000-middle,S=1.1 u1,2,36,0,0.045,0.349375,0.6100000000000001,0.8156249999999999,0.8675
+C5,chronoroute,delay-4000000-middle,S=1.25 u1,2,36,0,0.0,0.0,0.00375,0.059375,0.96
+C5,chronoroute,delay-4000000-middle,S=1.5 u1,2,36,0,0.0,0.0,0.0,0.0,0.0375
+C5,chronoroute,delay-4000000-middle,S=2 u1,2,36,0,0.0,0.0,0.0,0.0,0.0
+C5,chronoroute,delay-4000000-middle,S=3 u1,2,36,0,0.0,0.0,0.0,0.0,0.0
+C5,chronoroute,delay-4000000-middle,add 1000000/hop+0 u1,2,36,0,0.0,0.0,0.00125,0.305625,0.9225
+C5,chronoroute,delay-4000000-middle,add 250000/hop+0 u1,2,36,0,0.095,0.6089962593516209,0.70875,0.765625,0.795
+C5,chronoroute,delay-4000000-middle,q alpha=0.001 sigma=400000 u1,2,36,0,0.195,0.4513715710723192,0.6100000000000001,0.9562499999999999,0.9825
+C5,chronoroute,delay-4000000-middle,q alpha=0.01 sigma=400000 u1,2,36,0,0.3825,0.716875,0.8162499999999999,0.93125,0.9625
+C5,chronoroute,rate-0.2-middle,S=1.1 u1,2,36,0,0.6086956521739131,0.6521739130434783,0.782608695652174,0.8201581027667985,0.9130434782608695
+C5,chronoroute,rate-0.2-middle,S=1.25 u1,2,36,0,0.6956521739130435,0.8092885375494072,0.8260869565217391,0.8695652173913043,1.0
+C5,chronoroute,rate-0.2-middle,S=1.5 u1,2,36,0,0.6086956521739131,0.6956521739130435,0.7559288537549407,0.8260869565217391,0.9523809523809523
+C5,chronoroute,rate-0.2-middle,S=2 u1,2,36,0,0.30434782608695654,0.5602766798418972,0.6086956521739131,0.6956521739130435,0.8695652173913043
+C5,chronoroute,rate-0.2-middle,S=3 u1,2,36,0,0.0,0.22727272727272727,0.34782608695652173,0.5217391304347826,0.7142857142857143
+C5,chronoroute,rate-0.2-middle,add 1000000/hop+0 u1,2,36,0,0.6363636363636364,0.8181818181818182,0.866600790513834,0.9130434782608695,1.0
+C5,chronoroute,rate-0.2-middle,add 250000/hop+0 u1,2,36,0,0.5652173913043478,0.6521739130434783,0.733201581027668,0.782608695652174,0.8695652173913043
+C5,chronoroute,rate-0.2-middle,q alpha=0.001 sigma=400000 u1,2,36,0,0.782608695652174,0.9090909090909091,0.9130434782608695,0.9565217391304348,1.0
+C5,chronoroute,rate-0.2-middle,q alpha=0.01 sigma=400000 u1,2,36,0,0.7391304347826086,0.8260869565217391,0.9110671936758893,0.9228778467908902,1.0
+C5,chronoroute,rate-0.3-first,S=1.1 u1,2,36,0,0.14,0.384375,0.450682668329177,0.52,0.5725
+C5,chronoroute,rate-0.3-first,S=1.25 u1,2,36,0,0.0,0.016875,0.10360349127182045,0.208125,0.4625
+C5,chronoroute,rate-0.3-first,S=1.5 u1,2,36,0,0.0,0.0,0.0,0.004990648379052369,0.1275
+C5,chronoroute,rate-0.3-first,S=2 u1,2,36,0,0.0,0.0,0.0,0.0,0.0
+C5,chronoroute,rate-0.3-first,S=3 u1,2,36,0,0.0,0.0,0.0,0.0,0.0
+C5,chronoroute,rate-0.3-first,add 1000000/hop+0 u1,2,36,0,0.0,0.01,0.045,0.234375,0.3025
+C5,chronoroute,rate-0.3-first,add 250000/hop+0 u1,2,36,0,0.32,0.433125,0.46125000000000005,0.5496524314214464,0.6
+C5,chronoroute,rate-0.3-first,q alpha=0.001 sigma=400000 u1,2,36,0,0.2025,0.2439167705735661,0.28625,0.3625,0.3925
+C5,chronoroute,rate-0.3-first,q alpha=0.01 sigma=400000 u1,2,36,0,0.325,0.37616895261845384,0.405,0.469375,0.515
+C5,chronoroute,rate-0.3-last,S=1.1 u1,2,36,0,0.0,0.009375,0.03875,0.07174875311720698,0.425
+C5,chronoroute,rate-0.3-last,S=1.25 u1,2,36,0,0.0,0.0,0.0,0.0,0.115
+C5,chronoroute,rate-0.3-last,S=1.5 u1,2,36,0,0.0,0.0,0.0,0.0,0.0025
+C5,chronoroute,rate-0.3-last,S=2 u1,2,36,0,0.0,0.0,0.0,0.0,0.0
+C5,chronoroute,rate-0.3-last,S=3 u1,2,36,0,0.0,0.0,0.0,0.0,0.0
+C5,chronoroute,rate-0.3-last,add 1000000/hop+0 u1,2,36,0,0.0,0.0,0.0,0.0,0.0525
+C5,chronoroute,rate-0.3-last,add 250000/hop+0 u1,2,36,0,0.0,0.05,0.0925,0.2794763092269327,0.5
+C5,chronoroute,rate-0.3-last,q alpha=0.001 sigma=400000 u1,2,36,0,0.0175,0.03625,0.06625,0.09125,0.2475
+C5,chronoroute,rate-0.3-last,q alpha=0.01 sigma=400000 u1,2,36,0,0.07,0.109375,0.1425,0.201875,0.385
+C5,chronoroute,rate-0.3-middle,S=1.1 u1,2,36,0,0.005,0.046339285714285715,0.12,0.22334320448877806,0.425
+C5,chronoroute,rate-0.3-middle,S=1.25 u1,2,36,0,0.0,0.0,0.0,0.0024953241895261844,0.115
+C5,chronoroute,rate-0.3-middle,S=1.5 u1,2,36,0,0.0,0.0,0.0,0.0,0.0025
+C5,chronoroute,rate-0.3-middle,S=2 u1,2,36,0,0.0,0.0,0.0,0.0,0.0
+C5,chronoroute,rate-0.3-middle,S=3 u1,2,36,0,0.0,0.0,0.0,0.0,0.0
+C5,chronoroute,rate-0.3-middle,add 1000000/hop+0 u1,2,36,0,0.0,0.0,0.0,0.005625,0.0525
+C5,chronoroute,rate-0.3-middle,add 250000/hop+0 u1,2,36,0,0.0225,0.1625,0.21844451371571072,0.42,0.5
+C5,chronoroute,rate-0.3-middle,q alpha=0.001 sigma=400000 u1,2,36,0,0.055,0.089375,0.1175,0.15659912718204488,0.2475
+C5,chronoroute,rate-0.3-middle,q alpha=0.01 sigma=400000 u1,2,36,0,0.15,0.19187500000000002,0.2225,0.3094201995012469,0.385
+C5,chronoroute,rate-0.6-middle,S=1.1 u1,2,36,0,0.0,0.0,0.0,0.0,0.0
+C5,chronoroute,rate-0.6-middle,S=1.25 u1,2,36,0,0.0,0.0,0.0,0.0,0.0
+C5,chronoroute,rate-0.6-middle,S=1.5 u1,2,36,0,0.0,0.0,0.0,0.0,0.0
+C5,chronoroute,rate-0.6-middle,S=2 u1,2,36,0,0.0,0.0,0.0,0.0,0.0
+C5,chronoroute,rate-0.6-middle,S=3 u1,2,36,0,0.0,0.0,0.0,0.0,0.0
+C5,chronoroute,rate-0.6-middle,add 1000000/hop+0 u1,2,36,0,0.0,0.0,0.0,0.0,0.0
+C5,chronoroute,rate-0.6-middle,add 250000/hop+0 u1,2,36,0,0.0,0.0,0.0,0.0,0.0025
+C5,chronoroute,rate-0.6-middle,q alpha=0.001 sigma=400000 u1,2,36,0,0.0,0.0,0.0,0.0,0.0
+C5,chronoroute,rate-0.6-middle,q alpha=0.01 sigma=400000 u1,2,36,0,0.0,0.0,0.0,0.0,0.0
+C5,chronoroute,rate-1-middle,S=1.1 u1,2,36,0,0.0,0.0,0.0,0.0,0.0
+C5,chronoroute,rate-1-middle,S=1.25 u1,2,36,0,0.0,0.0,0.0,0.0,0.0
+C5,chronoroute,rate-1-middle,S=1.5 u1,2,36,0,0.0,0.0,0.0,0.0,0.0
+C5,chronoroute,rate-1-middle,S=2 u1,2,36,0,0.0,0.0,0.0,0.0,0.0
+C5,chronoroute,rate-1-middle,S=3 u1,2,36,0,0.0,0.0,0.0,0.0,0.0
+C5,chronoroute,rate-1-middle,add 1000000/hop+0 u1,2,36,0,0.0,0.0,0.0,0.0,0.0
+C5,chronoroute,rate-1-middle,add 250000/hop+0 u1,2,36,0,0.0,0.0,0.0,0.0,0.0
+C5,chronoroute,rate-1-middle,q alpha=0.001 sigma=400000 u1,2,36,0,0.0,0.0,0.0,0.0,0.0
+C5,chronoroute,rate-1-middle,q alpha=0.01 sigma=400000 u1,2,36,0,0.0,0.0,0.0,0.0,0.0
+C5,crh16,arq-0-middle,as run,2,36,0,0.0,0.0,0.0,0.0,0.0
+C5,crh16,arq-0.01-middle,as run,2,36,0,0.0,0.0,0.0,0.0,0.0
+C5,crh16,arq-0.1-first,as run,2,36,0,0.0,0.0,0.0,0.0,0.0
+C5,crh16,arq-0.1-last,as run,2,36,0,0.0,0.0,0.0,0.0,0.0
+C5,crh16,arq-0.1-middle,as run,2,36,0,0.0,0.0,0.0,0.0,0.0
+C5,crh16,arq-0.3-middle,as run,2,36,0,0.0,0.0,0.0,0.0,0.0
+C5,crh16,delay-0-middle,as run,2,36,0,0.0,0.0,0.0,0.0,0.0
+C5,crh16,delay-1000000-first,as run,2,36,0,0.0,0.0,0.0,0.0,0.0
+C5,crh16,delay-1000000-last,as run,2,36,0,0.0,0.0,0.0,0.0,0.0
+C5,crh16,delay-1000000-middle,as run,2,36,0,0.0,0.0,0.0,0.0,0.0
+C5,crh16,delay-250000-middle,as run,2,36,0,0.0,0.0,0.0,0.0,0.0
+C5,crh16,delay-4000000-middle,as run,2,36,0,0.0,0.0,0.0,0.0,0.0
+C5,crh16,rate-0.2-middle,as run,2,36,0,0.0,0.0,0.0,0.0,0.0
+C5,crh16,rate-0.3-first,as run,2,36,0,0.0,0.0,0.0,0.0,0.0
+C5,crh16,rate-0.3-last,as run,2,36,0,0.0,0.0,0.0,0.0,0.0
+C5,crh16,rate-0.3-middle,as run,2,36,0,0.0,0.0,0.0,0.0,0.0
+C5,crh16,rate-0.6-middle,as run,2,36,0,0.0,0.0,0.0,0.0,0.0
+C5,crh16,rate-1-middle,as run,2,36,0,0.0,0.0,0.0,0.0,0.0
+C5,e2e,arq-0-middle,as run,2,36,0,0.0,0.0,0.0,0.0,0.0
+C5,e2e,arq-0.01-middle,as run,2,36,0,0.0,0.0,0.0,0.0,0.0175
+C5,e2e,arq-0.1-first,as run,2,36,0,0.0,0.0,0.0,0.0025,0.0125
+C5,e2e,arq-0.1-last,as run,2,36,0,0.0,0.0,0.0,0.0075,0.11
+C5,e2e,arq-0.1-middle,as run,2,36,0,0.0,0.0,0.0,0.003125,0.1175
+C5,e2e,arq-0.3-middle,as run,2,36,0,0.0,0.0,0.0,0.056551367398344723,0.3057644110275689
+C5,e2e,delay-0-middle,as run,2,36,0,0.0,0.0,0.0,0.0,0.0
+C5,e2e,delay-1000000-first,as run,2,36,0,0.0,0.0,0.0,0.0,0.0
+C5,e2e,delay-1000000-last,as run,2,36,0,0.0,0.0,0.0,0.0,0.0
+C5,e2e,delay-1000000-middle,as run,2,36,0,0.0,0.0,0.0,0.0,0.0
+C5,e2e,delay-250000-middle,as run,2,36,0,0.0,0.0,0.0,0.0,0.0
+C5,e2e,delay-4000000-middle,as run,2,36,0,0.0,0.0,0.0,0.0,0.005
+C5,e2e,rate-0.2-middle,as run,2,36,0,0.34782608695652173,0.5844861660079052,0.6304347826086957,0.6956521739130435,0.9047619047619048
+C5,e2e,rate-0.3-first,as run,2,36,0,0.0,0.0,0.0,0.0,0.0
+C5,e2e,rate-0.3-last,as run,2,36,0,0.0,0.0,0.0,0.0,0.0
+C5,e2e,rate-0.3-middle,as run,2,36,0,0.0,0.0,0.0,0.0,0.0
+C5,e2e,rate-0.6-middle,as run,2,36,0,0.0,0.0,0.0,0.0,0.0
+C5,e2e,rate-1-middle,as run,2,36,0,0.0,0.0,0.0,0.0,0.0
+C5,lq,arq-0-middle,as run,2,36,0,0.0,0.0,0.0,0.0,0.0
+C5,lq,arq-0.01-middle,as run,2,36,0,0.0,0.0,0.011237531172069826,0.025625000000000002,0.1725
+C5,lq,arq-0.1-first,as run,2,36,0,0.0,0.01,0.29874999999999996,0.366875,0.4925
+C5,lq,arq-0.1-last,as run,2,36,0,0.0,0.23500000000000001,0.3275,0.39687500000000003,0.7075
+C5,lq,arq-0.1-middle,as run,2,36,0,0.0,0.065,0.28160401002506263,0.39125,0.72
+C5,lq,arq-0.3-middle,as run,2,36,0,0.11,0.5733035359178804,0.870603015075377,0.907035175879397,0.9722921914357683
+C5,lq,delay-0-middle,as run,2,36,0,0.0,0.0,0.0,0.0,0.0
+C5,lq,delay-1000000-first,as run,2,36,0,0.0,0.0,0.0,0.0,0.0
+C5,lq,delay-1000000-last,as run,2,36,0,0.0,0.0,0.0,0.0,0.0
+C5,lq,delay-1000000-middle,as run,2,36,0,0.0,0.0,0.0,0.0,0.0
+C5,lq,delay-250000-middle,as run,2,36,0,0.0,0.0,0.0,0.0,0.0
+C5,lq,delay-4000000-middle,as run,2,36,0,0.0,0.0,0.0,0.0,0.0
+C5,lq,rate-0.2-middle,as run,2,36,0,0.9545454545454546,0.9565217391304348,1.0,1.0,1.0
+C5,lq,rate-0.3-first,as run,2,36,0,0.6475,0.6575,0.6704083541147132,0.685,0.7275
+C5,lq,rate-0.3-last,as run,2,36,0,0.6475,0.6575,0.670842731829574,0.685,0.7275
+C5,lq,rate-0.3-middle,as run,2,36,0,0.6475,0.6575,0.67125,0.685,0.7275
+C5,lq,rate-0.6-middle,as run,2,36,0,0.0,0.0,0.0,0.0,0.0
+C5,lq,rate-1-middle,as run,2,36,0,0.0,0.0,0.0,0.0,0.0
+C5,ls_d,arq-0-middle,as run,2,0,36,,,,,
+C5,ls_d,arq-0.01-middle,as run,2,0,36,,,,,
+C5,ls_d,arq-0.1-first,as run,2,0,36,,,,,
+C5,ls_d,arq-0.1-last,as run,2,0,36,,,,,
+C5,ls_d,arq-0.1-middle,as run,2,0,36,,,,,
+C5,ls_d,arq-0.3-middle,as run,2,0,36,,,,,
+C5,ls_d,delay-0-middle,as run,2,0,36,,,,,
+C5,ls_d,delay-1000000-first,as run,2,0,36,,,,,
+C5,ls_d,delay-1000000-last,as run,2,0,36,,,,,
+C5,ls_d,delay-1000000-middle,as run,2,0,36,,,,,
+C5,ls_d,delay-250000-middle,as run,2,0,36,,,,,
+C5,ls_d,delay-4000000-middle,as run,2,0,36,,,,,
+C5,ls_d,rate-0.2-middle,as run,2,0,36,,,,,
+C5,ls_d,rate-0.3-first,as run,2,0,36,,,,,
+C5,ls_d,rate-0.3-last,as run,2,0,36,,,,,
+C5,ls_d,rate-0.3-middle,as run,2,0,36,,,,,
+C5,ls_d,rate-0.6-middle,as run,2,0,36,,,,,
+C5,ls_d,rate-1-middle,as run,2,0,36,,,,,
+C5,ls_h,arq-0-middle,as run,2,0,36,,,,,
+C5,ls_h,arq-0.01-middle,as run,2,0,36,,,,,
+C5,ls_h,arq-0.1-first,as run,2,0,36,,,,,
+C5,ls_h,arq-0.1-last,as run,2,0,36,,,,,
+C5,ls_h,arq-0.1-middle,as run,2,0,36,,,,,
+C5,ls_h,arq-0.3-middle,as run,2,0,36,,,,,
+C5,ls_h,delay-0-middle,as run,2,0,36,,,,,
+C5,ls_h,delay-1000000-first,as run,2,0,36,,,,,
+C5,ls_h,delay-1000000-last,as run,2,0,36,,,,,
+C5,ls_h,delay-1000000-middle,as run,2,0,36,,,,,
+C5,ls_h,delay-250000-middle,as run,2,0,36,,,,,
+C5,ls_h,delay-4000000-middle,as run,2,0,36,,,,,
+C5,ls_h,rate-0.2-middle,as run,2,0,36,,,,,
+C5,ls_h,rate-0.3-first,as run,2,0,36,,,,,
+C5,ls_h,rate-0.3-last,as run,2,0,36,,,,,
+C5,ls_h,rate-0.3-middle,as run,2,0,36,,,,,
+C5,ls_h,rate-0.6-middle,as run,2,0,36,,,,,
+C5,ls_h,rate-1-middle,as run,2,0,36,,,,,
+C5,o_q,arq-0-middle,as run,2,0,36,,,,,
+C5,o_q,arq-0.01-middle,as run,2,0,36,,,,,
+C5,o_q,arq-0.1-first,as run,2,0,36,,,,,
+C5,o_q,arq-0.1-last,as run,2,0,36,,,,,
+C5,o_q,arq-0.1-middle,as run,2,0,36,,,,,
+C5,o_q,arq-0.3-middle,as run,2,0,36,,,,,
+C5,o_q,delay-0-middle,as run,2,0,36,,,,,
+C5,o_q,delay-1000000-first,as run,2,0,36,,,,,
+C5,o_q,delay-1000000-last,as run,2,0,36,,,,,
+C5,o_q,delay-1000000-middle,as run,2,0,36,,,,,
+C5,o_q,delay-250000-middle,as run,2,0,36,,,,,
+C5,o_q,delay-4000000-middle,as run,2,0,36,,,,,
+C5,o_q,rate-0.2-middle,as run,2,0,36,,,,,
+C5,o_q,rate-0.3-first,as run,2,0,36,,,,,
+C5,o_q,rate-0.3-last,as run,2,0,36,,,,,
+C5,o_q,rate-0.3-middle,as run,2,0,36,,,,,
+C5,o_q,rate-0.6-middle,as run,2,0,36,,,,,
+C5,o_q,rate-1-middle,as run,2,0,36,,,,,
