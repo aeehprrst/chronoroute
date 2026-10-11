@@ -1,0 +1,1622 @@
+{
+  "command": "ns3/run_leo.py --recipe c5-463-60s --no-build",
+  "config": {
+    "bundle": "/tmp/cr-bundles/c5-463-60s",
+    "bundle_command": [
+      "cr",
+      "export",
+      "bundle",
+      "--snapshot",
+      "data/pinned/20261010T1358Z-celestrak",
+      "--shell",
+      "53.2deg-463km",
+      "--cities",
+      "Chennai,Mumbai,London,New York,Singapore,Sydney,Tokyo,Johannesburg,Sao Paulo,Frankfurt",
+      "--start",
+      "2026-10-10T14:00:00Z",
+      "--duration-s",
+      "60",
+      "--flow",
+      "Chennai->London",
+      "--flow",
+      "New York->Sydney",
+      "--flow",
+      "Sao Paulo->Tokyo",
+      "--flow",
+      "Mumbai->Frankfurt",
+      "--flow",
+      "Singapore->Johannesburg",
+      "--reverse",
+      "--refresh-ms",
+      "1000",
+      "--out",
+      "/tmp/cr-bundles/c5-463-60s"
+    ],
+    "bundle_data_sha256": {
+      "gsl.csv": "b257b16b3d735047c398ff99916bf635f3a205e97d73de70dfa6ee287b797268",
+      "isl.csv": "ac9e4ccb0e3f4307344a25791f45a00781b8feb911f57045809e8495f749c4dc",
+      "isl_delay.csv": "bc8e1f9c19c33fcc46f80ec18bca6ecd70e5d4ccf405f40a8f1a5e13904b20ad",
+      "nodes.csv": "422413146485f0f503e0a236c53a5ec760331938abb0b4e4bdbfd280666d5931",
+      "positions.csv": "a1da6016e13969b1816fee27130d1aaec4ce9a23cdc97ed5644fa3f8949cd198",
+      "scenario.json": "baca0601004c560121e99761e67a3c4fd213e21544bce5ce87b2e2f058e44bc9",
+      "schedule.csv": "33113b59e4e093299f5dc8f7cc074c0ab200bfc931f6d7a1776f9c0278eda078"
+    },
+    "bundle_manifest_sha256": "7d75d07055eb8b7014d4e309ee0e4b71fb0bbb6bd416a7fc7b54f45fcaaacd0d",
+    "bundle_recipe": "c5-463-60s",
+    "delay_update": "Delay held per 100 ms step (step function), not interpolated",
+    "deviation_policy": "continue",
+    "effective_policy": [
+      "continue"
+    ],
+    "experiment": "course-milestone: LEO topology + time-varying schedule in ns-3",
+    "gsl_policy": "sticky_top_k",
+    "isl_max_range_km": null,
+    "link_down": "IPv6 interfaces of both ends set down (SetDown semantics)",
+    "pcap_timestamps": "UTC Unix time = t0_unix_ns + simulation time (GPS - 18 s)",
+    "plan_links": "stable",
+    "probe_pid": "flow_id * 1000000 + seq, in the payload after 'CRT1'",
+    "processing_delay_ns3": 0,
+    "runs": {
+      "anim": {
+        "anim": "1",
+        "animFromMs": "18000",
+        "animMaxSats": "200",
+        "animToMs": "24000",
+        "bundle": "/tmp/cr-bundles/c5-463-60s",
+        "dataRate": "1Gbps",
+        "fault": "1",
+        "faultDurationMs": "20000",
+        "faultFlow": "0",
+        "faultRate": "200kbps",
+        "faultStartMs": "20000",
+        "payload": "200",
+        "pcap": "0",
+        "policy": "continue",
+        "probeRate": "100",
+        "queueSize": "100p",
+        "seed": "1"
+      },
+      "fault": {
+        "bundle": "/tmp/cr-bundles/c5-463-60s",
+        "dataRate": "1Gbps",
+        "fault": "1",
+        "faultDurationMs": "20000",
+        "faultFlow": "0",
+        "faultRate": "200kbps",
+        "faultStartMs": "20000",
+        "payload": "200",
+        "pcap": "1",
+        "policy": "continue",
+        "probeRate": "100",
+        "queueSize": "100p",
+        "seed": "1"
+      },
+      "nofault": {
+        "bundle": "/tmp/cr-bundles/c5-463-60s",
+        "dataRate": "1Gbps",
+        "fault": "0",
+        "faultDurationMs": "20000",
+        "faultFlow": "0",
+        "faultRate": "200kbps",
+        "faultStartMs": "20000",
+        "payload": "200",
+        "pcap": "1",
+        "policy": "continue",
+        "probeRate": "100",
+        "queueSize": "100p",
+        "seed": "1"
+      },
+      "sensitivity/1Mbps": {
+        "bundle": "/tmp/cr-bundles/c5-463-60s",
+        "dataRate": "1Gbps",
+        "fault": "1",
+        "faultDurationMs": "20000",
+        "faultFlow": "0",
+        "faultRate": "1Mbps",
+        "faultStartMs": "20000",
+        "payload": "200",
+        "pcap": "0",
+        "policy": "continue",
+        "probeRate": "100",
+        "queueSize": "100p",
+        "seed": "1"
+      },
+      "sensitivity/250kbps": {
+        "bundle": "/tmp/cr-bundles/c5-463-60s",
+        "dataRate": "1Gbps",
+        "fault": "1",
+        "faultDurationMs": "20000",
+        "faultFlow": "0",
+        "faultRate": "250kbps",
+        "faultStartMs": "20000",
+        "payload": "200",
+        "pcap": "0",
+        "policy": "continue",
+        "probeRate": "100",
+        "queueSize": "100p",
+        "seed": "1"
+      },
+      "sensitivity/500kbps": {
+        "bundle": "/tmp/cr-bundles/c5-463-60s",
+        "dataRate": "1Gbps",
+        "fault": "1",
+        "faultDurationMs": "20000",
+        "faultFlow": "0",
+        "faultRate": "500kbps",
+        "faultStartMs": "20000",
+        "payload": "200",
+        "pcap": "0",
+        "policy": "continue",
+        "probeRate": "100",
+        "queueSize": "100p",
+        "seed": "1"
+      }
+    },
+    "schedule_refresh_ms": 1000,
+    "shell": "53.2deg-463km",
+    "slack": "3/2",
+    "step_ms": 100,
+    "t0_utc": "2026-10-10T14:00:00Z",
+    "unit_code": 1,
+    "window_ms": 60000
+  },
+  "config_sha256": "50ca0da15dc2be8650ca3665860c3557716e11b684bc6757067ff2c0a8786174",
+  "dirty": false,
+  "ended_utc": "2026-10-11T00:20:53.767828Z",
+  "extra": {
+    "anim_xml": {
+      "bytes": 2958948,
+      "link_description_updates": 23,
+      "link_elements": 374,
+      "node_elements": 202,
+      "nodes_turned_red_for_deviation": [
+        141
+      ],
+      "packet_elements": 4800,
+      "packets_with_dev_in_metadata": 1608,
+      "packets_with_tcrh_metadata": 4800,
+      "position_updates": 1818
+    },
+    "binary": {
+      "path": "/home/aeehprrst/ns-3-dev/build/contrib/chronoroute/examples/ns3.44-chronoroute-leo-default",
+      "sha256": "7d831f979ca246142bb15c93567b49ea9d4ad6bde3e2919c7d560923ad7ae786"
+    },
+    "crosscheck_nofault": {
+      "delivered_by_both": 60000,
+      "dev_and_dev_hop_identical": 60000,
+      "dev_and_dev_hop_identical_delivered": 60000,
+      "first_late_hop_identical": 60000,
+      "held_vs_interpolated_light_time_ns_per_hop": {
+        "max": 1796.50481724,
+        "min": 0.0,
+        "p50": 0.6959039,
+        "p99": 1045.00368316
+      },
+      "ingress_link_down_drops": 0,
+      "latency_minus_light_time_ns": {
+        "max": 64896.0,
+        "min": 16240.0,
+        "p50": 40192.0,
+        "p99": 64896.0
+      },
+      "latency_minus_schedule_prediction_ns": {
+        "max": -3467372.0,
+        "min": -11935104.0,
+        "p50": -7956984.0,
+        "p99": -3473813.0
+      },
+      "link_down_hop_identical": 60000,
+      "outcome_identical": 60000,
+      "outcome_identical_frac": 1.0,
+      "path_identical": 60000,
+      "path_identical_frac": 1.0,
+      "per_hop_time_clock_deadline_identical": 60000,
+      "probes_compared": 60000,
+      "residual_after_serialization_ns": {
+        "max": 0.0,
+        "min": 0.0,
+        "p50": 0.0,
+        "p99": 0.0
+      },
+      "residual_negative": 0,
+      "residual_positive": 0,
+      "residual_zero": 60000,
+      "serialization_ns_per_hop": [
+        2320,
+        2512,
+        2704
+      ]
+    },
+    "detection": {
+      "baseline_false_alarm_rate": 0.0,
+      "baseline_flagged": 0,
+      "baseline_same_probes_crossed_no_fault": 3648,
+      "baseline_same_probes_no_fault": 3648,
+      "detection_rate": 0.9991776315789473,
+      "false_alarms_no_fault_run_all_probes": 0,
+      "fault_link": {
+        "chosen_by": "ChooseFaultIsl rule",
+        "enabled": true,
+        "extra_delay_ns": 0,
+        "flow": 0,
+        "isl_id": 4478,
+        "name_a": "STARLINK-35318",
+        "name_b": "STARLINK-35575",
+        "node_a": 1998,
+        "node_b": 2017,
+        "rate": "200kbps",
+        "sid_a": 8204,
+        "sid_b": 8223,
+        "start_ms": 20000,
+        "stop_ms": 40000
+      },
+      "fault_window_ns": [
+        20000000000,
+        40000000000
+      ],
+      "first_detection_after_fault_start_ms": 16.883941,
+      "flagged_late": 3645,
+      "flagged_without_crossing_in_fault_run": 0,
+      "late_margin_units_at_detection": {
+        "max": -6.0,
+        "min": -11605.0,
+        "p50": -11494.0,
+        "p99": -262.0
+      },
+      "probes_crossing_slowed_link": 3648,
+      "probes_entering_slowed_link": 4000,
+      "probes_lost_in_its_queue": 352
+    },
+    "loss_causes": {
+      "fault": {},
+      "nofault": {}
+    },
+    "margins": {
+      "final_hop_margin_ms": {
+        "max": 56.6,
+        "min": 18.3,
+        "p50": 35.9,
+        "p99": 56.5
+      },
+      "final_hop_margin_units": {
+        "max": 566.0,
+        "min": 183.0,
+        "p50": 359.0,
+        "p99": 565.0
+      },
+      "hop_of_min_margin": {
+        "1": 60000
+      },
+      "min_hop_margin_ms": {
+        "max": 2.4,
+        "min": 1.6,
+        "p50": 1.9,
+        "p99": 2.3
+      },
+      "min_hop_margin_units": {
+        "max": 24.0,
+        "min": 16.0,
+        "p50": 19.0,
+        "p99": 23.0
+      },
+      "note": "deadline minus the node's unit clock at arrival, on-time delivered probes only",
+      "probes": 60000,
+      "unit_ns": 100000
+    },
+    "ns3_base": "ns-3.44, build profile default",
+    "ns3_dir": "/home/aeehprrst/ns-3-dev",
+    "ns3_git_head": "ded8e28e824eabba0bd103211491dfbe76504f0d",
+    "pcap_check": {
+      "fault": {
+        "capture_nodes": [
+          2847,
+          2017,
+          1998,
+          2022
+        ],
+        "check_pcap": {
+          "T-CRH frames": 41117,
+          "invalid": 0,
+          "late at capture": 9073,
+          "quoted in ICMPv6 errors (not counted)": 0,
+          "with DEV": 5469
+        },
+        "check_pcap_exit": 0,
+        "semantics": {
+          "dev_frames_in_fault_window": 5469,
+          "dev_frames_outside_fault_window": 0,
+          "frames": 41117,
+          "linktype": 9,
+          "nanosecond": true,
+          "non_probe_frames": 0,
+          "probes": 12000,
+          "probes_seen_at_2plus_nodes": 11647,
+          "probes_with_sl_not_strictly_decreasing": 0
+        }
+      },
+      "nofault": {
+        "capture_nodes": [
+          2847,
+          2017,
+          1998,
+          2022
+        ],
+        "check_pcap": {
+          "T-CRH frames": 42000,
+          "invalid": 0,
+          "late at capture": 0,
+          "quoted in ICMPv6 errors (not counted)": 0,
+          "with DEV": 0
+        },
+        "check_pcap_exit": 0,
+        "semantics": {
+          "dev_frames_in_fault_window": 0,
+          "dev_frames_outside_fault_window": 0,
+          "frames": 42000,
+          "linktype": 9,
+          "nanosecond": true,
+          "non_probe_frames": 0,
+          "probes": 12000,
+          "probes_seen_at_2plus_nodes": 12000,
+          "probes_with_sl_not_strictly_decreasing": 0
+        }
+      }
+    },
+    "programs": {
+      "ns3/contrib/chronoroute/examples/chronoroute-leo.cc": "4023cd83f6db926c8e933ccc7a4518c8e8a209f062c916042796df536782b44f",
+      "ns3/contrib/chronoroute/examples/tcrh-wire-check.cc": "566cedc20ab244e80c49d90ad271ce1d8faa32db444ba6f88f37832542d40907",
+      "ns3/contrib/chronoroute/helper/leo-bundle-helper.cc": "af6aa3887371bdfe0d79d0ecd1744be50d0daebc315255557083430236f5afe4",
+      "ns3/contrib/chronoroute/helper/leo-bundle-helper.h": "5dc121c3d990bbed1af4a4c24e5cd89ed1351bacb8b178dd2dd22f46103b4af4",
+      "ns3/contrib/chronoroute/helper/tcrh-helper.cc": "1db01b9afa9a9b987833d531926f75d1c1fc784ed7dbaa117b5c944a1e521d76",
+      "ns3/contrib/chronoroute/helper/tcrh-helper.h": "2282c131d5b3aabeac0aa8328f0f2bd2c6c6d3ed12a58e3f91e09286ea038b86",
+      "ns3/contrib/chronoroute/model/crh-fib.cc": "86b77824368a073f362de65922ebb5c280fdaa7820b570372769b8b44b1dc912",
+      "ns3/contrib/chronoroute/model/crh-fib.h": "9c624380ba7f3abe6e5cbeb8537880bd5247872b6e843b4a97abee6c81228f7e",
+      "ns3/contrib/chronoroute/model/crh-header.cc": "7dadc43dcb8d4fb74de878a9b02b3111292614c88f3c57fe321a3603d67dd66a",
+      "ns3/contrib/chronoroute/model/crh-header.h": "150df91910967e363a027b6ce9f2db7f291cb91c9b6a47bfc520b9b1237a19c8",
+      "ns3/contrib/chronoroute/model/ipv6-extension-tcrh.cc": "78c7d9857b50303a79dc44aaf900a983a4360eb938aceb77fd3479469ef8deec",
+      "ns3/contrib/chronoroute/model/ipv6-extension-tcrh.h": "6366b36f7acfc6ae251b80d0ff461d0e6c85a05106bbcd35417c7be9f3223581",
+      "ns3/contrib/chronoroute/model/tcrh-address-plan.cc": "f8334c7c58c2778af793db65d4825d9eb8a852a300e6efab6df05510df6f42cf",
+      "ns3/contrib/chronoroute/model/tcrh-address-plan.h": "9d7fde572b2d08c3ec1090ea316144438a26c678082c203957ae03505a50ae7a",
+      "ns3/contrib/chronoroute/model/tcrh-header.cc": "4a26ccff9d37e60afa371f25394317c65da37c822b64e1cba05f07ed5bc5f2f9",
+      "ns3/contrib/chronoroute/model/tcrh-header.h": "00947aa4b2bf9c2a858d1143c40c0fde17f5d0f3d5e986c2ddee01ecd6e55041",
+      "ns3/contrib/chronoroute/model/tcrh-process.cc": "97328d2c9222bfdbfee78eac9b348aafb878e79101d8557c5f5caa463bbf4daa",
+      "ns3/contrib/chronoroute/model/tcrh-process.h": "1a98c1f52da8c120f4d86114327803ac1fa4337436b24b0aaf686ba1eca51fd7",
+      "ns3/contrib/chronoroute/model/tcrh-source-shim.cc": "d886e1383ecb8452e12350f41f12ecb2fc640a64bf2b5933a9b1006a98ee4da5",
+      "ns3/contrib/chronoroute/model/tcrh-source-shim.h": "ef992d25e8c7c3c23005b743cf149b87fd488095e55173f7581bcfa89777e859",
+      "ns3/contrib/chronoroute/model/tcrh-timebase.h": "4af6237d59b12cf214eb06a923f0954d184ee03d0fa49c5098be74edabffd36a",
+      "ns3/contrib/chronoroute/test/chronoroute-test-suite.cc": "6959638b569b287a766125fc21840406a17dadb5a0ea5830d4604ca462bf12f9",
+      "ns3/contrib/chronoroute/test/golden-vectors.h": "9f3351c8008e41f1e3455cd69f2317d6efb41f552635d897279c4298b56a6cb8",
+      "ns3/contrib/chronoroute/test/tcrh-ipv6-test.cc": "54460c3db92beab98a5c00f9e0061f8667414ccbbec0eb30a62ad3118b3d06f5",
+      "ns3/contrib/chronoroute/test/tcrh-ipv6-test.h": "0af2e502de4b8eabf2dd6516b99e9b223d12d04cb02042043ef9e40c0d4de4a0",
+      "ns3/run_leo.py": "f2b4f3f17b89e7e4d6fdbbee126d5004ceef136f5dbb04cfa499c300cbf074a9",
+      "sim/chronoroute/export/ns3_crosscheck.py": "373d334b751622e3758020efa31c1d2ceb05bfec787aac23d9318501cc17ec88"
+    },
+    "resources": {
+      "anim": {
+        "peak_rss_kb": 81368,
+        "program_peak_rss_kb": 81456,
+        "wall_s": 1.23
+      },
+      "fault": {
+        "peak_rss_kb": 199084,
+        "program_peak_rss_kb": 199132,
+        "wall_s": 16.69
+      },
+      "nofault": {
+        "peak_rss_kb": 198592,
+        "program_peak_rss_kb": 198920,
+        "wall_s": 16.08
+      },
+      "sensitivity/1Mbps": {
+        "peak_rss_kb": 198888,
+        "program_peak_rss_kb": 198948,
+        "wall_s": 15.73
+      },
+      "sensitivity/250kbps": {
+        "peak_rss_kb": 198788,
+        "program_peak_rss_kb": 198968,
+        "wall_s": 15.32
+      },
+      "sensitivity/500kbps": {
+        "peak_rss_kb": 198428,
+        "program_peak_rss_kb": 198756,
+        "wall_s": 15.42
+      }
+    },
+    "run_info": {
+      "anim": {
+        "all_checks_ok": true,
+        "bundle": "/tmp/cr-bundles/c5-463-60s",
+        "capture_nodes": [],
+        "checks": {
+          "every delivered probe took exactly its planned path": true,
+          "every late probe crossed the slowed link and was caught at its far end": true,
+          "every probe has exactly one final outcome": true,
+          "every probe's Epoch_Base = ceil((t0_gps + send) / u) mod 2^32": true,
+          "every schedule row's T-CRH template rebuilt byte-identical in C++ (Bundle::Load)": true,
+          "no deadline miss after a probe had already ended": true,
+          "no routing-header event or reception of a non-probe packet": true,
+          "the fault made probes late": true,
+          "transit satellites delivered 0 packets to UDP": true
+        },
+        "data_rate": "1Gbps",
+        "delivered": 600,
+        "effective_policy": "continue",
+        "fault": {
+          "chosen_by": "ChooseFaultIsl rule",
+          "enabled": true,
+          "extra_delay_ns": 0,
+          "flow": 0,
+          "isl_id": 4478,
+          "name_a": "STARLINK-35318",
+          "name_b": "STARLINK-35575",
+          "node_a": 1998,
+          "node_b": 2017,
+          "rate": "200kbps",
+          "sid_a": 8204,
+          "sid_b": 8223,
+          "start_ms": 20000,
+          "stop_ms": 40000
+        },
+        "flows": [
+          {
+            "dst": "London",
+            "flow_id": 0,
+            "offset_ns": 9564440,
+            "route_changes": 6,
+            "src": "Chennai"
+          }
+        ],
+        "gsl_links": 26,
+        "isl_links": 348,
+        "late_packets": 402,
+        "mode": "anim-slice",
+        "nodes_built": 202,
+        "outcomes": {
+          "delivered": 600
+        },
+        "payload_bytes": 200,
+        "pcap_frames": 0,
+        "peak_rss_kb": 81456,
+        "policy": "continue",
+        "probe_rate_pps": 100,
+        "probes": 600,
+        "program": "chronoroute-leo",
+        "queue": "DropTail 100p per device, no queue disc",
+        "satellites_built": 200,
+        "seed_rng_run": 1,
+        "send_window_ns": [
+          18000000000,
+          24000000000
+        ],
+        "step_ms": 100,
+        "stop_ns": 26000000000,
+        "t0_gps_ns": 1475676018000000000,
+        "t0_unix_ns": 1791640800000000000,
+        "topology_updates": {
+          "delay_writes": 62018,
+          "down_events": 22,
+          "steps_applied": 261,
+          "up_events": 0
+        },
+        "unit_code": 1,
+        "wall_s": {
+          "build": 0.0495146,
+          "load": 0.878744,
+          "run": 0.162794,
+          "total": 1.16882,
+          "write": 0.00636904
+        },
+        "window_ms": 60000
+      },
+      "fault": {
+        "all_checks_ok": true,
+        "bundle": "/tmp/cr-bundles/c5-463-60s",
+        "capture_nodes": [
+          2847,
+          2017,
+          1998,
+          2022
+        ],
+        "checks": {
+          "every delivered probe took exactly its planned path": true,
+          "every late probe crossed the slowed link and was caught at its far end": true,
+          "every probe has exactly one final outcome": true,
+          "every probe's Epoch_Base = ceil((t0_gps + send) / u) mod 2^32": true,
+          "every schedule row's T-CRH template rebuilt byte-identical in C++ (Bundle::Load)": true,
+          "no deadline miss after a probe had already ended": true,
+          "no routing-header event or reception of a non-probe packet": true,
+          "ns-3 node id == bundle node id for every node": true,
+          "the fault made probes late": true,
+          "transit satellites delivered 0 packets to UDP": true
+        },
+        "data_rate": "1Gbps",
+        "delivered": 59647,
+        "effective_policy": "continue",
+        "fault": {
+          "chosen_by": "ChooseFaultIsl rule",
+          "enabled": true,
+          "extra_delay_ns": 0,
+          "flow": 0,
+          "isl_id": 4478,
+          "name_a": "STARLINK-35318",
+          "name_b": "STARLINK-35575",
+          "node_a": 1998,
+          "node_b": 2017,
+          "rate": "200kbps",
+          "sid_a": 8204,
+          "sid_b": 8223,
+          "start_ms": 20000,
+          "stop_ms": 40000
+        },
+        "flows": [
+          {
+            "dst": "London",
+            "flow_id": 0,
+            "offset_ns": 9564440,
+            "route_changes": 60,
+            "src": "Chennai"
+          },
+          {
+            "dst": "Sydney",
+            "flow_id": 1,
+            "offset_ns": 9094170,
+            "route_changes": 60,
+            "src": "New York"
+          },
+          {
+            "dst": "Tokyo",
+            "flow_id": 2,
+            "offset_ns": 5489348,
+            "route_changes": 60,
+            "src": "Sao Paulo"
+          },
+          {
+            "dst": "Frankfurt",
+            "flow_id": 3,
+            "offset_ns": 5480578,
+            "route_changes": 60,
+            "src": "Mumbai"
+          },
+          {
+            "dst": "Johannesburg",
+            "flow_id": 4,
+            "offset_ns": 8539024,
+            "route_changes": 60,
+            "src": "Singapore"
+          },
+          {
+            "dst": "Chennai",
+            "flow_id": 5,
+            "offset_ns": 6144222,
+            "route_changes": 60,
+            "src": "London"
+          },
+          {
+            "dst": "New York",
+            "flow_id": 6,
+            "offset_ns": 4602676,
+            "route_changes": 60,
+            "src": "Sydney"
+          },
+          {
+            "dst": "Sao Paulo",
+            "flow_id": 7,
+            "offset_ns": 1185537,
+            "route_changes": 60,
+            "src": "Tokyo"
+          },
+          {
+            "dst": "Mumbai",
+            "flow_id": 8,
+            "offset_ns": 2665317,
+            "route_changes": 60,
+            "src": "Frankfurt"
+          },
+          {
+            "dst": "Singapore",
+            "flow_id": 9,
+            "offset_ns": 6007086,
+            "route_changes": 60,
+            "src": "Johannesburg"
+          }
+        ],
+        "gsl_links": 205,
+        "isl_links": 5361,
+        "late_packets": 3645,
+        "mode": "full",
+        "nodes_built": 2857,
+        "outcomes": {
+          "delivered": 59647,
+          "drop_queue": 353
+        },
+        "payload_bytes": 200,
+        "pcap_frames": 41117,
+        "peak_rss_kb": 199132,
+        "policy": "continue",
+        "probe_rate_pps": 100,
+        "probes": 60000,
+        "program": "chronoroute-leo",
+        "queue": "DropTail 100p per device, no queue disc",
+        "satellites_built": 2847,
+        "seed_rng_run": 1,
+        "send_window_ns": [
+          0,
+          60000000000
+        ],
+        "step_ms": 100,
+        "stop_ns": 62000000000,
+        "t0_gps_ns": 1475676018000000000,
+        "t0_unix_ns": 1791640800000000000,
+        "topology_updates": {
+          "delay_writes": 2282353,
+          "down_events": 195,
+          "steps_applied": 601,
+          "up_events": 5
+        },
+        "unit_code": 1,
+        "wall_s": {
+          "build": 0.695023,
+          "load": 0.801421,
+          "run": 14.4446,
+          "total": 16.4643,
+          "write": 0.442159
+        },
+        "window_ms": 60000
+      },
+      "nofault": {
+        "all_checks_ok": true,
+        "bundle": "/tmp/cr-bundles/c5-463-60s",
+        "capture_nodes": [
+          2847,
+          2017,
+          1998,
+          2022
+        ],
+        "checks": {
+          "every delivered probe took exactly its planned path": true,
+          "every probe has exactly one final outcome": true,
+          "every probe's Epoch_Base = ceil((t0_gps + send) / u) mod 2^32": true,
+          "every schedule row's T-CRH template rebuilt byte-identical in C++ (Bundle::Load)": true,
+          "no deadline miss after a probe had already ended": true,
+          "no probe was late without a fault": true,
+          "no routing-header event or reception of a non-probe packet": true,
+          "ns-3 node id == bundle node id for every node": true,
+          "transit satellites delivered 0 packets to UDP": true
+        },
+        "data_rate": "1Gbps",
+        "delivered": 60000,
+        "effective_policy": "continue",
+        "fault": {
+          "chosen_by": "ChooseFaultIsl rule",
+          "enabled": false,
+          "extra_delay_ns": 0,
+          "flow": 0,
+          "isl_id": 4478,
+          "name_a": "STARLINK-35318",
+          "name_b": "STARLINK-35575",
+          "node_a": 1998,
+          "node_b": 2017,
+          "rate": "unchanged",
+          "sid_a": 8204,
+          "sid_b": 8223,
+          "start_ms": 20000,
+          "stop_ms": 40000
+        },
+        "flows": [
+          {
+            "dst": "London",
+            "flow_id": 0,
+            "offset_ns": 9564440,
+            "route_changes": 60,
+            "src": "Chennai"
+          },
+          {
+            "dst": "Sydney",
+            "flow_id": 1,
+            "offset_ns": 9094170,
+            "route_changes": 60,
+            "src": "New York"
+          },
+          {
+            "dst": "Tokyo",
+            "flow_id": 2,
+            "offset_ns": 5489348,
+            "route_changes": 60,
+            "src": "Sao Paulo"
+          },
+          {
+            "dst": "Frankfurt",
+            "flow_id": 3,
+            "offset_ns": 5480578,
+            "route_changes": 60,
+            "src": "Mumbai"
+          },
+          {
+            "dst": "Johannesburg",
+            "flow_id": 4,
+            "offset_ns": 8539024,
+            "route_changes": 60,
+            "src": "Singapore"
+          },
+          {
+            "dst": "Chennai",
+            "flow_id": 5,
+            "offset_ns": 6144222,
+            "route_changes": 60,
+            "src": "London"
+          },
+          {
+            "dst": "New York",
+            "flow_id": 6,
+            "offset_ns": 4602676,
+            "route_changes": 60,
+            "src": "Sydney"
+          },
+          {
+            "dst": "Sao Paulo",
+            "flow_id": 7,
+            "offset_ns": 1185537,
+            "route_changes": 60,
+            "src": "Tokyo"
+          },
+          {
+            "dst": "Mumbai",
+            "flow_id": 8,
+            "offset_ns": 2665317,
+            "route_changes": 60,
+            "src": "Frankfurt"
+          },
+          {
+            "dst": "Singapore",
+            "flow_id": 9,
+            "offset_ns": 6007086,
+            "route_changes": 60,
+            "src": "Johannesburg"
+          }
+        ],
+        "gsl_links": 205,
+        "isl_links": 5361,
+        "late_packets": 0,
+        "mode": "full",
+        "nodes_built": 2857,
+        "outcomes": {
+          "delivered": 60000
+        },
+        "payload_bytes": 200,
+        "pcap_frames": 42000,
+        "peak_rss_kb": 198920,
+        "policy": "continue",
+        "probe_rate_pps": 100,
+        "probes": 60000,
+        "program": "chronoroute-leo",
+        "queue": "DropTail 100p per device, no queue disc",
+        "satellites_built": 2847,
+        "seed_rng_run": 1,
+        "send_window_ns": [
+          0,
+          60000000000
+        ],
+        "step_ms": 100,
+        "stop_ns": 62000000000,
+        "t0_gps_ns": 1475676018000000000,
+        "t0_unix_ns": 1791640800000000000,
+        "topology_updates": {
+          "delay_writes": 2282353,
+          "down_events": 195,
+          "steps_applied": 601,
+          "up_events": 5
+        },
+        "unit_code": 1,
+        "wall_s": {
+          "build": 0.652699,
+          "load": 0.790091,
+          "run": 13.9136,
+          "total": 15.8884,
+          "write": 0.448886
+        },
+        "window_ms": 60000
+      },
+      "sensitivity/1Mbps": {
+        "all_checks_ok": false,
+        "bundle": "/tmp/cr-bundles/c5-463-60s",
+        "capture_nodes": [],
+        "checks": {
+          "every delivered probe took exactly its planned path": true,
+          "every late probe crossed the slowed link and was caught at its far end": true,
+          "every probe has exactly one final outcome": true,
+          "every probe's Epoch_Base = ceil((t0_gps + send) / u) mod 2^32": true,
+          "every schedule row's T-CRH template rebuilt byte-identical in C++ (Bundle::Load)": true,
+          "no deadline miss after a probe had already ended": true,
+          "no routing-header event or reception of a non-probe packet": true,
+          "ns-3 node id == bundle node id for every node": true,
+          "the fault made probes late": false,
+          "transit satellites delivered 0 packets to UDP": true
+        },
+        "data_rate": "1Gbps",
+        "delivered": 60000,
+        "effective_policy": "continue",
+        "fault": {
+          "chosen_by": "ChooseFaultIsl rule",
+          "enabled": true,
+          "extra_delay_ns": 0,
+          "flow": 0,
+          "isl_id": 4478,
+          "name_a": "STARLINK-35318",
+          "name_b": "STARLINK-35575",
+          "node_a": 1998,
+          "node_b": 2017,
+          "rate": "1Mbps",
+          "sid_a": 8204,
+          "sid_b": 8223,
+          "start_ms": 20000,
+          "stop_ms": 40000
+        },
+        "flows": [
+          {
+            "dst": "London",
+            "flow_id": 0,
+            "offset_ns": 9564440,
+            "route_changes": 60,
+            "src": "Chennai"
+          },
+          {
+            "dst": "Sydney",
+            "flow_id": 1,
+            "offset_ns": 9094170,
+            "route_changes": 60,
+            "src": "New York"
+          },
+          {
+            "dst": "Tokyo",
+            "flow_id": 2,
+            "offset_ns": 5489348,
+            "route_changes": 60,
+            "src": "Sao Paulo"
+          },
+          {
+            "dst": "Frankfurt",
+            "flow_id": 3,
+            "offset_ns": 5480578,
+            "route_changes": 60,
+            "src": "Mumbai"
+          },
+          {
+            "dst": "Johannesburg",
+            "flow_id": 4,
+            "offset_ns": 8539024,
+            "route_changes": 60,
+            "src": "Singapore"
+          },
+          {
+            "dst": "Chennai",
+            "flow_id": 5,
+            "offset_ns": 6144222,
+            "route_changes": 60,
+            "src": "London"
+          },
+          {
+            "dst": "New York",
+            "flow_id": 6,
+            "offset_ns": 4602676,
+            "route_changes": 60,
+            "src": "Sydney"
+          },
+          {
+            "dst": "Sao Paulo",
+            "flow_id": 7,
+            "offset_ns": 1185537,
+            "route_changes": 60,
+            "src": "Tokyo"
+          },
+          {
+            "dst": "Mumbai",
+            "flow_id": 8,
+            "offset_ns": 2665317,
+            "route_changes": 60,
+            "src": "Frankfurt"
+          },
+          {
+            "dst": "Singapore",
+            "flow_id": 9,
+            "offset_ns": 6007086,
+            "route_changes": 60,
+            "src": "Johannesburg"
+          }
+        ],
+        "gsl_links": 205,
+        "isl_links": 5361,
+        "late_packets": 0,
+        "mode": "full",
+        "nodes_built": 2857,
+        "outcomes": {
+          "delivered": 60000
+        },
+        "payload_bytes": 200,
+        "pcap_frames": 0,
+        "peak_rss_kb": 198948,
+        "policy": "continue",
+        "probe_rate_pps": 100,
+        "probes": 60000,
+        "program": "chronoroute-leo",
+        "queue": "DropTail 100p per device, no queue disc",
+        "satellites_built": 2847,
+        "seed_rng_run": 1,
+        "send_window_ns": [
+          0,
+          60000000000
+        ],
+        "step_ms": 100,
+        "stop_ns": 62000000000,
+        "t0_gps_ns": 1475676018000000000,
+        "t0_unix_ns": 1791640800000000000,
+        "topology_updates": {
+          "delay_writes": 2282353,
+          "down_events": 195,
+          "steps_applied": 601,
+          "up_events": 5
+        },
+        "unit_code": 1,
+        "wall_s": {
+          "build": 0.691322,
+          "load": 0.82332,
+          "run": 13.5296,
+          "total": 15.5578,
+          "write": 0.430751
+        },
+        "window_ms": 60000
+      },
+      "sensitivity/250kbps": {
+        "all_checks_ok": false,
+        "bundle": "/tmp/cr-bundles/c5-463-60s",
+        "capture_nodes": [],
+        "checks": {
+          "every delivered probe took exactly its planned path": true,
+          "every late probe crossed the slowed link and was caught at its far end": true,
+          "every probe has exactly one final outcome": true,
+          "every probe's Epoch_Base = ceil((t0_gps + send) / u) mod 2^32": true,
+          "every schedule row's T-CRH template rebuilt byte-identical in C++ (Bundle::Load)": true,
+          "no deadline miss after a probe had already ended": true,
+          "no routing-header event or reception of a non-probe packet": true,
+          "ns-3 node id == bundle node id for every node": true,
+          "the fault made probes late": false,
+          "transit satellites delivered 0 packets to UDP": true
+        },
+        "data_rate": "1Gbps",
+        "delivered": 60000,
+        "effective_policy": "continue",
+        "fault": {
+          "chosen_by": "ChooseFaultIsl rule",
+          "enabled": true,
+          "extra_delay_ns": 0,
+          "flow": 0,
+          "isl_id": 4478,
+          "name_a": "STARLINK-35318",
+          "name_b": "STARLINK-35575",
+          "node_a": 1998,
+          "node_b": 2017,
+          "rate": "250kbps",
+          "sid_a": 8204,
+          "sid_b": 8223,
+          "start_ms": 20000,
+          "stop_ms": 40000
+        },
+        "flows": [
+          {
+            "dst": "London",
+            "flow_id": 0,
+            "offset_ns": 9564440,
+            "route_changes": 60,
+            "src": "Chennai"
+          },
+          {
+            "dst": "Sydney",
+            "flow_id": 1,
+            "offset_ns": 9094170,
+            "route_changes": 60,
+            "src": "New York"
+          },
+          {
+            "dst": "Tokyo",
+            "flow_id": 2,
+            "offset_ns": 5489348,
+            "route_changes": 60,
+            "src": "Sao Paulo"
+          },
+          {
+            "dst": "Frankfurt",
+            "flow_id": 3,
+            "offset_ns": 5480578,
+            "route_changes": 60,
+            "src": "Mumbai"
+          },
+          {
+            "dst": "Johannesburg",
+            "flow_id": 4,
+            "offset_ns": 8539024,
+            "route_changes": 60,
+            "src": "Singapore"
+          },
+          {
+            "dst": "Chennai",
+            "flow_id": 5,
+            "offset_ns": 6144222,
+            "route_changes": 60,
+            "src": "London"
+          },
+          {
+            "dst": "New York",
+            "flow_id": 6,
+            "offset_ns": 4602676,
+            "route_changes": 60,
+            "src": "Sydney"
+          },
+          {
+            "dst": "Sao Paulo",
+            "flow_id": 7,
+            "offset_ns": 1185537,
+            "route_changes": 60,
+            "src": "Tokyo"
+          },
+          {
+            "dst": "Mumbai",
+            "flow_id": 8,
+            "offset_ns": 2665317,
+            "route_changes": 60,
+            "src": "Frankfurt"
+          },
+          {
+            "dst": "Singapore",
+            "flow_id": 9,
+            "offset_ns": 6007086,
+            "route_changes": 60,
+            "src": "Johannesburg"
+          }
+        ],
+        "gsl_links": 205,
+        "isl_links": 5361,
+        "late_packets": 0,
+        "mode": "full",
+        "nodes_built": 2857,
+        "outcomes": {
+          "delivered": 60000
+        },
+        "payload_bytes": 200,
+        "pcap_frames": 0,
+        "peak_rss_kb": 198968,
+        "policy": "continue",
+        "probe_rate_pps": 100,
+        "probes": 60000,
+        "program": "chronoroute-leo",
+        "queue": "DropTail 100p per device, no queue disc",
+        "satellites_built": 2847,
+        "seed_rng_run": 1,
+        "send_window_ns": [
+          0,
+          60000000000
+        ],
+        "step_ms": 100,
+        "stop_ns": 62000000000,
+        "t0_gps_ns": 1475676018000000000,
+        "t0_unix_ns": 1791640800000000000,
+        "topology_updates": {
+          "delay_writes": 2282353,
+          "down_events": 195,
+          "steps_applied": 601,
+          "up_events": 5
+        },
+        "unit_code": 1,
+        "wall_s": {
+          "build": 0.664877,
+          "load": 0.790795,
+          "run": 13.1967,
+          "total": 15.1384,
+          "write": 0.391634
+        },
+        "window_ms": 60000
+      },
+      "sensitivity/500kbps": {
+        "all_checks_ok": false,
+        "bundle": "/tmp/cr-bundles/c5-463-60s",
+        "capture_nodes": [],
+        "checks": {
+          "every delivered probe took exactly its planned path": true,
+          "every late probe crossed the slowed link and was caught at its far end": true,
+          "every probe has exactly one final outcome": true,
+          "every probe's Epoch_Base = ceil((t0_gps + send) / u) mod 2^32": true,
+          "every schedule row's T-CRH template rebuilt byte-identical in C++ (Bundle::Load)": true,
+          "no deadline miss after a probe had already ended": true,
+          "no routing-header event or reception of a non-probe packet": true,
+          "ns-3 node id == bundle node id for every node": true,
+          "the fault made probes late": false,
+          "transit satellites delivered 0 packets to UDP": true
+        },
+        "data_rate": "1Gbps",
+        "delivered": 60000,
+        "effective_policy": "continue",
+        "fault": {
+          "chosen_by": "ChooseFaultIsl rule",
+          "enabled": true,
+          "extra_delay_ns": 0,
+          "flow": 0,
+          "isl_id": 4478,
+          "name_a": "STARLINK-35318",
+          "name_b": "STARLINK-35575",
+          "node_a": 1998,
+          "node_b": 2017,
+          "rate": "500kbps",
+          "sid_a": 8204,
+          "sid_b": 8223,
+          "start_ms": 20000,
+          "stop_ms": 40000
+        },
+        "flows": [
+          {
+            "dst": "London",
+            "flow_id": 0,
+            "offset_ns": 9564440,
+            "route_changes": 60,
+            "src": "Chennai"
+          },
+          {
+            "dst": "Sydney",
+            "flow_id": 1,
+            "offset_ns": 9094170,
+            "route_changes": 60,
+            "src": "New York"
+          },
+          {
+            "dst": "Tokyo",
+            "flow_id": 2,
+            "offset_ns": 5489348,
+            "route_changes": 60,
+            "src": "Sao Paulo"
+          },
+          {
+            "dst": "Frankfurt",
+            "flow_id": 3,
+            "offset_ns": 5480578,
+            "route_changes": 60,
+            "src": "Mumbai"
+          },
+          {
+            "dst": "Johannesburg",
+            "flow_id": 4,
+            "offset_ns": 8539024,
+            "route_changes": 60,
+            "src": "Singapore"
+          },
+          {
+            "dst": "Chennai",
+            "flow_id": 5,
+            "offset_ns": 6144222,
+            "route_changes": 60,
+            "src": "London"
+          },
+          {
+            "dst": "New York",
+            "flow_id": 6,
+            "offset_ns": 4602676,
+            "route_changes": 60,
+            "src": "Sydney"
+          },
+          {
+            "dst": "Sao Paulo",
+            "flow_id": 7,
+            "offset_ns": 1185537,
+            "route_changes": 60,
+            "src": "Tokyo"
+          },
+          {
+            "dst": "Mumbai",
+            "flow_id": 8,
+            "offset_ns": 2665317,
+            "route_changes": 60,
+            "src": "Frankfurt"
+          },
+          {
+            "dst": "Singapore",
+            "flow_id": 9,
+            "offset_ns": 6007086,
+            "route_changes": 60,
+            "src": "Johannesburg"
+          }
+        ],
+        "gsl_links": 205,
+        "isl_links": 5361,
+        "late_packets": 0,
+        "mode": "full",
+        "nodes_built": 2857,
+        "outcomes": {
+          "delivered": 60000
+        },
+        "payload_bytes": 200,
+        "pcap_frames": 0,
+        "peak_rss_kb": 198756,
+        "policy": "continue",
+        "probe_rate_pps": 100,
+        "probes": 60000,
+        "program": "chronoroute-leo",
+        "queue": "DropTail 100p per device, no queue disc",
+        "satellites_built": 2847,
+        "seed_rng_run": 1,
+        "send_window_ns": [
+          0,
+          60000000000
+        ],
+        "step_ms": 100,
+        "stop_ns": 62000000000,
+        "t0_gps_ns": 1475676018000000000,
+        "t0_unix_ns": 1791640800000000000,
+        "topology_updates": {
+          "delay_writes": 2282353,
+          "down_events": 195,
+          "steps_applied": 601,
+          "up_events": 5
+        },
+        "unit_code": 1,
+        "wall_s": {
+          "build": 0.63228,
+          "load": 0.780636,
+          "run": 13.2908,
+          "total": 15.2178,
+          "write": 0.435232
+        },
+        "window_ms": 60000
+      }
+    },
+    "sensitivity": {
+      "note": "the same fault (link, start, duration) at milder slow-downs; detection needs a queue that outgrows the deadline slack (MODELLED fault)",
+      "runs": [
+        {
+          "baseline_false_alarm_rate": 0.0,
+          "baseline_flagged": 0,
+          "baseline_same_probes_crossed_no_fault": 3648,
+          "baseline_same_probes_no_fault": 3648,
+          "detection_rate": 0.9991776315789473,
+          "false_alarms_no_fault_run_all_probes": 0,
+          "fault_rate": "200kbps",
+          "fault_window_ns": [
+            20000000000,
+            40000000000
+          ],
+          "first_detection_after_fault_start_ms": 16.883941,
+          "flagged_late": 3645,
+          "flagged_without_crossing_in_fault_run": 0,
+          "isl_id": 4478,
+          "late_margin_units_at_detection": {
+            "max": -6.0,
+            "min": -11605.0,
+            "p50": -11494.0,
+            "p99": -262.0
+          },
+          "main_fault_run": true,
+          "probes_crossing_slowed_link": 3648,
+          "probes_entering_slowed_link": 4000,
+          "probes_lost_in_its_queue": 352,
+          "self_checks_failed": []
+        },
+        {
+          "baseline_false_alarm_rate": 0.0,
+          "baseline_flagged": 0,
+          "baseline_same_probes_crossed_no_fault": 4000,
+          "baseline_same_probes_no_fault": 4000,
+          "detection_rate": 0.0,
+          "false_alarms_no_fault_run_all_probes": 0,
+          "fault_rate": "1Mbps",
+          "fault_window_ns": [
+            20000000000,
+            40000000000
+          ],
+          "first_detection_after_fault_start_ms": null,
+          "flagged_late": 0,
+          "flagged_without_crossing_in_fault_run": 0,
+          "isl_id": 4478,
+          "late_margin_units_at_detection": {
+            "p0": null,
+            "p100": null,
+            "p50": null,
+            "p99": null
+          },
+          "probes_crossing_slowed_link": 4000,
+          "probes_entering_slowed_link": 4000,
+          "probes_lost_in_its_queue": 0,
+          "self_checks_failed": [
+            "the fault made probes late"
+          ]
+        },
+        {
+          "baseline_false_alarm_rate": 0.0,
+          "baseline_flagged": 0,
+          "baseline_same_probes_crossed_no_fault": 4000,
+          "baseline_same_probes_no_fault": 4000,
+          "detection_rate": 0.0,
+          "false_alarms_no_fault_run_all_probes": 0,
+          "fault_rate": "500kbps",
+          "fault_window_ns": [
+            20000000000,
+            40000000000
+          ],
+          "first_detection_after_fault_start_ms": null,
+          "flagged_late": 0,
+          "flagged_without_crossing_in_fault_run": 0,
+          "isl_id": 4478,
+          "late_margin_units_at_detection": {
+            "p0": null,
+            "p100": null,
+            "p50": null,
+            "p99": null
+          },
+          "probes_crossing_slowed_link": 4000,
+          "probes_entering_slowed_link": 4000,
+          "probes_lost_in_its_queue": 0,
+          "self_checks_failed": [
+            "the fault made probes late"
+          ]
+        },
+        {
+          "baseline_false_alarm_rate": 0.0,
+          "baseline_flagged": 0,
+          "baseline_same_probes_crossed_no_fault": 4000,
+          "baseline_same_probes_no_fault": 4000,
+          "detection_rate": 0.0,
+          "false_alarms_no_fault_run_all_probes": 0,
+          "fault_rate": "250kbps",
+          "fault_window_ns": [
+            20000000000,
+            40000000000
+          ],
+          "first_detection_after_fault_start_ms": null,
+          "flagged_late": 0,
+          "flagged_without_crossing_in_fault_run": 0,
+          "isl_id": 4478,
+          "late_margin_units_at_detection": {
+            "p0": null,
+            "p100": null,
+            "p50": null,
+            "p99": null
+          },
+          "probes_crossing_slowed_link": 4000,
+          "probes_entering_slowed_link": 4000,
+          "probes_lost_in_its_queue": 0,
+          "self_checks_failed": [
+            "the fault made probes late"
+          ]
+        }
+      ]
+    },
+    "slice_vs_full_fault_run": {
+      "latency_identical": 600,
+      "path_identical": 600,
+      "probes": 600
+    },
+    "snapshot_attribution": "Orbit data courtesy of CelesTrak (celestrak.org); SupGP elements derived from SpaceX ephemerides."
+  },
+  "git_sha": "13bb244d3da97dd574d3539f74be1a7457b3a137",
+  "host": {
+    "cpu_model": "13th Gen Intel(R) Core(TM) i9-13900H",
+    "logical_cores": 20,
+    "machine": "x86_64",
+    "platform": "Linux-6.18.33.2-microsoft-standard-WSL2-x86_64-with-glibc2.43",
+    "ram_bytes": 8131350528
+  },
+  "labels": {
+    "city_coordinates": "REAL",
+    "fault_slow_link": "MODELLED",
+    "gsl_mask_and_assignment": "MODELLED",
+    "isl_topology_grid4": "MODELLED",
+    "link_rate_and_queues": "MODELLED",
+    "ns3_processing_delay_zero": "MODELLED",
+    "orbital_elements": "REAL",
+    "routes_and_budgets": "DERIVED",
+    "satellite_positions_sgp4": "REAL",
+    "shells_and_planes": "DERIVED",
+    "tcrh_header_bytes": "REAL",
+    "traffic_probes": "MODELLED"
+  },
+  "outputs": [
+    {
+      "path": "anim/anim.xml",
+      "sha256": "5fa170cfd975f22d5db0a03484ad93479d829b1dca2ca866d685c2d2d3636ecc",
+      "size_bytes": 2958948
+    },
+    {
+      "path": "anim/fault_log.csv",
+      "sha256": "441ad6c0b7940c86fbb63e45bc8c848e57439a69b7229c13aedd13ff09062fb7",
+      "size_bytes": 189
+    },
+    {
+      "path": "anim/ns3.log",
+      "sha256": "271221f104202355cbd83a7ee8fe660961a88c17330bf114986df7bae72d0bbd",
+      "size_bytes": 1642
+    },
+    {
+      "path": "anim/packets.csv.gz",
+      "sha256": "1e29a8e13c9723017311f0033b00d34c4517f47052e0e5c084d46e2b394473ee",
+      "size_bytes": 61831
+    },
+    {
+      "path": "anim/run_info.json",
+      "sha256": "391bb44e8954d9c65480e4dfdfa540cfef06bf562ec57d596865d389037fe893",
+      "size_bytes": 1976
+    },
+    {
+      "path": "crosscheck_fault.json",
+      "sha256": "f54307440d010abb64e4c195bd8e9a184535303b38f00eec430ca9b0e38ace19",
+      "size_bytes": 1208
+    },
+    {
+      "path": "crosscheck_nofault.json",
+      "sha256": "52868cc059d424ed4a3449189c543166742aa0f7b28ac9157e3348ed9be5b04d",
+      "size_bytes": 1104
+    },
+    {
+      "path": "detection.json",
+      "sha256": "d22b5829d727d5593fa31d1bad9b9b15a46b7caf057001a2f29ac394b9609f04",
+      "size_bytes": 1155
+    },
+    {
+      "path": "fault/capture.pcap.gz",
+      "sha256": "6c16ea7f0258b46406f4aa0f373f28b0c84a4d55cdcb87843d004d8922cd879c",
+      "size_bytes": 591497
+    },
+    {
+      "path": "fault/fault_log.csv",
+      "sha256": "c3d6429f452ce982b153a2ff855d3d754a6773fba00c49b9c656fd4de60e6372",
+      "size_bytes": 287
+    },
+    {
+      "path": "fault/ns3.log",
+      "sha256": "fa05abec857e6f80e5a5506da76ec1e63d70c4198f69a72e1973aed8a51736f0",
+      "size_bytes": 2511
+    },
+    {
+      "path": "fault/packets.csv.gz",
+      "sha256": "5b24202054b7a7ca7cee4fc66b9817a2ac6c5710993e0432b642c1a78ce5c0d5",
+      "size_bytes": 8114206
+    },
+    {
+      "path": "fault/run_info.json",
+      "sha256": "e30a30df77aa1e9a5a282b02234c23bcb5b0428eead9d7c58cfc70012aad39b0",
+      "size_bytes": 2942
+    },
+    {
+      "path": "flow_summary.csv",
+      "sha256": "89e83017b4ea656cf2a2416f0c28b2f989396251aa45e0944262eba9ca5fb108",
+      "size_bytes": 2911
+    },
+    {
+      "path": "loss_causes.json",
+      "sha256": "91c923944a25b398f40c572891efa1d61be17a6d2980ae1638e30f598129dc51",
+      "size_bytes": 226
+    },
+    {
+      "path": "margins.json",
+      "sha256": "c97c7545fbf7a40cbc7953a3fc10ea685885f439f6ee04d6427b17decca2442d",
+      "size_bytes": 578
+    },
+    {
+      "path": "nofault/capture.pcap.gz",
+      "sha256": "9840181811508d2e36bce41e9b06e74b486dc2c6f8c5bb7583d1c472e4f74ed0",
+      "size_bytes": 548091
+    },
+    {
+      "path": "nofault/fault_log.csv",
+      "sha256": "67db5ca0cf7b5cffc9da028b54dd1ab2335432d225c307f340e70af5202a9a50",
+      "size_bytes": 93
+    },
+    {
+      "path": "nofault/ns3.log",
+      "sha256": "c7dee2a6ba11f67e426c6310d63e149a12903bb345ec1cb44bab1f7bd5dfc40a",
+      "size_bytes": 2431
+    },
+    {
+      "path": "nofault/packets.csv.gz",
+      "sha256": "280f71b7aed37a527f9c7542aa1a85ad3f7170a5356344839ac87f0b40d830cd",
+      "size_bytes": 7996346
+    },
+    {
+      "path": "nofault/run_info.json",
+      "sha256": "f448a8c8fc78f937dd3dd1a081781c75bb6e9b110711f7455b382a7b432d17d5",
+      "size_bytes": 2850
+    },
+    {
+      "path": "pcap_check.json",
+      "sha256": "f95be3724cfa74309353cfcb03a0d1b6c16c0a2eee19d0279a26e8d56d977f39",
+      "size_bytes": 1250
+    },
+    {
+      "path": "run.log",
+      "sha256": "6725c11a4c545f2504bde63ef9d78b74ca5c0986de62dd2e53379b2145ea2f89",
+      "size_bytes": 29266
+    },
+    {
+      "path": "sensitivity.json",
+      "sha256": "15137add6119d0ba56845c11635556dba1789191c4e8d9e4568131633d0f07c0",
+      "size_bytes": 3574
+    },
+    {
+      "path": "sensitivity/1Mbps/fault_log.csv",
+      "sha256": "312eacd1122ba16eec19d9554fe2feca65b00245e6e09b20f8cdde9961008dd0",
+      "size_bytes": 288
+    },
+    {
+      "path": "sensitivity/1Mbps/ns3.log",
+      "sha256": "c2c267f9f2efce7b63e25bcc01889101a77d3ab1f1631f285c8b8ba291b7784b",
+      "size_bytes": 2337
+    },
+    {
+      "path": "sensitivity/1Mbps/run_info.json",
+      "sha256": "0d372bb81760dc821bd220d4deb6d25103a49dba3c64d2ebdafd67b4e45a3037",
+      "size_bytes": 2893
+    },
+    {
+      "path": "sensitivity/1Mbps/slowed_link_probes.csv.gz",
+      "sha256": "67f9c9de7eb673e59c73572f127c6fd46b5123c502944ae6a4ab095d9581b4fd",
+      "size_bytes": 1004368
+    },
+    {
+      "path": "sensitivity/250kbps/fault_log.csv",
+      "sha256": "8c67511df429edbdc32bc4de071b0746e240c20c4231087a3dd98c325f530548",
+      "size_bytes": 287
+    },
+    {
+      "path": "sensitivity/250kbps/ns3.log",
+      "sha256": "3d2f0c6a5ff4c72c589e2d9b84428788c8beb226508a1d37f8afeac6037f7894",
+      "size_bytes": 2339
+    },
+    {
+      "path": "sensitivity/250kbps/run_info.json",
+      "sha256": "63965cf56859370b452d486577986a7a1239b225e403283a2a43b3f3692b1d4f",
+      "size_bytes": 2896
+    },
+    {
+      "path": "sensitivity/250kbps/slowed_link_probes.csv.gz",
+      "sha256": "15e2aeba77702151dc3bfc8787df45c1941e11b79d2b6bd38f74a8bca3b8dfad",
+      "size_bytes": 1001198
+    },
+    {
+      "path": "sensitivity/500kbps/fault_log.csv",
+      "sha256": "e7e5ce4d708b04cd6c8f2e6041e473f4ad928b021ab623f89cb4801ecb54f740",
+      "size_bytes": 287
+    },
+    {
+      "path": "sensitivity/500kbps/ns3.log",
+      "sha256": "052437898246565b440ac46813f6801a2ae61e0af2fca5f63fef45504945b31a",
+      "size_bytes": 2339
+    },
+    {
+      "path": "sensitivity/500kbps/run_info.json",
+      "sha256": "0ab2df80706ceaeef517ca4e08fde090baeab89841787dca40140db219121f79",
+      "size_bytes": 2895
+    },
+    {
+      "path": "sensitivity/500kbps/slowed_link_probes.csv.gz",
+      "sha256": "ad3e8008ff5fd335a0a49ff903af1845bfa785b6142895c0cde32413c3f323bd",
+      "size_bytes": 1002694
+    }
+  ],
+  "run_id": "657de6df44a47100",
+  "schema": "chronoroute.manifest/1",
+  "seeds": [
+    1
+  ],
+  "snapshot": {
+    "id": "20261010T1358Z-celestrak",
+    "sha256": "c37e70812155c2d1d9eeb3e96681303c00c9fca91287939b21bf5313ce83aecd",
+    "sha256_of": "SHA256SUMS"
+  },
+  "started_utc": "2026-10-11T00:17:54.107535Z",
+  "tool": "ns3-chronoroute-leo",
+  "tool_version": "1.0.0.dev0",
+  "versions": {
+    "chronoroute": "1.0.0.dev0",
+    "matplotlib": "3.11.1",
+    "networkx": "3.6.1",
+    "numpy": "2.5.3",
+    "python": "3.14.4",
+    "sgp4": "2.27"
+  },
+  "wall_seconds": 179.660277,
+  "written_utc": "2026-10-11T00:20:53.988787Z"
+}

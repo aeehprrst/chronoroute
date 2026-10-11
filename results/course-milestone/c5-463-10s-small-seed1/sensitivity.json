@@ -1,0 +1,120 @@
+{
+  "note": "the same fault (link, start, duration) at milder slow-downs; detection needs a queue that outgrows the deadline slack (MODELLED fault)",
+  "runs": [
+    {
+      "baseline_false_alarm_rate": 0.0,
+      "baseline_flagged": 0,
+      "baseline_same_probes_crossed_no_fault": 600,
+      "baseline_same_probes_no_fault": 600,
+      "detection_rate": 0.9966666666666667,
+      "false_alarms_no_fault_run_all_probes": 0,
+      "fault_rate": "200kbps",
+      "fault_window_ns": [
+        4000000000,
+        7000000000
+      ],
+      "first_detection_after_fault_start_ms": 17.115889,
+      "flagged_late": 598,
+      "flagged_without_crossing_in_fault_run": 0,
+      "isl_id": 4478,
+      "late_margin_units_at_detection": {
+        "max": -5.0,
+        "min": -4134.0,
+        "p50": -2057.0,
+        "p99": -37.0
+      },
+      "main_fault_run": true,
+      "probes_crossing_slowed_link": 600,
+      "probes_entering_slowed_link": 600,
+      "probes_lost_in_its_queue": 0,
+      "self_checks_failed": []
+    },
+    {
+      "baseline_false_alarm_rate": 0.0,
+      "baseline_flagged": 0,
+      "baseline_same_probes_crossed_no_fault": 600,
+      "baseline_same_probes_no_fault": 600,
+      "detection_rate": 0.0,
+      "false_alarms_no_fault_run_all_probes": 0,
+      "fault_rate": "1Mbps",
+      "fault_window_ns": [
+        4000000000,
+        7000000000
+      ],
+      "first_detection_after_fault_start_ms": null,
+      "flagged_late": 0,
+      "flagged_without_crossing_in_fault_run": 0,
+      "isl_id": 4478,
+      "late_margin_units_at_detection": {
+        "p0": null,
+        "p100": null,
+        "p50": null,
+        "p99": null
+      },
+      "probes_crossing_slowed_link": 600,
+      "probes_entering_slowed_link": 600,
+      "probes_lost_in_its_queue": 0,
+      "self_checks_failed": [
+        "the fault made probes late"
+      ]
+    },
+    {
+      "baseline_false_alarm_rate": 0.0,
+      "baseline_flagged": 0,
+      "baseline_same_probes_crossed_no_fault": 600,
+      "baseline_same_probes_no_fault": 600,
+      "detection_rate": 0.0,
+      "false_alarms_no_fault_run_all_probes": 0,
+      "fault_rate": "500kbps",
+      "fault_window_ns": [
+        4000000000,
+        7000000000
+      ],
+      "first_detection_after_fault_start_ms": null,
+      "flagged_late": 0,
+      "flagged_without_crossing_in_fault_run": 0,
+      "isl_id": 4478,
+      "late_margin_units_at_detection": {
+        "p0": null,
+        "p100": null,
+        "p50": null,
+        "p99": null
+      },
+      "probes_crossing_slowed_link": 600,
+      "probes_entering_slowed_link": 600,
+      "probes_lost_in_its_queue": 0,
+      "self_checks_failed": [
+        "the fault made probes late"
+      ]
+    },
+    {
+      "baseline_false_alarm_rate": 0.0,
+      "baseline_flagged": 0,
+      "baseline_same_probes_crossed_no_fault": 600,
+      "baseline_same_probes_no_fault": 600,
+      "detection_rate": 0.0,
+      "false_alarms_no_fault_run_all_probes": 0,
+      "fault_rate": "250kbps",
+      "fault_window_ns": [
+        4000000000,
+        7000000000
+      ],
+      "first_detection_after_fault_start_ms": null,
+      "flagged_late": 0,
+      "flagged_without_crossing_in_fault_run": 0,
+      "isl_id": 4478,
+      "late_margin_units_at_detection": {
+        "p0": null,
+        "p100": null,
+        "p50": null,
+        "p99": null
+      },
+      "probes_crossing_slowed_link": 600,
+      "probes_entering_slowed_link": 600,
+      "probes_lost_in_its_queue": 0,
+      "self_checks_failed": [
+        "the fault made probes late"
+      ]
+    }
+  ]
+}

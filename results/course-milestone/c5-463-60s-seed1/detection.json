@@ -1,0 +1,50 @@
+{
+  "baseline_false_alarm_rate": 0.0,
+  "baseline_flagged": 0,
+  "baseline_same_probes_crossed_no_fault": 3648,
+  "baseline_same_probes_no_fault": 3648,
+  "detection_rate": 0.9991776315789473,
+  "false_alarms_no_fault_run_all_probes": 0,
+  "fault_link": {
+    "chosen_by": "ChooseFaultIsl rule",
+    "enabled": true,
+    "extra_delay_ns": 0,
+    "flow": 0,
+    "isl_id": 4478,
+    "name_a": "STARLINK-35318",
+    "name_b": "STARLINK-35575",
+    "node_a": 1998,
+    "node_b": 2017,
+    "rate": "200kbps",
+    "sid_a": 8204,
+    "sid_b": 8223,
+    "start_ms": 20000,
+    "stop_ms": 40000
+  },
+  "fault_window_ns": [
+    20000000000,
+    40000000000
+  ],
+  "first_detection_after_fault_start_ms": 16.883941,
+  "flagged_late": 3645,
+  "flagged_without_crossing_in_fault_run": 0,
+  "late_margin_units_at_detection": {
+    "max": -6.0,
+    "min": -11605.0,
+    "p50": -11494.0,
+    "p99": -262.0
+  },
+  "per_flow": {
+    "0": {
+      "crossed": 1824,
+      "flagged": 1824
+    },
+    "5": {
+      "crossed": 1824,
+      "flagged": 1821
+    }
+  },
+  "probes_crossing_slowed_link": 3648,
+  "probes_entering_slowed_link": 4000,
+  "probes_lost_in_its_queue": 352
+}

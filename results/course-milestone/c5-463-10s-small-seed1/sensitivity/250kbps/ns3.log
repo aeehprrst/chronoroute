@@ -1,0 +1,29 @@
+chronoroute-leo: bundle /tmp/cr-bundles/c5-463-10s-small
+  2850 nodes (2847 satellites), 5361 laser links, 50 ground-link pairs, 101 steps of 100 ms, 40 schedule rows (every T-CRH template rebuilt byte-identical by the C++ encoder)
+  t0_gps_ns 1475676018000000000, t0_unix_ns 1791640800000000000, unit code 1; load 0.13 s
+  built 2850 nodes (2847 satellites), 5361 laser links + 50 ground links, 1 link = stock PointToPointChannel, 1Gbps, DropTail 100p [MODELLED]; build 0.68 s
+  fault link: ISL 4478 (STARLINK-35318 <-> STARLINK-35575, intra-plane), on flow 0's path at 4000 ms; slowed to 250kbps
+  flows 4, 4000 probes (100/s x 200 B payload) in [0, 10000) ms; policy continue; stop at 12000 ms
+
+Self-checks:
+  [ok] every schedule row's T-CRH template rebuilt byte-identical in C++ (Bundle::Load)
+  [ok] every probe has exactly one final outcome
+  [ok] no routing-header event or reception of a non-probe packet
+  [ok] transit satellites delivered 0 packets to UDP
+  [ok] every delivered probe took exactly its planned path
+  [ok] every probe's Epoch_Base = ceil((t0_gps + send) / u) mod 2^32
+  [ok] no deadline miss after a probe had already ended
+  [ok] ns-3 node id == bundle node id for every node
+  [FAIL] the fault made probes late
+  [ok] every late probe crossed the slowed link and was caught at its far end
+
+Per flow (sent / delivered / late / link-down drops / queue drops / route changes):
+  flow  0       Chennai -> London        1000 / 1000 / 0 / 0 / 0 / 10
+  flow  1     Singapore -> London        1000 / 1000 / 0 / 0 / 0 / 10
+  flow  2        London -> Chennai       1000 / 1000 / 0 / 0 / 0 / 10
+  flow  3        London -> Singapore     1000 / 1000 / 0 / 0 / 0 / 10
+
+Outcomes: delivered 4000;
+Topology: 101 steps applied, 369462 Delay writes, 63 link-down and 0 link-up events
+Wall time: load 0.13 s, build 0.68 s, run 0.56 s, write 0.02 s, total 1.43 s; peak RSS 138.41 MiB
+chronoroute-leo: FAIL

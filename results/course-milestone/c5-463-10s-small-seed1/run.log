@@ -1,0 +1,197 @@
+bundle: cr export bundle --snapshot data/pinned/20261010T1358Z-celestrak --shell 53.2deg-463km --cities Chennai,London,Singapore --start 2026-10-10T14:00:00Z --duration-s 10 --flow Chennai->London --flow Singapore->London --reverse --out /tmp/cr-bundles/c5-463-10s-small
+[bundle] bundle /tmp/cr-bundles/c5-463-10s-small
+[bundle]   snapshot 20261010T1358Z-celestrak (CelesTrak SupGP); shell 53.2deg-463km: 2847 satellites in planes (272 off-grid left out), 3 ground stations
+[bundle]   window 10000 ms from 2026-10-10T14:00:00Z, 101 steps of 100 ms; 5361 ISL pairs (MODELLED Grid-4), 50 ground-link pairs ever visible
+[bundle]   models: ground links sticky_top_k [MODELLED], planning stable, laser range limit none (80 km rule only)
+[bundle]   flows 4, schedule rows 40, gaps (no path) 0
+[bundle]   invariants all ok: True (ISL min height 139.4 km, longest up ISL 4112.6 km, GSL min elevation 41.09 deg, max ISL degree 4, min light time / great circle 1.1490219719191426)
+[bundle]   schedule rows whose path loses a link while in use: 0 of 40 (must be 0)
+[bundle]     nodes.csv             159,961 B  (156.2 KB)
+[bundle]     isl.csv               107,281 B  (104.8 KB)
+[bundle]     isl_delay.csv      10,501,392 B  (10.0 MB)
+[bundle]     gsl.csv               153,519 B  (149.9 KB)
+[bundle]     positions.csv       1,458,594 B  (1.4 MB)
+[bundle]     schedule.csv           15,464 B  (15.1 KB)
+[bundle]     scenario.json           7,063 B  (6.9 KB)
+[bundle]     manifest.json           4,196 B  (4.1 KB)
+[bundle]     total              12,407,470 B  (11.8 MB)
+[bundle]   time: build 1.7 s, write 0.3 s, total 2.9 s
+[bundle]   check_bundle: OK (headers, row counts, order, SIDs, T-CRH templates re-built)
+run_leo: bundle /tmp/cr-bundles/c5-463-10s-small (2847 satellites, 3 ground stations, 10000 ms), run id c5-463-10s-small-seed1
+build: ./ns3 build -j8 chronoroute-leo -> exit 0
+binary: /home/aeehprrst/ns-3-dev/build/contrib/chronoroute/examples/ns3.44-chronoroute-leo-default (sha256 7d831f979ca24614...)
+[nofault] /home/aeehprrst/ns-3-dev/build/contrib/chronoroute/examples/ns3.44-chronoroute-leo-default --bundle=/tmp/cr-bundles/c5-463-10s-small --seed=1 --faultFlow=0 --faultStartMs=4000 --faultDurationMs=3000 --faultRate=200kbps --policy=continue --probeRate=100 --payload=200 --dataRate=1Gbps --queueSize=100p --fault=0 --pcap=1 --outDir=/home/aeehprrst/chronoroute/results/course-milestone/c5-463-10s-small-seed1.staging/nofault
+[nofault] exit 0, wall 1.7 s, peak RSS 138 MiB
+[nofault]   chronoroute-leo: bundle /tmp/cr-bundles/c5-463-10s-small
+[nofault]   built 2850 nodes (2847 satellites), 5361 laser links + 50 ground links, 1 link = stock PointToPointChannel, 1Gbps, DropTail 100p [MODELLED]; build 0.71 s
+[nofault]   fault link: ISL 4478 (STARLINK-35318 <-> STARLINK-35575, intra-plane), on flow 0's path at 4000 ms; NOT slowed (paired no-fault run)
+[nofault]   flows 4, 4000 probes (100/s x 200 B payload) in [0, 10000) ms; policy continue; stop at 12000 ms
+[nofault]   [ok] every schedule row's T-CRH template rebuilt byte-identical in C++ (Bundle::Load)
+[nofault]   [ok] every probe has exactly one final outcome
+[nofault]   [ok] no routing-header event or reception of a non-probe packet
+[nofault]   [ok] transit satellites delivered 0 packets to UDP
+[nofault]   [ok] every delivered probe took exactly its planned path
+[nofault]   [ok] every probe's Epoch_Base = ceil((t0_gps + send) / u) mod 2^32
+[nofault]   [ok] no deadline miss after a probe had already ended
+[nofault]   [ok] ns-3 node id == bundle node id for every node
+[nofault]   [ok] no probe was late without a fault
+[nofault]   flow  0       Chennai -> London        1000 / 1000 / 0 / 0 / 0 / 10
+[nofault]   flow  1     Singapore -> London        1000 / 1000 / 0 / 0 / 0 / 10
+[nofault]   flow  2        London -> Chennai       1000 / 1000 / 0 / 0 / 0 / 10
+[nofault]   flow  3        London -> Singapore     1000 / 1000 / 0 / 0 / 0 / 10
+[nofault]   Outcomes: delivered 4000;
+[nofault]   Topology: 101 steps applied, 369462 Delay writes, 63 link-down and 0 link-up events
+[nofault]   pcap: /home/aeehprrst/chronoroute/results/course-milestone/c5-463-10s-small-seed1.staging/nofault/capture.pcap, 7000 frames from nodes 2847 2017 1998 2022
+[nofault]   Wall time: load 0.13 s, build 0.71 s, run 0.60 s, write 0.02 s, total 1.51 s; peak RSS 138.43 MiB
+[nofault]   chronoroute-leo: PASS
+[fault] /home/aeehprrst/ns-3-dev/build/contrib/chronoroute/examples/ns3.44-chronoroute-leo-default --bundle=/tmp/cr-bundles/c5-463-10s-small --seed=1 --faultFlow=0 --faultStartMs=4000 --faultDurationMs=3000 --faultRate=200kbps --policy=continue --probeRate=100 --payload=200 --dataRate=1Gbps --queueSize=100p --fault=1 --pcap=1 --outDir=/home/aeehprrst/chronoroute/results/course-milestone/c5-463-10s-small-seed1.staging/fault
+[fault] exit 0, wall 1.7 s, peak RSS 138 MiB
+[fault]   chronoroute-leo: bundle /tmp/cr-bundles/c5-463-10s-small
+[fault]   built 2850 nodes (2847 satellites), 5361 laser links + 50 ground links, 1 link = stock PointToPointChannel, 1Gbps, DropTail 100p [MODELLED]; build 0.73 s
+[fault]   fault link: ISL 4478 (STARLINK-35318 <-> STARLINK-35575, intra-plane), on flow 0's path at 4000 ms; slowed to 200kbps
+[fault]   flows 4, 4000 probes (100/s x 200 B payload) in [0, 10000) ms; policy continue; stop at 12000 ms
+[fault]   [ok] every schedule row's T-CRH template rebuilt byte-identical in C++ (Bundle::Load)
+[fault]   [ok] every probe has exactly one final outcome
+[fault]   [ok] no routing-header event or reception of a non-probe packet
+[fault]   [ok] transit satellites delivered 0 packets to UDP
+[fault]   [ok] every delivered probe took exactly its planned path
+[fault]   [ok] every probe's Epoch_Base = ceil((t0_gps + send) / u) mod 2^32
+[fault]   [ok] no deadline miss after a probe had already ended
+[fault]   [ok] ns-3 node id == bundle node id for every node
+[fault]   [ok] the fault made probes late
+[fault]   [ok] every late probe crossed the slowed link and was caught at its far end
+[fault]   flow  0       Chennai -> London        1000 / 1000 / 300 / 0 / 0 / 10
+[fault]   flow  1     Singapore -> London        1000 / 1000 / 0 / 0 / 0 / 10
+[fault]   flow  2        London -> Chennai       1000 / 1000 / 298 / 0 / 0 / 10
+[fault]   flow  3        London -> Singapore     1000 / 1000 / 0 / 0 / 0 / 10
+[fault]   Outcomes: delivered 4000;
+[fault]   Topology: 101 steps applied, 369462 Delay writes, 63 link-down and 0 link-up events
+[fault]   pcap: /home/aeehprrst/chronoroute/results/course-milestone/c5-463-10s-small-seed1.staging/fault/capture.pcap, 7000 frames from nodes 2847 2017 1998 2022
+[fault]   Wall time: load 0.13 s, build 0.73 s, run 0.62 s, write 0.03 s, total 1.56 s; peak RSS 138.58 MiB
+[fault]   chronoroute-leo: PASS
+[anim] /home/aeehprrst/ns-3-dev/build/contrib/chronoroute/examples/ns3.44-chronoroute-leo-default --bundle=/tmp/cr-bundles/c5-463-10s-small --seed=1 --faultFlow=0 --faultStartMs=4000 --faultDurationMs=3000 --faultRate=200kbps --policy=continue --probeRate=100 --payload=200 --dataRate=1Gbps --queueSize=100p --fault=1 --pcap=0 --anim=1 --animMaxSats=200 --animFromMs=2000 --animToMs=8000 --outDir=/home/aeehprrst/chronoroute/results/course-milestone/c5-463-10s-small-seed1.staging/anim
+[anim] exit 0, wall 0.6 s, peak RSS 62 MiB
+[anim]   chronoroute-leo: bundle /tmp/cr-bundles/c5-463-10s-small
+[anim]   built 202 nodes (200 satellites), 348 laser links + 24 ground links, 1 link = stock PointToPointChannel, 1Gbps, DropTail 100p [MODELLED]; build 0.05 s
+[anim]   fault link: ISL 4478 (STARLINK-35318 <-> STARLINK-35575, intra-plane), on flow 0's path at 4000 ms; slowed to 200kbps
+[anim]   flows 1, 600 probes (100/s x 200 B payload) in [2000, 8000) ms; policy continue; stop at 10000 ms
+[anim]   [ok] every schedule row's T-CRH template rebuilt byte-identical in C++ (Bundle::Load)
+[anim]   [ok] every probe has exactly one final outcome
+[anim]   [ok] no routing-header event or reception of a non-probe packet
+[anim]   [ok] transit satellites delivered 0 packets to UDP
+[anim]   [ok] every delivered probe took exactly its planned path
+[anim]   [ok] every probe's Epoch_Base = ceil((t0_gps + send) / u) mod 2^32
+[anim]   [ok] no deadline miss after a probe had already ended
+[anim]   [ok] the fault made probes late
+[anim]   [ok] every late probe crossed the slowed link and was caught at its far end
+[anim]   flow  0       Chennai -> London        600 / 600 / 300 / 0 / 0 / 6
+[anim]   Outcomes: delivered 600;
+[anim]   Topology: 101 steps applied, 23889 Delay writes, 20 link-down and 0 link-up events
+[anim]   Wall time: load 0.16 s, build 0.05 s, run 0.18 s, write 0.00 s, total 0.47 s; peak RSS 62.68 MiB
+[anim]   chronoroute-leo: PASS
+[sensitivity/1Mbps] /home/aeehprrst/ns-3-dev/build/contrib/chronoroute/examples/ns3.44-chronoroute-leo-default --bundle=/tmp/cr-bundles/c5-463-10s-small --seed=1 --faultFlow=0 --faultStartMs=4000 --faultDurationMs=3000 --faultRate=1Mbps --policy=continue --probeRate=100 --payload=200 --dataRate=1Gbps --queueSize=100p --fault=1 --pcap=0 --outDir=/home/aeehprrst/chronoroute/results/course-milestone/c5-463-10s-small-seed1.staging/sensitivity/1Mbps
+[sensitivity/1Mbps] exit 1, wall 1.6 s, peak RSS 139 MiB
+[sensitivity/1Mbps]   chronoroute-leo: bundle /tmp/cr-bundles/c5-463-10s-small
+[sensitivity/1Mbps]   built 2850 nodes (2847 satellites), 5361 laser links + 50 ground links, 1 link = stock PointToPointChannel, 1Gbps, DropTail 100p [MODELLED]; build 0.64 s
+[sensitivity/1Mbps]   fault link: ISL 4478 (STARLINK-35318 <-> STARLINK-35575, intra-plane), on flow 0's path at 4000 ms; slowed to 1Mbps
+[sensitivity/1Mbps]   flows 4, 4000 probes (100/s x 200 B payload) in [0, 10000) ms; policy continue; stop at 12000 ms
+[sensitivity/1Mbps]   [ok] every schedule row's T-CRH template rebuilt byte-identical in C++ (Bundle::Load)
+[sensitivity/1Mbps]   [ok] every probe has exactly one final outcome
+[sensitivity/1Mbps]   [ok] no routing-header event or reception of a non-probe packet
+[sensitivity/1Mbps]   [ok] transit satellites delivered 0 packets to UDP
+[sensitivity/1Mbps]   [ok] every delivered probe took exactly its planned path
+[sensitivity/1Mbps]   [ok] every probe's Epoch_Base = ceil((t0_gps + send) / u) mod 2^32
+[sensitivity/1Mbps]   [ok] no deadline miss after a probe had already ended
+[sensitivity/1Mbps]   [ok] ns-3 node id == bundle node id for every node
+[sensitivity/1Mbps]   [FAIL] the fault made probes late
+[sensitivity/1Mbps]   [ok] every late probe crossed the slowed link and was caught at its far end
+[sensitivity/1Mbps]   flow  0       Chennai -> London        1000 / 1000 / 0 / 0 / 0 / 10
+[sensitivity/1Mbps]   flow  1     Singapore -> London        1000 / 1000 / 0 / 0 / 0 / 10
+[sensitivity/1Mbps]   flow  2        London -> Chennai       1000 / 1000 / 0 / 0 / 0 / 10
+[sensitivity/1Mbps]   flow  3        London -> Singapore     1000 / 1000 / 0 / 0 / 0 / 10
+[sensitivity/1Mbps]   Outcomes: delivered 4000;
+[sensitivity/1Mbps]   Topology: 101 steps applied, 369462 Delay writes, 63 link-down and 0 link-up events
+[sensitivity/1Mbps]   Wall time: load 0.13 s, build 0.64 s, run 0.56 s, write 0.03 s, total 1.40 s; peak RSS 138.66 MiB
+[sensitivity/1Mbps]   chronoroute-leo: FAIL
+[sensitivity/1Mbps] expected self-check failure only: ['the fault made probes late']
+[sensitivity/500kbps] /home/aeehprrst/ns-3-dev/build/contrib/chronoroute/examples/ns3.44-chronoroute-leo-default --bundle=/tmp/cr-bundles/c5-463-10s-small --seed=1 --faultFlow=0 --faultStartMs=4000 --faultDurationMs=3000 --faultRate=500kbps --policy=continue --probeRate=100 --payload=200 --dataRate=1Gbps --queueSize=100p --fault=1 --pcap=0 --outDir=/home/aeehprrst/chronoroute/results/course-milestone/c5-463-10s-small-seed1.staging/sensitivity/500kbps
+[sensitivity/500kbps] exit 1, wall 1.6 s, peak RSS 138 MiB
+[sensitivity/500kbps]   chronoroute-leo: bundle /tmp/cr-bundles/c5-463-10s-small
+[sensitivity/500kbps]   built 2850 nodes (2847 satellites), 5361 laser links + 50 ground links, 1 link = stock PointToPointChannel, 1Gbps, DropTail 100p [MODELLED]; build 0.67 s
+[sensitivity/500kbps]   fault link: ISL 4478 (STARLINK-35318 <-> STARLINK-35575, intra-plane), on flow 0's path at 4000 ms; slowed to 500kbps
+[sensitivity/500kbps]   flows 4, 4000 probes (100/s x 200 B payload) in [0, 10000) ms; policy continue; stop at 12000 ms
+[sensitivity/500kbps]   [ok] every schedule row's T-CRH template rebuilt byte-identical in C++ (Bundle::Load)
+[sensitivity/500kbps]   [ok] every probe has exactly one final outcome
+[sensitivity/500kbps]   [ok] no routing-header event or reception of a non-probe packet
+[sensitivity/500kbps]   [ok] transit satellites delivered 0 packets to UDP
+[sensitivity/500kbps]   [ok] every delivered probe took exactly its planned path
+[sensitivity/500kbps]   [ok] every probe's Epoch_Base = ceil((t0_gps + send) / u) mod 2^32
+[sensitivity/500kbps]   [ok] no deadline miss after a probe had already ended
+[sensitivity/500kbps]   [ok] ns-3 node id == bundle node id for every node
+[sensitivity/500kbps]   [FAIL] the fault made probes late
+[sensitivity/500kbps]   [ok] every late probe crossed the slowed link and was caught at its far end
+[sensitivity/500kbps]   flow  0       Chennai -> London        1000 / 1000 / 0 / 0 / 0 / 10
+[sensitivity/500kbps]   flow  1     Singapore -> London        1000 / 1000 / 0 / 0 / 0 / 10
+[sensitivity/500kbps]   flow  2        London -> Chennai       1000 / 1000 / 0 / 0 / 0 / 10
+[sensitivity/500kbps]   flow  3        London -> Singapore     1000 / 1000 / 0 / 0 / 0 / 10
+[sensitivity/500kbps]   Outcomes: delivered 4000;
+[sensitivity/500kbps]   Topology: 101 steps applied, 369462 Delay writes, 63 link-down and 0 link-up events
+[sensitivity/500kbps]   Wall time: load 0.14 s, build 0.67 s, run 0.59 s, write 0.03 s, total 1.46 s; peak RSS 138.38 MiB
+[sensitivity/500kbps]   chronoroute-leo: FAIL
+[sensitivity/500kbps] expected self-check failure only: ['the fault made probes late']
+[sensitivity/250kbps] /home/aeehprrst/ns-3-dev/build/contrib/chronoroute/examples/ns3.44-chronoroute-leo-default --bundle=/tmp/cr-bundles/c5-463-10s-small --seed=1 --faultFlow=0 --faultStartMs=4000 --faultDurationMs=3000 --faultRate=250kbps --policy=continue --probeRate=100 --payload=200 --dataRate=1Gbps --queueSize=100p --fault=1 --pcap=0 --outDir=/home/aeehprrst/chronoroute/results/course-milestone/c5-463-10s-small-seed1.staging/sensitivity/250kbps
+[sensitivity/250kbps] exit 1, wall 1.6 s, peak RSS 138 MiB
+[sensitivity/250kbps]   chronoroute-leo: bundle /tmp/cr-bundles/c5-463-10s-small
+[sensitivity/250kbps]   built 2850 nodes (2847 satellites), 5361 laser links + 50 ground links, 1 link = stock PointToPointChannel, 1Gbps, DropTail 100p [MODELLED]; build 0.68 s
+[sensitivity/250kbps]   fault link: ISL 4478 (STARLINK-35318 <-> STARLINK-35575, intra-plane), on flow 0's path at 4000 ms; slowed to 250kbps
+[sensitivity/250kbps]   flows 4, 4000 probes (100/s x 200 B payload) in [0, 10000) ms; policy continue; stop at 12000 ms
+[sensitivity/250kbps]   [ok] every schedule row's T-CRH template rebuilt byte-identical in C++ (Bundle::Load)
+[sensitivity/250kbps]   [ok] every probe has exactly one final outcome
+[sensitivity/250kbps]   [ok] no routing-header event or reception of a non-probe packet
+[sensitivity/250kbps]   [ok] transit satellites delivered 0 packets to UDP
+[sensitivity/250kbps]   [ok] every delivered probe took exactly its planned path
+[sensitivity/250kbps]   [ok] every probe's Epoch_Base = ceil((t0_gps + send) / u) mod 2^32
+[sensitivity/250kbps]   [ok] no deadline miss after a probe had already ended
+[sensitivity/250kbps]   [ok] ns-3 node id == bundle node id for every node
+[sensitivity/250kbps]   [FAIL] the fault made probes late
+[sensitivity/250kbps]   [ok] every late probe crossed the slowed link and was caught at its far end
+[sensitivity/250kbps]   flow  0       Chennai -> London        1000 / 1000 / 0 / 0 / 0 / 10
+[sensitivity/250kbps]   flow  1     Singapore -> London        1000 / 1000 / 0 / 0 / 0 / 10
+[sensitivity/250kbps]   flow  2        London -> Chennai       1000 / 1000 / 0 / 0 / 0 / 10
+[sensitivity/250kbps]   flow  3        London -> Singapore     1000 / 1000 / 0 / 0 / 0 / 10
+[sensitivity/250kbps]   Outcomes: delivered 4000;
+[sensitivity/250kbps]   Topology: 101 steps applied, 369462 Delay writes, 63 link-down and 0 link-up events
+[sensitivity/250kbps]   Wall time: load 0.13 s, build 0.68 s, run 0.56 s, write 0.02 s, total 1.43 s; peak RSS 138.41 MiB
+[sensitivity/250kbps]   chronoroute-leo: FAIL
+[sensitivity/250kbps] expected self-check failure only: ['the fault made probes late']
+deviation policy: configured 'continue', effective at every node: ['continue']
+analysis: loading the bundle and the packets
+[sensitivity/1Mbps] detection: crossed 600, flagged 0 (rate 0.0), lost in its queue 0
+[sensitivity/500kbps] detection: crossed 600, flagged 0 (rate 0.0), lost in its queue 0
+[sensitivity/250kbps] detection: crossed 600, flagged 0 (rate 0.0), lost in its queue 0
+[nofault] check_pcap.sh: exit 0; check_pcap: /home/aeehprrst/chronoroute/results/course-milestone/c5-463-10s-small-seed1.staging/nofault/capture.pcap: 7000 T-CRH frames, 0 invalid, 0 with DEV, 0 late at capture, 0 quoted in ICMPv6 errors (not counted)
+[fault] check_pcap.sh: exit 0; check_pcap: /home/aeehprrst/chronoroute/results/course-milestone/c5-463-10s-small-seed1.staging/fault/capture.pcap: 7000 T-CRH frames, 0 invalid, 898 with DEV, 1453 late at capture, 0 quoted in ICMPv6 errors (not counted)
+
+Per-flow summary [traffic, link rate, queues, fault MODELLED; positions REAL; routes DERIVED]:
+    run  flow_id        src        dst  sent  delivered     pdr  latency_p50_ms  latency_p99_ms  drop_link_down  drop_iface_down  drop_queue  flagged_frac_before  flagged_frac_during  flagged_frac_after
+nofault        0    Chennai     London  1000       1000  1.0000         31.5327         31.6007               0                0           0               0.0000               0.0000              0.0000
+nofault        1  Singapore     London  1000       1000  1.0000         42.0029         42.0325               0                0           0               0.0000               0.0000              0.0000
+nofault        2     London    Chennai  1000       1000  1.0000         31.5324         31.6005               0                0           0               0.0000               0.0000              0.0000
+nofault        3     London  Singapore  1000       1000  1.0000         42.0029         42.0325               0                0           0               0.0000               0.0000              0.0000
+  fault        0    Chennai     London  1000       1000  1.0000         31.5742        441.5535               0                0           0               0.0050               0.9933              0.0000
+  fault        1  Singapore     London  1000       1000  1.0000         42.0029         42.0325               0                0           0               0.0000               0.0000              0.0000
+  fault        2     London    Chennai  1000       1000  1.0000         31.5728        441.4975               0                0           0               0.0000               0.9933              0.0000
+  fault        3     London  Singapore  1000       1000  1.0000         42.0029         42.0325               0                0           0               0.0000               0.0000              0.0000
+
+Detection: {"baseline_false_alarm_rate": 0.0, "baseline_flagged": 0, "baseline_same_probes_crossed_no_fault": 600, "baseline_same_probes_no_fault": 600, "detection_rate": 0.9966666666666667, "false_alarms_no_fault_run_all_probes": 0, "fault_link": {"chosen_by": "ChooseFaultIsl rule", "enabled": true, "extra_delay_ns": 0, "flow": 0, "isl_id": 4478, "name_a": "STARLINK-35318", "name_b": "STARLINK-35575", "node_a": 1998, "node_b": 2017, "rate": "200kbps", "sid_a": 8204, "sid_b": 8223, "start_ms": 4000, "stop_ms": 7000}, "fault_window_ns": [4000000000, 7000000000], "first_detection_after_fault_start_ms": 17.115889, "flagged_late": 598, "flagged_without_crossing_in_fault_run": 0, "late_margin_units_at_detection": {"max": -5.0, "min": -4134.0, "p50": -2057.0, "p99": -37.0}, "probes_crossing_slowed_link": 600, "probes_entering_slowed_link": 600, "probes_lost_in_its_queue": 0}
+Detection per flow: {"0": {"crossed": 300, "flagged": 300}, "2": {"crossed": 300, "flagged": 298}}
+Detection by fault rate (sensitivity.json): 200kbps: 598/600 flagged, 0 lost in its queue; 1Mbps: 0/600 flagged, 0 lost in its queue; 500kbps: 0/600 flagged, 0 lost in its queue; 250kbps: 0/600 flagged, 0 lost in its queue
+Deadline margins of on-time probes, no-fault run (margins.json): {"final_hop_margin_ms": {"max": 30.1, "min": 21.8, "p50": 21.9, "p99": 30.1}, "final_hop_margin_units": {"max": 301.0, "min": 218.0, "p50": 219.0, "p99": 301.0}, "hop_of_min_margin": {"1": 4000}, "min_hop_margin_ms": {"max": 2.0, "min": 1.7, "p50": 1.7, "p99": 2.0}, "min_hop_margin_units": {"max": 20.0, "min": 17.0, "p50": 17.0, "p99": 20.0}, "note": "deadline minus the node's unit clock at arrival, on-time delivered probes only", "probes": 4000, "unit_ns": 100000}
+Link-down losses by dead link: {"fault": {}, "nofault": {}}
+
+E16-lite cross-check, no-fault run: 4000/4000 paths identical, 4000 outcomes identical, 4000 with identical per-hop time/clock/deadline; latency - light time (ns) {'min': 18560.0, 'p50': 18560.0, 'p99': 28608.0, 'max': 28608.0}; residual after serialization (ns) {'min': 0.0, 'p50': 0.0, 'p99': 0.0, 'max': 0.0} (zero 4000, positive 0, negative 0); held vs interpolated light time per hop (ns) {'min': 0.0, 'p50': 0.0, 'p99': 1285.7613504, 'max': 1630.8655272}
+E16-lite cross-check, fault run, slowed-link probes left out: 3200/3200 paths identical, 3200 outcomes identical, 3200 with identical per-hop time/clock/deadline; latency - light time (ns) {'min': 18560.0, 'p50': 28608.0, 'p99': 28608.0, 'max': 28608.0}; residual after serialization (ns) {'min': 0.0, 'p50': 0.0, 'p99': 0.0, 'max': 0.0} (zero 3200, positive 0, negative 0); held vs interpolated light time per hop (ns) {'min': 0.0, 'p50': 0.0, 'p99': 1186.54819278, 'max': 1630.8655272}
+Slice run vs full fault run (same probes): {'probes': 600, 'path_identical': 600, 'latency_identical': 600}
+pcap: {"fault": {"capture_nodes": [2847, 2017, 1998, 2022], "check_pcap": {"T-CRH frames": 7000, "invalid": 0, "late at capture": 1453, "quoted in ICMPv6 errors (not counted)": 0, "with DEV": 898}, "check_pcap_exit": 0, "semantics": {"dev_frames_in_fault_window": 898, "dev_frames_outside_fault_window": 0, "frames": 7000, "linktype": 9, "nanosecond": true, "non_probe_frames": 0, "probes": 2000, "probes_seen_at_2plus_nodes": 2000, "probes_with_sl_not_strictly_decreasing": 0}}, "nofault": {"capture_nodes": [2847, 2017, 1998, 2022], "check_pcap": {"T-CRH frames": 7000, "invalid": 0, "late at capture": 0, "quoted in ICMPv6 errors (not counted)": 0, "with DEV": 0}, "check_pcap_exit": 0, "semantics": {"dev_frames_in_fault_window": 0, "dev_frames_outside_fault_window": 0, "frames": 7000, "linktype": 9, "nanosecond": true, "non_probe_frames": 0, "probes": 2000, "probes_seen_at_2plus_nodes": 2000, "probes_with_sl_not_strictly_decreasing": 0}}}
+NetAnim slice: {'bytes': 2953916, 'node_elements': 202, 'link_elements': 372, 'packet_elements': 4800, 'packets_with_tcrh_metadata': 4800, 'packets_with_dev_in_metadata': 1200, 'position_updates': 1818, 'link_description_updates': 22, 'nodes_turned_red_for_deviation': [141]}
+Resources: {'nofault': {'wall_s': 1.66, 'peak_rss_kb': 141476, 'program_peak_rss_kb': 141752}, 'fault': {'wall_s': 1.73, 'peak_rss_kb': 141728, 'program_peak_rss_kb': 141908}, 'anim': {'wall_s': 0.55, 'peak_rss_kb': 63900, 'program_peak_rss_kb': 64180}, 'sensitivity/1Mbps': {'wall_s': 1.57, 'peak_rss_kb': 141924, 'program_peak_rss_kb': 141988}, 'sensitivity/500kbps': {'wall_s': 1.61, 'peak_rss_kb': 141632, 'program_peak_rss_kb': 141696}, 'sensitivity/250kbps': {'wall_s': 1.62, 'peak_rss_kb': 141528, 'program_peak_rss_kb': 141736}}

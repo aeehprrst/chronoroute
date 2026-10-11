@@ -1,0 +1,32 @@
+{
+  "final_hop_margin_ms": {
+    "max": 56.6,
+    "min": 18.3,
+    "p50": 35.9,
+    "p99": 56.5
+  },
+  "final_hop_margin_units": {
+    "max": 566.0,
+    "min": 183.0,
+    "p50": 359.0,
+    "p99": 565.0
+  },
+  "hop_of_min_margin": {
+    "1": 60000
+  },
+  "min_hop_margin_ms": {
+    "max": 2.4,
+    "min": 1.6,
+    "p50": 1.9,
+    "p99": 2.3
+  },
+  "min_hop_margin_units": {
+    "max": 24.0,
+    "min": 16.0,
+    "p50": 19.0,
+    "p99": 23.0
+  },
+  "note": "deadline minus the node's unit clock at arrival, on-time delivered probes only",
+  "probes": 60000,
+  "unit_ns": 100000
+}

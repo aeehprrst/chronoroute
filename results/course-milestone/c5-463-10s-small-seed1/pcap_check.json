@@ -1,0 +1,56 @@
+{
+  "fault": {
+    "capture_nodes": [
+      2847,
+      2017,
+      1998,
+      2022
+    ],
+    "check_pcap": {
+      "T-CRH frames": 7000,
+      "invalid": 0,
+      "late at capture": 1453,
+      "quoted in ICMPv6 errors (not counted)": 0,
+      "with DEV": 898
+    },
+    "check_pcap_exit": 0,
+    "semantics": {
+      "dev_frames_in_fault_window": 898,
+      "dev_frames_outside_fault_window": 0,
+      "frames": 7000,
+      "linktype": 9,
+      "nanosecond": true,
+      "non_probe_frames": 0,
+      "probes": 2000,
+      "probes_seen_at_2plus_nodes": 2000,
+      "probes_with_sl_not_strictly_decreasing": 0
+    }
+  },
+  "nofault": {
+    "capture_nodes": [
+      2847,
+      2017,
+      1998,
+      2022
+    ],
+    "check_pcap": {
+      "T-CRH frames": 7000,
+      "invalid": 0,
+      "late at capture": 0,
+      "quoted in ICMPv6 errors (not counted)": 0,
+      "with DEV": 0
+    },
+    "check_pcap_exit": 0,
+    "semantics": {
+      "dev_frames_in_fault_window": 0,
+      "dev_frames_outside_fault_window": 0,
+      "frames": 7000,
+      "linktype": 9,
+      "nanosecond": true,
+      "non_probe_frames": 0,
+      "probes": 2000,
+      "probes_seen_at_2plus_nodes": 2000,
+      "probes_with_sl_not_strictly_decreasing": 0
+    }
+  }
+}

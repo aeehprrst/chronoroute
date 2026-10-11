@@ -1,0 +1,238 @@
+bundle: cr export bundle --snapshot data/pinned/20261010T1358Z-celestrak --shell 53.2deg-463km --cities Chennai,Mumbai,London,New York,Singapore,Sydney,Tokyo,Johannesburg,Sao Paulo,Frankfurt --start 2026-10-10T14:00:00Z --duration-s 60 --flow Chennai->London --flow New York->Sydney --flow Sao Paulo->Tokyo --flow Mumbai->Frankfurt --flow Singapore->Johannesburg --reverse --refresh-ms 1000 --out /tmp/cr-bundles/c5-463-60s
+[bundle] bundle /tmp/cr-bundles/c5-463-60s
+[bundle]   snapshot 20261010T1358Z-celestrak (CelesTrak SupGP); shell 53.2deg-463km: 2847 satellites in planes (272 off-grid left out), 10 ground stations
+[bundle]   window 60000 ms from 2026-10-10T14:00:00Z, 601 steps of 100 ms; 5361 ISL pairs (MODELLED Grid-4), 205 ground-link pairs ever visible
+[bundle]   models: ground links sticky_top_k [MODELLED], planning stable, laser range limit none (80 km rule only)
+[bundle]   flows 10, schedule rows 600, gaps (no path) 0
+[bundle]   invariants all ok: True (ISL min height 139.3 km, longest up ISL 4112.9 km, GSL min elevation 25.00 deg, max ISL degree 4, min light time / great circle 1.1116149763431635)
+[bundle]   schedule rows whose path loses a link while in use: 0 of 600 (must be 0)
+[bundle]     nodes.csv             160,295 B  (156.5 KB)
+[bundle]     isl.csv               107,281 B  (104.8 KB)
+[bundle]     isl_delay.csv      65,456,394 B  (62.4 MB)
+[bundle]     gsl.csv             3,866,155 B  (3.7 MB)
+[bundle]     positions.csv       8,276,952 B  (7.9 MB)
+[bundle]     schedule.csv          318,448 B  (311.0 KB)
+[bundle]     scenario.json           8,166 B  (8.0 KB)
+[bundle]     manifest.json           4,827 B  (4.7 KB)
+[bundle]     total              78,198,518 B  (74.6 MB)
+[bundle]   time: build 13.0 s, write 1.7 s, total 17.6 s
+[bundle]   check_bundle: OK (headers, row counts, order, SIDs, T-CRH templates re-built)
+run_leo: bundle /tmp/cr-bundles/c5-463-60s (2847 satellites, 10 ground stations, 60000 ms), run id c5-463-60s-seed1
+binary: /home/aeehprrst/ns-3-dev/build/contrib/chronoroute/examples/ns3.44-chronoroute-leo-default (sha256 7d831f979ca24614...)
+[nofault] /home/aeehprrst/ns-3-dev/build/contrib/chronoroute/examples/ns3.44-chronoroute-leo-default --bundle=/tmp/cr-bundles/c5-463-60s --seed=1 --faultFlow=0 --faultStartMs=20000 --faultDurationMs=20000 --faultRate=200kbps --policy=continue --probeRate=100 --payload=200 --dataRate=1Gbps --queueSize=100p --fault=0 --pcap=1 --outDir=/home/aeehprrst/chronoroute/results/course-milestone/c5-463-60s-seed1.staging/nofault
+[nofault] exit 0, wall 16.1 s, peak RSS 194 MiB
+[nofault]   chronoroute-leo: bundle /tmp/cr-bundles/c5-463-60s
+[nofault]   built 2857 nodes (2847 satellites), 5361 laser links + 205 ground links, 1 link = stock PointToPointChannel, 1Gbps, DropTail 100p [MODELLED]; build 0.65 s
+[nofault]   fault link: ISL 4478 (STARLINK-35318 <-> STARLINK-35575, intra-plane), on flow 0's path at 20000 ms; NOT slowed (paired no-fault run)
+[nofault]   flows 10, 60000 probes (100/s x 200 B payload) in [0, 60000) ms; policy continue; stop at 62000 ms
+[nofault]   [ok] every schedule row's T-CRH template rebuilt byte-identical in C++ (Bundle::Load)
+[nofault]   [ok] every probe has exactly one final outcome
+[nofault]   [ok] no routing-header event or reception of a non-probe packet
+[nofault]   [ok] transit satellites delivered 0 packets to UDP
+[nofault]   [ok] every delivered probe took exactly its planned path
+[nofault]   [ok] every probe's Epoch_Base = ceil((t0_gps + send) / u) mod 2^32
+[nofault]   [ok] no deadline miss after a probe had already ended
+[nofault]   [ok] ns-3 node id == bundle node id for every node
+[nofault]   [ok] no probe was late without a fault
+[nofault]   flow  0       Chennai -> London        6000 / 6000 / 0 / 0 / 0 / 60
+[nofault]   flow  1      New York -> Sydney        6000 / 6000 / 0 / 0 / 0 / 60
+[nofault]   flow  2     Sao Paulo -> Tokyo         6000 / 6000 / 0 / 0 / 0 / 60
+[nofault]   flow  3        Mumbai -> Frankfurt     6000 / 6000 / 0 / 0 / 0 / 60
+[nofault]   flow  4     Singapore -> Johannesburg  6000 / 6000 / 0 / 0 / 0 / 60
+[nofault]   flow  5        London -> Chennai       6000 / 6000 / 0 / 0 / 0 / 60
+[nofault]   flow  6        Sydney -> New York      6000 / 6000 / 0 / 0 / 0 / 60
+[nofault]   flow  7         Tokyo -> Sao Paulo     6000 / 6000 / 0 / 0 / 0 / 60
+[nofault]   flow  8     Frankfurt -> Mumbai        6000 / 6000 / 0 / 0 / 0 / 60
+[nofault]   flow  9  Johannesburg -> Singapore     6000 / 6000 / 0 / 0 / 0 / 60
+[nofault]   Outcomes: delivered 60000;
+[nofault]   Topology: 601 steps applied, 2282353 Delay writes, 195 link-down and 5 link-up events
+[nofault]   pcap: /home/aeehprrst/chronoroute/results/course-milestone/c5-463-60s-seed1.staging/nofault/capture.pcap, 42000 frames from nodes 2847 2017 1998 2022
+[nofault]   Wall time: load 0.79 s, build 0.65 s, run 13.91 s, write 0.45 s, total 15.89 s; peak RSS 194.26 MiB
+[nofault]   chronoroute-leo: PASS
+[fault] /home/aeehprrst/ns-3-dev/build/contrib/chronoroute/examples/ns3.44-chronoroute-leo-default --bundle=/tmp/cr-bundles/c5-463-60s --seed=1 --faultFlow=0 --faultStartMs=20000 --faultDurationMs=20000 --faultRate=200kbps --policy=continue --probeRate=100 --payload=200 --dataRate=1Gbps --queueSize=100p --fault=1 --pcap=1 --outDir=/home/aeehprrst/chronoroute/results/course-milestone/c5-463-60s-seed1.staging/fault
+[fault] exit 0, wall 16.7 s, peak RSS 194 MiB
+[fault]   chronoroute-leo: bundle /tmp/cr-bundles/c5-463-60s
+[fault]   built 2857 nodes (2847 satellites), 5361 laser links + 205 ground links, 1 link = stock PointToPointChannel, 1Gbps, DropTail 100p [MODELLED]; build 0.70 s
+[fault]   fault link: ISL 4478 (STARLINK-35318 <-> STARLINK-35575, intra-plane), on flow 0's path at 20000 ms; slowed to 200kbps
+[fault]   flows 10, 60000 probes (100/s x 200 B payload) in [0, 60000) ms; policy continue; stop at 62000 ms
+[fault]   [ok] every schedule row's T-CRH template rebuilt byte-identical in C++ (Bundle::Load)
+[fault]   [ok] every probe has exactly one final outcome
+[fault]   [ok] no routing-header event or reception of a non-probe packet
+[fault]   [ok] transit satellites delivered 0 packets to UDP
+[fault]   [ok] every delivered probe took exactly its planned path
+[fault]   [ok] every probe's Epoch_Base = ceil((t0_gps + send) / u) mod 2^32
+[fault]   [ok] no deadline miss after a probe had already ended
+[fault]   [ok] ns-3 node id == bundle node id for every node
+[fault]   [ok] the fault made probes late
+[fault]   [ok] every late probe crossed the slowed link and was caught at its far end
+[fault]   flow  0       Chennai -> London        6000 / 5823 / 1824 / 0 / 177 / 60
+[fault]   flow  1      New York -> Sydney        6000 / 6000 / 0 / 0 / 0 / 60
+[fault]   flow  2     Sao Paulo -> Tokyo         6000 / 6000 / 0 / 0 / 0 / 60
+[fault]   flow  3        Mumbai -> Frankfurt     6000 / 6000 / 0 / 0 / 0 / 60
+[fault]   flow  4     Singapore -> Johannesburg  6000 / 6000 / 0 / 0 / 0 / 60
+[fault]   flow  5        London -> Chennai       6000 / 5824 / 1821 / 0 / 176 / 60
+[fault]   flow  6        Sydney -> New York      6000 / 6000 / 0 / 0 / 0 / 60
+[fault]   flow  7         Tokyo -> Sao Paulo     6000 / 6000 / 0 / 0 / 0 / 60
+[fault]   flow  8     Frankfurt -> Mumbai        6000 / 6000 / 0 / 0 / 0 / 60
+[fault]   flow  9  Johannesburg -> Singapore     6000 / 6000 / 0 / 0 / 0 / 60
+[fault]   Outcomes: delivered 59647; drop_queue 353;
+[fault]   Topology: 601 steps applied, 2282353 Delay writes, 195 link-down and 5 link-up events
+[fault]   pcap: /home/aeehprrst/chronoroute/results/course-milestone/c5-463-60s-seed1.staging/fault/capture.pcap, 41117 frames from nodes 2847 2017 1998 2022
+[fault]   Wall time: load 0.80 s, build 0.70 s, run 14.44 s, write 0.44 s, total 16.46 s; peak RSS 194.46 MiB
+[fault]   chronoroute-leo: PASS
+[anim] /home/aeehprrst/ns-3-dev/build/contrib/chronoroute/examples/ns3.44-chronoroute-leo-default --bundle=/tmp/cr-bundles/c5-463-60s --seed=1 --faultFlow=0 --faultStartMs=20000 --faultDurationMs=20000 --faultRate=200kbps --policy=continue --probeRate=100 --payload=200 --dataRate=1Gbps --queueSize=100p --fault=1 --pcap=0 --anim=1 --animMaxSats=200 --animFromMs=18000 --animToMs=24000 --outDir=/home/aeehprrst/chronoroute/results/course-milestone/c5-463-60s-seed1.staging/anim
+[anim] exit 0, wall 1.2 s, peak RSS 79 MiB
+[anim]   chronoroute-leo: bundle /tmp/cr-bundles/c5-463-60s
+[anim]   built 202 nodes (200 satellites), 348 laser links + 26 ground links, 1 link = stock PointToPointChannel, 1Gbps, DropTail 100p [MODELLED]; build 0.05 s
+[anim]   fault link: ISL 4478 (STARLINK-35318 <-> STARLINK-35575, intra-plane), on flow 0's path at 20000 ms; slowed to 200kbps
+[anim]   flows 1, 600 probes (100/s x 200 B payload) in [18000, 24000) ms; policy continue; stop at 26000 ms
+[anim]   [ok] every schedule row's T-CRH template rebuilt byte-identical in C++ (Bundle::Load)
+[anim]   [ok] every probe has exactly one final outcome
+[anim]   [ok] no routing-header event or reception of a non-probe packet
+[anim]   [ok] transit satellites delivered 0 packets to UDP
+[anim]   [ok] every delivered probe took exactly its planned path
+[anim]   [ok] every probe's Epoch_Base = ceil((t0_gps + send) / u) mod 2^32
+[anim]   [ok] no deadline miss after a probe had already ended
+[anim]   [ok] the fault made probes late
+[anim]   [ok] every late probe crossed the slowed link and was caught at its far end
+[anim]   flow  0       Chennai -> London        600 / 600 / 402 / 0 / 0 / 6
+[anim]   Outcomes: delivered 600;
+[anim]   Topology: 261 steps applied, 62018 Delay writes, 22 link-down and 0 link-up events
+[anim]   Wall time: load 0.88 s, build 0.05 s, run 0.16 s, write 0.01 s, total 1.17 s; peak RSS 79.55 MiB
+[anim]   chronoroute-leo: PASS
+[sensitivity/1Mbps] /home/aeehprrst/ns-3-dev/build/contrib/chronoroute/examples/ns3.44-chronoroute-leo-default --bundle=/tmp/cr-bundles/c5-463-60s --seed=1 --faultFlow=0 --faultStartMs=20000 --faultDurationMs=20000 --faultRate=1Mbps --policy=continue --probeRate=100 --payload=200 --dataRate=1Gbps --queueSize=100p --fault=1 --pcap=0 --outDir=/home/aeehprrst/chronoroute/results/course-milestone/c5-463-60s-seed1.staging/sensitivity/1Mbps
+[sensitivity/1Mbps] exit 1, wall 15.7 s, peak RSS 194 MiB
+[sensitivity/1Mbps]   chronoroute-leo: bundle /tmp/cr-bundles/c5-463-60s
+[sensitivity/1Mbps]   built 2857 nodes (2847 satellites), 5361 laser links + 205 ground links, 1 link = stock PointToPointChannel, 1Gbps, DropTail 100p [MODELLED]; build 0.69 s
+[sensitivity/1Mbps]   fault link: ISL 4478 (STARLINK-35318 <-> STARLINK-35575, intra-plane), on flow 0's path at 20000 ms; slowed to 1Mbps
+[sensitivity/1Mbps]   flows 10, 60000 probes (100/s x 200 B payload) in [0, 60000) ms; policy continue; stop at 62000 ms
+[sensitivity/1Mbps]   [ok] every schedule row's T-CRH template rebuilt byte-identical in C++ (Bundle::Load)
+[sensitivity/1Mbps]   [ok] every probe has exactly one final outcome
+[sensitivity/1Mbps]   [ok] no routing-header event or reception of a non-probe packet
+[sensitivity/1Mbps]   [ok] transit satellites delivered 0 packets to UDP
+[sensitivity/1Mbps]   [ok] every delivered probe took exactly its planned path
+[sensitivity/1Mbps]   [ok] every probe's Epoch_Base = ceil((t0_gps + send) / u) mod 2^32
+[sensitivity/1Mbps]   [ok] no deadline miss after a probe had already ended
+[sensitivity/1Mbps]   [ok] ns-3 node id == bundle node id for every node
+[sensitivity/1Mbps]   [FAIL] the fault made probes late
+[sensitivity/1Mbps]   [ok] every late probe crossed the slowed link and was caught at its far end
+[sensitivity/1Mbps]   flow  0       Chennai -> London        6000 / 6000 / 0 / 0 / 0 / 60
+[sensitivity/1Mbps]   flow  1      New York -> Sydney        6000 / 6000 / 0 / 0 / 0 / 60
+[sensitivity/1Mbps]   flow  2     Sao Paulo -> Tokyo         6000 / 6000 / 0 / 0 / 0 / 60
+[sensitivity/1Mbps]   flow  3        Mumbai -> Frankfurt     6000 / 6000 / 0 / 0 / 0 / 60
+[sensitivity/1Mbps]   flow  4     Singapore -> Johannesburg  6000 / 6000 / 0 / 0 / 0 / 60
+[sensitivity/1Mbps]   flow  5        London -> Chennai       6000 / 6000 / 0 / 0 / 0 / 60
+[sensitivity/1Mbps]   flow  6        Sydney -> New York      6000 / 6000 / 0 / 0 / 0 / 60
+[sensitivity/1Mbps]   flow  7         Tokyo -> Sao Paulo     6000 / 6000 / 0 / 0 / 0 / 60
+[sensitivity/1Mbps]   flow  8     Frankfurt -> Mumbai        6000 / 6000 / 0 / 0 / 0 / 60
+[sensitivity/1Mbps]   flow  9  Johannesburg -> Singapore     6000 / 6000 / 0 / 0 / 0 / 60
+[sensitivity/1Mbps]   Outcomes: delivered 60000;
+[sensitivity/1Mbps]   Topology: 601 steps applied, 2282353 Delay writes, 195 link-down and 5 link-up events
+[sensitivity/1Mbps]   Wall time: load 0.82 s, build 0.69 s, run 13.53 s, write 0.43 s, total 15.56 s; peak RSS 194.29 MiB
+[sensitivity/1Mbps]   chronoroute-leo: FAIL
+[sensitivity/1Mbps] expected self-check failure only: ['the fault made probes late']
+[sensitivity/500kbps] /home/aeehprrst/ns-3-dev/build/contrib/chronoroute/examples/ns3.44-chronoroute-leo-default --bundle=/tmp/cr-bundles/c5-463-60s --seed=1 --faultFlow=0 --faultStartMs=20000 --faultDurationMs=20000 --faultRate=500kbps --policy=continue --probeRate=100 --payload=200 --dataRate=1Gbps --queueSize=100p --fault=1 --pcap=0 --outDir=/home/aeehprrst/chronoroute/results/course-milestone/c5-463-60s-seed1.staging/sensitivity/500kbps
+[sensitivity/500kbps] exit 1, wall 15.4 s, peak RSS 194 MiB
+[sensitivity/500kbps]   chronoroute-leo: bundle /tmp/cr-bundles/c5-463-60s
+[sensitivity/500kbps]   built 2857 nodes (2847 satellites), 5361 laser links + 205 ground links, 1 link = stock PointToPointChannel, 1Gbps, DropTail 100p [MODELLED]; build 0.63 s
+[sensitivity/500kbps]   fault link: ISL 4478 (STARLINK-35318 <-> STARLINK-35575, intra-plane), on flow 0's path at 20000 ms; slowed to 500kbps
+[sensitivity/500kbps]   flows 10, 60000 probes (100/s x 200 B payload) in [0, 60000) ms; policy continue; stop at 62000 ms
+[sensitivity/500kbps]   [ok] every schedule row's T-CRH template rebuilt byte-identical in C++ (Bundle::Load)
+[sensitivity/500kbps]   [ok] every probe has exactly one final outcome
+[sensitivity/500kbps]   [ok] no routing-header event or reception of a non-probe packet
+[sensitivity/500kbps]   [ok] transit satellites delivered 0 packets to UDP
+[sensitivity/500kbps]   [ok] every delivered probe took exactly its planned path
+[sensitivity/500kbps]   [ok] every probe's Epoch_Base = ceil((t0_gps + send) / u) mod 2^32
+[sensitivity/500kbps]   [ok] no deadline miss after a probe had already ended
+[sensitivity/500kbps]   [ok] ns-3 node id == bundle node id for every node
+[sensitivity/500kbps]   [FAIL] the fault made probes late
+[sensitivity/500kbps]   [ok] every late probe crossed the slowed link and was caught at its far end
+[sensitivity/500kbps]   flow  0       Chennai -> London        6000 / 6000 / 0 / 0 / 0 / 60
+[sensitivity/500kbps]   flow  1      New York -> Sydney        6000 / 6000 / 0 / 0 / 0 / 60
+[sensitivity/500kbps]   flow  2     Sao Paulo -> Tokyo         6000 / 6000 / 0 / 0 / 0 / 60
+[sensitivity/500kbps]   flow  3        Mumbai -> Frankfurt     6000 / 6000 / 0 / 0 / 0 / 60
+[sensitivity/500kbps]   flow  4     Singapore -> Johannesburg  6000 / 6000 / 0 / 0 / 0 / 60
+[sensitivity/500kbps]   flow  5        London -> Chennai       6000 / 6000 / 0 / 0 / 0 / 60
+[sensitivity/500kbps]   flow  6        Sydney -> New York      6000 / 6000 / 0 / 0 / 0 / 60
+[sensitivity/500kbps]   flow  7         Tokyo -> Sao Paulo     6000 / 6000 / 0 / 0 / 0 / 60
+[sensitivity/500kbps]   flow  8     Frankfurt -> Mumbai        6000 / 6000 / 0 / 0 / 0 / 60
+[sensitivity/500kbps]   flow  9  Johannesburg -> Singapore     6000 / 6000 / 0 / 0 / 0 / 60
+[sensitivity/500kbps]   Outcomes: delivered 60000;
+[sensitivity/500kbps]   Topology: 601 steps applied, 2282353 Delay writes, 195 link-down and 5 link-up events
+[sensitivity/500kbps]   Wall time: load 0.78 s, build 0.63 s, run 13.29 s, write 0.44 s, total 15.22 s; peak RSS 194.10 MiB
+[sensitivity/500kbps]   chronoroute-leo: FAIL
+[sensitivity/500kbps] expected self-check failure only: ['the fault made probes late']
+[sensitivity/250kbps] /home/aeehprrst/ns-3-dev/build/contrib/chronoroute/examples/ns3.44-chronoroute-leo-default --bundle=/tmp/cr-bundles/c5-463-60s --seed=1 --faultFlow=0 --faultStartMs=20000 --faultDurationMs=20000 --faultRate=250kbps --policy=continue --probeRate=100 --payload=200 --dataRate=1Gbps --queueSize=100p --fault=1 --pcap=0 --outDir=/home/aeehprrst/chronoroute/results/course-milestone/c5-463-60s-seed1.staging/sensitivity/250kbps
+[sensitivity/250kbps] exit 1, wall 15.3 s, peak RSS 194 MiB
+[sensitivity/250kbps]   chronoroute-leo: bundle /tmp/cr-bundles/c5-463-60s
+[sensitivity/250kbps]   built 2857 nodes (2847 satellites), 5361 laser links + 205 ground links, 1 link = stock PointToPointChannel, 1Gbps, DropTail 100p [MODELLED]; build 0.66 s
+[sensitivity/250kbps]   fault link: ISL 4478 (STARLINK-35318 <-> STARLINK-35575, intra-plane), on flow 0's path at 20000 ms; slowed to 250kbps
+[sensitivity/250kbps]   flows 10, 60000 probes (100/s x 200 B payload) in [0, 60000) ms; policy continue; stop at 62000 ms
+[sensitivity/250kbps]   [ok] every schedule row's T-CRH template rebuilt byte-identical in C++ (Bundle::Load)
+[sensitivity/250kbps]   [ok] every probe has exactly one final outcome
+[sensitivity/250kbps]   [ok] no routing-header event or reception of a non-probe packet
+[sensitivity/250kbps]   [ok] transit satellites delivered 0 packets to UDP
+[sensitivity/250kbps]   [ok] every delivered probe took exactly its planned path
+[sensitivity/250kbps]   [ok] every probe's Epoch_Base = ceil((t0_gps + send) / u) mod 2^32
+[sensitivity/250kbps]   [ok] no deadline miss after a probe had already ended
+[sensitivity/250kbps]   [ok] ns-3 node id == bundle node id for every node
+[sensitivity/250kbps]   [FAIL] the fault made probes late
+[sensitivity/250kbps]   [ok] every late probe crossed the slowed link and was caught at its far end
+[sensitivity/250kbps]   flow  0       Chennai -> London        6000 / 6000 / 0 / 0 / 0 / 60
+[sensitivity/250kbps]   flow  1      New York -> Sydney        6000 / 6000 / 0 / 0 / 0 / 60
+[sensitivity/250kbps]   flow  2     Sao Paulo -> Tokyo         6000 / 6000 / 0 / 0 / 0 / 60
+[sensitivity/250kbps]   flow  3        Mumbai -> Frankfurt     6000 / 6000 / 0 / 0 / 0 / 60
+[sensitivity/250kbps]   flow  4     Singapore -> Johannesburg  6000 / 6000 / 0 / 0 / 0 / 60
+[sensitivity/250kbps]   flow  5        London -> Chennai       6000 / 6000 / 0 / 0 / 0 / 60
+[sensitivity/250kbps]   flow  6        Sydney -> New York      6000 / 6000 / 0 / 0 / 0 / 60
+[sensitivity/250kbps]   flow  7         Tokyo -> Sao Paulo     6000 / 6000 / 0 / 0 / 0 / 60
+[sensitivity/250kbps]   flow  8     Frankfurt -> Mumbai        6000 / 6000 / 0 / 0 / 0 / 60
+[sensitivity/250kbps]   flow  9  Johannesburg -> Singapore     6000 / 6000 / 0 / 0 / 0 / 60
+[sensitivity/250kbps]   Outcomes: delivered 60000;
+[sensitivity/250kbps]   Topology: 601 steps applied, 2282353 Delay writes, 195 link-down and 5 link-up events
+[sensitivity/250kbps]   Wall time: load 0.79 s, build 0.66 s, run 13.20 s, write 0.39 s, total 15.14 s; peak RSS 194.30 MiB
+[sensitivity/250kbps]   chronoroute-leo: FAIL
+[sensitivity/250kbps] expected self-check failure only: ['the fault made probes late']
+deviation policy: configured 'continue', effective at every node: ['continue']
+analysis: loading the bundle and the packets
+[sensitivity/1Mbps] detection: crossed 4000, flagged 0 (rate 0.0), lost in its queue 0
+[sensitivity/500kbps] detection: crossed 4000, flagged 0 (rate 0.0), lost in its queue 0
+[sensitivity/250kbps] detection: crossed 4000, flagged 0 (rate 0.0), lost in its queue 0
+[nofault] check_pcap.sh: exit 0; check_pcap: /home/aeehprrst/chronoroute/results/course-milestone/c5-463-60s-seed1.staging/nofault/capture.pcap: 42000 T-CRH frames, 0 invalid, 0 with DEV, 0 late at capture, 0 quoted in ICMPv6 errors (not counted)
+[fault] check_pcap.sh: exit 0; check_pcap: /home/aeehprrst/chronoroute/results/course-milestone/c5-463-60s-seed1.staging/fault/capture.pcap: 41117 T-CRH frames, 0 invalid, 5469 with DEV, 9073 late at capture, 0 quoted in ICMPv6 errors (not counted)
+
+Per-flow summary [traffic, link rate, queues, fault MODELLED; positions REAL; routes DERIVED]:
+    run  flow_id           src           dst  sent  delivered     pdr  latency_p50_ms  latency_p99_ms  drop_link_down  drop_iface_down  drop_queue  flagged_frac_before  flagged_frac_during  flagged_frac_after
+nofault        0       Chennai        London  6000       6000  1.0000         31.4200         31.5932               0                0           0               0.0000               0.0000              0.0000
+nofault        1      New York        Sydney  6000       6000  1.0000         76.6049         77.0034               0                0           0               0.0000               0.0000              0.0000
+nofault        2     Sao Paulo         Tokyo  6000       6000  1.0000         68.9158         69.2003               0                0           0               0.0000               0.0000              0.0000
+nofault        3        Mumbai     Frankfurt  6000       6000  1.0000         27.2871         27.5180               0                0           0               0.0000               0.0000              0.0000
+nofault        4     Singapore  Johannesburg  6000       6000  1.0000         46.0770         46.6619               0                0           0               0.0000               0.0000              0.0000
+nofault        5        London       Chennai  6000       6000  1.0000         31.4197         31.5931               0                0           0               0.0000               0.0000              0.0000
+nofault        6        Sydney      New York  6000       6000  1.0000         76.6039         77.0023               0                0           0               0.0000               0.0000              0.0000
+nofault        7         Tokyo     Sao Paulo  6000       6000  1.0000         68.9146         69.1990               0                0           0               0.0000               0.0000              0.0000
+nofault        8     Frankfurt        Mumbai  6000       6000  1.0000         27.2866         27.5173               0                0           0               0.0000               0.0000              0.0000
+nofault        9  Johannesburg     Singapore  6000       6000  1.0000         46.0775         46.6622               0                0           0               0.0000               0.0000              0.0000
+  fault        0       Chennai        London  6000       5823  0.9705         31.5146       1202.3263               0                0         177               0.0010               0.9995              0.0000
+  fault        1      New York        Sydney  6000       6000  1.0000         76.6049         77.0034               0                0           0               0.0000               0.0000              0.0000
+  fault        2     Sao Paulo         Tokyo  6000       6000  1.0000         68.9158         69.2003               0                0           0               0.0000               0.0000              0.0000
+  fault        3        Mumbai     Frankfurt  6000       6000  1.0000         27.2871         27.5180               0                0           0               0.0000               0.0000              0.0000
+  fault        4     Singapore  Johannesburg  6000       6000  1.0000         46.0770         46.6619               0                0           0               0.0000               0.0000              0.0000
+  fault        5        London       Chennai  6000       5824  0.9707         31.5137       1202.4330               0                0         176               0.0000               0.9984              0.0000
+  fault        6        Sydney      New York  6000       6000  1.0000         76.6039         77.0023               0                0           0               0.0000               0.0000              0.0000
+  fault        7         Tokyo     Sao Paulo  6000       6000  1.0000         68.9146         69.1990               0                0           0               0.0000               0.0000              0.0000
+  fault        8     Frankfurt        Mumbai  6000       6000  1.0000         27.2866         27.5173               0                0           0               0.0000               0.0000              0.0000
+  fault        9  Johannesburg     Singapore  6000       6000  1.0000         46.0775         46.6622               0                0           0               0.0000               0.0000              0.0000
+
+Detection: {"baseline_false_alarm_rate": 0.0, "baseline_flagged": 0, "baseline_same_probes_crossed_no_fault": 3648, "baseline_same_probes_no_fault": 3648, "detection_rate": 0.9991776315789473, "false_alarms_no_fault_run_all_probes": 0, "fault_link": {"chosen_by": "ChooseFaultIsl rule", "enabled": true, "extra_delay_ns": 0, "flow": 0, "isl_id": 4478, "name_a": "STARLINK-35318", "name_b": "STARLINK-35575", "node_a": 1998, "node_b": 2017, "rate": "200kbps", "sid_a": 8204, "sid_b": 8223, "start_ms": 20000, "stop_ms": 40000}, "fault_window_ns": [20000000000, 40000000000], "first_detection_after_fault_start_ms": 16.883941, "flagged_late": 3645, "flagged_without_crossing_in_fault_run": 0, "late_margin_units_at_detection": {"max": -6.0, "min": -11605.0, "p50": -11494.0, "p99": -262.0}, "probes_crossing_slowed_link": 3648, "probes_entering_slowed_link": 4000, "probes_lost_in_its_queue": 352}
+Detection per flow: {"0": {"crossed": 1824, "flagged": 1824}, "5": {"crossed": 1824, "flagged": 1821}}
+Detection by fault rate (sensitivity.json): 200kbps: 3645/3648 flagged, 352 lost in its queue; 1Mbps: 0/4000 flagged, 0 lost in its queue; 500kbps: 0/4000 flagged, 0 lost in its queue; 250kbps: 0/4000 flagged, 0 lost in its queue
+Deadline margins of on-time probes, no-fault run (margins.json): {"final_hop_margin_ms": {"max": 56.6, "min": 18.3, "p50": 35.9, "p99": 56.5}, "final_hop_margin_units": {"max": 566.0, "min": 183.0, "p50": 359.0, "p99": 565.0}, "hop_of_min_margin": {"1": 60000}, "min_hop_margin_ms": {"max": 2.4, "min": 1.6, "p50": 1.9, "p99": 2.3}, "min_hop_margin_units": {"max": 24.0, "min": 16.0, "p50": 19.0, "p99": 23.0}, "note": "deadline minus the node's unit clock at arrival, on-time delivered probes only", "probes": 60000, "unit_ns": 100000}
+Link-down losses by dead link: {"fault": {}, "nofault": {}}
+
+E16-lite cross-check, no-fault run: 60000/60000 paths identical, 60000 outcomes identical, 60000 with identical per-hop time/clock/deadline; latency - light time (ns) {'min': 16240.0, 'p50': 40192.0, 'p99': 64896.0, 'max': 64896.0}; residual after serialization (ns) {'min': 0.0, 'p50': 0.0, 'p99': 0.0, 'max': 0.0} (zero 60000, positive 0, negative 0); held vs interpolated light time per hop (ns) {'min': 0.0, 'p50': 0.6959039, 'p99': 1045.00368316, 'max': 1796.50481724}
+E16-lite cross-check, fault run, slowed-link probes left out: 55800/55800 paths identical, 55800 outcomes identical, 55800 with identical per-hop time/clock/deadline; latency - light time (ns) {'min': 16240.0, 'p50': 40192.0, 'p99': 64896.0, 'max': 64896.0}; residual after serialization (ns) {'min': 0.0, 'p50': 0.0, 'p99': 0.0, 'max': 0.0} (zero 55800, positive 0, negative 0); held vs interpolated light time per hop (ns) {'min': 0.0, 'p50': 0.75051092, 'p99': 1039.26694608, 'max': 1796.50481724}
+Slice run vs full fault run (same probes): {'probes': 600, 'path_identical': 600, 'latency_identical': 600}
+pcap: {"fault": {"capture_nodes": [2847, 2017, 1998, 2022], "check_pcap": {"T-CRH frames": 41117, "invalid": 0, "late at capture": 9073, "quoted in ICMPv6 errors (not counted)": 0, "with DEV": 5469}, "check_pcap_exit": 0, "semantics": {"dev_frames_in_fault_window": 5469, "dev_frames_outside_fault_window": 0, "frames": 41117, "linktype": 9, "nanosecond": true, "non_probe_frames": 0, "probes": 12000, "probes_seen_at_2plus_nodes": 11647, "probes_with_sl_not_strictly_decreasing": 0}}, "nofault": {"capture_nodes": [2847, 2017, 1998, 2022], "check_pcap": {"T-CRH frames": 42000, "invalid": 0, "late at capture": 0, "quoted in ICMPv6 errors (not counted)": 0, "with DEV": 0}, "check_pcap_exit": 0, "semantics": {"dev_frames_in_fault_window": 0, "dev_frames_outside_fault_window": 0, "frames": 42000, "linktype": 9, "nanosecond": true, "non_probe_frames": 0, "probes": 12000, "probes_seen_at_2plus_nodes": 12000, "probes_with_sl_not_strictly_decreasing": 0}}}
+NetAnim slice: {'bytes': 2958948, 'node_elements': 202, 'link_elements': 374, 'packet_elements': 4800, 'packets_with_tcrh_metadata': 4800, 'packets_with_dev_in_metadata': 1608, 'position_updates': 1818, 'link_description_updates': 23, 'nodes_turned_red_for_deviation': [141]}
+Resources: {'nofault': {'wall_s': 16.08, 'peak_rss_kb': 198592, 'program_peak_rss_kb': 198920}, 'fault': {'wall_s': 16.69, 'peak_rss_kb': 199084, 'program_peak_rss_kb': 199132}, 'anim': {'wall_s': 1.23, 'peak_rss_kb': 81368, 'program_peak_rss_kb': 81456}, 'sensitivity/1Mbps': {'wall_s': 15.73, 'peak_rss_kb': 198888, 'program_peak_rss_kb': 198948}, 'sensitivity/500kbps': {'wall_s': 15.42, 'peak_rss_kb': 198428, 'program_peak_rss_kb': 198756}, 'sensitivity/250kbps': {'wall_s': 15.32, 'peak_rss_kb': 198788, 'program_peak_rss_kb': 198968}}
