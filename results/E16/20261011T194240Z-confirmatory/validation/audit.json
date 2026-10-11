@@ -1,0 +1,44 @@
+{
+  "label": "DERIVED verification of REAL code outputs and MODELLED replay results",
+  "source_commit": "22fc9f11c89e2ef94e1a9c3f28f976c473a09f46",
+  "clean_scientific_producers": 740,
+  "deterministic_packets_per_engine": {
+    "python": 9600,
+    "ns3": 9600
+  },
+  "stochastic_pairs": 144,
+  "runs_per_cell": [
+    36
+  ],
+  "equivalent_endpoints": 16,
+  "checks": {
+    "implementation-make-check.log": {
+      "passed": 1277,
+      "pytest_wall_s": 706.68,
+      "golden_reproducible": true
+    },
+    "final-make-check.log": {
+      "passed": 1277,
+      "pytest_wall_s": 648.46,
+      "golden_reproducible": true
+    },
+    "ns3-test.log": {
+      "suites_passed": 1,
+      "suites_failed": 0,
+      "build_jobs": 8
+    }
+  },
+  "verdict": {
+    "complete": true,
+    "deterministic_gate_passed": true,
+    "equivalent": true,
+    "packets_python": 355200,
+    "packets_ns3": 355200,
+    "checked_fields": 6748800,
+    "violations": 0,
+    "mismatched_packets": 0,
+    "max_abs_time_error_ns": 0,
+    "undefined_endpoints": [],
+    "label": "MODELLED network outcomes; DERIVED agreement and statistics"
+  }
+}

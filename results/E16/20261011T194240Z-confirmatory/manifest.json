@@ -1,0 +1,199 @@
+{
+  "command": "/home/aeehprrst/chronoroute/venv/bin/python -B /home/aeehprrst/chronoroute/experiments/E16/run.py --out results/E16/20261011T194240Z-confirmatory --workers 8",
+  "config": {
+    "alpha": 0.05,
+    "analysis": "paired Student-t TOST",
+    "ns3_binary_sha256": "f826dc48a2d2583d5df70bc446531801147c815d490acc171b05483a0c0f11dc",
+    "paired_seeds": [
+      1000,
+      1001,
+      1002,
+      1003,
+      1004,
+      1005,
+      1006,
+      1007,
+      1008,
+      1009,
+      1010,
+      1011,
+      1012,
+      1013,
+      1014,
+      1015,
+      1016,
+      1017,
+      1018,
+      1019,
+      1020,
+      1021,
+      1022,
+      1023,
+      1024,
+      1025,
+      1026,
+      1027,
+      1028,
+      1029,
+      1030,
+      1031,
+      1032,
+      1033,
+      1034,
+      1035
+    ],
+    "prereg_git_sha": "b87f08a7cc9431d139bf66372f03133035494b8c",
+    "prereg_sha256": "1d1541f60be8411f565c5eda4e64322354c276a7321181e2ee9ee92f065ea5d3",
+    "workers": 8
+  },
+  "config_sha256": "0e615482412fc603e23401095b0e28edd557ef051ab4042d77264698b5a4b41a",
+  "dirty": false,
+  "ended_utc": "2026-10-11T19:50:22.295575Z",
+  "extra": {
+    "complete": true,
+    "equivalent": true,
+    "inputs": [
+      {
+        "path": "/home/aeehprrst/chronoroute/results/E05/20261011T185503Z-confirmatory/manifest.json",
+        "sha256": "ab0f2e9ae56c364fa4e91557a3c3ec34f07dfd945effd60dbeca931dc2b7f4d1"
+      }
+    ],
+    "raw_cache": "/home/aeehprrst/chronoroute/results/E16/20261011T194240Z-confirmatory-raw",
+    "synthetic_positions": "C2 elements and positions MODELLED"
+  },
+  "git_sha": "22fc9f11c89e2ef94e1a9c3f28f976c473a09f46",
+  "host": {
+    "cpu_model": "13th Gen Intel(R) Core(TM) i9-13900H",
+    "logical_cores": 20,
+    "machine": "x86_64",
+    "platform": "Linux-6.18.33.2-microsoft-standard-WSL2-x86_64-with-glibc2.43",
+    "ram_bytes": 8131358720
+  },
+  "labels": {
+    "link_rate_and_queues": "MODELLED",
+    "orbital_elements": "REAL",
+    "routes_and_budgets": "DERIVED",
+    "traffic_probes": "MODELLED"
+  },
+  "outputs": [
+    {
+      "path": "REPORT.md",
+      "sha256": "557b5392e85155825d8328601e96c8c8b2d8465d1215c3171740319dcfb1bc19",
+      "size_bytes": 1164
+    },
+    {
+      "path": "comparisons.json",
+      "sha256": "7f6997b77b0d432944100dd18d04b8c41270b51b9746a0117115d9e02bc23079",
+      "size_bytes": 29899
+    },
+    {
+      "path": "equivalence.png",
+      "sha256": "b508cc653f9eff774ea63f17f29c9a341526cce7445a43dce42da3bdfe731ffc",
+      "size_bytes": 113472
+    },
+    {
+      "path": "inventory.csv",
+      "sha256": "87048e4a6b49e54860597a444f4dbfded863ebcce25012b6af2143cabc358a20",
+      "size_bytes": 11726
+    },
+    {
+      "path": "per_run.csv",
+      "sha256": "c2a3b8311b55982943024c1a9453f6c491161e1ab2cf49fff75e882a8558e45a",
+      "size_bytes": 126217
+    },
+    {
+      "path": "per_run.json",
+      "sha256": "08246af6739a69e630920c81381cc334625e627a2a5744e1a01bfaa618ea2eaa",
+      "size_bytes": 197371
+    },
+    {
+      "path": "planned_jobs.json",
+      "sha256": "b0901e0a30034c6a5f3c9c8e406a56dc7c392be1ae01b5c9a3678a2a5bd4663c",
+      "size_bytes": 17819
+    },
+    {
+      "path": "producer-manifests.jsonl.gz",
+      "sha256": "1a525e4dd1457231150d02d9bc146a8cdcb9bd515db87c240ba928bfa1ecf161",
+      "size_bytes": 7599935
+    },
+    {
+      "path": "resource_forecast.json",
+      "sha256": "319e44ced99dc13437226ea0d966a2359c692871689d72312210710d048ed476",
+      "size_bytes": 219
+    },
+    {
+      "path": "runtime.json",
+      "sha256": "5981e6f4e58a8b9771f4365ac479f534fc17d64c106f92bb093509c5bb28c2a9",
+      "size_bytes": 177
+    },
+    {
+      "path": "summary.csv",
+      "sha256": "d53a3c190a04e192242da86bdf267f82e8f48fcb03883e1b2faa5791e33a7ad2",
+      "size_bytes": 1882
+    },
+    {
+      "path": "verdict.json",
+      "sha256": "468a85b41e080cbb01e8179d3fab929157e4d281380cdcbb615d60ac2dc133da",
+      "size_bytes": 332
+    }
+  ],
+  "run_id": "e7c7f36769f7dc01",
+  "schema": "chronoroute.manifest/1",
+  "seeds": [
+    0,
+    1000,
+    1001,
+    1002,
+    1003,
+    1004,
+    1005,
+    1006,
+    1007,
+    1008,
+    1009,
+    1010,
+    1011,
+    1012,
+    1013,
+    1014,
+    1015,
+    1016,
+    1017,
+    1018,
+    1019,
+    1020,
+    1021,
+    1022,
+    1023,
+    1024,
+    1025,
+    1026,
+    1027,
+    1028,
+    1029,
+    1030,
+    1031,
+    1032,
+    1033,
+    1034,
+    1035
+  ],
+  "snapshot": {
+    "id": "20261010T1358Z-celestrak",
+    "sha256": "c37e70812155c2d1d9eeb3e96681303c00c9fca91287939b21bf5313ce83aecd",
+    "sha256_of": "SHA256SUMS"
+  },
+  "started_utc": "2026-10-11T19:42:40.684498Z",
+  "tool": "E16 confirmatory agreement",
+  "tool_version": "1.0.0.dev0",
+  "versions": {
+    "chronoroute": "1.0.0.dev0",
+    "matplotlib": "3.11.1",
+    "networkx": "3.6.1",
+    "numpy": "2.5.3",
+    "python": "3.14.4",
+    "sgp4": "2.27"
+  },
+  "wall_seconds": 461.611063,
+  "written_utc": "2026-10-11T19:50:22.334311Z"
+}

@@ -1,0 +1,21 @@
+F                                                                        [100%]
+=================================== FAILURES ===================================
+_________ test_strict_replay_compares_recorded_checker_dead_next_link __________
+
+tmp_path = PosixPath('/tmp/pytest-of-aeehprrst/pytest-115/test_strict_replay_compares_re0')
+
+    def test_strict_replay_compares_recorded_checker_dead_next_link(tmp_path):
+        row=packet();row.update(outcome='drop_link_down',taken_path=[5,1],hop_t_ns=[10],
+            hop_now_u=[1],hop_deadline_u=[2],tx_ns=[0],wait_ns=[0],outcome_node=1,
+            outcome_t_ns=10,rx_ns=None,latency_ns=None,dev=1,dev_hop=1,link_down_at='1:6:10')
+        run=cc.ns3_run([row],info(),[])
+        # ChronoRoute records this checker decision in hop_k and actual arrivals;
+        # table schemes use the explicit event column instead.
+        from chronoroute.eval.load import Ragged
+        run.extras['link_down_at']=[''];run.extras['hop_k']=Ragged(['1'])
+>       assert cc.compare_replays(run,[row],require_tx=True)['violations']==0
+E       assert 1 == 0
+
+sim/tests/test_e16.py:204: AssertionError
+=========================== short test summary info ============================
+FAILED sim/tests/test_e16.py::test_strict_replay_compares_recorded_checker_dead_next_link

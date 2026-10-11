@@ -1,0 +1,128 @@
+FFFFFFFF                                                                 [100%]
+=================================== FAILURES ===================================
+_____ test_native_adapter_and_strict_comparator_use_recorded_transmissions _____
+
+    def test_native_adapter_and_strict_comparator_use_recorded_transmissions():
+>       rows=[packet()];run=cc.ns3_run(rows,info(),[])
+                            ^^^^^^^^^^
+E       AttributeError: module 'chronoroute.export.ns3_crosscheck' has no attribute 'ns3_run'
+
+sim/tests/test_e16.py:31: AttributeError
+__________ test_native_losses_and_rate_cut_backlog_never_become_clean __________
+
+    def test_native_losses_and_rate_cut_backlog_never_become_clean():
+        row=packet();row.update(outcome='drop_queue',taken_path=[5],hop_t_ns=[],hop_now_u=[],hop_deadline_u=[],
+            tx_ns=[],wait_ns=[],tx_loss_at='5:1:5:-1',outcome_node=5,outcome_t_ns=5,rx_ns=None,latency_ns=None)
+        fault=dict(kind='rate_cut',link=[1,5],start_ns=0,stop_ns=10,params={'factor':'1/2'})
+>       run=cc.ns3_run([row],info(),[fault])
+            ^^^^^^^^^^
+E       AttributeError: module 'chronoroute.export.ns3_crosscheck' has no attribute 'ns3_run'
+
+sim/tests/test_e16.py:46: AttributeError
+_______ test_replay_metrics_nearest_rank_support_and_losses_are_infinite _______
+
+    def test_replay_metrics_nearest_rank_support_and_losses_are_infinite():
+        rows=[packet(i) for i in range(1200)]
+>       run=cc.ns3_run(rows,info(),[]);r=cc.replay_metrics(run)
+            ^^^^^^^^^^
+E       AttributeError: module 'chronoroute.export.ns3_crosscheck' has no attribute 'ns3_run'
+
+sim/tests/test_e16.py:67: AttributeError
+________ test_tost_requires_both_bounds_and_reports_90_and_95_intervals ________
+
+    def test_tost_requires_both_bounds_and_reports_90_and_95_intervals():
+>       r=cc.tost([0.]*36,.01)
+          ^^^^^^^
+E       AttributeError: module 'chronoroute.export.ns3_crosscheck' has no attribute 'tost'
+
+sim/tests/test_e16.py:79: AttributeError
+_____ test_equivalence_keeps_all_runs_undefined_tails_and_flow_log_ratios ______
+
+    def test_equivalence_keeps_all_runs_undefined_tails_and_flow_log_ratios():
+        metric=dict(pdr=1.,fpr=0.,sent=2400,delivered=2400,latency=[
+            dict(flow=0,q0_5=1),dict(flow=1,q0_5=1)])
+        metric['latency']=[{'flow':f,'q0.5':100,'q0.99_eff':200} for f in (0,1)]
+        pairs=[dict(seed=1000+i,python=copy.deepcopy(metric),ns3=copy.deepcopy(metric)) for i in range(36)]
+        for endpoint in ('pdr','fpr','p50','p99'):
+>           r=cc.equivalence(pairs,endpoint);assert r['equivalent'] and r['n']==36
+              ^^^^^^^^^^^^^^
+E           AttributeError: module 'chronoroute.export.ns3_crosscheck' has no attribute 'equivalence'
+
+sim/tests/test_e16.py:96: AttributeError
+____ test_confirmatory_replay_uses_balanced_pairs_instead_of_pilot_mapping _____
+
+    def test_confirmatory_replay_uses_balanced_pairs_instead_of_pilot_mapping():
+        import sys
+        sys.path.insert(0,str(ROOT/'experiments/E01'))
+        import prerequisites as pre
+>       cfg=pre.replay_config('C2',1000,stochastic=True,fault=True)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+sim/tests/test_e16.py:112: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+experiments/E01/prerequisites.py:62: in replay_config
+    cfg = e1.document(j)["engine"]
+          ^^^^^^^^^^^^^^
+experiments/E01/campaign.py:91: in document
+    pi = pair_id(seed, phase)
+         ^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+seed = 1000, phase = 'pilot'
+
+    def pair_id(seed, phase):
+        """The fixed, balanced pair mapping; refuse accidental pilot contamination."""
+        if phase == "pilot" and 0 <= seed < 100:
+            return seed % 18
+        if phase == "confirmatory" and 1000 <= seed <= 1035:
+            return (seed - 1000) % 18
+>       raise ValueError("seed is outside the registered phase")
+E       ValueError: seed is outside the registered phase
+
+experiments/E01/campaign.py:68: ValueError
+_______ test_e16_registered_grid_and_analysis_preserve_incomplete_cells ________
+
+tmp_path = PosixPath('/tmp/pytest-of-aeehprrst/pytest-111/test_e16_registered_grid_and_a0')
+
+    def test_e16_registered_grid_and_analysis_preserve_incomplete_cells(tmp_path):
+        spec=importlib.util.spec_from_file_location('e16_campaign',ROOT/'experiments/E16/run.py')
+>       mod=importlib.util.module_from_spec(spec);spec.loader.exec_module(mod)
+                                                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+sim/tests/test_e16.py:120: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+<frozen importlib._bootstrap_external>:755: in exec_module
+    ???
+<frozen importlib._bootstrap_external>:892: in get_code
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <_frozen_importlib_external.SourceFileLoader object at 0x7643d41a3590>
+path = '/home/aeehprrst/chronoroute/experiments/E16/run.py'
+
+>   ???
+E   FileNotFoundError: [Errno 2] No such file or directory: '/home/aeehprrst/chronoroute/experiments/E16/run.py'
+
+<frozen importlib._bootstrap_external>:950: FileNotFoundError
+__________ test_ns3_records_actual_transmission_and_attempt_metadata ___________
+
+ns3_runs = {'nofault': {'dir': PosixPath('/tmp/pytest-of-aeehprrst/pytest-111/ns30/nofault'), 'stdout': 'chronoroute-leo: bundle ...: 'chronoroute-leo', 'mode': 'full', 'bundle': '/tmp/pytest-of-aeehprrst/pytest-111/bundle0', 'seed_rng_run': 1, ...}}}
+
+    def test_ns3_records_actual_transmission_and_attempt_metadata(ns3_runs):
+        from chronoroute.eval import metrics
+        for variant in ('nofault','fault'):
+            rows=ns3_runs[variant]['packets']
+>           run=cc.ns3_run(rows,ns3_runs[variant]['info'],[])
+                ^^^^^^^^^^
+E           AttributeError: module 'chronoroute.export.ns3_crosscheck' has no attribute 'ns3_run'
+
+sim/tests/test_ns3_crosscheck.py:329: AttributeError
+=========================== short test summary info ============================
+FAILED sim/tests/test_e16.py::test_native_adapter_and_strict_comparator_use_recorded_transmissions
+FAILED sim/tests/test_e16.py::test_native_losses_and_rate_cut_backlog_never_become_clean
+FAILED sim/tests/test_e16.py::test_replay_metrics_nearest_rank_support_and_losses_are_infinite
+FAILED sim/tests/test_e16.py::test_tost_requires_both_bounds_and_reports_90_and_95_intervals
+FAILED sim/tests/test_e16.py::test_equivalence_keeps_all_runs_undefined_tails_and_flow_log_ratios
+FAILED sim/tests/test_e16.py::test_confirmatory_replay_uses_balanced_pairs_instead_of_pilot_mapping
+FAILED sim/tests/test_e16.py::test_e16_registered_grid_and_analysis_preserve_incomplete_cells
+FAILED sim/tests/test_ns3_crosscheck.py::test_ns3_records_actual_transmission_and_attempt_metadata

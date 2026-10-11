@@ -1,0 +1,1 @@
+Validation logs and provenance audit for E16. The red logs record expected failures before implementation and the dead-next-link fix. Final required checks passed; audit.json contains observed counts. Scientific outcomes are MODELLED and comparison statistics DERIVED.

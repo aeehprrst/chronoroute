@@ -1,0 +1,114 @@
+{
+  "command": "/home/aeehprrst/chronoroute/venv/bin/python -B /tmp/chronoroute-e16-audit.py /home/aeehprrst/chronoroute/results/E16/20261011T194240Z-confirmatory",
+  "config": {
+    "commands": [
+      [
+        "make",
+        "check"
+      ],
+      [
+        "make",
+        "ns3-test",
+        "NS3_JOBS=8"
+      ]
+    ],
+    "source_commit": "22fc9f11c89e2ef94e1a9c3f28f976c473a09f46"
+  },
+  "config_sha256": "398dbe438c5c87df44f4ac180e97c35222be59ee5c711cd72c7f80cf97026de8",
+  "dirty": false,
+  "ended_utc": "2026-10-11T20:02:51.863665Z",
+  "extra": {
+    "input_manifest": {
+      "path": "/home/aeehprrst/chronoroute/results/E16/20261011T194240Z-confirmatory/manifest.json",
+      "sha256": "e7c1e13bac3b7177c01bbc57aae6dc786183ab989c49bee2794e4da78f0c6897"
+    }
+  },
+  "git_sha": "22fc9f11c89e2ef94e1a9c3f28f976c473a09f46",
+  "host": {
+    "cpu_model": "13th Gen Intel(R) Core(TM) i9-13900H",
+    "logical_cores": 20,
+    "machine": "x86_64",
+    "platform": "Linux-6.18.33.2-microsoft-standard-WSL2-x86_64-with-glibc2.43",
+    "ram_bytes": 8131358720
+  },
+  "labels": {
+    "link_rate_and_queues": "MODELLED",
+    "routes_and_budgets": "DERIVED",
+    "tcrh_header_bytes": "REAL",
+    "traffic_probes": "MODELLED"
+  },
+  "outputs": [
+    {
+      "path": "README.md",
+      "sha256": "4aed98ccf522bff0386463018d764d96a54baf275d4ecdfbff023fd225c227cd",
+      "size_bytes": 269
+    },
+    {
+      "path": "audit.json",
+      "sha256": "b050730e446648eb91e6d63cb704e86452055a3e4529ada270eb32500466824e",
+      "size_bytes": 1117
+    },
+    {
+      "path": "audit.py",
+      "sha256": "c31b2c0029c2b9c4f3974ac0251d58238ed0d65ee0d3bebac5060214024c394b",
+      "size_bytes": 4316
+    },
+    {
+      "path": "campaign.log",
+      "sha256": "ce20a739ba4b4af5ab9e54dffc29bb42e69640038ef6b1f467b49f91bc40055b",
+      "size_bytes": 1628
+    },
+    {
+      "path": "dead-next-red.log",
+      "sha256": "5c8141e1afa75a2ad22df7460a65c31ed8b069451cea2f68ab5d2f12d0b8587c",
+      "size_bytes": 1303
+    },
+    {
+      "path": "final-make-check.log",
+      "sha256": "81136fc81a50e5be6911a1abb4749b74707730e53eff4573dffcf66275a7c943",
+      "size_bytes": 2075
+    },
+    {
+      "path": "implementation-make-check.log",
+      "sha256": "d48e4bf8fb4f7acc19ab25b0398e2937f6b799d48bb913fbb62f3bc6952c0ce1",
+      "size_bytes": 2075
+    },
+    {
+      "path": "implementation-ns3-test.log",
+      "sha256": "5b7aa81313313513e28e5e017f6db454ce909dd6c7c8bccb2ed9b4b1753a88cc",
+      "size_bytes": 1328
+    },
+    {
+      "path": "ns3-test.log",
+      "sha256": "5b5a1a9cc896b5b9532ae91120cc0bebaf8f8eb6a93e179fbaa6ca3645f2aae0",
+      "size_bytes": 1123
+    },
+    {
+      "path": "targeted-tests.log",
+      "sha256": "2fdbfd8ca4b1f03517583a95c9d797258bdf9116d64cf90fbdaa175b61869611",
+      "size_bytes": 80
+    },
+    {
+      "path": "tests-first-red.log",
+      "sha256": "f2316ece5773c9f1e84f51ccb31fec7bb30f92653832bb4f3273be842f50d6c6",
+      "size_bytes": 6876
+    }
+  ],
+  "run_id": "d7deae6c2d7aa283",
+  "schema": "chronoroute.manifest/1",
+  "seeds": [],
+  "snapshot": null,
+  "started_utc": "2026-10-11T20:02:51.218836Z",
+  "tool": "E16 validation audit",
+  "tool_version": "1.0.0.dev0",
+  "versions": {
+    "chronoroute": "1.0.0.dev0",
+    "matplotlib": "3.11.1",
+    "networkx": "3.6.1",
+    "numpy": "2.5.3",
+    "python": "3.14.4",
+    "sgp4": "2.27"
+  },
+  "wall_seconds": 0.644812,
+  "written_utc": "2026-10-11T20:02:51.898746Z"
+}
