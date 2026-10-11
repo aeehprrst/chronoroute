@@ -1,0 +1,98 @@
+{
+  "command": "/home/aeehprrst/chronoroute/venv/bin/python -B tools/network_walk.py --out results/network-walk/20261011T223851Z",
+  "config": {
+    "flow": 0,
+    "pick": "first probe of flow 0 flagged late",
+    "run": "results/course-milestone/c5-463-10s-small-seed1"
+  },
+  "config_sha256": "4065a483575493fcfa10b9211a9343b794e3d2a4986db4a47a7cb5032734c242",
+  "dirty": false,
+  "ended_utc": "2026-10-11T22:38:57.636432Z",
+  "extra": {
+    "conversion_commands": [
+      [
+        "chronoroute.cli",
+        "trace",
+        "from-ns3",
+        "/home/aeehprrst/chronoroute/results/course-milestone/c5-463-10s-small-seed1",
+        "--variant",
+        "fault",
+        "--out",
+        "/home/aeehprrst/tmp141fzx2p/fault",
+        "--hex-every",
+        "0",
+        "--hex-late",
+        "10",
+        "--hex-first",
+        "1",
+        "--rebuild-bundle",
+        "/home/aeehprrst/tmp141fzx2p/bundle"
+      ],
+      [
+        "chronoroute.cli",
+        "trace",
+        "from-ns3",
+        "/home/aeehprrst/chronoroute/results/course-milestone/c5-463-10s-small-seed1",
+        "--variant",
+        "nofault",
+        "--out",
+        "/home/aeehprrst/tmp141fzx2p/nofault",
+        "--hex-every",
+        "1",
+        "--hex-late",
+        "10",
+        "--hex-first",
+        "1",
+        "--bundle",
+        "/home/aeehprrst/tmp141fzx2p/bundle"
+      ]
+    ],
+    "inputs": {
+      "results/course-milestone/c5-463-10s-small-seed1/detection.json": "9673af12713ddb163e5bf52db398f33cfcacc3fa63fba3bd15c215b28db43651",
+      "results/course-milestone/c5-463-10s-small-seed1/fault/packets.csv.gz": "99b664c3d7e1657964f7edaa92cee7705f00892c0792d0b3bb815d96f2c760e1",
+      "results/course-milestone/c5-463-10s-small-seed1/manifest.json": "6ec9f46f4b67e4d28a9dc3e868c41334aefc365a736fe39e261350014d03ef50",
+      "results/course-milestone/c5-463-10s-small-seed1/nofault/packets.csv.gz": "61a1ee41ea0fc1e7f5d00a3065daa17f9b68f5f08267916fdf1198a3b6bba73b"
+    }
+  },
+  "git_sha": "00f06d720450550f0fd8cec17096d33645f2d65c",
+  "host": {
+    "cpu_model": "13th Gen Intel(R) Core(TM) i9-13900H",
+    "logical_cores": 20,
+    "machine": "x86_64",
+    "platform": "Linux-6.18.33.2-microsoft-standard-WSL2-x86_64-with-glibc2.43",
+    "ram_bytes": 8131358720
+  },
+  "labels": {
+    "isl_topology_grid4": "MODELLED",
+    "satellite_positions_sgp4": "REAL",
+    "tcrh_header_bytes": "REAL"
+  },
+  "outputs": [
+    {
+      "path": "walk.json",
+      "sha256": "603f05a5d734cde855ec1bc350d3fe7cb473ed1e752299c5894a3409e878e67d",
+      "size_bytes": 8212
+    }
+  ],
+  "run_id": "4db1295d8194c79b",
+  "schema": "chronoroute.manifest/1",
+  "seeds": [],
+  "snapshot": {
+    "id": "20261010T1358Z-celestrak",
+    "sha256": "c37e70812155c2d1d9eeb3e96681303c00c9fca91287939b21bf5313ce83aecd",
+    "sha256_of": "SHA256SUMS"
+  },
+  "started_utc": "2026-10-11T22:38:51.248723Z",
+  "tool": "tools/network_walk.py",
+  "tool_version": "1.0.0.dev0",
+  "versions": {
+    "chronoroute": "1.0.0.dev0",
+    "matplotlib": "3.11.1",
+    "networkx": "3.6.1",
+    "numpy": "2.5.3",
+    "python": "3.14.4",
+    "sgp4": "2.27"
+  },
+  "wall_seconds": 6.387686,
+  "written_utc": "2026-10-11T22:38:57.674304Z"
+}

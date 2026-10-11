@@ -1,0 +1,364 @@
+{
+ "schema": "chronoroute.network-walk/1",
+ "run": "results/course-milestone/c5-463-10s-small-seed1",
+ "t0_utc": "2026-10-10T14:00:00Z",
+ "unit_ns": 100000,
+ "epoch_base": 3547558136,
+ "flow": {
+  "id": 0,
+  "src": "Chennai",
+  "dst": "London"
+ },
+ "send_t_ns": 3989564440,
+ "fault": {
+  "kind": "rate_cut",
+  "names": [
+   "STARLINK-35318",
+   "STARLINK-35575"
+  ],
+  "rate_bps": 200000,
+  "nominal_rate_bps": 1000000000,
+  "start_ns": 4000000000,
+  "stop_ns": 7000000000,
+  "link_state": "up",
+  "label": "MODELLED"
+ },
+ "path": [
+  {
+   "hop": 0,
+   "node_id": 2847,
+   "kind": "gs",
+   "name": "Chennai",
+   "sid": 61452,
+   "norad": null,
+   "lat": 13.091934,
+   "lon": 80.278053
+  },
+  {
+   "hop": 1,
+   "node_id": 2025,
+   "kind": "sat",
+   "name": "STARLINK-35634",
+   "sid": 8231,
+   "norad": 66173,
+   "lat": 16.0456,
+   "lon": 78.1335
+  },
+  {
+   "hop": 2,
+   "node_id": 2000,
+   "kind": "sat",
+   "name": "STARLINK-35081",
+   "sid": 8206,
+   "norad": 66148,
+   "lat": 24.9902,
+   "lon": 70.1608
+  },
+  {
+   "hop": 3,
+   "node_id": 2017,
+   "kind": "sat",
+   "name": "STARLINK-35575",
+   "sid": 8223,
+   "norad": 66165,
+   "lat": 33.417,
+   "lon": 60.9864
+  },
+  {
+   "hop": 4,
+   "node_id": 1998,
+   "kind": "sat",
+   "name": "STARLINK-35318",
+   "sid": 8204,
+   "norad": 66146,
+   "lat": 41.0458,
+   "lon": 49.9175
+  },
+  {
+   "hop": 5,
+   "node_id": 2019,
+   "kind": "sat",
+   "name": "STARLINK-35641",
+   "sid": 8225,
+   "norad": 66167,
+   "lat": 47.3136,
+   "lon": 36.2929
+  },
+  {
+   "hop": 6,
+   "node_id": 2016,
+   "kind": "sat",
+   "name": "STARLINK-35614",
+   "sid": 8222,
+   "norad": 66164,
+   "lat": 51.6154,
+   "lon": 19.5226
+  },
+  {
+   "hop": 7,
+   "node_id": 2022,
+   "kind": "sat",
+   "name": "STARLINK-35585",
+   "sid": 8228,
+   "norad": 66170,
+   "lat": 53.1372,
+   "lon": 0.5621
+  },
+  {
+   "hop": 8,
+   "node_id": 2848,
+   "kind": "gs",
+   "name": "London",
+   "sid": 61470,
+   "norad": null,
+   "lat": 51.501941,
+   "lon": -0.118668
+  }
+ ],
+ "fault_run": {
+  "pkt": 1595,
+  "outcome": "deliver",
+  "late_node": 1998,
+  "hops": [
+   {
+    "node_id": 2847,
+    "t_ns": 3989564440,
+    "sl": 7,
+    "flags": 16,
+    "now_u": 3547558135,
+    "deadline_u": null,
+    "elapsed_ms": -0.1,
+    "deadline_ms": null,
+    "margin_ms": null,
+    "hex": "1104fd0710080000d37370f8f01e2220244d201e4d20214c200c4d201f4d200e4d20272700000000"
+   },
+   {
+    "node_id": 2025,
+    "t_ns": 3991644807,
+    "sl": 7,
+    "flags": 16,
+    "now_u": 3547558156,
+    "deadline_u": 3547558175,
+    "elapsed_ms": 2.0,
+    "deadline_ms": 3.9,
+    "margin_ms": 1.9,
+    "hex": "1104fd0710080000d37370f8f01e2220244d201e4d20214c200c4d201f4d200e4d20272700000000"
+   },
+   {
+    "node_id": 2000,
+    "t_ns": 3996274993,
+    "sl": 6,
+    "flags": 16,
+    "now_u": 3547558202,
+    "deadline_u": 3547558252,
+    "elapsed_ms": 6.6,
+    "deadline_ms": 11.6,
+    "margin_ms": 5.0,
+    "hex": "1104fd0610080000d37370f8f01e2220244d201e4d20214c200c4d201f4d200e4d20272700000000"
+   },
+   {
+    "node_id": 2017,
+    "t_ns": 4000892151,
+    "sl": 5,
+    "flags": 16,
+    "now_u": 3547558248,
+    "deadline_u": 3547558329,
+    "elapsed_ms": 11.2,
+    "deadline_ms": 19.3,
+    "margin_ms": 8.1,
+    "hex": "1104fd0510080000d37370f8f01e2220244d201e4d20214c200c4d201f4d200e4d20272700000000"
+   },
+   {
+    "node_id": 1998,
+    "t_ns": 4017115889,
+    "sl": 4,
+    "flags": 16,
+    "now_u": 3547558411,
+    "deadline_u": 3547558406,
+    "elapsed_ms": 27.5,
+    "deadline_ms": 27.0,
+    "margin_ms": -0.5,
+    "hex": "1104fd0410080000d37370f8f01e2220244d201e4d20214c200c4d201f4d200e4d20272700000000"
+   },
+   {
+    "node_id": 2019,
+    "t_ns": 4021719084,
+    "sl": 3,
+    "flags": 17,
+    "now_u": 3547558457,
+    "deadline_u": 3547558482,
+    "elapsed_ms": 32.1,
+    "deadline_ms": 34.6,
+    "margin_ms": 2.5,
+    "hex": "1104fd0311080400d37370f8f01e2220244d201e4d20214c200c4d201f4d200e4d20272700000000"
+   },
+   {
+    "node_id": 2016,
+    "t_ns": 4026361724,
+    "sl": 2,
+    "flags": 17,
+    "now_u": 3547558503,
+    "deadline_u": 3547558559,
+    "elapsed_ms": 36.7,
+    "deadline_ms": 42.3,
+    "margin_ms": 5.6,
+    "hex": "1104fd0211080400d37370f8f01e2220244d201e4d20214c200c4d201f4d200e4d20272700000000"
+   },
+   {
+    "node_id": 2022,
+    "t_ns": 4030986352,
+    "sl": 1,
+    "flags": 17,
+    "now_u": 3547558549,
+    "deadline_u": 3547558636,
+    "elapsed_ms": 41.3,
+    "deadline_ms": 50.0,
+    "margin_ms": 8.7,
+    "hex": "1104fd0111080400d37370f8f01e2220244d201e4d20214c200c4d201f4d200e4d20272700000000"
+   },
+   {
+    "node_id": 2848,
+    "t_ns": 4032709062,
+    "sl": 0,
+    "flags": 17,
+    "now_u": 3547558567,
+    "deadline_u": 3547558670,
+    "elapsed_ms": 43.1,
+    "deadline_ms": 53.4,
+    "margin_ms": 10.3,
+    "hex": "1104fd0011080400d37370f8f01e2220244d201e4d20214c200c4d201f4d200e4d20272700000000"
+   }
+  ]
+ },
+ "nofault_run": {
+  "pkt": 1595,
+  "outcome": "deliver",
+  "late_node": null,
+  "hops": [
+   {
+    "node_id": 2847,
+    "t_ns": 3989564440,
+    "sl": 7,
+    "flags": 16,
+    "now_u": 3547558135,
+    "deadline_u": null,
+    "elapsed_ms": -0.1,
+    "deadline_ms": null,
+    "margin_ms": null,
+    "hex": "1104fd0710080000d37370f8f01e2220244d201e4d20214c200c4d201f4d200e4d20272700000000"
+   },
+   {
+    "node_id": 2025,
+    "t_ns": 3991644807,
+    "sl": 7,
+    "flags": 16,
+    "now_u": 3547558156,
+    "deadline_u": 3547558175,
+    "elapsed_ms": 2.0,
+    "deadline_ms": 3.9,
+    "margin_ms": 1.9,
+    "hex": "1104fd0710080000d37370f8f01e2220244d201e4d20214c200c4d201f4d200e4d20272700000000"
+   },
+   {
+    "node_id": 2000,
+    "t_ns": 3996274993,
+    "sl": 6,
+    "flags": 16,
+    "now_u": 3547558202,
+    "deadline_u": 3547558252,
+    "elapsed_ms": 6.6,
+    "deadline_ms": 11.6,
+    "margin_ms": 5.0,
+    "hex": "1104fd0610080000d37370f8f01e2220244d201e4d20214c200c4d201f4d200e4d20272700000000"
+   },
+   {
+    "node_id": 2017,
+    "t_ns": 4000892151,
+    "sl": 5,
+    "flags": 16,
+    "now_u": 3547558248,
+    "deadline_u": 3547558329,
+    "elapsed_ms": 11.2,
+    "deadline_ms": 19.3,
+    "margin_ms": 8.1,
+    "hex": "1104fd0510080000d37370f8f01e2220244d201e4d20214c200c4d201f4d200e4d20272700000000"
+   },
+   {
+    "node_id": 1998,
+    "t_ns": 4005518209,
+    "sl": 4,
+    "flags": 16,
+    "now_u": 3547558295,
+    "deadline_u": 3547558406,
+    "elapsed_ms": 15.9,
+    "deadline_ms": 27.0,
+    "margin_ms": 11.1,
+    "hex": "1104fd0410080000d37370f8f01e2220244d201e4d20214c200c4d201f4d200e4d20272700000000"
+   },
+   {
+    "node_id": 2019,
+    "t_ns": 4010121404,
+    "sl": 3,
+    "flags": 16,
+    "now_u": 3547558341,
+    "deadline_u": 3547558482,
+    "elapsed_ms": 20.5,
+    "deadline_ms": 34.6,
+    "margin_ms": 14.1,
+    "hex": "1104fd0310080000d37370f8f01e2220244d201e4d20214c200c4d201f4d200e4d20272700000000"
+   },
+   {
+    "node_id": 2016,
+    "t_ns": 4014764044,
+    "sl": 2,
+    "flags": 16,
+    "now_u": 3547558387,
+    "deadline_u": 3547558559,
+    "elapsed_ms": 25.1,
+    "deadline_ms": 42.3,
+    "margin_ms": 17.2,
+    "hex": "1104fd0210080000d37370f8f01e2220244d201e4d20214c200c4d201f4d200e4d20272700000000"
+   },
+   {
+    "node_id": 2022,
+    "t_ns": 4019388672,
+    "sl": 1,
+    "flags": 16,
+    "now_u": 3547558433,
+    "deadline_u": 3547558636,
+    "elapsed_ms": 29.7,
+    "deadline_ms": 50.0,
+    "margin_ms": 20.3,
+    "hex": "1104fd0110080000d37370f8f01e2220244d201e4d20214c200c4d201f4d200e4d20272700000000"
+   },
+   {
+    "node_id": 2848,
+    "t_ns": 4021111382,
+    "sl": 0,
+    "flags": 16,
+    "now_u": 3547558451,
+    "deadline_u": 3547558670,
+    "elapsed_ms": 31.5,
+    "deadline_ms": 53.4,
+    "margin_ms": 21.9,
+    "hex": "1104fd0010080000d37370f8f01e2220244d201e4d20214c200c4d201f4d200e4d20272700000000"
+   }
+  ]
+ },
+ "detection": {
+  "probes_crossing_slowed_link": 600,
+  "flagged_late": 598,
+  "detection_rate": 0.9966666666666667,
+  "baseline_same_probes_crossed_no_fault": 600,
+  "baseline_flagged": 0,
+  "false_alarms_no_fault_run_all_probes": 0,
+  "first_detection_after_fault_start_ms": 17.115889
+ },
+ "labels": {
+  "positions": "REAL (SGP4 on CelesTrak elements; drawn on a sphere)",
+  "laser_links": "MODELLED (Grid-4)",
+  "fault": "MODELLED",
+  "header_bytes": "REAL (encoder output carried in ns-3)",
+  "timing": "MODELLED (ns-3 links and queues)"
+ }
+}
