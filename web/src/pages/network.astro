@@ -1,0 +1,311 @@
+---
+/**
+ * /network: "Network simulation". One real ns-3 probe on the real 463 km Starlink shell,
+ * replayed hop by hop: where it went, the deadline it carried at each hop, when it arrived,
+ * and how its T-CRH bytes changed. The same probe from the paired no-fault run is shown
+ * next to it. Data: results/network-walk/<run>/walk.json, verified against its manifest at
+ * build time (lib/network/walk.ts). Works without JavaScript (map, table, bytes are static);
+ * the script only adds the step-through animation.
+ */
+import BaseLayout from '../layouts/BaseLayout.astro';
+import LabelChip from '../components/LabelChip.astro';
+import { loadWalk, decodeFlags } from '../lib/network/walk';
+import { pageHref } from '../lib/paths';
+import { REPO_URL } from '../lib/site';
+
+const ev = await loadWalk();
+const w = ev.walk;
+const unitMs = w.unit_ns / 1e6;
+const fmt = (v: number | null, d = 1) => (v === null ? '' : v.toFixed(d));
+const lateIdx = w.fault_run.hops.findIndex((h) => h.node_id === w.fault_run.late_node);
+const faultA = w.path.findIndex((p) => p.name === w.fault.names[0] || p.name === w.fault.names[1]);
+const faultB = w.path.findIndex((p, i) => i > faultA && (p.name === w.fault.names[0] || p.name === w.fault.names[1]));
+
+// Equirectangular drawing frame around the path (drawing aid only).
+const lons = w.path.map((p) => p.lon);
+const lats = w.path.map((p) => p.lat);
+const pad = 6;
+const lonMin = Math.min(...lons) - pad, lonMax = Math.max(...lons) + pad;
+const latMin = Math.min(...lats) - pad, latMax = Math.max(...lats) + pad;
+const W = 1000, H = Math.round((W * (latMax - latMin)) / (lonMax - lonMin));
+const X = (lon: number) => ((lon - lonMin) / (lonMax - lonMin)) * W;
+const Y = (lat: number) => ((latMax - lat) / (latMax - latMin)) * H;
+const pts = w.path.map((p) => ({ ...p, x: X(p.lon), y: Y(p.lat) }));
+const start = pts[0] ?? { x: 0, y: 0 };
+const segA = pts[faultA];
+const segB = pts[faultB];
+const grid = {
+  lon: Array.from({ length: 40 }, (_, i) => -90 + i * 10).filter((v) => v > lonMin && v < lonMax),
+  lat: Array.from({ length: 19 }, (_, i) => -90 + i * 10).filter((v) => v > latMin && v < latMax),
+};
+const hexBytes = (hex: string | null) => (hex ? hex.match(/../g) ?? [] : []);
+const fieldOf = (i: number) =>
+  i < 4 ? ['nh', 'len', 'type', 'sl'][i] : i < 8 ? ['flags', 'hops', 'devhop', 'res'][i - 4] : i < 12 ? 'epoch' : 'entry';
+const lateHop = w.fault_run.hops[lateIdx];
+const twinAtLate = w.nofault_run.hops[lateIdx];
+const lateName = w.path[lateIdx]?.name ?? '';
+const data = JSON.stringify({ w, lateIdx, faultA, faultB, pts: pts.map((p) => [p.x, p.y]) });
+const det = w.detection;
+---
+
+<BaseLayout
+  title="Network simulation"
+  description="One real ns-3 packet on the real Starlink 463 km shell, hop by hop: the deadline it carries, when it arrives, and how a slowed laser link makes it late."
+>
+  <header class="page-hero container">
+    <p class="eyebrow">Network simulation</p>
+    <h1>One packet, hop by hop</h1>
+    <p class="lede">
+      This page demonstrates ChronoRoute's improved packet transmission mechanism. Each packet carries
+      its source route in a T-CRH (an IPv6 Routing Header, type 253) and, for every hop, the latest time
+      it should arrive there. Below is a real probe from our ns-3 simulation on the real Starlink
+      53.2&deg; / 463 km shell: {w.flow.src} to {w.flow.dst}, {w.path.length - 2} satellites. One laser
+      link on its path was slowed from {w.fault.nominal_rate_bps / 1e9} Gb/s to {w.fault.rate_bps / 1000} kb/s
+      while staying <strong>up</strong>, so a hello-based link-state protocol still sees it as healthy.
+    </p>
+    <p class="chips">
+      <LabelChip kind="real" note="satellite positions (SGP4 on CelesTrak elements)" />
+      <LabelChip kind="real" note="T-CRH header bytes" />
+      <LabelChip kind="modelled" note="laser links, link rate, queues, the slowed link" />
+    </p>
+  </header>
+
+  <section class="section">
+    <div class="container">
+      <div class="controls" data-controls hidden>
+        <button type="button" data-act="play">Play</button>
+        <button type="button" data-act="step">Next hop</button>
+        <button type="button" data-act="reset">Reset</button>
+        <label><input type="radio" name="variant" value="fault" checked /> With the slowed link</label>
+        <label><input type="radio" name="variant" value="nofault" /> Same packet, no fault</label>
+        <span class="status" data-status aria-live="polite"></span>
+      </div>
+
+      <figure class="map">
+        <svg viewBox={`0 0 ${W} ${H}`} role="img" aria-label={`Path of the probe from ${w.flow.src} to ${w.flow.dst}`}>
+          <rect x="0" y="0" width={W} height={H} class="map__bg" />
+          {grid.lon.map((lon) => <line x1={X(lon)} x2={X(lon)} y1="0" y2={H} class="map__grid" />)}
+          {grid.lat.map((lat) => <line x1="0" x2={W} y1={Y(lat)} y2={Y(lat)} class="map__grid" />)}
+          {grid.lon.map((lon) => <text x={X(lon) + 4} y={H - 6} class="map__tick">{lon}&deg;</text>)}
+          {grid.lat.map((lat) => <text x="4" y={Y(lat) - 4} class="map__tick">{lat}&deg;</text>)}
+          <polyline points={pts.map((p) => `${p.x},${p.y}`).join(' ')} class="map__path" />
+          {segA && segB && (
+            <line x1={segA.x} y1={segA.y} x2={segB.x} y2={segB.y} class="map__slow">
+              <title>{`Slowed laser link: ${w.fault.names.join(' - ')} (still up)`}</title>
+            </line>
+          )}
+          {pts.map((p, i) => (
+            p.kind === 'gs'
+              ? <rect x={p.x - 9} y={p.y - 9} width="18" height="18" class="map__gs" data-node={i}><title>{p.name}</title></rect>
+              : <circle cx={p.x} cy={p.y} r="8" class:list={['map__sat', i === lateIdx && 'map__sat--late']} data-node={i}><title>{`${p.name} (SID ${p.sid})`}</title></circle>
+          ))}
+          {pts.map((p, i) => {
+            // ground stations: label below; points near the right edge: label to the left
+            const right = p.x > W - 220;
+            const x = p.kind === 'gs' ? p.x : right ? p.x - 12 : p.x + 12;
+            const y = p.kind === 'gs' ? p.y + 32 : p.y + (i % 2 ? 20 : -12);
+            return (
+              <text x={x} y={y} text-anchor={right ? 'end' : 'start'} class:list={['map__label', p.kind === 'gs' && 'map__label--gs']}>
+                {p.kind === 'gs' ? p.name : `${i}. ${p.name}`}
+              </text>
+            );
+          })}
+          <circle cx={start.x} cy={start.y} r="7" class="map__packet" data-packet />
+        </svg>
+        <figcaption>
+          Positions of the path's nodes at the send time, drawn on a latitude/longitude grid (a drawing aid;
+          the simulation uses 3D positions). The orange segment is the slowed laser link
+          ({w.fault.names.join(' to ')}).
+        </figcaption>
+      </figure>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container">
+      <h2>What each node saw</h2>
+      <p class="prose">
+        At every hop the node reads the deadline for itself from the header (Epoch_Base plus the
+        per-hop budgets) and compares it with its own clock (unit {unitMs} ms, GPS time). Arrival and
+        deadline are shown in milliseconds after the packet entered the network.
+      </p>
+      <div class="table-wrap">
+        <table class="hops">
+          <thead>
+            <tr>
+              <th scope="col">Hop</th><th scope="col">Node</th><th scope="col">SID</th>
+              <th scope="col">Segments Left</th><th scope="col">Deadline (ms)</th>
+              <th scope="col">Arrival (ms)</th><th scope="col">Margin (ms)</th>
+              <th scope="col">No-fault arrival (ms)</th><th scope="col">Result</th>
+            </tr>
+          </thead>
+          <tbody>
+            {w.path.map((p, i) => {
+              // loadWalk refuses hop lists of a different length than the path
+              const f = w.fault_run.hops[i]!;
+              const n = w.nofault_run.hops[i]!;
+              const dev = decodeFlags(f.flags).dev;
+              return (
+                <tr data-row={i} class:list={[i === lateIdx && 'is-late']}>
+                  <td>{i === 0 ? 'ingress' : i}</td>
+                  <td>{p.name}</td>
+                  <td>{`0x${p.sid.toString(16).toUpperCase().padStart(4, '0')}`}</td>
+                  <td>{f.sl}</td>
+                  <td>{fmt(f.deadline_ms)}</td>
+                  <td>{fmt(f.elapsed_ms)}</td>
+                  <td>{fmt(f.margin_ms)}</td>
+                  <td>{fmt(n.elapsed_ms)}</td>
+                  <td class="hops__result">{i === 0 ? 'header created' : i === lateIdx ? `LATE: DEV set, Dev Hop ${i}` : dev ? 'DEV already set' : 'on time'}</td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
+      <p class="prose">
+        Hop {lateIdx} ({lateName}) is the far end of the slowed link: the probe
+        arrived {lateHop ? fmt(-(lateHop.margin_ms ?? 0)) : ''} ms after its deadline there, so that node set
+        the DEV flag and wrote its hop number into Dev Hop. The same probe in the paired run without the
+        fault reached that node {twinAtLate && lateHop ? fmt((lateHop.deadline_ms ?? 0) - twinAtLate.elapsed_ms) : ''} ms
+        before the deadline. The packet still reached {w.flow.dst} ({w.fault_run.outcome === 'deliver' ? 'delivered' : w.fault_run.outcome}),
+        because this run uses the <em>continue</em> policy: it records the miss and keeps the planned path.
+      </p>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container">
+      <h2>The header bytes, as they arrived</h2>
+      <p class="prose">
+        Only three bytes change in flight: <strong>Segments Left</strong> (counts down at every hop),
+        <strong>Flags</strong> (the DEV bit 0x01 is set at the late hop) and <strong>Dev Hop</strong>.
+        Everything else, including Epoch_Base and the per-hop budgets, is fixed at the ingress.
+      </p>
+      <div class="bytes" data-bytes>
+        {w.fault_run.hops.map((h, i) => (
+          <div class="bytes__row" data-bytes-row={i}>
+            <span class="bytes__hop">{i === 0 ? 'ingress' : `hop ${i}`}</span>
+            <code>
+              {hexBytes(h.hex).map((b, j) => <span class={`b b--${fieldOf(j)}`}>{b}</span>)}
+            </code>
+            <span class="bytes__note">SL {h.sl}, Flags 0x{h.flags.toString(16).padStart(2, '0')}{decodeFlags(h.flags).dev ? ' (DEV)' : ''}</span>
+          </div>
+        ))}
+      </div>
+      <p class="legend">
+        <span class="b b--sl">SL</span> Segments Left <span class="b b--flags">Flags</span> (DEV = 0x01, unit code in 0x30)
+        <span class="b b--devhop">Dev Hop</span> <span class="b b--epoch">Epoch_Base</span> <span class="b b--entry">SID + budget entries</span>
+      </p>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container prose">
+      <h2>Before and after</h2>
+      <ul>
+        <li><strong>Hop-by-hop link-state routing (OSPF-style hellos):</strong> the slowed link answers hellos, so it stays "up" and keeps carrying traffic; nobody is told it has become slow.</li>
+        <li><strong>A compact source route without time (CRH-16, RFC 9631):</strong> the packet follows the same path, but no node can tell that it is behind schedule.</li>
+        <li><strong>T-CRH (ours):</strong> the same path plus one budget byte per hop. The first node after the slow link sees the miss from the packet itself, with no extra control traffic, and can switch to a fallback.</li>
+      </ul>
+      <p>
+        In this run, {det.flagged_late} of the {det.probes_crossing_slowed_link} probes that crossed the slowed link
+        were flagged late, and {det.baseline_flagged} of the same probes were flagged in the paired run without
+        the fault. The first flag came {fmt(det.first_detection_after_fault_start_ms, 1)} ms after the slow-down began.
+        This shows a strong overload; the <a href={pageHref('experiments/e1')}>E1 experiment</a> shows the limits:
+        smaller delays fit inside the deadline slack and are not detected at the registered false-alarm limit, and a
+        local queue monitor detects several fault types more often.
+      </p>
+      <p class="source">
+        Source: <a href={`${REPO_URL}/blob/main/${ev.manifestPath}`}>{ev.manifestPath}</a> (commit <code>{ev.gitSha.slice(0, 7)}</code>),
+        extracted by <code>{ev.tool}</code> from <code>{w.run}</code>; walk.json SHA-256 <code>{ev.walkSha.slice(0, 16)}&hellip;</code>.
+        Starlink does not use T-CRH; its real routing is not public.
+      </p>
+    </div>
+  </section>
+
+  <script type="application/json" id="walk-data" set:html={data}></script>
+  <script>
+    const el = document.getElementById('walk-data');
+    const root = document.querySelector<HTMLElement>('[data-controls]');
+    if (el && root) {
+      const { w, pts } = JSON.parse(el.textContent || '{}');
+      root.hidden = false;
+      const packet = document.querySelector('[data-packet]');
+      const status = document.querySelector('[data-status]');
+      const rows = Array.from(document.querySelectorAll('tr[data-row]'));
+      const byteRows = Array.from(document.querySelectorAll('[data-bytes-row]'));
+      let hop = 0, timer = 0;
+      const variant = () => (document.querySelector<HTMLInputElement>('input[name="variant"]:checked')?.value === 'nofault' ? w.nofault_run : w.fault_run);
+      function show(i: number) {
+        hop = i;
+        const [x, y] = pts[i];
+        packet?.setAttribute('cx', String(x));
+        packet?.setAttribute('cy', String(y));
+        const h = variant().hops[i];
+        const late = h.margin_ms !== null && h.margin_ms < 0;
+        packet?.classList.toggle('is-late', (h.flags & 1) === 1);
+        rows.forEach((r, j) => r.classList.toggle('is-current', j === i));
+        byteRows.forEach((r, j) => r.classList.toggle('is-current', j === i));
+        const name = w.path[i].name;
+        if (status) status.textContent = i === 0
+          ? `Ingress ${name}: header built, Segments Left ${h.sl}`
+          : `Hop ${i}, ${name}: arrived ${h.elapsed_ms.toFixed(1)} ms, deadline ${h.deadline_ms.toFixed(1)} ms` +
+            (late ? ' -> LATE, DEV set' : (h.flags & 1) ? ' (DEV already set)' : ' -> on time');
+      }
+      function step() { show((hop + 1) % pts.length); }
+      root.addEventListener('click', (e) => {
+        const act = (e.target as HTMLElement | null)?.dataset?.act;
+        if (act === 'step') { clearInterval(timer); step(); }
+        if (act === 'reset') { clearInterval(timer); show(0); }
+        if (act === 'play') {
+          clearInterval(timer); show(0);
+          const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+          timer = window.setInterval(() => { if (hop >= pts.length - 1) clearInterval(timer); else step(); }, reduce ? 1500 : 900);
+        }
+      });
+      root.addEventListener('change', () => show(hop));
+      show(0);
+    }
+  </script>
+</BaseLayout>
+
+<style>
+  .chips { display: flex; flex-wrap: wrap; gap: var(--space-2); margin-top: var(--space-3); }
+  .controls { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2) var(--space-3); margin-bottom: var(--space-3); }
+  .controls button { padding: var(--space-1) var(--space-3); border: 1px solid var(--line); border-radius: var(--radius-1); background: var(--surface-2); color: var(--ink); cursor: pointer; }
+  .controls button:hover { border-color: var(--accent); }
+  .status { flex-basis: 100%; color: var(--muted); font-family: var(--font-mono); font-size: var(--step--1); min-height: 1.5em; }
+  .map { margin: 0; }
+  .map svg { width: 100%; height: auto; border: 1px solid var(--line); border-radius: var(--radius-2); }
+  .map__bg { fill: var(--surface); }
+  .map__grid { stroke: var(--line-soft); stroke-width: 1; }
+  .map__tick { fill: var(--muted); font-size: 13px; }
+  .map__path { fill: none; stroke: var(--accent); stroke-width: 3; stroke-linejoin: round; }
+  .map__slow { stroke: var(--deadline); stroke-width: 7; stroke-linecap: round; }
+  .map__sat { fill: var(--surface-2); stroke: var(--accent); stroke-width: 3; }
+  .map__sat--late { stroke: var(--bad); fill: var(--bad); }
+  .map__gs { fill: var(--accent); }
+  .map__label { fill: var(--ink); font-size: 14px; paint-order: stroke; stroke: var(--surface); stroke-width: 4px; }
+  .map__label--gs { font-weight: 700; }
+  .hops td.hops__result { white-space: normal; min-width: 9em; }
+  .map__packet { fill: var(--ink); stroke: var(--surface); stroke-width: 3; transition: cx 0.6s var(--ease), cy 0.6s var(--ease); }
+  .map__packet.is-late { fill: var(--bad); }
+  .map figcaption { color: var(--muted); font-size: var(--step--1); margin-top: var(--space-2); }
+  .table-wrap { overflow-x: auto; }
+  .hops { width: 100%; border-collapse: collapse; font-size: var(--step--1); }
+  .hops th, .hops td { padding: var(--space-1) var(--space-2); border-bottom: 1px solid var(--line-soft); text-align: left; white-space: nowrap; }
+  .hops tr.is-late td { color: var(--bad); font-weight: 600; }
+  .hops tr.is-current td { background: var(--accent-soft); }
+  .bytes { display: grid; gap: var(--space-1); font-family: var(--font-mono); font-size: var(--step--1); overflow-x: auto; }
+  .bytes__row { display: grid; grid-template-columns: 5.5em auto 1fr; gap: var(--space-2); align-items: center; padding: 2px var(--space-1); border-radius: var(--radius-1); }
+  .bytes__row.is-current { background: var(--accent-soft); }
+  .bytes__hop, .bytes__note { color: var(--muted); white-space: nowrap; }
+  .b { padding: 0 2px; margin-right: 1px; border-radius: 3px; }
+  .b--sl { background: color-mix(in srgb, var(--accent) 35%, transparent); }
+  .b--flags { background: color-mix(in srgb, var(--bad) 35%, transparent); }
+  .b--devhop { background: color-mix(in srgb, var(--deadline) 40%, transparent); }
+  .b--epoch { background: color-mix(in srgb, var(--derived) 30%, transparent); }
+  .b--entry { color: var(--muted); }
+  .legend { display: flex; flex-wrap: wrap; gap: var(--space-2); font-size: var(--step--1); color: var(--muted); margin-top: var(--space-2); }
+  .source { color: var(--muted); font-size: var(--step--1); }
+</style>
