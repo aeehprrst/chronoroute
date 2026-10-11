@@ -112,3 +112,48 @@ def test_native_ls_event_roc_has_no_packet_fpr(tmp_path):
     rows = detection.event_roc([(fr, tw)], None, [None], k=2, flow=0)
     assert rows[0]["clean_fpr"] is None and rows[0]["p_det_packet"] is None
     assert rows[0]["detected"] == int(detection.control_plane_detection(fr, tw, fr.faults[0])["detected"])
+
+
+def test_registered_event_sensitivities_and_reverse_flow_are_scored_offline(tmp_path):
+    from chronoroute.eval import command
+    run = RUN.replace('flows:\n    - {src: London, dst: New York}',
+                      'flows:\n    - {src: London, dst: New York}\n    - {src: New York, dst: London}')
+    for name,text in (('f',run+FAULT),('t',run)):
+        (tmp_path/f'{name}.yaml').write_text(text)
+        assert cli.main(['eval','scheme','--config',str(tmp_path/f'{name}.yaml'),'--out',str(tmp_path/name)])==0
+    assert cli.main(['eval','score',str(tmp_path/'f'),'--twin',str(tmp_path/'t'),'--flow','0','--secondary-flow','1',
+                     '--k','2','--sensitivity-k','1','4','--out',str(tmp_path/'score')])==0
+    doc=json.loads((tmp_path/'score/summary.json').read_text())
+    d=doc['detection'][0]
+    assert [s['k'] for s in d['sensitivities']]==[1,4]
+    assert d['secondary'][0]['flow']==1 and d['secondary'][0]['packet']['true_detections']>0
+    assert d['faults'][0]['packet']['changed_but_unreached']==0
+    from chronoroute.eval import detection, load
+    from dataclasses import replace
+    fr,tw=load.load_run(tmp_path/'f'),load.load_run(tmp_path/'t')
+    ff,ft=detection.flags_for(fr),detection.flags_for(tw)
+    ff=replace(ff,flagged=ff.flagged & (fr.flow==0));ft=replace(ft,flagged=ft.flagged & (tw.flow==0))
+    for result in d['sensitivities']:
+        direct=detection.event_detection(fr,tw,ff,ft,fr.faults[0],result['k'],1000000000)
+        assert result['faults'][0]['event']==direct
+    # A CSV row must use the same native installation endpoint as its JSON source.
+    fixture=dict(run='unit',scheme='ls_d',seed=0,pdr_by_flow=[],latency=[],control={},
+                 detection=[{'rule':'as run','faults':[{'packet':{'p_det_packet':None,'exposed':0,'lost_at_fault':0,'reached':0},
+                 'event':{'detected':False},'control_plane':{'detected':True}}]}])
+    rows=command._flat_rows(fixture)
+    assert next(r for r in rows if r['metric']=='event_detected')['value']==1
+
+
+def test_native_ls_and_privileged_oracle_have_no_packet_fpr(tmp_path):
+    from chronoroute.eval import command, detection, load
+    for scheme in ('ls_d','o_q'):
+        run=RUN+f'scheme: {{name: {scheme}}}\n'
+        for name,text in (('f',run+FAULT),('t',run)):
+            config_path=tmp_path/f'{scheme}-{name}.yaml';config_path.write_text(text)
+            assert cli.main(['eval','scheme','--config',str(config_path),'--out',str(tmp_path/f'{scheme}-{name}')])==0
+        doc=command.score_run(tmp_path/f'{scheme}-f',twin_dir=tmp_path/f'{scheme}-t')
+        assert doc['fpr'] is None
+        assert not any(r['metric']=='clean_fpr' for r in command._flat_rows(doc))
+        if scheme=='o_q':
+            rows=detection.event_roc([(load.load_run(tmp_path/f'{scheme}-f'),load.load_run(tmp_path/f'{scheme}-t'))],None,[None])
+            assert rows[0]['p_det'] is None and rows[0]['clean_fpr'] is None

@@ -61,3 +61,40 @@ times, paths, clocks, deadlines and header decisions remain in the check.
 The network, queues, jitter and faults are MODELLED. C5 elements and SGP4
 physics are REAL; C2 positions are MODELLED; routes and budgets are DERIVED.
 Starlink's operational routing is UNKNOWN and Starlink does not use T-CRH.
+
+The final scorer is calibrated before confirmation. This keeps the original
+operating-point file frozen, rechecks its original packet/FPR counts, measures
+the event sensitivities and reverse-flow analysis, and benchmarks long routes
+using additional pilot seeds. Supplemental pilots affect the compute forecast
+only. The scientific grid and rule selection remain the registered ones.
+
+```bash
+venv/bin/python -B experiments/E01/resource_gate.py \
+  --pilot results/E01/<pilot> --prerequisites results/E01/<prerequisites> \
+  --out results/E01/<calibration> --workers 8
+venv/bin/python -B experiments/E01/confirm.py \
+  --pilot results/E01/<pilot> --prerequisites results/E01/<calibration> \
+  --e0 results/E00/<gate> --out results/E01/<confirmation> --workers 8
+```
+
+The forecast retains a conservative cost allowance for each constellation and
+scheme, charges both scoring and ROC work, and reserves the other registered
+experiments. An unsuccessful forecast blocks confirmation. ROC work is split
+into bounded chunks; inference always uses the complete run population.
+
+Confirmation records every job, including failures/timeouts and jobs that could
+not start before the campaign deadline. `per_run.csv` contains detector
+endpoints and denominators; `run_metrics.csv` retains delivery, latency, loss
+reasons and state/control accounting. `summary.csv` contains run-level intervals,
+`campaign_roc.csv` the registered rule curves, `paired_contrasts.csv` both fixed
+Holm families, and `population_fpr.csv` the operating-constraint verdict.
+Reverse-direction endpoints and fixed-city bootstrap sensitivities are also
+retained. LS uses native installation events and has undefined packet FPR;
+O-Q is a privileged delivery bound with undefined detector endpoints.
+
+The adjacent ignored `<confirmation>-raw/` cache retains the full packet traces,
+configs and producer manifests. The committed aggregate folder includes a
+compressed ledger of those manifests and their output hashes, replay-gate
+comparisons, offline ROC outputs and standalone figures. The aggregate manifest
+checks its own portable files. Reproducing raw records on another checkout
+requires rerunning the recorded commands; hashes alone are not packet traces.

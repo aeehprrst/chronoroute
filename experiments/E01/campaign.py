@@ -173,7 +173,7 @@ def run_job(job, out, targets):
     if (folder / "raw/manifest.json").exists():
         attach_metadata(folder / "raw", doc["campaign"], row)
     write_json(folder / "observation.json", row)
-    provenance.write_manifest(folder, tool="E01 pilot job", tool_version=__version__, command=row["command"],
+    provenance.write_manifest(folder, tool="E01 simulation job", tool_version=__version__, command=row["command"],
                               config=doc, seeds=[job["seed"]], snapshot=REPO / doc["engine"]["scenario"]["snapshot"],
                               outputs=sorted(p for p in folder.rglob("*") if p.is_file()),
                               labels=labels.pick(*(["orbital_elements"] if job["const"] == "C5" else []),

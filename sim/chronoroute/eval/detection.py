@@ -302,6 +302,7 @@ def counterfactual(fault_run, twin_run, fl_fault, fl_twin, fault, mask=None):
     lost = reached & ~exposed                                       # lost there, never got across
     f1, f0 = fl_fault.flagged, fl_twin.flagged
     tp = exposed & f1 & ~f0
+    changed = (fault_run.outcome != twin_run.outcome) | (fault_run.latency_ns != twin_run.latency_ns)
     loc = np.array([_matches(fl_fault, i, fault, exposed) for i in np.flatnonzero(tp)], dtype=bool)
     n_exp = int(exposed.sum())
     return {"exposed": n_exp, "true_detections": int(tp.sum()),
@@ -310,6 +311,7 @@ def counterfactual(fault_run, twin_run, fl_fault, fl_twin, fault, mask=None):
             # packets the fault LOST on its element (module docstring): never in P_det
             "lost_at_fault": int(lost.sum()), "reached": int(reached.sum()),
             "induced_unexposed": int((mask & ~reached & f1 & ~f0).sum()),
+            "changed_but_unreached": int((mask & changed & ~reached).sum()),
             "lost_flags": int((mask & f0 & ~f1).sum()),
             "localised_true_detections": int(loc.sum()) if loc.size else 0}
 
@@ -455,6 +457,7 @@ def event_roc(pairs, faults_of, rules, *, k=1, window_ns=1_000_000_000, horizon_
     """
     rows = []
     for rule in rules:
+        oracle = native_ls = False
         det = total = 0
         fa_events = 0
         hours = 0.0
@@ -471,6 +474,7 @@ def event_roc(pairs, faults_of, rules, *, k=1, window_ns=1_000_000_000, horizon_
             if include_null and not faults:
                 faults = [f for f in fr.faults if is_null_fault(f)]
             native_ls = fr.scheme.get("name") in ("ls_h", "ls_d")
+            oracle = fr.scheme.get("name") == "o_q"
             if rule is not None and fr.scheme.get("name", "chronoroute") != "chronoroute":
                 raise ValueError("offline rules apply only to ChronoRoute, not native baseline detectors")
             f1 = flags_for(fr, rule)
@@ -502,12 +506,12 @@ def event_roc(pairs, faults_of, rules, *, k=1, window_ns=1_000_000_000, horizon_
             m = mask0
             clean += int(((lab == 0) & m).sum())
             fp += int(((lab == 0) & m & f0.flagged).sum())
-        rows.append({"rule": rule.label if rule is not None else "native", "fault_events": total, "detected": det,
-                     "p_det": (det / total) if total else None,
-                     "false_events_per_hour": (fa_events / hours) if hours else None,
-                     "p_det_packet": (tp / expo) if expo and not native_ls else None,
-                     "clean_fpr": (fp / clean) if clean and not native_ls else None,
-                     "delay_km_median_ns": km_median(delays, observed)})
+        rows.append({"rule": rule.label if rule is not None else "native", "fault_events": total, "detected": None if oracle else det,
+                     "p_det": (det / total) if total and not oracle else None,
+                     "false_events_per_hour": (fa_events / hours) if hours and not oracle else None,
+                     "p_det_packet": (tp / expo) if expo and not native_ls and not oracle else None,
+                     "clean_fpr": (fp / clean) if clean and not native_ls and not oracle else None,
+                     "delay_km_median_ns": None if oracle else km_median(delays, observed)})
     return rows
 
 

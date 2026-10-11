@@ -64,7 +64,7 @@ def _scheme_cmd(args):
 
 
 def score_run(run_dir, *, twin_dir=None, slacks=(), k=1, window_ns=1_000_000_000, warmup_ns=0, q_th_ns=None,
-              rules=(), flow=None, include_null=False, check_plan_rules=False):
+              rules=(), flow=None, include_null=False, check_plan_rules=False, sensitivity_ks=(), secondary_flow=None):
     """Everything `cr eval score` reports, as one JSON-ready dict."""
     run = load_run(run_dir)
     mask = metrics.measurement_mask(run, warmup_ns)
@@ -78,7 +78,8 @@ def score_run(run_dir, *, twin_dir=None, slacks=(), k=1, window_ns=1_000_000_000
         lab = metrics.packet_labels(run, det_mask, q_th_ns)
         out["labels"] = {name: int((lab == i).sum()) for i, name in enumerate(metrics.LABELS)}
         fl = detection.flags_for(run)
-        out["fpr"] = metrics.deadline_fpr(lab, fl.flagged & det_mask)
+        no_packet_detector = run.scheme.get("name") in ("ls_h", "ls_d", "o_q")
+        out["fpr"] = None if no_packet_detector else metrics.deadline_fpr(lab, fl.flagged & det_mask)
         out["faults"] = []
         for f in run.faults:
             row = {"fault": f, "blackhole": metrics.blackhole(run, f),
@@ -117,6 +118,7 @@ def score_run(run_dir, *, twin_dir=None, slacks=(), k=1, window_ns=1_000_000_000
                 raise ValueError("offline slack re-scoring needs a flag-and-continue run")
             f1 = detection.flags_for(run, rule)
             f0 = detection.flags_for(twin, rule)
+            all_f1, all_f0 = f1, f0
             f1 = replace(f1, flagged=f1.flagged & det_mask)
             f0 = replace(f0, flagged=f0.flagged & twin_mask)
             rows = []
@@ -134,8 +136,33 @@ def score_run(run_dir, *, twin_dir=None, slacks=(), k=1, window_ns=1_000_000_000
                 fe["per_hour"] = fe["events"] / fe["hours"] if fe["hours"] else None
             det.append({"rule": "as run" if rule is None else rule.label, "faults": rows,
                         "false_events_per_hour_twin": fe["per_hour"], "false_events_twin": fe,
-                        "fpr": None if native_ls else metrics.deadline_fpr(lab, f1.flagged),
-                        "fpr_twin": None if native_ls else metrics.deadline_fpr(metrics.packet_labels(twin, twin_mask, q_th_ns), f0.flagged)})
+                        "fpr": None if no_packet_detector else metrics.deadline_fpr(lab, f1.flagged),
+                        "fpr_twin": None if no_packet_detector else metrics.deadline_fpr(metrics.packet_labels(twin, twin_mask, q_th_ns), f0.flagged)})
+            sensitivities = []
+            for sensitivity_k in sensitivity_ks:
+                if sensitivity_k <= 0:
+                    raise ValueError("event sensitivity k must be positive")
+                sfe = detection.false_events_per_hour(twin, f0, sensitivity_k, window_ns)
+                if native_ls:
+                    sfe = fe
+                sensitivities.append({"k": sensitivity_k, "false_events_twin": sfe,
+                    "faults": [{"event": detection.event_detection(run, twin, f1, f0, f, sensitivity_k, window_ns),
+                                "control_plane": row["control_plane"]} for f, row in zip(faults, rows)]})
+            det[-1]["sensitivities"] = sensitivities
+            secondary = []
+            if secondary_flow is not None and not native_ls and run.scheme.get("name") != "o_q":
+                sm1 = mask & (run.flow == secondary_flow)
+                sm0 = metrics.measurement_mask(twin, warmup_ns) & (twin.flow == secondary_flow)
+                sf1 = replace(all_f1, flagged=all_f1.flagged & sm1)
+                sf0 = replace(all_f0, flagged=all_f0.flagged & sm0)
+                for f in faults:
+                    secondary.append({"flow": secondary_flow,
+                        "packet": detection.counterfactual(run, twin, sf1, sf0, f, sm1),
+                        "event": detection.event_detection(run, twin, sf1, sf0, f, k, window_ns),
+                        "fpr": metrics.deadline_fpr(metrics.packet_labels(run, sm1, q_th_ns), sf1.flagged),
+                        "fpr_twin": metrics.deadline_fpr(metrics.packet_labels(twin, sm0, q_th_ns), sf0.flagged),
+                        "false_events_twin": detection.false_events_per_hour(twin, sf0, k, window_ns)})
+            det[-1]["secondary"] = secondary
         out["detection"] = det
     return out
 
@@ -160,7 +187,7 @@ def _flat_rows(res):
                          n=s["n_in_send_graph"], detail="(L_det + tol) / L*"))
         rows.append(dict(base, metric="stretch_min_raw", flow="", value=s["min_raw"], n=s["n"],
                          detail="raw L_det / L*, step-crossing packets included: may be < 1 by up to tol"))
-    if "fpr" in res:
+    if res.get("fpr") is not None:
         rows.append(dict(base, metric="clean_fpr", flow="", value=res["fpr"]["fpr"], n=res["fpr"]["clean"],
                          detail=""))
     for m, v in res["control"].get("control_bytes", {}).items():
@@ -172,7 +199,8 @@ def _flat_rows(res):
             rows.append(dict(base, metric="lost_at_fault", flow="", value=f["packet"]["lost_at_fault"],
                              n=f["packet"]["reached"], detail=d["rule"] + "; dropped on the faulty element, "
                              "not in p_det"))
-            rows.append(dict(base, metric="event_detected", flow="", value=int(f["event"]["detected"]),
+            event = f["control_plane"] if res["scheme"].startswith(("ls_h", "ls_d")) else f["event"]
+            rows.append(dict(base, metric="event_detected", flow="", value=int(event["detected"]),
                              n=1, detail=d["rule"]))
     return rows
 
@@ -208,7 +236,8 @@ def _score_cmd(args):
                         window_ns=int(args.window_ms * 1_000_000), warmup_ns=int(args.warmup_s * 1e9),
                         q_th_ns=None if args.q_th_ms is None else int(args.q_th_ms * 1_000_000),
                         rules=[Rule(**r) for r in json.loads(Path(args.rules).read_text())] if args.rules else (),
-                        flow=args.flow, include_null=args.include_null, check_plan_rules=args.check_plans)
+                        flow=args.flow, include_null=args.include_null, check_plan_rules=args.check_plans,
+                        sensitivity_ks=args.sensitivity_k or (), secondary_flow=args.secondary_flow)
     except ValueError as exc:
         # e.g. detection.check_twin refusing a pair that is not a counterfactual pair: say why
         # and write nothing (a half-scored folder would look like a result)
@@ -217,7 +246,8 @@ def _score_cmd(args):
     _write_outputs(args.out, res, _flat_rows(res), ["cr"] + list(args.argv),
                    {"run": str(args.run), "twin": args.twin, "slack": list(args.slack or []), "k": args.k,
                     "window_ms": args.window_ms, "warmup_s": args.warmup_s, "q_th_ms": args.q_th_ms,
-                    "rules": args.rules, "flow": args.flow, "include_null": args.include_null, "check_plans": args.check_plans})
+                    "rules": args.rules, "flow": args.flow, "include_null": args.include_null, "check_plans": args.check_plans,
+                    "sensitivity_k": args.sensitivity_k, "secondary_flow": args.secondary_flow})
     p = res["pdr"]
     print(f"cr eval score: PDR {p['pdr']} ({p['delivered']}/{p['sent']}), losses {p['losses']}")
     if "stretch" in res:
@@ -279,6 +309,8 @@ def register(registry):
     p.add_argument("--flow", type=int, help="restrict packet flags and detection denominators to this flow")
     p.add_argument("--include-null", action="store_true", help="explicitly score null faults against their twins")
     p.add_argument("--check-plans", action="store_true", help="refuse offline rules that change any recorded path")
+    p.add_argument("--sensitivity-k", type=int, nargs="+", help="additional descriptive event thresholds, using the same flags")
+    p.add_argument("--secondary-flow", type=int, help="also report detection on this flow with the same offline rules")
     p.add_argument("--out", required=True)
     p = registry.command("eval", "roc", help="event ROC over an offline slack sweep", func=_roc_cmd)
     p.add_argument("--pairs", nargs="+", required=True, help="FAULT_DIR:TWIN_DIR pairs")
