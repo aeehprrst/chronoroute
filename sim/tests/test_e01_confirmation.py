@@ -175,9 +175,62 @@ def test_real_group_simulation_scoring_and_null_manifest(tmp_path,monkeypatch,in
     assert all(r['status']=='ok' for r in observations) and len(records)==27
     assert all(r['tp']==0 and r['detected']==0 for r in records)
     for m in manifests:provenance.validate_manifest(m)
+    # Resumption must reproduce the uninterrupted analysis without launching
+    # either simulations or scores, and leave original producers untouched.
+    hashes={str(m):provenance.file_sha256(m) for m in manifests}
+    def forbidden(*args,**kwargs):raise AssertionError('completed work reran')
+    monkeypatch.setattr(c.e1,'run_job',forbidden)
+    monkeypatch.setattr(c.e1,'measured_command',forbidden)
+    resumed=c.run_group(jobs,tmp_path,tmp_path/'resumed-raw',{'C5:0':{}},time.monotonic()+120,
+                        {'C5':{'rule_index':2}},resume_raw=tmp_path/'raw',resume_operating=tmp_path/'operating_points.json')
+    assert resumed[1]==records and all(r['reused'] for r in resumed[0])
+    assert all(provenance.file_sha256(m)==hashes[str(m)] for m in manifests)
+    for key,value in [('seed',1001),('scheme','lq'),('pair_id',1)]:
+        with pytest.raises(ValueError,match='config|identity'):
+            c.reuse_job(dict(jobs[1],**{key:value}),tmp_path/'raw',tmp_path/('bad-'+key),{},tmp_path/'operating_points.json',tmp_path/'operating_points.json')
+    frozen=tmp_path/'frozen-operating.json';frozen.write_bytes((tmp_path/'operating_points.json').read_bytes())
+    (tmp_path/'operating_points.json').write_text('{"changed":true}')
+    with pytest.raises(ValueError,match='operating'):
+        c.reuse_job(jobs[1],tmp_path/'raw',tmp_path/'bad-selection',{},tmp_path/'operating_points.json',frozen)
+    (tmp_path/'operating_points.json').write_bytes(frozen.read_bytes())
+    rules=(tmp_path/'rules.json').read_bytes();(tmp_path/'rules.json').write_text('[]')
+    with pytest.raises(ValueError,match='rules'):
+        c.reuse_job(jobs[1],tmp_path/'raw',tmp_path/'bad-rules',{},tmp_path/'operating_points.json',frozen)
+    (tmp_path/'rules.json').write_bytes(rules)
+    twin_manifest=tmp_path/'raw/runs'/jobs[0]['id']/'raw/manifest.json'
+    twin_bytes=twin_manifest.read_bytes();twin_manifest.write_bytes(twin_bytes+b' ')
+    with pytest.raises(ValueError,match='input'):
+        c.reuse_job(jobs[1],tmp_path/'raw',tmp_path/'bad-twin',{},tmp_path/'operating_points.json',frozen)
+    twin_manifest.write_bytes(twin_bytes)
+    assert c.reuse_job(dict(jobs[1],id='missing'),tmp_path/'raw',tmp_path/'missing-raw',{},tmp_path/'operating_points.json',tmp_path/'operating_points.json') is None
+    bad=json.loads((tmp_path/'raw/runs/unit-null/config.json').read_text())
+    bad['engine']['seed']+=1
+    (tmp_path/'raw/runs/unit-null/config.json').write_text(json.dumps(bad))
+    with pytest.raises(ValueError,match='config|hash'):
+        c.reuse_job(jobs[1],tmp_path/'raw',tmp_path/'bad-raw',{},tmp_path/'operating_points.json',tmp_path/'operating_points.json')
 
 
-def test_driver_partial_campaign_is_manifested_as_incomplete(tmp_path,monkeypatch):
+def test_checkpoint_rejects_changed_design_and_frozen_inputs(tmp_path,monkeypatch):
+    from chronoroute import provenance
+    source=tmp_path/'stopped';source.mkdir();raw=tmp_path/'stopped-raw';raw.mkdir()
+    planned=c.e1.jobs('confirmatory');operating={'frozen':'selection'};targets={'target':[1,2]};forecast={'workers':8}
+    docs={'planned_jobs.json':planned,'operating_points.json':operating,'rules.json':c.e1.RULES,
+          'preflight.json':{'targets':targets},'resource_forecast.json':forecast,
+          'checkpoint.json':{'accounted_previous_e1_wall_s':20,'complete':False}}
+    for name,doc in docs.items():(source/name).write_text(json.dumps(doc))
+    provenance.write_manifest(raw,tool='unit',tool_version='1',command=['unit'],config={},seeds=[],outputs=[])
+    provenance.write_manifest(source,tool='unit',tool_version='1',command=['unit'],config={'prereg_git_sha':c.e1.PREREG_SHA,'prereg_sha256':c.e1.PREREG_HASH},seeds=[],outputs=list(source.iterdir()),extra={'raw_cache':str(raw)})
+    validate=provenance.validate_manifest
+    monkeypatch.setattr(provenance,'validate_manifest',lambda *args,**kwargs:dict(validate(*args,**kwargs),dirty=False))
+    assert c.validate_checkpoint(source,planned,operating,targets,forecast)==(raw,20)
+    for field,value in [('planned_jobs.json',planned[:-1]),('operating_points.json',{}),('rules.json',[]),('preflight.json',{}),('resource_forecast.json',{})]:
+        original=(source/field).read_bytes();(source/field).write_text(json.dumps(value))
+        with pytest.raises(ValueError):c.validate_checkpoint(source,planned,operating,targets,forecast)
+        (source/field).write_bytes(original)
+
+
+@pytest.mark.parametrize('resume',[False,True])
+def test_driver_partial_campaign_is_manifested_as_incomplete(tmp_path,monkeypatch,resume):
     from chronoroute import provenance
     dirs={n:tmp_path/n for n in ('pilot','prereq','e0')}
     for p in dirs.values():
@@ -191,19 +244,29 @@ def test_driver_partial_campaign_is_manifested_as_incomplete(tmp_path,monkeypatc
     monkeypatch.setattr(c.e1,'preflight',lambda *args: {})
     monkeypatch.setattr(c,'group_jobs',lambda *args: [[]])
     observation=dict(c.e1.jobs('confirmatory')[0],status='ok',cpu_s=1,score_cpu_s=0,peak_rss_kb=1)
-    def work(*args):
+    def work(*args,**kwargs):
+        assert bool(kwargs.get('resume_raw'))==resume
         (args[2]/'unit-score.log').write_text('unit fixture')
         return [observation],[row(1000)],[]
     monkeypatch.setattr(c,'run_group',work)
     monkeypatch.setattr(c,'roc_jobs',lambda *args: [])
     monkeypatch.setattr(c.analysis,'write_analysis',lambda *args: False)
     args=['--out',str(tmp_path/'out'),'--workers','1']
+    if resume:
+        source=tmp_path/'checkpoint';source.mkdir()
+        (source/'manifest.json').write_text(json.dumps({'dirty':False}))
+        (tmp_path/'previous-raw').mkdir()
+        (tmp_path/'previous-raw/manifest.json').write_text(json.dumps({'dirty':False}))
+        monkeypatch.setattr(c,'validate_checkpoint',lambda *args: (tmp_path/'previous-raw',20))
+        args+=['--resume-from',str(source)]
     for n,p in dirs.items():args+=['--'+('prerequisites' if n=='prereq' else n),str(p)]
     assert c.main(args)==1
     m=provenance.validate_manifest(tmp_path/'out/manifest.json')
     assert not m['extra']['complete']
     raw=provenance.validate_manifest(tmp_path/'out-raw/manifest.json')
     assert any(entry['path']=='unit-score.log' for entry in raw['outputs'])
+    runtime=json.loads((tmp_path/'out/runtime.json').read_text())
+    assert runtime['previous_spent_s']==(22 if resume else 2)
 
 
 def test_resource_projection_uses_constellation_costs_without_changing_grid():

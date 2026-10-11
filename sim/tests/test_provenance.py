@@ -248,6 +248,34 @@ def test_git_clean_repo(tmp_path, hermetic_git):
 
 
 @needs_git
+def test_git_state_bounds_arguments_for_large_collections(tmp_path, hermetic_git, monkeypatch):
+    repo = tmp_path / "repo"
+    sha = make_repo(repo)
+    original = prov._git
+    def bounded(cwd, *args):
+        if sum(len(str(a)) for a in args) > 4096:
+            raise prov._GitUnavailable('argument list too long')
+        return original(cwd, *args)
+    monkeypatch.setattr(prov, '_git', bounded)
+    paths = [repo / 'results' / 'run' / f'packet-{i}.csv' for i in range(10000)]
+    assert prov.git_state(repo, ignore_paths=paths) == {'sha': sha, 'dirty': False}
+    (repo / 'code.py').write_text('changed\n')
+    assert prov.git_state(repo, ignore_paths=paths)['dirty'] is True
+
+
+@needs_git
+def test_git_output_filter_handles_renames_and_unusual_names(tmp_path, hermetic_git):
+    repo = tmp_path / 'repo'
+    make_repo(repo)
+    output = repo / 'output\nwith space.txt'
+    output.write_text('data')
+    assert prov.git_state(repo, ignore_paths=[output])['dirty'] is False
+    git(repo, 'mv', 'code.py', 'renamed.py')
+    assert prov.git_state(repo, ignore_paths=[output, repo / 'renamed.py'])['dirty'] is True
+    assert prov.git_state(repo, ignore_paths=[output, repo / 'renamed.py', repo / 'code.py'])['dirty'] is False
+
+
+@needs_git
 @pytest.mark.parametrize("change", ["modify", "untracked", "staged"])
 def test_git_dirty_repo(tmp_path, hermetic_git, change):
     repo = tmp_path / "repo"

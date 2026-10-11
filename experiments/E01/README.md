@@ -115,3 +115,12 @@ is undefined for the unlocalised E2E monitor. Delivery and control accounting
 remain all-flow quantities even in the reverse-detection summary. The raw-cache
 collection manifest indexes completed simulation/scoring logs as well as the
 producer files.
+
+To continue a stopped campaign, supply `--resume-from <checkpoint>` to
+`confirm.py` and choose a new `--out` folder. The launcher verifies the source
+collection and frozen configuration, copies only complete validated simulation
+and scoring producers, and preserves their original manifests. Incomplete jobs
+run again in the new cache; the original checkpoint stays unchanged. Analysis
+must agree with an uninterrupted run. Earlier active wall time remains charged
+to the campaign budget; the user's pause does not. The resumed inventory and
+runtime record distinguish reused work from new computation.

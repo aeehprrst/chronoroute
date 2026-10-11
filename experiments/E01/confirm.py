@@ -3,6 +3,7 @@ import argparse
 import copy
 import gzip
 import json
+import math
 from pathlib import Path
 import shutil
 import sys
@@ -60,7 +61,69 @@ def score_command(job, out, raw, twin, score):
     return cmd
 
 
-def run_group(group, out, raw_root, targets, deadline, operating):
+def validate_checkpoint(source, planned, operating, targets, forecast):
+    """Validate an immutable stopped collection and all frozen design inputs."""
+    source=source.resolve()
+    manifest=provenance.validate_manifest(source/'manifest.json')
+    if manifest['dirty'] is not False:raise ValueError('unclean checkpoint producer')
+    for key,value in (('prereg_git_sha',e1.PREREG_SHA),('prereg_sha256',e1.PREREG_HASH)):
+        if manifest['config'].get(key)!=value:raise ValueError('checkpoint preregistration mismatch')
+    expected={'planned_jobs.json':planned,'operating_points.json':operating,'rules.json':e1.RULES,
+              'resource_forecast.json':forecast}
+    for name,value in expected.items():
+        if json.loads((source/name).read_text())!=value:raise ValueError('changed checkpoint '+name)
+    if json.loads((source/'preflight.json').read_text()).get('targets')!=targets:
+        raise ValueError('changed checkpoint targets')
+    checkpoint=json.loads((source/'checkpoint.json').read_text())
+    elapsed=checkpoint['accounted_previous_e1_wall_s']
+    if checkpoint['complete'] or not isinstance(elapsed,(int,float)) or not math.isfinite(elapsed) or elapsed<0:
+        raise ValueError('invalid stopped runtime accounting')
+    raw=Path(manifest['extra']['raw_cache'])
+    if not raw.is_absolute():raw=e1.REPO/raw
+    raw_manifest=provenance.validate_manifest(raw/'manifest.json')
+    if raw_manifest['dirty'] is not False:raise ValueError('unclean checkpoint raw collection')
+    return raw,elapsed
+
+
+def reuse_job(job, source_raw, raw_root, targets, source_operating, operating_path):
+    """Copy complete validated producers without rewriting their original provenance."""
+    source=source_raw/'runs'/job['id']
+    required=[source/'manifest.json',source/'raw/manifest.json',source/'observation.json']
+    if job['condition']!='none':required.append(source/'score/manifest.json')
+    if not all(p.exists() for p in required):return None
+    wrapper=provenance.validate_manifest(source/'manifest.json')
+    raw=provenance.validate_manifest(source/'raw/manifest.json')
+    expected=e1.document(job,targets)
+    if wrapper['dirty'] is not False or raw['dirty'] is not False:raise ValueError('unclean reusable producer')
+    if wrapper['config']!=expected:raise ValueError('reusable config mismatch')
+    if raw['config']!={'run':expected['engine'],'scheme':expected['scheme']}:
+        raise ValueError('reusable raw config mismatch')
+    simulation=json.loads((source/'observation.json').read_text())
+    if any(simulation.get(k)!=v for k,v in job.items()):raise ValueError('reusable job identity mismatch')
+    if simulation['status']!='ok':return None
+    result=None
+    if job['condition']!='none':
+        score=provenance.validate_manifest(source/'score/manifest.json')
+        if score['dirty'] is not False:raise ValueError('unclean reusable score')
+        twin=source_raw/'runs'/f"{job['const']}-{job['scheme']}-s{job['seed']:04d}-none"/'raw'
+        cfg=dict(check_plans=job['scheme']=='chronoroute',flow=0,include_null=True,k=2,q_th_ms=None,
+                 rules=str(source_operating.parent/'rules.json') if job['scheme']=='chronoroute' else None,
+                 run=str(source/'raw'),twin=str(twin),secondary_flow=1,sensitivity_k=[1,4],slack=[],warmup_s=0.,window_ms=1000.)
+        if score['config']!=cfg:raise ValueError('reusable scoring settings mismatch')
+        if job['scheme']=='chronoroute' and json.loads((source_operating.parent/'rules.json').read_text())!=e1.RULES:
+            raise ValueError('changed reusable rules')
+        if provenance.file_sha256(source_operating)!=provenance.file_sha256(operating_path):
+            raise ValueError('changed reusable operating point')
+        for item in score['extra']['inputs']:
+            if provenance.file_sha256(item['path'])!=item['sha256']:raise ValueError('changed reusable score input')
+        result=score['extra']['measured_command']
+        if result['status']!='ok':return None
+    destination=raw_root/'runs'/job['id'];destination.parent.mkdir(parents=True,exist_ok=True)
+    shutil.copytree(source,destination)
+    return simulation,result
+
+
+def run_group(group, out, raw_root, targets, deadline, operating, *, resume_raw=None, resume_operating=None):
     """Bounded sequential jobs per twin; every launch/failure remains in inventory."""
     observations=[];records=[];manifests=[]
     twin=raw_root/'runs'/group[0]['id']/'raw'
@@ -74,7 +137,9 @@ def run_group(group, out, raw_root, targets, deadline, operating):
             observations.append(item);continue
         if job['condition']!='none' and not twin_ok:
             item['reason']='shared twin failed';observations.append(item);continue
-        simulation=e1.run_job(job,raw_root,targets)
+        cached=reuse_job(job,resume_raw,raw_root,targets[f"{job['const']}:{job['pair_id']}"],resume_operating,out/'operating_points.json') if resume_raw is not None else None
+        item['reused']=cached is not None
+        simulation=cached[0] if cached else e1.run_job(job,raw_root,targets)
         item.update({k:simulation[k] for k in ('wall_s','cpu_s','peak_rss_kb','returncode','command')},simulation_status=simulation['status'],status=simulation['status'])
         folder=raw_root/'runs'/job['id']
         manifests.append(folder/'manifest.json')
@@ -86,11 +151,11 @@ def run_group(group, out, raw_root, targets, deadline, operating):
             elif time.monotonic()+60<=deadline:
                 score=folder/'score'
                 cmd=score_command(job,out,folder/'raw',twin,score)
-                result=e1.measured_command(cmd,folder/'score_command')
+                result=cached[1] if cached else e1.measured_command(cmd,folder/'score_command')
                 item.update(score_status=result['status'],score_wall_s=result['wall_s'],score_cpu_s=result['cpu_s'],
                             score_peak_rss_kb=result['peak_rss_kb'],score_path=str(score))
                 if result['status']=='ok':
-                    e1.attach_metadata(score,e1.document(job)['campaign'],result,inputs=[folder/'raw/manifest.json',twin/'manifest.json',out/'operating_points.json'])
+                    if not cached:e1.attach_metadata(score,e1.document(job)['campaign'],result,inputs=[folder/'raw/manifest.json',twin/'manifest.json',out/'operating_points.json'])
                     manifests.append(score/'manifest.json')
                     try:
                         records.extend(analysis.extract(json.loads((score/'summary.json').read_text()),job,operating))
@@ -128,6 +193,7 @@ def main(argv=None):
     parser=argparse.ArgumentParser(description=__doc__)
     for name in ('out','pilot','prerequisites','e0'):parser.add_argument('--'+name,type=Path,required=True)
     parser.add_argument('--workers',type=int,choices=range(1,9),default=8)
+    parser.add_argument('--resume-from',type=Path,help='reuse validated producers from an immutable stopped checkpoint into a new output folder')
     if argv is not None and '--help' in argv:parser.print_help();return 0
     args=parser.parse_args(argv)
     e1.validate_protocol()
@@ -152,8 +218,18 @@ def main(argv=None):
     observations=[];records=[];manifest_paths=[]
     with provenance.RunTimer() as timer:
         targets=e1.preflight(args.out)
+        resume_raw=None
+        if args.resume_from:
+            args.resume_from=args.resume_from.resolve()
+            resume_raw,previous=validate_checkpoint(args.resume_from,planned,operating,targets,forecast)
+            spent+=previous;available-=previous;deadline-=previous
+            source_paths.extend([args.resume_from/'manifest.json',resume_raw/'manifest.json'])
+            write_json(args.out/'resume.json',dict(source=str(args.resume_from),raw_source=str(resume_raw),
+                       accounted_previous_e1_wall_s=previous,previous_manifest_sha256=provenance.file_sha256(args.resume_from/'manifest.json'),
+                       method='Copy only complete validated original producers; preserve originals and rerun unfinished jobs.'))
+        resume_options=dict(resume_raw=resume_raw,resume_operating=args.resume_from/'operating_points.json') if resume_raw is not None else {}
         with ThreadPoolExecutor(max_workers=args.workers) as pool:
-            futures=[pool.submit(run_group,g,args.out,raw_root,targets,deadline,operating) for g in groups]
+            futures=[pool.submit(run_group,g,args.out,raw_root,targets,deadline,operating,**resume_options) for g in groups]
             for future_result in as_completed(futures):
                 oo,rr,mm=future_result.result();observations.extend(oo);records.extend(rr);manifest_paths.extend(mm)
                 e1.write_csv(args.out/'inventory.csv',observations)
@@ -186,6 +262,9 @@ def main(argv=None):
         # Original producer manifests are a compressed evidence ledger. Raw files remain available locally.
         for folder in (args.pilot,args.prerequisites):manifest_paths.extend(folder.rglob('manifest.json'))
         (args.out/'inputs').mkdir()
+        if args.resume_from:
+            ledger=args.resume_from/'inputs/producer-manifests.jsonl.gz'
+            if ledger.exists():shutil.copy2(ledger,args.out/'inputs/checkpoint-producer-manifests.jsonl.gz')
         prerequisite_manifest=json.loads((args.prerequisites/'manifest.json').read_text())
         for item in prerequisite_manifest.get('extra',{}).get('inputs',[]):
             source=Path(item['path'])
@@ -204,7 +283,9 @@ def main(argv=None):
                 fh.write(json.dumps(dict(path=str(path),sha256=provenance.file_sha256(path),manifest=m),sort_keys=True)+'\n')
         write_json(args.out/'runtime.json',dict(label='REAL host observations; MODELLED projections',wall_s=timer.wall_seconds,
                    previous_spent_s=spent,reserved_future_s=future,available_e1_s=available,workers=args.workers,
-                   simulation_cpu_s=sum(r['cpu_s'] for r in observations),score_cpu_s=sum(r['score_cpu_s'] for r in observations),
+                   reused_jobs=sum(bool(r.get('reused')) for r in observations),
+                   reused_producer_cpu_s=sum(r['cpu_s']+r['score_cpu_s'] for r in observations if r.get('reused')),
+                   simulation_cpu_s=sum(r['cpu_s'] for r in observations if not r.get('reused')),score_cpu_s=sum(r['score_cpu_s'] for r in observations if not r.get('reused')),
                    roc_cpu_s=sum(r['cpu_s'] for r in roc_observations),max_rss_kb=max(r['peak_rss_kb'] for r in observations)))
     success=complete and len(observations)==9576 and all(r['status']=='ok' for r in observations) and len(roc_observations)==1512 and all(r['status']=='ok' for r in roc_observations)
     provenance.write_manifest(args.out,tool='E01 confirmatory campaign',tool_version=__version__,command=[sys.executable,'-B',__file__,*(argv if argv is not None else sys.argv[1:])],

@@ -251,19 +251,32 @@ def git_state(repo_dir=None, *, ignore_paths=()):
 
     excludes = [f":(exclude,literal){d}" for d in DIRTY_IGNORE]
     top_resolved = top.resolve()
+    ignored = set()
     for path in ignore_paths:
         try:
             rel = Path(path).resolve().relative_to(top_resolved)
         except ValueError:
             continue                      # outside the repo: cannot be dirty
         if rel.parts:                     # never exclude the repo root itself
-            excludes.append(f":(exclude,literal){rel.as_posix()}")
+            ignored.add(rel.as_posix())
     try:
-        status = _git(top, "status", "--porcelain", "--untracked-files=all",
+        status = _git(top, "status", "--porcelain", "-z", "--untracked-files=all",
                       "--", ".", *excludes)
     except _GitUnavailable:
         return {"sha": sha, "dirty": None}
-    return {"sha": sha, "dirty": bool(status.strip())}
+    # Filter declared outputs locally: a large collection must not turn into
+    # an unbounded git argument list. NUL records also preserve unusual names.
+    records = iter(status.split('\0'))
+    for record in records:
+        if not record:
+            continue
+        paths = [record[3:]]
+        if 'R' in record[:2] or 'C' in record[:2]:
+            paths.append(next(records))
+        for path in paths:
+            if not any(path == prefix or path.startswith(prefix + '/') for prefix in ignored):
+                return {"sha": sha, "dirty": True}
+    return {"sha": sha, "dirty": False}
 
 
 # ---------------------------------------------------------------------------
