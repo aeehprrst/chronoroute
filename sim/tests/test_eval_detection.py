@@ -280,3 +280,100 @@ def test_lq_and_control_plane_detection(setup, tmp_path):
     assert cp["detected"] and cp["delay_ns"] >= 50 * MS        # at least the SPF delay after a window end
 def test_empty_event_roc_has_undefined_endpoints():
     assert detection.event_roc([], None, [None])[0]["clean_fpr"] is None
+
+
+def test_plain_run_without_per_hop_records_scores_cleanly(setup, tmp_path):
+    """A plain `cr run` folder has no scheme_packets.csv.gz, hence no packet labels. Scored
+    against a twin with no fault to score, `cr eval score` used to crash (UnboundLocalError:
+    the packet-detector flag and the labels were only defined when per-hop records exist).
+    Now it reports the twin's false events and leaves the clean-packet FPRs undefined (None);
+    scoring a fault without per-hop records stays a clean refusal (exit 2)."""
+    import json
+    from chronoroute import cli
+    from chronoroute.eval import command as eval_command
+    from chronoroute.fwd import command
+    plain = tmp_path / "plain"
+    command.run_config(config.normalise(doc()), plain)
+    assert not load.load_run(plain).has_extras()
+    out = tmp_path / "score"
+    assert cli.main(["eval", "score", str(plain), "--twin", str(plain), "--out", str(out)]) == 0
+    res = json.loads((out / "summary.json").read_text())
+    assert "fpr" not in res and "stretch" not in res
+    d = res["detection"][0]
+    assert d["faults"] == [] and d["fpr"] is None and d["fpr_twin"] is None
+    assert d["false_events_twin"]["hours"] == pytest.approx(6 / 3600)
+    # a twin WITH per-hop records still gets its FPR; the plain side's stays undefined
+    mixed = eval_command.score_run(plain, twin_dir=setup["twin"].dir)["detection"][0]
+    assert mixed["fpr"] is None and mixed["fpr_twin"]["clean"] > 0
+    # a scored fault needs the per-hop records of the fault run: refused, nothing written
+    faulty = tmp_path / "plain_fault"
+    slow = {"kind": "slow_processing", "link": [setup["a"], setup["b"]], "delta_ns": 15_000_000,
+            "start_s": 2, "stop_s": 5}
+    command.run_config(config.normalise(doc([slow])), faulty)
+    refused = tmp_path / "refused"
+    assert cli.main(["eval", "score", str(faulty), "--twin", str(setup["twin"].dir), "--out", str(refused)]) == 2
+    assert not refused.exists()
+
+
+@pytest.fixture(scope="module")
+def ls_twin(tmp_path_factory):
+    return run(tmp_path_factory.mktemp("ls-twin"), "lsd", doc(), {"name": "ls_d", "ls_d": {"window_s": 1}})
+
+
+def test_false_events_per_hour_use_the_warmup_window(setup, ls_twin):
+    """With --warmup-s the twin's flags were restricted to packets sent after the warm-up, but
+    the hours were the whole sending window, so false events per hour were biased low by
+    (T - warm-up) / T. Events and hours now both cover [warm-up, T_end - drain)."""
+    from chronoroute.eval import command as eval_command
+    tw = setup["twin"]                                 # sends in [0, 6 s)
+    warm = 2 * S
+    res = eval_command.score_run(tw.dir, twin_dir=tw.dir, warmup_ns=warm, slacks=("1.05",), sensitivity_ks=(1, 3))
+    rule = Rule(kind="mult", slack="1.05")
+    for d, r in zip(res["detection"], (None, rule)):
+        fes = [d["false_events_twin"]] + [s["false_events_twin"] for s in d["sensitivities"]]
+        for fe, k in zip(fes, (1, 1, 3)):
+            assert fe["hours"] == pytest.approx(4 / 3600)
+            assert fe["per_hour"] == pytest.approx(fe["events"] / (4 / 3600))
+            # the events are exactly those of packets sent in the same window
+            m = metrics.measurement_mask(tw, warm)
+            assert fe == detection.false_events_per_hour(tw, detection.flags_for(tw, r), k, S, mask=m,
+                                                         warmup_ns=warm)
+    assert res["detection"][1]["false_events_twin"]["events"] > 0         # a tight slack flags packets
+    # no warm-up: the whole sending window, as before
+    full = eval_command.score_run(tw.dir, twin_dir=tw.dir)["detection"][0]["false_events_twin"]
+    assert full["hours"] == pytest.approx(6 / 3600)
+    # native link-state: control-plane events counted over the same window as the hours
+    ls = eval_command.score_run(ls_twin.dir, twin_dir=ls_twin.dir, warmup_ns=warm)["detection"][0]
+    fe = ls["false_events_twin"]
+    want = sum(warm <= x["t_ns"] < 6 * S and x["kind"] in ("adjacency_down", "metric") for x in ls_twin.detections)
+    assert fe["hours"] == pytest.approx(4 / 3600) and fe["events"] == want
+
+
+def test_event_roc_refuses_pairs_of_different_schemes(setup, unscored_twins, tmp_path):
+    """P_det, packet P_det and clean FPR are defined or not by the scheme (O-Q, native LS), and
+    event_roc decided that from the LAST pair: a list mixing schemes is refused now."""
+    from chronoroute import cli
+    e2e = unscored_twins["scheme"][0]
+    with pytest.raises(ValueError, match="one scheme"):
+        detection.event_roc([(setup["real"], setup["twin"]), (e2e, e2e)], None, [None])
+    assert detection.event_roc([(e2e, e2e)], None, [None])[0]["fault_events"] == 0      # one scheme: fine
+    out = tmp_path / "roc"
+    assert cli.main(["eval", "roc", "--pairs", f"{setup['real'].dir}:{setup['twin'].dir}",
+                     f"{e2e.dir}:{e2e.dir}", "--out", str(out)]) == 2
+    assert not out.exists()
+
+
+def test_null_faults_are_always_scored_and_include_null_says_so(capsys):
+    """--include-null never changed anything: scored_faults returns every null fault of the
+    fault run anyway. The help text said it 'explicitly' scored them; it now says it has no
+    effect."""
+    from types import SimpleNamespace
+    from chronoroute import cli
+    null = {"kind": "slow_processing", "link": [1, 2], "start_ns": 0, "stop_ns": S, "params": {"delta_ns": 0}}
+    assert detection.is_null_fault(null)
+    assert detection.scored_faults(SimpleNamespace(faults=[null]), SimpleNamespace(faults=[])) == [null]
+    for sub in ("score", "roc"):
+        with pytest.raises(SystemExit):
+            cli.main(["eval", sub, "--help"])
+        text = " ".join(capsys.readouterr().out.split())
+        assert "--include-null no effect: null (phantom) faults are always scored" in text

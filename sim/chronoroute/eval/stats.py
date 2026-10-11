@@ -107,6 +107,23 @@ def t_cdf(t, df):
     return 1.0 - tail if t >= 0 else tail
 
 
+def t_two_sided_p(t, df):
+    """Two-sided p-value P(|T| >= |t|) of Student's t with df degrees of freedom.
+
+    Computed as the tail itself, I_x(df/2, 1/2) with x = df / (df + t^2), never as
+    2 (1 - t_cdf(|t|)): that difference carries an absolute rounding error of ~1e-16 into
+    every p (relative 3e-12 at t = 4.9, 1.5 % at t = 13, df 35) and cancels to exactly 0
+    once p < ~1e-16 (|t| > ~14 at df 35; t = 40 has p = 8.2e-31). Here the relative
+    accuracy is that of betainc (~1e-14) at any |t|; 0 only when the tail underflows.
+    """
+    if df <= 0:
+        raise ValueError("df must be positive")
+    t = abs(float(t))
+    if math.isinf(t):
+        return 0.0
+    return betainc(0.5 * df, 0.5, df / (df + t * t))
+
+
 def t_ppf(p, df):
     """Quantile of Student's t with df degrees of freedom (bisection on t_cdf)."""
     if not 0.0 < p < 1.0:
@@ -177,7 +194,12 @@ def paired(a, b, conf=0.95):
     """Paired comparison of per-run values a[i], b[i] (same seed i): d = a - b.
 
     Returns the mean difference with its t interval, the t statistic and the
-    two-sided p-value of H0: mean d = 0 (for Holm).
+    two-sided p-value of H0: mean d = 0 (for Holm), from t_two_sided_p (accurate for
+    tiny p too: never rounded to 0 while the true value is a representable double).
+
+    Zero variance (n > 1 and every paired difference identical): the t statistic is
+    undefined (0/0 or c/0), so by convention t = 0 and p = 1 when every difference is 0,
+    and t = +-inf and p = 0 (exactly) when every difference equals the same nonzero value.
     """
     a = _per_run_values(a, "paired")
     b = _per_run_values(b, "paired")
@@ -200,7 +222,7 @@ def paired(a, b, conf=0.95):
         else:
             t = ci["mean"] / (ci["sd"] / math.sqrt(ci["n"]))
             out["t"] = t
-            out["p"] = 2.0 * (1.0 - t_cdf(abs(t), ci["n"] - 1))
+            out["p"] = t_two_sided_p(t, ci["n"] - 1)
     return out
 
 
@@ -237,7 +259,9 @@ def bootstrap_ci(data, statistic="mean", n_boot=10_000, conf=0.95, method="bca",
     data       (n_runs, m) array, one row per run (1-D = one value per run)
     statistic  "mean" (mean of column 0), "ratio" (sum col 0 / sum col 1, e.g. PDR =
                delivered / sent pooled over the resampled runs), or a function
-               (n_runs, m) array -> float
+               (n_runs, m) array -> float, which must never return NaN: a NaN estimate,
+               resample or jackknife value of a function (for example inf - inf across
+               two columns) is refused with ValueError, never left out
     method     "percentile" or "bca"
     Returns {estimate, lo, hi, method, n_runs, n_inf_runs, n_boot, n_boot_undefined}.
 
@@ -246,7 +270,10 @@ def bootstrap_ci(data, statistic="mean", n_boot=10_000, conf=0.95, method="bca",
     estimate is inf and hi is inf, while lo stays finite only if enough resamples miss
     every infinite run. The only resamples left out are those whose statistic is NaN
     (a "ratio" resample whose denominator sums to 0, i.e. 0/0); they are counted in
-    n_boot_undefined. NaN input values are refused. BCa needs a finite jackknife, so
+    n_boot_undefined. A function statistic has no such exemption: its NaN values are
+    refused (leaving them out would condition the interval on the resamples where it
+    happens to be defined, as the refusals below explain for the built-in statistics).
+    NaN input values are refused. BCa needs a finite jackknife, so
     with infinite runs the percentile interval is returned and the method says why.
 
     Refused up front (as mean_ci_t and paired refuse them): a column holding both +inf
@@ -270,8 +297,18 @@ def bootstrap_ci(data, statistic="mean", n_boot=10_000, conf=0.95, method="bca",
         raise ValueError("bootstrap_ci: an infinite denominator in a ratio (inf / inf is undefined)")
     n = arr.shape[0]
     n_inf = int(np.isinf(arr).any(axis=1).sum())
-    fn = STATISTICS[statistic] if isinstance(statistic, str) else statistic
+    custom = not isinstance(statistic, str)
+    fn = statistic if custom else STATISTICS[statistic]
+
+    def refuse_nan(values, what):
+        bad = int(np.isnan(np.asarray(values, dtype=float)).sum())
+        if custom and bad:
+            raise ValueError(f"bootstrap_ci: the statistic function returned NaN for {bad} {what} (for "
+                             "example inf - inf across columns): a function statistic must be defined on "
+                             "every resample; resolve the runs that make it undefined first")
+
     est = fn(arr)
+    refuse_nan([est], "estimate on all runs")
     base = {"n_runs": n, "n_inf_runs": n_inf}
     if n < 2:
         return {"estimate": est, "lo": None, "hi": None, "method": method, **base, "n_boot": 0,
@@ -287,6 +324,7 @@ def bootstrap_ci(data, statistic="mean", n_boot=10_000, conf=0.95, method="bca",
             boot = num / den
         else:
             boot = np.array([fn(arr[row]) for row in idx], dtype=float)
+    refuse_nan(boot, f"of {n_boot} resamples")
     undefined = int(np.isnan(boot).sum())
     boot = np.sort(boot[~np.isnan(boot)])              # +-inf stay in: they are real outcomes
     base.update(n_boot=int(boot.size), n_boot_undefined=undefined)
@@ -310,6 +348,7 @@ def bootstrap_ci(data, statistic="mean", n_boot=10_000, conf=0.95, method="bca",
         return {"estimate": est, "lo": lo, "hi": hi, "method": "percentile (bca undefined)", **base}
     z0 = normal_ppf(prop)
     jack = np.array([fn(np.delete(arr, i, axis=0)) for i in range(n)])
+    refuse_nan(jack, f"of {n} jackknife (leave-one-run-out) values")
     jbar = jack.mean()
     num = np.sum((jbar - jack) ** 3)
     den = 6.0 * np.sum((jbar - jack) ** 2) ** 1.5
@@ -343,5 +382,5 @@ def _quantile_sorted(s, q):
     return a + (b - a) * frac
 
 
-__all__ = ["normal_cdf", "normal_ppf", "betainc", "t_cdf", "t_ppf", "mean_ci_t", "paired", "holm",
-           "bootstrap_ci", "STATISTICS"]
+__all__ = ["normal_cdf", "normal_ppf", "betainc", "t_cdf", "t_two_sided_p", "t_ppf", "mean_ci_t", "paired",
+           "holm", "bootstrap_ci", "STATISTICS"]

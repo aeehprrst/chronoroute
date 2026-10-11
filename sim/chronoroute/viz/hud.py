@@ -360,18 +360,49 @@ def overlay_line(on, slowed_up=None):
 LIVE_WHAT = {"rate": "degraded (rate cut)", "slow": "slowed", "down": "failed"}
 
 
+def _live_history(trace):
+    """(live faults oldest first as [(kind, fault)], complete?) of the trace (live_faults)."""
+    r = (trace.run or {}).get("rerun") if trace is not None else None
+    if not isinstance(r, dict):
+        return [], True
+    lst = r.get("live_faults")
+    if isinstance(lst, list):
+        return [(x.get("kind"), x.get("fault") or {}) for x in lst if isinstance(x, dict)], True
+    if not r.get("fault"):
+        return [], True
+    # an old-format re-run records only its own fault and its parent ("of"): recover the earlier
+    # ones from the parent run.json files exactly as fwd/rerun.py does for the next re-run (read
+    # only). Cached on the trace: the HUD asks every frame, the walk reads files.
+    cache = getattr(trace, "__dict__", {}).get("_live_history_cache")
+    if cache is not None and cache[0] is r:
+        return cache[1]
+    own = [(r.get("kind"), r.get("fault") or {})]
+    run_dir = getattr(trace, "run_dir", None)
+    result = own, False
+    if run_dir is not None:
+        from ..fwd.rerun import _rerun_history
+        try:
+            _original, hist = _rerun_history(run_dir, trace.run)
+            result = [(x.get("kind"), x.get("fault") or {}) for x in hist if isinstance(x, dict)], True
+        except (OSError, ValueError):
+            pass                         # a parent is missing, unreadable or cyclic: own fault only
+    if hasattr(trace, "__dict__"):
+        trace.__dict__["_live_history_cache"] = (r, result)
+    return result
+
+
 def live_faults(trace):
     """Faults added by live re-runs that are active in this trace, oldest first: [(kind, fault)].
 
     A live key re-runs the run ON SCREEN, so faults accumulate; fwd/rerun.py writes the whole
-    list to run.json "rerun" "live_faults" (an older re-run has only its own "fault")."""
-    r = (trace.run or {}).get("rerun") if trace is not None else None
-    if not isinstance(r, dict):
-        return []
-    lst = r.get("live_faults")
-    if isinstance(lst, list):
-        return [(x.get("kind"), x.get("fault") or {}) for x in lst if isinstance(x, dict)]
-    return [(r.get("kind"), r.get("fault") or {})] if r.get("fault") else []
+    list to run.json "rerun" "live_faults". An older re-run has only its own "fault" and its
+    parent: the earlier faults are recovered from the parent run.json files (fwd/rerun.py's
+    own history walk); when a parent is missing, only its own fault is known, and
+    live_faults_lines / live_faults_text say that earlier ones may be missing."""
+    return _live_history(trace)[0]
+
+
+INCOMPLETE_LIVE_NOTE = "an old-format re-run whose parent run.json is unavailable: earlier live faults may be missing"
 
 
 def _live_parts(trace, kind, fault):
@@ -393,8 +424,9 @@ def live_faults_lines(trace, max_listed=4):
     """The globe's HUD block for a live re-run: a header, then two short lines per live fault
     (the link; what and from when), oldest first. With more than max_listed faults the oldest
     ones are summarised in one line that says how many (the 2D map's side panel, the message
-    and run.json list every one). [] for a recorded run."""
-    lf = live_faults(trace)
+    and run.json list every one). [] for a recorded run. A last line says so when earlier
+    faults may be missing (an old-format re-run whose parents are unavailable)."""
+    lf, complete = _live_history(trace)
     if not lf:
         return []
     out = [f"LIVE FAULTS ({len(lf)}, all active; d/f add one)"]
@@ -404,6 +436,8 @@ def live_faults_lines(trace, max_listed=4):
     for i, (kind, fault) in enumerate(lf[first:], first + 1):
         link, what = _live_parts(trace, kind, fault)
         out += [f"{i}. {link}", f"   {what}"]
+    if not complete:
+        out.append("  (old-format re-run: earlier live faults may be missing)")
     return out
 
 
@@ -412,12 +446,12 @@ def live_faults_text(trace):
 
     Shown for as long as the re-run is on screen (globe: its own HUD text on the right; 2D
     map: the side panel), because the event messages below it change with every packet."""
-    lf = live_faults(trace)
+    lf, complete = _live_history(trace)
     if not lf:
         return None
     parts = "; ".join(live_fault_phrase(trace, k, f) for k, f in lf)
     return (f"{len(lf)} live fault{'' if len(lf) == 1 else 's'} in this run (all active; d / f add "
-            f"one more): {parts}")
+            f"one more): {parts}" + ("" if complete else f" ({INCOMPLETE_LIVE_NOTE})"))
 
 
 def mode_line(engine_available, reason=None):

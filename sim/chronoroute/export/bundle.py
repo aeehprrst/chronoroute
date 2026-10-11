@@ -454,8 +454,15 @@ def write_bundle(b, out_dir, *, command, timer=None):
     paths = {}
     if b.scenario.fleet.layout == "synthetic":
         from ..fwd.presets import walker_omm_bytes, WALKER_PRESETS
-        name = b.scenario.fleet.snapshot_id.removeprefix("synthetic-walker-")
-        raw = walker_omm_bytes(WALKER_PRESETS[name], b.config.t0_ns)
+        fleet = b.scenario.fleet
+        name = fleet.snapshot_id.removeprefix("synthetic-walker-")
+        # the element sets the fleet was BUILT from: at its own epoch (presets.walker_fleet sets
+        # fetched_ns = epoch), not the bundle's t0, which may differ; the manifest's snapshot
+        # sha256 (fleet.sha256_raw) names exactly these bytes
+        raw = walker_omm_bytes(WALKER_PRESETS[name], fleet.fetched_ns)
+        if snapshot.sha256_bytes(raw) != fleet.sha256_raw:
+            raise ValueError(f"cannot reproduce the synthetic element sets of {fleet.snapshot_id}: "
+                             "their sha256 differs from the fleet's")
         (out_dir / "synthetic_omm.json").write_bytes(raw)
         paths["synthetic_omm.json"] = out_dir / "synthetic_omm.json"
     for name, writer in writers.items():

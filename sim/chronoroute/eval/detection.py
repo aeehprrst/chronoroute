@@ -64,7 +64,8 @@ EVENT-LEVEL DETECTOR
     P_det = detected fault events / fault events; detection delay = tau - onset
     per event (never an average of absolute times), undetected events are
     censored at the horizon (Kaplan-Meier); false events per hour = detector
-    events in the twin (no fault at all) / its sending duration in hours.
+    events in the twin (no fault at all) / its sending duration in hours, both
+    over the measurement window [warm-up, T_end - drain).
     Event ROC = (false events per hour, P_det) over a threshold sweep.
 """
 
@@ -172,7 +173,9 @@ def scored_faults(fault_run, twin_run):
     """The faults of the fault run that its twin does not have (null faults ignored on both
     sides): what a fault-run / twin pair can score. Background faults present in both runs
     (e.g. renewal failures, which have identical periods in both: fwd/faults.py) are not
-    scored."""
+    scored. Every null fault of the fault run IS scored, always (the phantom control against
+    a twin without it), so the --include-null options of `cr eval score` and `cr eval roc`
+    change nothing: they are kept only so recorded commands still run."""
     twin = Counter(_fault_key(f) for f in twin_run.faults if not is_null_fault(f))
     out = []
     for f in fault_run.faults:
@@ -375,12 +378,17 @@ def event_detection(fault_run, twin_run, fl_fault, fl_twin, fault, k=1, window_n
             "events_fault_run": len(ev1), "events_twin": len(ev0)}
 
 
-def false_events_per_hour(run, fl, k=1, window_ns=1_000_000_000, mask=None):
-    """Detector events in a run with NO fault (twin or phantom) per hour of sending."""
+def false_events_per_hour(run, fl, k=1, window_ns=1_000_000_000, mask=None, warmup_ns=0):
+    """Detector events in a run with NO fault (twin or phantom) per hour of sending.
+
+    The hours are those of the measurement window [warmup_ns, T_end - drain)
+    (metrics.measurement_window): the caller restricts the flags to packets sent in that
+    same window (metrics.measurement_mask with the same warm-up), so a warm-up shortens
+    numerator and denominator alike."""
     if mask is not None:
         fl = Flags(fl.flagged & mask, fl.node, fl.time, fl.a, fl.b, fl.localised)
-    lo, hi = metrics.send_window(run)
-    hours = (hi - lo) / 3.6e12
+    lo, hi = metrics.measurement_window(run, warmup_ns)
+    hours = max(hi - lo, 0) / 3.6e12
     ev = detect_events(fl, k, window_ns, run)
     return {"events": len(ev), "hours": hours, "per_hour": (len(ev) / hours) if hours else None}
 
@@ -451,10 +459,21 @@ def event_roc(pairs, faults_of, rules, *, k=1, window_ns=1_000_000_000, horizon_
     faults_of  function(fault_run) -> list of fault entries to score, or None: the faults the
                twin does not have (scored_faults; background faults of both runs excluded)
     rules      [offline.Rule]
+    include_null  with faults_of None (as `cr eval roc` calls it) no effect: scored_faults already
+               returns every null fault; with faults_of, the null faults of a fault run whose
+               selection is empty
     Returns one row per rule: P_det over all fault events, false events per hour in the
     twins, packet-level P_det and clean-packet FPR (from the twins: every packet of a
     run without fault and with clean label).
+    All pairs must be of ONE scheme (fault runs with the same scheme name; check_twin makes
+    each twin match its fault run): which endpoints are defined (none for the O-Q oracle, no
+    packet endpoints for native LS) is a property of the scheme, so a mixed list is refused
+    rather than reported with the last pair's choice. Build one ROC per scheme.
     """
+    names = sorted({fr.scheme.get("name", "chronoroute") for fr, _tw in pairs})
+    if len(names) > 1:
+        raise ValueError(f"event_roc pools the pairs of one scheme only, got {', '.join(names)}: "
+                         "build one ROC per scheme")
     rows = []
     for rule in rules:
         oracle = native_ls = False
@@ -471,7 +490,7 @@ def event_roc(pairs, faults_of, rules, *, k=1, window_ns=1_000_000_000, horizon_
             for fault in actual or [None]:
                 check_twin(fr, tw, fault)
             faults = actual if faults_of is None else list(faults_of(fr))
-            if include_null and not faults:
+            if include_null and not faults:    # with faults_of None it adds nothing (scored_faults has them)
                 faults = [f for f in fr.faults if is_null_fault(f)]
             native_ls = fr.scheme.get("name") in ("ls_h", "ls_d")
             oracle = fr.scheme.get("name") == "o_q"

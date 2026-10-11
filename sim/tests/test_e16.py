@@ -151,6 +151,7 @@ def test_e16_budget_and_dirty_gate_refuse_unreviewable_runs(tmp_path,monkeypatch
 def test_e16_unstarted_job_is_manifested_without_launching_an_engine(tmp_path,monkeypatch):
     import json
     mod=campaign()
+    if not mod.pre.NS3.exists():pytest.skip('ns-3 binary unavailable (its hash goes into the manifest)')
     monkeypatch.setattr(mod.pre,'run_replay',lambda *a,**k:pytest.fail('deadline must prevent engine launch'))
     job=mod.jobs(True)[0]
     obs,record,comparison=mod.run_job(job,tmp_path/'unstarted',0,['unit-fixture'])

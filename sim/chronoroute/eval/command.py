@@ -65,7 +65,18 @@ def _scheme_cmd(args):
 
 def score_run(run_dir, *, twin_dir=None, slacks=(), k=1, window_ns=1_000_000_000, warmup_ns=0, q_th_ns=None,
               rules=(), flow=None, include_null=False, check_plan_rules=False, sensitivity_ks=(), secondary_flow=None):
-    """Everything `cr eval score` reports, as one JSON-ready dict."""
+    """Everything `cr eval score` reports, as one JSON-ready dict.
+
+    A run without per-hop records (a plain `cr run` folder: no scheme_packets.csv.gz) has no
+    packet labels, so its clean-packet FPR is undefined: "fpr" (and, for such a twin,
+    "fpr_twin") is None, as for a scheme without a packet detector; its false events per hour
+    are still reported. Scoring a fault against its twin needs the per-hop records and is
+    refused without them (ValueError from metrics.exposure).
+
+    The warm-up applies everywhere: packets sent before warmup_ns are not measured, and the
+    twin's false events per hour count events and hours over [warmup_ns, T_end - drain) alike.
+
+    include_null has no effect: null faults are always scored (detection.scored_faults)."""
     run = load_run(run_dir)
     mask = metrics.measurement_mask(run, warmup_ns)
     det_mask = mask & (run.flow == flow) if flow is not None else mask
@@ -73,12 +84,13 @@ def score_run(run_dir, *, twin_dir=None, slacks=(), k=1, window_ns=1_000_000_000
            "seed": run.engine.get("seed"), "pdr": metrics.pdr_total(run, mask),
            "pdr_by_flow": metrics.pdr_by_flow(run, mask), "latency": metrics.latency_summary(run, mask),
            "control": metrics.control_summary(run)}
+    no_packet_detector = run.scheme.get("name") in ("ls_h", "ls_d", "o_q")
+    lab = None                         # packet labels need per-hop records (scheme_packets.csv.gz)
     if run.has_extras():
         out["stretch"] = metrics.stretch(run, mask)
         lab = metrics.packet_labels(run, det_mask, q_th_ns)
         out["labels"] = {name: int((lab == i).sum()) for i, name in enumerate(metrics.LABELS)}
         fl = detection.flags_for(run)
-        no_packet_detector = run.scheme.get("name") in ("ls_h", "ls_d", "o_q")
         out["fpr"] = None if no_packet_detector else metrics.deadline_fpr(lab, fl.flagged & det_mask)
         out["faults"] = []
         for f in run.faults:
@@ -90,7 +102,7 @@ def score_run(run_dir, *, twin_dir=None, slacks=(), k=1, window_ns=1_000_000_000
         faults = detection.scored_faults(run, twin)
         if not faults:
             detection.check_twin(run, twin)
-        if include_null and not faults:
+        if include_null and not faults:    # never true with a null fault: scored_faults returns them all
             faults = [f for f in run.faults if detection.is_null_fault(f)]
         det = []
         rule_list = [None] + [Rule(kind="mult", slack=str(s)) for s in slacks] + list(rules)
@@ -129,20 +141,22 @@ def score_run(run_dir, *, twin_dir=None, slacks=(), k=1, window_ns=1_000_000_000
                              "packet": detection.counterfactual(run, twin, f1, f0, f, det_mask),
                              "event": detection.event_detection(run, twin, f1, f0, f, k, window_ns),
                              "control_plane": detection.control_plane_detection(run, twin, f)})
-            fe = detection.false_events_per_hour(twin, f0, k, window_ns)
+            # events and hours over the same measurement window [warm-up, T_end - drain)
+            fe = detection.false_events_per_hour(twin, f0, k, window_ns, warmup_ns=warmup_ns)
             if native_ls:
-                lo, hi = metrics.send_window(twin)
+                lo, hi = metrics.measurement_window(twin, warmup_ns)
                 fe["events"] = sum(lo <= d["t_ns"] < hi and d["kind"] in ("adjacency_down", "metric") for d in twin.detections)
                 fe["per_hour"] = fe["events"] / fe["hours"] if fe["hours"] else None
             det.append({"rule": "as run" if rule is None else rule.label, "faults": rows,
                         "false_events_per_hour_twin": fe["per_hour"], "false_events_twin": fe,
-                        "fpr": None if no_packet_detector else metrics.deadline_fpr(lab, f1.flagged),
-                        "fpr_twin": None if no_packet_detector else metrics.deadline_fpr(metrics.packet_labels(twin, twin_mask, q_th_ns), f0.flagged)})
+                        "fpr": None if no_packet_detector or lab is None else metrics.deadline_fpr(lab, f1.flagged),
+                        "fpr_twin": None if no_packet_detector or not twin.has_extras() else
+                        metrics.deadline_fpr(metrics.packet_labels(twin, twin_mask, q_th_ns), f0.flagged)})
             sensitivities = []
             for sensitivity_k in sensitivity_ks:
                 if sensitivity_k <= 0:
                     raise ValueError("event sensitivity k must be positive")
-                sfe = detection.false_events_per_hour(twin, f0, sensitivity_k, window_ns)
+                sfe = detection.false_events_per_hour(twin, f0, sensitivity_k, window_ns, warmup_ns=warmup_ns)
                 if native_ls:
                     sfe = fe
                 sensitivities.append({"k": sensitivity_k, "false_events_twin": sfe,
@@ -161,7 +175,8 @@ def score_run(run_dir, *, twin_dir=None, slacks=(), k=1, window_ns=1_000_000_000
                         "event": detection.event_detection(run, twin, sf1, sf0, f, k, window_ns),
                         "fpr": metrics.deadline_fpr(metrics.packet_labels(run, sm1, q_th_ns), sf1.flagged),
                         "fpr_twin": metrics.deadline_fpr(metrics.packet_labels(twin, sm0, q_th_ns), sf0.flagged),
-                        "false_events_twin": detection.false_events_per_hour(twin, sf0, k, window_ns)})
+                        "false_events_twin": detection.false_events_per_hour(twin, sf0, k, window_ns,
+                                                                             warmup_ns=warmup_ns)})
             det[-1]["secondary"] = secondary
         out["detection"] = det
     return out
@@ -307,7 +322,9 @@ def register(registry):
     p.add_argument("--q-th-ms", type=float, default=None, help="queueing threshold of the 'congested' label")
     p.add_argument("--rules", help="JSON array of offline.Rule parameter mappings")
     p.add_argument("--flow", type=int, help="restrict packet flags and detection denominators to this flow")
-    p.add_argument("--include-null", action="store_true", help="explicitly score null faults against their twins")
+    p.add_argument("--include-null", action="store_true",
+                   help="no effect: null (phantom) faults are always scored against a twin without them; "
+                        "kept so recorded commands still run")
     p.add_argument("--check-plans", action="store_true", help="refuse offline rules that change any recorded path")
     p.add_argument("--sensitivity-k", type=int, nargs="+", help="additional descriptive event thresholds, using the same flags")
     p.add_argument("--secondary-flow", type=int, help="also report detection on this flow with the same offline rules")
@@ -317,7 +334,9 @@ def register(registry):
     p.add_argument("--slack", nargs="+")
     p.add_argument("--rules", help="JSON array of offline.Rule parameter mappings; omitted rules use native flags")
     p.add_argument("--flow", type=int)
-    p.add_argument("--include-null", action="store_true")
+    p.add_argument("--include-null", action="store_true",
+                   help="no effect: null (phantom) faults are always scored against a twin without them; "
+                        "kept so recorded commands still run")
     p.add_argument("--k", type=int, default=1)
     p.add_argument("--window-ms", type=float, default=1000.0)
     p.add_argument("--out", required=True)

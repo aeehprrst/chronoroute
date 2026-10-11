@@ -26,6 +26,9 @@ from chronoroute.fwd.scenario import build_scenario
 from chronoroute.trace.writer import write_json
 
 REPO = Path(__file__).resolve().parents[2]
+# Child processes use the project venv when it exists (the campaigns ran with it); a checkout
+# without a venv, such as CI, uses the interpreter that runs this module.
+PYTHON = REPO / "venv/bin/python" if (REPO / "venv/bin/python").exists() else Path(sys.executable)
 PREREG_SHA = "b87f08a7cc9431d139bf66372f03133035494b8c"
 PREREG_HASH = "1d1541f60be8411f565c5eda4e64322354c276a7321181e2ee9ee92f065ea5d3"
 PAIRS = tuple(tuple(CITY_NAME_MAP.get(c, c) for c in p) for p in SCIENCE_PAIRS_PLAN
@@ -165,7 +168,7 @@ def run_job(job, out, targets):
     doc = document(job, targets[f"{job['const']}:{job['pair_id']}"])
     write_json(folder / "config.json", doc)
     write_json(folder / "engine.json", {**doc["engine"], "scheme": doc["scheme"]})
-    prefix = [str(REPO / "venv/bin/python"), "-B", "-m", "chronoroute.cli"]
+    prefix = [str(PYTHON), "-B", "-m", "chronoroute.cli"]
     action = ["run", "--scheme"] if job["scheme"] == "chronoroute" else ["eval", "scheme"]
     with provenance.RunTimer() as timer:
         row = {**job, **measured_command(prefix + action + ["--config", str(folder / "engine.json"), "--out", str(folder / "raw")],
@@ -205,7 +208,7 @@ def score_pilot(out, planned):
         folder.mkdir(parents=True, exist_ok=True)
         twin_id = f"{job['const']}-chronoroute-s{job['seed']:04d}-none"
         twin = out / "runs" / twin_id / "raw"
-        cmd = [str(REPO / "venv/bin/python"), "-B", "-m", "chronoroute.cli", "eval", "score", str(folder / "raw"),
+        cmd = [str(PYTHON), "-B", "-m", "chronoroute.cli", "eval", "score", str(folder / "raw"),
                "--twin", str(twin), "--rules", str(out / "rules.json"), "--check-plans", "--flow", "0", "--k", "2",
                "--window-ms", "1000", "--out", str(folder / "score")]
         observation = {"id": job["id"], **measured_command(cmd, folder / "score_command")}

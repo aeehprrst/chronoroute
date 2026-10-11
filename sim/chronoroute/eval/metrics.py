@@ -94,9 +94,15 @@ def send_window(run):
     return 0, last
 
 
-def measurement_mask(run, warmup_ns=0):
+def measurement_window(run, warmup_ns=0):
+    """[first, last) send times measured: [warm-up, T_end - drain) (send_window minus the warm-up)."""
     lo, hi = send_window(run)
-    return (run.send_ns >= max(lo, warmup_ns)) & (run.send_ns < hi)
+    return max(lo, warmup_ns), hi
+
+
+def measurement_mask(run, warmup_ns=0):
+    lo, hi = measurement_window(run, warmup_ns)
+    return (run.send_ns >= lo) & (run.send_ns < hi)
 
 
 # ---------------------------------------------------------------- delivery
@@ -788,7 +794,8 @@ def control_summary(run):
     return out
 
 
-__all__ = ["TAIL_MIN", "LABELS", "DOWN_LINK_KINDS", "send_window", "measurement_mask", "pdr_by_flow", "pdr_total",
+__all__ = ["TAIL_MIN", "LABELS", "DOWN_LINK_KINDS", "send_window", "measurement_window", "measurement_mask",
+           "pdr_by_flow", "pdr_total",
            "nearest_rank", "touched", "FaultIndex", "latency_summary", "stretch", "fault_element", "exposure",
            "lost_at_fault", "packet_labels", "deadline_fpr",
            "blackhole", "time_to_mitigation", "control_summary"]

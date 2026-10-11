@@ -55,6 +55,74 @@ def test_paired_difference():
         stats.paired([1, 2], [1, 2, 3])
 
 
+def _two_sided_p_reference(t, df):
+    """P(|T| >= |t|) = I_x(df/2, 1/2), x = df / (df + t^2), to ~50 digits, independently of
+    stats.betainc: the hypergeometric series I_x(a, b) = x^a (1-x)^b / (a B(a, b)) *
+    sum_n (a+b)_n / (a+1)_n x^n in decimal arithmetic, with B(df/2, 1/2) from exact
+    half-integer gamma values (pi from the decimal module's documented series)."""
+    from decimal import Decimal, localcontext
+    with localcontext() as ctx:
+        ctx.prec = 60
+        lasts, s, n, na, d, da, term = 0, Decimal(3), 1, 0, 0, 24, Decimal(3)
+        while s != lasts:                                  # pi
+            lasts = s
+            n, na = n + na, na + 8
+            d, da = d + da, da + 32
+            term = term * n / d
+            s += term
+        pi = s
+
+        def gamma_half(m):                                 # Gamma(m / 2), m a positive integer
+            out = Decimal(1) if m % 2 == 0 else pi.sqrt()
+            for k in range(1, m // 2) if m % 2 == 0 else range((m - 1) // 2):
+                out *= Decimal(k) if m % 2 == 0 else Decimal(k) + Decimal("0.5")
+            return out
+
+        t = Decimal(abs(t))
+        x = Decimal(df) / (Decimal(df) + t * t)
+        a, b = Decimal(df) / 2, Decimal("0.5")
+        beta = gamma_half(df) * gamma_half(1) / gamma_half(df + 1)
+        series, term, k = Decimal(0), Decimal(1), 0
+        while term > Decimal(10) ** -55 * series or k < 5:
+            series += term
+            term *= (a + b + k) / (a + 1 + k) * x
+            k += 1
+        xa = x ** (df // 2) * (x.sqrt() if df % 2 else 1)
+        return float(xa * (1 - x).sqrt() / (a * beta) * series)
+
+
+def test_two_sided_t_p_value_is_accurate_in_the_tail():
+    """2 (1 - t_cdf(|t|)) cancelled: exactly 0 for |t| >~ 14 at df 35 (true p 1e-16 .. 1e-90)
+    and distorted below ~1e-10. The tail is computed directly now."""
+    # published table value: t(0.975, 35) = 2.0301079 (two-sided 5 %)
+    assert stats.t_two_sided_p(2.0301079, 35) == pytest.approx(0.05, rel=1e-7)
+    assert stats.t_two_sided_p(-2.0301079, 35) == stats.t_two_sided_p(2.0301079, 35)
+    # 50-digit references (also confirmed by integrating the t density numerically); abs=0, or
+    # approx would accept anything within its default 1e-12 (the old 0 included)
+    assert stats.t_two_sided_p(10.0, 35) == pytest.approx(8.4781375877832794e-12, rel=1e-12, abs=0)
+    assert stats.t_two_sided_p(40.0, 35) == pytest.approx(8.239044843834235e-31, rel=1e-12, abs=0)
+    for df in (1, 2, 4, 9, 35, 100):
+        for t in (1.0, 2.5, 4.0, 7.0, 12.0, 20.0, 40.0):             # the series needs x = df/(df+t^2) < 1
+            want = _two_sided_p_reference(t, df)
+            assert stats.t_two_sided_p(t, df) == pytest.approx(want, rel=1e-12, abs=0), (t, df)
+    assert stats.t_two_sided_p(math.inf, 35) == 0.0 and stats.t_two_sided_p(0.0, 35) == 1.0
+    # where the old formula was accurate (|t| < 5) the two agree: to 1e-12 relative, up to the
+    # old formula's own absolute rounding (1 - t_cdf: 2^-52 at most)
+    for df in (4, 35):
+        for t in np.linspace(0.0, 4.99, 200):
+            old = 2.0 * (1.0 - stats.t_cdf(t, df))
+            assert stats.t_two_sided_p(t, df) == pytest.approx(old, rel=1e-12, abs=2.0 ** -52), (t, df)
+    # paired() uses it: a strong but noisy difference keeps a tiny, nonzero p
+    rng = np.random.default_rng(3)
+    d = 1.0 + 0.15 * rng.standard_normal(36)
+    r = stats.paired(d, np.zeros(36))
+    assert r["t"] > 30 and 0.0 < r["p"] < 1e-25
+    assert r["p"] == pytest.approx(_two_sided_p_reference(r["t"], 35), rel=1e-12, abs=0)
+    # zero variance (documented convention): identical nonzero differences give p = 0 exactly
+    const = stats.paired([2.0, 3.0, 4.0], [1.0, 2.0, 3.0])
+    assert const["t"] == math.inf and const["p"] == 0.0
+
+
 def test_holm_step_down():
     p = [0.01, 0.04, 0.03, 0.005]
     h = stats.holm(p, alpha=0.05)
@@ -152,6 +220,29 @@ def test_bootstrap_refuses_plus_and_minus_infinity_together():
     assert ok["estimate"] == inf and ok["n_boot_undefined"] == 0
     neg = stats.bootstrap_ci([-inf, 1.0, 2.0], n_boot=500, method="percentile", seed=2)
     assert neg["estimate"] == -inf and neg["lo"] == -inf and neg["n_boot_undefined"] == 0
+
+
+def test_bootstrap_refuses_nan_from_a_statistic_function():
+    """A function statistic could return NaN (inf - inf across columns) and those resamples were
+    silently left out (estimate NaN, n_boot_undefined in the thousands), although only the
+    built-in ratio's 0/0 resamples may be left out. Refused now, like the built-in cases."""
+    inf = math.inf
+    # each column holds one sign of infinity only, so the up-front checks pass
+    both = np.array([[inf, 0.0], [0.0, inf], [1.0, 0.0], [2.0, 0.0]])
+    with pytest.raises(ValueError, match="statistic function returned NaN for 1 estimate"), \
+            np.errstate(invalid="ignore"):
+        stats.bootstrap_ci(both, lambda a: float(a[:, 0].mean() - a[:, 1].mean()), n_boot=2000,
+                           method="percentile")
+    # defined on all runs (min 1 - min 0 = 1), NaN on the resamples drawing only the first run
+    first_min = np.array([[inf, inf], [1.0, 0.0]])
+    fn = lambda a: float(a[:, 0].min() - a[:, 1].min())
+    assert fn(first_min) == 1.0
+    for method in ("percentile", "bca"):
+        with pytest.raises(ValueError, match="resamples"):
+            stats.bootstrap_ci(first_min, fn, n_boot=2000, method=method, seed=0)
+    # a function that is always defined is unaffected
+    ok = stats.bootstrap_ci(np.array([[1.0, 0.0], [2.0, 0.5], [4.0, 1.0]]), fn, n_boot=200, method="percentile")
+    assert ok["estimate"] == 1.0 and ok["n_boot_undefined"] == 0
 
 
 def test_bootstrap_ratio_counts_undefined_resamples():

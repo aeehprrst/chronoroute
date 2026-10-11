@@ -201,3 +201,43 @@ def test_fault_link_and_mode_lines(trace):
     assert hud.overlay_line(False) is None
     assert hud.overlay_line(True, True).endswith("the slowed link is still UP (green)")
     assert "space next packet" in hud.KEYS_LINE and "right-click satellite" in hud.KEYS_LINE
+
+
+def test_old_format_rerun_shows_the_faults_of_its_parents(tmp_path):
+    """An old-format re-run (run.json "rerun" with its own "fault" and its parent "of", no
+    "live_faults" list) showed only its own fault, although its parents' faults are active in
+    it too. They are recovered from the parent run.json files (fwd/rerun.py's history walk,
+    read only); with a parent unavailable the HUD says that earlier faults may be missing."""
+    import json
+    original, parent = tmp_path / "original", tmp_path / "parent"
+    original.mkdir()
+    parent.mkdir()
+    down = {"kind": "link_down", "link": [A, B], "start_s": "2", "stop_s": "4"}
+    rate = {"kind": "rate_cut", "link": [B, C], "start_s": "2001/1000", "stop_s": "4", "factor": "0.0002"}
+    (original / "run.json").write_text(json.dumps({"tool": "python-sim"}))
+    (parent / "run.json").write_text(json.dumps({"tool": "python-sim", "rerun": {
+        "of": str(original), "flow": 0, "kind": "down", "fault": down}}))
+    run_dir = make_trace(tmp_path / "run")
+    doc = json.loads((run_dir / "run.json").read_text())
+    doc["rerun"] = {"of": str(parent), "flow": 0, "kind": "rate", "fault": rate}
+    (run_dir / "run.json").write_text(json.dumps(doc))
+    files = [original / "run.json", parent / "run.json", run_dir / "run.json"]
+    before = [p.read_bytes() for p in files]
+    tr = sources.load_trace(run_dir)
+    assert hud.live_faults(tr) == [("down", down), ("rate", rate)]
+    na, nb, nc = (tr.nodes[x].name for x in (A, B, C))
+    assert hud.live_faults_text(tr) == (
+        f"2 live faults in this run (all active; d / f add one more): {na} - {nb} failed from t0 + 2.000 s; "
+        f"{nb} - {nc} degraded (rate cut) from t0 + 2.001 s")
+    assert hud.live_faults_lines(tr) == ["LIVE FAULTS (2, all active; d/f add one)", f"1. {na} - {nb}",
+                                         "   failed from t0 + 2.000 s", f"2. {nb} - {nc}",
+                                         "   degraded (rate cut) from t0 + 2.001 s"]
+    assert [p.read_bytes() for p in files] == before                       # read only
+    # the parent has moved: only its own fault is known, and the HUD says so
+    doc["rerun"]["of"] = str(tmp_path / "moved")
+    (run_dir / "run.json").write_text(json.dumps(doc))
+    lone = sources.load_trace(run_dir)
+    assert hud.live_faults(lone) == [("rate", rate)]
+    assert hud.live_faults_text(lone).startswith("1 live fault in this run")
+    assert hud.live_faults_text(lone).endswith(f"({hud.INCOMPLETE_LIVE_NOTE})")
+    assert hud.live_faults_lines(lone)[-1] == "  (old-format re-run: earlier live faults may be missing)"

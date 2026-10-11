@@ -221,7 +221,7 @@ def run_child(config_path,out):
 def run_job(job,out,raw_root,design,deadline):
     """Record every launch, timeout and failure, with a clean wrapper manifest."""
     folder=raw_root/'runs'/job['id'];config=out/'configs'/(job['id']+'.json')
-    command=[str(REPO/'venv/bin/python'),'-B',str(Path(__file__).resolve()),'--child-config',str(config),'--out',str(folder)]
+    command=[str(e1.PYTHON),'-B',str(Path(__file__).resolve()),'--child-config',str(config),'--out',str(folder)]
     timeout=120 if job['experiment']=='E04' else 60
     with provenance.RunTimer() as timer:
         if time.monotonic()+timeout>deadline:

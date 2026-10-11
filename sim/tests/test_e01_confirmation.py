@@ -68,6 +68,37 @@ def test_paired_comparisons_have_fixed_holm_families_and_honest_losses():
     assert any(r['status']=='incomplete' for r in incomplete)
 
 
+def test_report_always_points_to_point_disadvantages_and_counts_them_per_comparator(tmp_path):
+    """REPORT.md named paired_contrasts.csv for the point disadvantages only when there was no
+    material loss; it now always does, with wins/ties/losses per comparator and endpoint."""
+    # ChronoRoute, LS-H and LQ detect every fault after 0.1 s (ties), LS-D, E2E and CRH-16 never
+    # (ChronoRoute wins), except that LQ is 0.1 s faster on C2: material restricted-delay losses
+    rows=[]
+    for const in ('C5','C2'):
+        for condition,spec in c.e1.CONDITIONS.items():
+            if spec['null']:continue
+            for seed in range(1000,1036):
+                for scheme in ('chronoroute',)+a.COMPARATORS:
+                    r=dict(row(seed,scheme,condition,int(scheme in ('chronoroute','ls_h','lq'))),const=const)
+                    if scheme=='lq' and const=='C2':r['restricted_s']=0.0
+                    rows.append(r)
+    paired=a.contrasts(rows,n_boot=50)
+    lines=a.comparison_report(paired)
+    text='\n'.join(lines)
+    assert any(r['material_loss'] for r in paired) and 'No material loss' not in text
+    assert "All 15 point disadvantages" in text and '`paired_contrasts.csv`' in text
+    assert '* versus ls_h: detection 0 wins, 30 ties, 0 losses; restricted delay 0 wins, 30 ties, 0 losses.' in lines
+    assert '* versus ls_d: detection 30 wins, 0 ties, 0 losses; restricted delay 30 wins, 0 ties, 0 losses.' in lines
+    assert '* versus lq: detection 0 wins, 30 ties, 0 losses; restricted delay 0 wins, 15 ties, 15 losses.' in lines
+    # without any material loss the pointer is still there
+    calm=a.comparison_report([dict(r,material_loss=False) for r in paired])
+    assert 'No material loss met both the registered effect-size and adjusted-significance requirements.' in calm
+    assert any(line.startswith('All 15 point disadvantages') for line in calm)
+    # incomplete cells are counted, not hidden
+    partial=a.comparison_report(a.contrasts(rows[:-1],n_boot=50))
+    assert any('(1 incomplete)' in line for line in partial if line.startswith('* versus crh16'))
+
+
 def test_extract_native_ls_oracle_and_null_guards():
     job=dict(const='C5',scheme='ls_d',seed=1000,pair_id=0,condition='delay-1000000-middle')
     doc={'pdr':{'sent':24,'delivered':24,'pdr':1,'losses':{}},'latency':[], 'control':{},

@@ -608,6 +608,7 @@ class SchemeEngine(Engine):
         # reverse tree per geometry step/destination, then preserve the forward
         # search's lowest-predecessor tie rule. Keep the original query order for
         # Poisson background, whose lazy stochastic sampler is outside E1.
+        # A* weighs fewer links (fewer queues created on demand): summary.json queues.links_used differs (unread).
         lower = None if self.bg_model == "poisson" else self.truth.tree(k, 0, base, dst).dist
         _cost, path = lazy_path(self.topo.n_nodes, src, dst, lambda u: self.topo.neighbours[u], weight,
                                 self._transit_l, lower_bound=lower)

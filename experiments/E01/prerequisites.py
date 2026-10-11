@@ -215,7 +215,7 @@ def run_replay(const, seed, fault, stochastic, out, *, engines=("python", "ns3")
         child = out / engine
         child.mkdir()
         if engine == "python":
-            cmd = [str(REPO / "venv/bin/python"), "-B", "-m", "chronoroute.cli", "run", "--scheme",
+            cmd = [str(e1.PYTHON), "-B", "-m", "chronoroute.cli", "run", "--scheme",
                    "--config", str(out / "engine.json"), "--out", str(child)]
         else:
             li = next(i for i, (a, c) in enumerate(zip(b.scenario.isl_a, b.scenario.isl_b)) if {int(a), int(c)} == set(target))
@@ -287,7 +287,7 @@ def main(argv=None):
         for job in remaining:
             write_json(args.out / f"{job['id']}.json", job)
         def work(job):
-            cmd = [str(REPO / "venv/bin/python"), "-B", __file__, "--job-json", str(args.out / f"{job['id']}.json"),
+            cmd = [str(e1.PYTHON), "-B", __file__, "--job-json", str(args.out / f"{job['id']}.json"),
                    "--out", str(args.out / job["id"])]
             return {**job, **e1.measured_command(cmd, args.out / f"{job['id']}_command", timeout=120 if job["experiment"] == "E04" else 60)}
         with ThreadPoolExecutor(max_workers=args.workers) as pool:

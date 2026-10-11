@@ -54,7 +54,7 @@ def validate_inputs(pilot, prerequisites, e0):
 
 def score_command(job, out, raw, twin, score):
     """Offline CLI scoring, native settings except the registered ChronoRoute sweep."""
-    cmd=[str(e1.REPO/'venv/bin/python'),'-B','-m','chronoroute.cli','eval','score',str(raw),
+    cmd=[str(e1.PYTHON),'-B','-m','chronoroute.cli','eval','score',str(raw),
          '--twin',str(twin),'--flow','0','--include-null','--k','2','--window-ms','1000',
          '--sensitivity-k','1','4','--secondary-flow','1','--out',str(score)]
     if job['scheme']=='chronoroute':cmd+=['--rules',str(out/'rules.json'),'--check-plans']
@@ -180,7 +180,7 @@ def roc_jobs(out, raw_root, observations):
         for offset in range(0,36,6):
             rid=f'{const}-{scheme}-{condition}-block{offset//6}'
             folder=out/'roc'/rid
-            cmd=[str(e1.REPO/'venv/bin/python'),'-B','-m','chronoroute.cli','eval','roc','--pairs',*pairs[offset:offset+6],
+            cmd=[str(e1.PYTHON),'-B','-m','chronoroute.cli','eval','roc','--pairs',*pairs[offset:offset+6],
                  '--flow','0','--include-null','--k','2','--window-ms','1000','--out',str(folder)]
             if scheme=='chronoroute':cmd+=['--rules',str(out/'rules.json')]
             # Aggregate inference uses all thirty-six runs, never these work chunks.

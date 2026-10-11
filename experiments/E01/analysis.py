@@ -162,6 +162,26 @@ def contrasts(rows, *, n_boot=10000):
     return out
 
 
+def comparison_report(paired):
+    """REPORT.md lines on the paired contrasts: material losses, wins/ties/losses of the point
+    estimate per comparator and endpoint, and (always) where every point disadvantage is listed."""
+    lines=['Material losses under the fixed Holm families:','']
+    lines+=[f"* {r['const']} {r['condition']}, versus {r['comparator']}, {r['endpoint']}: ChronoRoute minus comparator {r['mean_diff']:.6f}; adjusted p={r['adjusted_p']:.6g}." for r in paired if r['material_loss']] or ['No material loss met both the registered effect-size and adjusted-significance requirements.']
+    lines+=['','Point estimates per comparator over the complete paired contrasts (a win, tie or loss is the sign of ChronoRoute minus comparator, significant or not: more detection, or a shorter restricted delay, is a win):','']
+    for comparator in COMPARATORS:
+        parts=[]
+        for field,label in (('detected','detection'),('restricted_s','restricted delay')):
+            cell=[r for r in paired if r['comparator']==comparator and r['endpoint']==field]
+            done=[r for r in cell if r['status']=='complete']
+            losses=sum(bool(r['point_disadvantage']) for r in done)
+            ties=sum(r['mean_diff']==0 for r in done)
+            parts.append(f"{label} {len(done)-losses-ties} wins, {ties} ties, {losses} losses"+(f" ({len(cell)-len(done)} incomplete)" if len(cell)>len(done) else ''))
+        lines.append(f"* versus {comparator}: "+'; '.join(parts)+'.')
+    n_point=sum(bool(r['point_disadvantage']) for r in paired)
+    lines+=['',f"All {n_point} point disadvantages (ChronoRoute's point estimate worse, significant or not) are listed in `paired_contrasts.csv` (`point_disadvantage`) and `verdict.json` (`point_disadvantages`)."]
+    return lines
+
+
 def write_analysis(out, rows, *, n_boot=10000):
     """Generate all tables/figures from run rows; no completed verdict for partial cells."""
     out=Path(out);out.mkdir(parents=True,exist_ok=True)
@@ -321,9 +341,7 @@ def write_analysis(out, rows, *, n_boot=10000):
                 report.append(f"* {r['const']}: incomplete population FPR; no operating-constraint verdict.")
             else:
                 report.append(f"* {r['const']}: FPR {r['fpr']:.6f}, 95% CI [{r['lo']:.6f}, {r['hi']:.6f}]; interval {r['interval_position']} the registered limit.")
-    report+=['','Material losses under the fixed Holm families:','']
-    losses=verdict['material_losses']
-    report += [f"* {r['const']} {r['condition']}, versus {r['comparator']}, {r['endpoint']}: ChronoRoute minus comparator {r['mean_diff']:.6f}; adjusted p={r['adjusted_p']:.6g}." for r in losses] or ['No material loss met both the registered effect-size and adjusted-significance requirements. All point disadvantages remain in `paired_contrasts.csv`.']
+    report+=['']+comparison_report(paired)
     report+=['','LS packet FPR/detection and O-Q detector endpoints are undefined. O-Q is a privileged delivery bound. CRH-16 is the no-detector control. E2E is unlocalised. The short runs are not a measurement of an operational constellation. City results have two replicates and are descriptive. Raw simulation records are retained locally in the ignored raw cache; the committed manifest ledger preserves producer provenance and output hashes. Reproduction requires rerunning those recorded commands.']
     (out/'REPORT.md').write_text('\n'.join(report)+'\n')
     return complete and null_ok

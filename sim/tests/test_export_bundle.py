@@ -52,6 +52,24 @@ def test_synthetic_bundle_labels_and_input_hashes(tmp_path):
     assert (tmp_path / "synthetic_omm.json").is_file()
 
 
+def test_synthetic_element_sets_match_the_manifest_when_t0_is_not_the_fleet_epoch(tmp_path):
+    """synthetic_omm.json was regenerated at the bundle's t0 instead of the epoch the fleet was
+    built with, so with t0 != epoch its bytes no longer matched the snapshot sha256 in the
+    manifest and scenario.json. It is written from the fleet's own epoch now."""
+    from chronoroute.fwd import presets
+    from chronoroute.orbit import planes
+    f = presets.walker_fleet(presets.WALKER_PRESETS["C2"], T0)
+    shell = planes.build_fleet_geometry(f.records, T0, satrecs=f.satrecs).shells[0].shell_id
+    cfg = small_config(shell_id=shell, window_ms=1000, t0_ns=T0 + 60 * 1_000_000_000)
+    bundle.write_bundle(bundle.build_bundle(f, cfg, sids.SidRegistry.load()), tmp_path, command=["unit", "t0+60s"])
+    m = provenance.validate_manifest(tmp_path / "manifest.json")
+    raw = (tmp_path / "synthetic_omm.json").read_bytes()
+    assert raw == presets.walker_omm_bytes(presets.WALKER_PRESETS["C2"], T0)
+    assert snapshot.sha256_bytes(raw) == f.sha256_raw == m["snapshot"]["sha256"]
+    doc = json.loads((tmp_path / "scenario.json").read_text())
+    assert doc["snapshot"]["sha256"] == m["snapshot"]["sha256"] and doc["time"]["t0_unix_ns"] == cfg.t0_ns
+
+
 @cache
 def fleet():
     return snapshot.load_pinned(PINNED, "supgp")
