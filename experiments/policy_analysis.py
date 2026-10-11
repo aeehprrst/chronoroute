@@ -186,7 +186,9 @@ def write_analysis(out,records,experiment,*,n_boot=10000):
         'Exact-domain and tolerance-adjusted stretch must be at least one. Raw step-crossing ratios and paths outside the send-time graph are separate diagnostics; no values are clamped. Losses are infinite latency. Triggered P99 is undefined when fewer than the registered observations are available.','',
         'Material losses under the fixed Holm families:']
     report.extend(f"* {r['const']} {r['condition']} {r['primary']} versus {r['comparator']}, {r['endpoint']}: difference {r['mean_diff']}, adjusted p {r['adjusted_p']}." for r in verdict['material_losses'])
-    if not verdict['material_losses']:report.append('No material loss satisfies both effect and adjusted significance criteria; every point disadvantage remains in paired_contrasts.csv.')
+    if not verdict['material_losses']:report.append('No material loss satisfies both effect and adjusted significance criteria.')
+    # Always point to the point disadvantages, whether or not any loss is material.
+    report.append(f"All {len(verdict['point_disadvantages'])} point disadvantages, material or not, are listed in paired_contrasts.csv (column point_disadvantage).")
     report+=['','Undefined tail contrasts retain finite/infinite paired categories and descriptive tail-failure indicators. O-T is privileged. Blackhole comparisons condition on common realised-outage seeds, never on individual outages. The visited set is MODELLED packet state; Python object bytes are host representation cost, not wire support. Raw traces remain locally in the ignored cache; the compressed producer ledger records commands and hashes for reproduction.']
     (out/'REPORT.md').write_text('\n'.join(report)+'\n')
     return complete
