@@ -115,7 +115,7 @@ def reuse_job(job, source_raw, raw_root, targets, source_operating, operating_pa
         if provenance.file_sha256(source_operating)!=provenance.file_sha256(operating_path):
             raise ValueError('changed reusable operating point')
         for item in score['extra']['inputs']:
-            if provenance.file_sha256(item['path'])!=item['sha256']:raise ValueError('changed reusable score input')
+            if provenance.file_sha256(e1.REPO/item['path'])!=item['sha256']:raise ValueError('changed reusable score input')
         result=score['extra']['measured_command']
         if result['status']!='ok':return None
     destination=raw_root/'runs'/job['id'];destination.parent.mkdir(parents=True,exist_ok=True)
@@ -267,7 +267,7 @@ def main(argv=None):
             if ledger.exists():shutil.copy2(ledger,args.out/'inputs/checkpoint-producer-manifests.jsonl.gz')
         prerequisite_manifest=json.loads((args.prerequisites/'manifest.json').read_text())
         for item in prerequisite_manifest.get('extra',{}).get('inputs',[]):
-            source=Path(item['path'])
+            source=e1.REPO/item['path']
             if source.name=='manifest.json' and (source.parent/'observations.json').exists():
                 original=source.parent
                 manifest_paths.extend(original.rglob('manifest.json'))
@@ -280,7 +280,7 @@ def main(argv=None):
             for path in sorted(set(manifest_paths)):
                 m=json.loads(path.read_text())
                 if m['dirty'] is not False:raise ValueError('dirty evidence producer')
-                fh.write(json.dumps(dict(path=str(path),sha256=provenance.file_sha256(path),manifest=m),sort_keys=True)+'\n')
+                fh.write(json.dumps(dict(path=provenance.public_paths(str(path)),sha256=provenance.file_sha256(path),manifest=m),sort_keys=True)+'\n')
         write_json(args.out/'runtime.json',dict(label='REAL host observations; MODELLED projections',wall_s=timer.wall_seconds,
                    previous_spent_s=spent,reserved_future_s=future,available_e1_s=available,workers=args.workers,
                    reused_jobs=sum(bool(r.get('reused')) for r in observations),

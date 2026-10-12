@@ -926,3 +926,37 @@ unit cells and with its column (catching a correct value in the wrong cell), tha
 parts appear in order, that ledger labels equal a CSV row's own label, that no p-value of zero
 is displayed, that backticks hold only identifiers, that only the reviewed releases are cited,
 and that every reference is a verified primary source.
+
+## 16. 2026-10-12 result records without local paths
+
+The result records written before 12 October 2026 stored absolute paths of the machine the
+runs were made on: the repository checkout, its virtual environment, the ns-3 build folder
+and temporary folders. The repository and the website are public, so these paths are now
+written the way new runs write them (`chronoroute.provenance.public_paths`): relative to the
+repository root, where every run starts, and `~/...` for folders outside it.
+
+`tools/redact_local_paths.py` made the change and recomputed everything that depends on the
+rewritten bytes, until nothing changed any more:
+
+- the SHA-256 and size of every rewritten file in the repository, wherever another record
+  cites it (manifest outputs and inputs, inventories, producer-manifest archives);
+- `config_sha256` and `run_id` of every manifest whose configuration held a path.
+
+A hash that a record keeps for a file outside the repository (the raw run folders, which
+stay on the machine that made them) still names that original file, so it was not changed;
+only the copy of such a manifest inside a record had its paths, `config_sha256` and `run_id`
+rewritten. Two compiled test programs (`results/E00/*/ns3-wire`) still carry the ns-3 build
+folder inside the binary and were left as they are, because their hashes are part of the
+E0 record.
+
+In all, 4,589 result files were rewritten, and 15,444 file and configuration hashes and
+10,856 run ids changed with them. All 1,540 committed manifests validate afterwards, and every
+input they cite inside the repository matches its recorded hash.
+
+**No measured value changed.** Before writing, the tool compared every rewritten JSON, JSONL
+and CSV file with its original value by value: the only differences are paths, hashes, run
+ids and the sizes of rewritten files. Commits, seeds, every number and every verdict are as
+before. The run folders keep their names, so every reference to a run is unchanged. The
+original records are in the git history (the commit before this change), and the rewrite is
+deterministic: running the tool on that commit, with the same checkout and home folder,
+reproduces the rewritten files byte for byte.

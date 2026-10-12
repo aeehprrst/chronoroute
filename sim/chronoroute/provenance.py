@@ -195,6 +195,42 @@ def _normalise_command(command):
     return text
 
 
+_PATH_CHAR = r"[\w.~-]"
+
+
+def public_paths(value, repo_dir=None, home=None):
+    """Rewrite absolute local paths in every string of value (manifests are public).
+
+    A path inside the checkout becomes relative to it (every tool runs from the repository
+    root) and a bare checkout path becomes "."; any other path under the home folder becomes
+    "~/...". Nothing else changes, so the rewrite never touches a measured value.
+    """
+    rules = []
+    for prefix, short in ((Path(repo_dir or REPO_ROOT).resolve(), "."),
+                          (Path(home or Path.home()), "~")):
+        text = str(prefix).rstrip("/")
+        if not text or text.count("/") < 2:  # never rewrite "/" or a top-level folder
+            continue
+        p = re.escape(text)
+        rules.append((re.compile(p + "/(?=" + _PATH_CHAR + ")"), "" if short == "." else "~/"))
+        rules.append((re.compile(p + "/?(?!" + _PATH_CHAR + ")"), short))
+
+    def fix(v):
+        if isinstance(v, PurePath):
+            v = str(v)
+        if isinstance(v, str):
+            for rx, replacement in rules:
+                v = rx.sub(replacement, v)
+            return v
+        if isinstance(v, dict):
+            return {k: fix(x) for k, x in v.items()}
+        if isinstance(v, (list, tuple)):
+            return type(v)(fix(x) for x in v)
+        return v
+
+    return fix(value)
+
+
 def _normalise_labels(labels):
     if labels is None:
         return {}
@@ -501,7 +537,7 @@ def build_manifest(out_dir, *, tool, tool_version, command, config, seeds,
 
     out_dir = Path(out_dir).resolve()
     manifest_path = out_dir / MANIFEST_NAME
-    config = _normalise(config, "config")
+    config = public_paths(_normalise(config, "config"))
     seeds = _normalise_seeds(seeds)
     output_entries = _describe_outputs(outputs, out_dir, manifest_path)
     git = git_state(repo_dir, ignore_paths=[manifest_path]
@@ -518,7 +554,7 @@ def build_manifest(out_dir, *, tool, tool_version, command, config, seeds,
         "tool_version": tool_version,
         "git_sha": git["sha"],
         "dirty": git["dirty"],
-        "command": _normalise_command(command),
+        "command": public_paths(_normalise_command(command)),
         "config": config,
         "config_sha256": config_sha256(config),
         "seeds": seeds,
@@ -529,7 +565,7 @@ def build_manifest(out_dir, *, tool, tool_version, command, config, seeds,
         "written_utc": _utc_text(_utc_now()),
         "outputs": output_entries,
         "labels": _normalise_labels(labels),
-        "extra": _normalise(extra or {}, "extra"),
+        "extra": public_paths(_normalise(extra or {}, "extra")),
     }
 
 

@@ -1,5 +1,5 @@
 {
-  "command": "/home/aeehprrst/chronoroute/venv/bin/python -B /home/aeehprrst/chronoroute/experiments/policy_campaign.py --out results/E05/20261011T185503Z-confirmatory --workers 8 --prior results/E04/20261011T185503Z-collected --experiment E05",
+  "command": "venv/bin/python -B experiments/policy_campaign.py --out results/E05/20261011T185503Z-confirmatory --workers 8 --prior results/E04/20261011T185503Z-collected --experiment E05",
   "config": {
     "analysis_seed": 91000,
     "bootstrap_resamples": 10000,
@@ -32,39 +32,39 @@
     "complete": true,
     "inputs": [
       {
-        "path": "/home/aeehprrst/chronoroute/results/E01/20261011T154940Z-confirmatory-resumed/manifest.json",
-        "sha256": "8792397240710809e1f897f693b60962c6a54702920767ee8d82437c9c3a735f"
+        "path": "results/E01/20261011T154940Z-confirmatory-resumed/manifest.json",
+        "sha256": "80158cb7b3106183fe646caadc5f41d1667817823e12a4b29890975d78be82b9"
       },
       {
-        "path": "/home/aeehprrst/chronoroute/results/E01/20261011T154940Z-confirmatory-resumed/runtime.json",
+        "path": "results/E01/20261011T154940Z-confirmatory-resumed/runtime.json",
         "sha256": "b876099f08f21e632c0725a862dc4d8246197a8a7ecaba9dd60f4ce40cb97e97"
       },
       {
-        "path": "/home/aeehprrst/chronoroute/results/E01/20261011T130817Z-calibration/manifest.json",
+        "path": "results/E01/20261011T130817Z-calibration/manifest.json",
         "sha256": "8b3aa6900c7f0ead8de9d380a82ffd20d6a94b467a3f8277fefdd347dcf1d093"
       },
       {
-        "path": "/home/aeehprrst/chronoroute/results/E01/20261011T130817Z-calibration/resource_forecast.json",
+        "path": "results/E01/20261011T130817Z-calibration/resource_forecast.json",
         "sha256": "785eeade8db19a8cd3547a00c964c9f2425d1202205c70741eaba12a78dac2f3"
       },
       {
-        "path": "/home/aeehprrst/chronoroute/results/E00/20261011T100448Z/manifest.json",
-        "sha256": "b1f58b7d21c330f4b67b1208c30e8e461a237b57229e1e1f0ed4e03de3cb1dd6"
+        "path": "results/E00/20261011T100448Z/manifest.json",
+        "sha256": "5a8b07c79aa87b57b59087a18eb539612fe0a60c76562e17a6397ff3faa0d49e"
       },
       {
-        "path": "/home/aeehprrst/chronoroute/results/E05/20261011T185503Z-confirmatory-raw/manifest.json",
+        "path": "results/E05/20261011T185503Z-confirmatory-raw/manifest.json",
         "sha256": "7ee09d9f26ef0353262ae3e3eb826e0acd69b614e7be20fec02f1e9f784440ab"
       },
       {
         "path": "results/E04/20261011T185503Z-collected/manifest.json",
-        "sha256": "9fb6277632ed790a270125a4ac3c0aca36aa5fb0ffc57c127b2d0a3c1ed15f70"
+        "sha256": "9bf1a0af4efa3f60256c12052f25e2f6ca421cc1e3e2d4b74dd83cfcee8cf15c"
       },
       {
         "path": "results/E04/20261011T185503Z-collected/runtime.json",
         "sha256": "4cf24ff8a5aa1d2975668cb61c003b8e08f172f58a1e946bc08bb59816427b30"
       }
     ],
-    "raw_cache": "/home/aeehprrst/chronoroute/results/E05/20261011T185503Z-confirmatory-raw",
+    "raw_cache": "results/E05/20261011T185503Z-confirmatory-raw",
     "synthetic_positions": "C2 elements and positions MODELLED"
   },
   "git_sha": "a18cffb6da450ea4449acf46f455b474fee2dcbf",
@@ -2280,13 +2280,13 @@
     },
     {
       "path": "inputs/producer-manifests.jsonl.gz",
-      "sha256": "99b01e892bb7f815c2367badf937c04e190fd457267edf833ed433b82cb6bf87",
-      "size_bytes": 1192834
+      "sha256": "ad70d03af776baf45dea671a9ecc55c0be05a4fe99163ee0b861391a121e6061",
+      "size_bytes": 1192527
     },
     {
       "path": "inventory.csv",
-      "sha256": "298e9bdb5ba2c374ef56b2fb786a496ee2235aac92b0f04d136d67f02a665428",
-      "size_bytes": 209873
+      "sha256": "060c9b143a894c34fd53ac432402ed0eb4370b416845a2debdbf8bf7cc232221",
+      "size_bytes": 161489
     },
     {
       "path": "paired_contrasts.csv",

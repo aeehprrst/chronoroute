@@ -1,22 +1,22 @@
 {
- "command": "cr eval roc --pairs /home/aeehprrst/chronoroute/results/E01/20261011T154940Z-confirmatory-resumed-raw/runs/C2-ls_d-s1024-delay-4000000-middle/raw:/home/aeehprrst/chronoroute/results/E01/20261011T154940Z-confirmatory-resumed-raw/runs/C2-ls_d-s1024-none/raw /home/aeehprrst/chronoroute/results/E01/20261011T154940Z-confirmatory-resumed-raw/runs/C2-ls_d-s1025-delay-4000000-middle/raw:/home/aeehprrst/chronoroute/results/E01/20261011T154940Z-confirmatory-resumed-raw/runs/C2-ls_d-s1025-none/raw /home/aeehprrst/chronoroute/results/E01/20261011T154940Z-confirmatory-resumed-raw/runs/C2-ls_d-s1026-delay-4000000-middle/raw:/home/aeehprrst/chronoroute/results/E01/20261011T154940Z-confirmatory-resumed-raw/runs/C2-ls_d-s1026-none/raw /home/aeehprrst/chronoroute/results/E01/20261011T154940Z-confirmatory-resumed-raw/runs/C2-ls_d-s1027-delay-4000000-middle/raw:/home/aeehprrst/chronoroute/results/E01/20261011T154940Z-confirmatory-resumed-raw/runs/C2-ls_d-s1027-none/raw /home/aeehprrst/chronoroute/results/E01/20261011T154940Z-confirmatory-resumed-raw/runs/C2-ls_d-s1028-delay-4000000-middle/raw:/home/aeehprrst/chronoroute/results/E01/20261011T154940Z-confirmatory-resumed-raw/runs/C2-ls_d-s1028-none/raw /home/aeehprrst/chronoroute/results/E01/20261011T154940Z-confirmatory-resumed-raw/runs/C2-ls_d-s1029-delay-4000000-middle/raw:/home/aeehprrst/chronoroute/results/E01/20261011T154940Z-confirmatory-resumed-raw/runs/C2-ls_d-s1029-none/raw --flow 0 --include-null --k 2 --window-ms 1000 --out /home/aeehprrst/chronoroute/results/E01/20261011T154940Z-confirmatory-resumed/roc/C2-ls_d-delay-4000000-middle-block4",
+ "command": "cr eval roc --pairs results/E01/20261011T154940Z-confirmatory-resumed-raw/runs/C2-ls_d-s1024-delay-4000000-middle/raw:results/E01/20261011T154940Z-confirmatory-resumed-raw/runs/C2-ls_d-s1024-none/raw results/E01/20261011T154940Z-confirmatory-resumed-raw/runs/C2-ls_d-s1025-delay-4000000-middle/raw:results/E01/20261011T154940Z-confirmatory-resumed-raw/runs/C2-ls_d-s1025-none/raw results/E01/20261011T154940Z-confirmatory-resumed-raw/runs/C2-ls_d-s1026-delay-4000000-middle/raw:results/E01/20261011T154940Z-confirmatory-resumed-raw/runs/C2-ls_d-s1026-none/raw results/E01/20261011T154940Z-confirmatory-resumed-raw/runs/C2-ls_d-s1027-delay-4000000-middle/raw:results/E01/20261011T154940Z-confirmatory-resumed-raw/runs/C2-ls_d-s1027-none/raw results/E01/20261011T154940Z-confirmatory-resumed-raw/runs/C2-ls_d-s1028-delay-4000000-middle/raw:results/E01/20261011T154940Z-confirmatory-resumed-raw/runs/C2-ls_d-s1028-none/raw results/E01/20261011T154940Z-confirmatory-resumed-raw/runs/C2-ls_d-s1029-delay-4000000-middle/raw:results/E01/20261011T154940Z-confirmatory-resumed-raw/runs/C2-ls_d-s1029-none/raw --flow 0 --include-null --k 2 --window-ms 1000 --out results/E01/20261011T154940Z-confirmatory-resumed/roc/C2-ls_d-delay-4000000-middle-block4",
  "config": {
   "flow": 0,
   "include_null": true,
   "k": 2,
   "pairs": [
-   "/home/aeehprrst/chronoroute/results/E01/20261011T154940Z-confirmatory-resumed-raw/runs/C2-ls_d-s1024-delay-4000000-middle/raw:/home/aeehprrst/chronoroute/results/E01/20261011T154940Z-confirmatory-resumed-raw/runs/C2-ls_d-s1024-none/raw",
-   "/home/aeehprrst/chronoroute/results/E01/20261011T154940Z-confirmatory-resumed-raw/runs/C2-ls_d-s1025-delay-4000000-middle/raw:/home/aeehprrst/chronoroute/results/E01/20261011T154940Z-confirmatory-resumed-raw/runs/C2-ls_d-s1025-none/raw",
-   "/home/aeehprrst/chronoroute/results/E01/20261011T154940Z-confirmatory-resumed-raw/runs/C2-ls_d-s1026-delay-4000000-middle/raw:/home/aeehprrst/chronoroute/results/E01/20261011T154940Z-confirmatory-resumed-raw/runs/C2-ls_d-s1026-none/raw",
-   "/home/aeehprrst/chronoroute/results/E01/20261011T154940Z-confirmatory-resumed-raw/runs/C2-ls_d-s1027-delay-4000000-middle/raw:/home/aeehprrst/chronoroute/results/E01/20261011T154940Z-confirmatory-resumed-raw/runs/C2-ls_d-s1027-none/raw",
-   "/home/aeehprrst/chronoroute/results/E01/20261011T154940Z-confirmatory-resumed-raw/runs/C2-ls_d-s1028-delay-4000000-middle/raw:/home/aeehprrst/chronoroute/results/E01/20261011T154940Z-confirmatory-resumed-raw/runs/C2-ls_d-s1028-none/raw",
-   "/home/aeehprrst/chronoroute/results/E01/20261011T154940Z-confirmatory-resumed-raw/runs/C2-ls_d-s1029-delay-4000000-middle/raw:/home/aeehprrst/chronoroute/results/E01/20261011T154940Z-confirmatory-resumed-raw/runs/C2-ls_d-s1029-none/raw"
+   "results/E01/20261011T154940Z-confirmatory-resumed-raw/runs/C2-ls_d-s1024-delay-4000000-middle/raw:results/E01/20261011T154940Z-confirmatory-resumed-raw/runs/C2-ls_d-s1024-none/raw",
+   "results/E01/20261011T154940Z-confirmatory-resumed-raw/runs/C2-ls_d-s1025-delay-4000000-middle/raw:results/E01/20261011T154940Z-confirmatory-resumed-raw/runs/C2-ls_d-s1025-none/raw",
+   "results/E01/20261011T154940Z-confirmatory-resumed-raw/runs/C2-ls_d-s1026-delay-4000000-middle/raw:results/E01/20261011T154940Z-confirmatory-resumed-raw/runs/C2-ls_d-s1026-none/raw",
+   "results/E01/20261011T154940Z-confirmatory-resumed-raw/runs/C2-ls_d-s1027-delay-4000000-middle/raw:results/E01/20261011T154940Z-confirmatory-resumed-raw/runs/C2-ls_d-s1027-none/raw",
+   "results/E01/20261011T154940Z-confirmatory-resumed-raw/runs/C2-ls_d-s1028-delay-4000000-middle/raw:results/E01/20261011T154940Z-confirmatory-resumed-raw/runs/C2-ls_d-s1028-none/raw",
+   "results/E01/20261011T154940Z-confirmatory-resumed-raw/runs/C2-ls_d-s1029-delay-4000000-middle/raw:results/E01/20261011T154940Z-confirmatory-resumed-raw/runs/C2-ls_d-s1029-none/raw"
   ],
   "rules": null,
   "slack": [],
   "window_ms": 1000.0
  },
- "config_sha256": "ae36bfa42c9a19f7da3b75321c3da64f717f1c16451e32b9f9e3016ef0030fb2",
+ "config_sha256": "5b4f5bbfe35833705069618c923d24fe3d0bd8c4fc55c2725f745ca11e0fd3fd",
  "dirty": false,
  "ended_utc": null,
  "extra": {
@@ -30,19 +30,19 @@
    "id": "C2-ls_d-delay-4000000-middle-block4",
    "reason": "",
    "command": [
-    "/home/aeehprrst/chronoroute/venv/bin/python",
+    "venv/bin/python",
     "-B",
     "-m",
     "chronoroute.cli",
     "eval",
     "roc",
     "--pairs",
-    "/home/aeehprrst/chronoroute/results/E01/20261011T154940Z-confirmatory-resumed-raw/runs/C2-ls_d-s1024-delay-4000000-middle/raw:/home/aeehprrst/chronoroute/results/E01/20261011T154940Z-confirmatory-resumed-raw/runs/C2-ls_d-s1024-none/raw",
-    "/home/aeehprrst/chronoroute/results/E01/20261011T154940Z-confirmatory-resumed-raw/runs/C2-ls_d-s1025-delay-4000000-middle/raw:/home/aeehprrst/chronoroute/results/E01/20261011T154940Z-confirmatory-resumed-raw/runs/C2-ls_d-s1025-none/raw",
-    "/home/aeehprrst/chronoroute/results/E01/20261011T154940Z-confirmatory-resumed-raw/runs/C2-ls_d-s1026-delay-4000000-middle/raw:/home/aeehprrst/chronoroute/results/E01/20261011T154940Z-confirmatory-resumed-raw/runs/C2-ls_d-s1026-none/raw",
-    "/home/aeehprrst/chronoroute/results/E01/20261011T154940Z-confirmatory-resumed-raw/runs/C2-ls_d-s1027-delay-4000000-middle/raw:/home/aeehprrst/chronoroute/results/E01/20261011T154940Z-confirmatory-resumed-raw/runs/C2-ls_d-s1027-none/raw",
-    "/home/aeehprrst/chronoroute/results/E01/20261011T154940Z-confirmatory-resumed-raw/runs/C2-ls_d-s1028-delay-4000000-middle/raw:/home/aeehprrst/chronoroute/results/E01/20261011T154940Z-confirmatory-resumed-raw/runs/C2-ls_d-s1028-none/raw",
-    "/home/aeehprrst/chronoroute/results/E01/20261011T154940Z-confirmatory-resumed-raw/runs/C2-ls_d-s1029-delay-4000000-middle/raw:/home/aeehprrst/chronoroute/results/E01/20261011T154940Z-confirmatory-resumed-raw/runs/C2-ls_d-s1029-none/raw",
+    "results/E01/20261011T154940Z-confirmatory-resumed-raw/runs/C2-ls_d-s1024-delay-4000000-middle/raw:results/E01/20261011T154940Z-confirmatory-resumed-raw/runs/C2-ls_d-s1024-none/raw",
+    "results/E01/20261011T154940Z-confirmatory-resumed-raw/runs/C2-ls_d-s1025-delay-4000000-middle/raw:results/E01/20261011T154940Z-confirmatory-resumed-raw/runs/C2-ls_d-s1025-none/raw",
+    "results/E01/20261011T154940Z-confirmatory-resumed-raw/runs/C2-ls_d-s1026-delay-4000000-middle/raw:results/E01/20261011T154940Z-confirmatory-resumed-raw/runs/C2-ls_d-s1026-none/raw",
+    "results/E01/20261011T154940Z-confirmatory-resumed-raw/runs/C2-ls_d-s1027-delay-4000000-middle/raw:results/E01/20261011T154940Z-confirmatory-resumed-raw/runs/C2-ls_d-s1027-none/raw",
+    "results/E01/20261011T154940Z-confirmatory-resumed-raw/runs/C2-ls_d-s1028-delay-4000000-middle/raw:results/E01/20261011T154940Z-confirmatory-resumed-raw/runs/C2-ls_d-s1028-none/raw",
+    "results/E01/20261011T154940Z-confirmatory-resumed-raw/runs/C2-ls_d-s1029-delay-4000000-middle/raw:results/E01/20261011T154940Z-confirmatory-resumed-raw/runs/C2-ls_d-s1029-none/raw",
     "--flow",
     "0",
     "--include-null",
@@ -51,7 +51,7 @@
     "--window-ms",
     "1000",
     "--out",
-    "/home/aeehprrst/chronoroute/results/E01/20261011T154940Z-confirmatory-resumed/roc/C2-ls_d-delay-4000000-middle-block4"
+    "results/E01/20261011T154940Z-confirmatory-resumed/roc/C2-ls_d-delay-4000000-middle-block4"
    ],
    "wall_s": 1.1553275139958714,
    "cpu_s": 1.131464,
@@ -99,7 +99,7 @@
   },
   "inputs": [
    {
-    "path": "/home/aeehprrst/chronoroute/results/E01/20261011T154940Z-confirmatory-resumed/operating_points.json",
+    "path": "results/E01/20261011T154940Z-confirmatory-resumed/operating_points.json",
     "sha256": "e3927c023db7d1f17d691c6c774c846fa9f23f4748d05693bdc6ad9400786c99"
    }
   ]
@@ -118,16 +118,16 @@
  "outputs": [
   {
    "path": "summary.csv",
-   "sha256": "f73c899765aa743a75ac45f38573fee5af00be991deb5e51f97c71ace09f3af4",
-   "size_bytes": 1666
+   "sha256": "aa97b025dbb7a169ff8feecd38e6b0024e34bdf01a72f69d387e072be2dce448",
+   "size_bytes": 1330
   },
   {
    "path": "summary.json",
-   "sha256": "b57336deb81feb37c62891cff85db8fe2698814de65386ef26a9ec9aaf11199d",
-   "size_bytes": 1717
+   "sha256": "d0a0072a54ec9af8737f6bdfb3eb5908af08f3658b212728cfa376561e2bbd8c",
+   "size_bytes": 1381
   }
  ],
- "run_id": "89b35e663a754489",
+ "run_id": "1677818a27f99cc4",
  "schema": "chronoroute.manifest/1",
  "seeds": [],
  "snapshot": null,

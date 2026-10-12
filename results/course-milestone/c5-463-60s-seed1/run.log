@@ -18,8 +18,8 @@ bundle: cr export bundle --snapshot data/pinned/20261010T1358Z-celestrak --shell
 [bundle]   time: build 13.0 s, write 1.7 s, total 17.6 s
 [bundle]   check_bundle: OK (headers, row counts, order, SIDs, T-CRH templates re-built)
 run_leo: bundle /tmp/cr-bundles/c5-463-60s (2847 satellites, 10 ground stations, 60000 ms), run id c5-463-60s-seed1
-binary: /home/aeehprrst/ns-3-dev/build/contrib/chronoroute/examples/ns3.44-chronoroute-leo-default (sha256 7d831f979ca24614...)
-[nofault] /home/aeehprrst/ns-3-dev/build/contrib/chronoroute/examples/ns3.44-chronoroute-leo-default --bundle=/tmp/cr-bundles/c5-463-60s --seed=1 --faultFlow=0 --faultStartMs=20000 --faultDurationMs=20000 --faultRate=200kbps --policy=continue --probeRate=100 --payload=200 --dataRate=1Gbps --queueSize=100p --fault=0 --pcap=1 --outDir=/home/aeehprrst/chronoroute/results/course-milestone/c5-463-60s-seed1.staging/nofault
+binary: ~/ns-3-dev/build/contrib/chronoroute/examples/ns3.44-chronoroute-leo-default (sha256 7d831f979ca24614...)
+[nofault] ~/ns-3-dev/build/contrib/chronoroute/examples/ns3.44-chronoroute-leo-default --bundle=/tmp/cr-bundles/c5-463-60s --seed=1 --faultFlow=0 --faultStartMs=20000 --faultDurationMs=20000 --faultRate=200kbps --policy=continue --probeRate=100 --payload=200 --dataRate=1Gbps --queueSize=100p --fault=0 --pcap=1 --outDir=results/course-milestone/c5-463-60s-seed1.staging/nofault
 [nofault] exit 0, wall 16.1 s, peak RSS 194 MiB
 [nofault]   chronoroute-leo: bundle /tmp/cr-bundles/c5-463-60s
 [nofault]   built 2857 nodes (2847 satellites), 5361 laser links + 205 ground links, 1 link = stock PointToPointChannel, 1Gbps, DropTail 100p [MODELLED]; build 0.65 s
@@ -46,10 +46,10 @@ binary: /home/aeehprrst/ns-3-dev/build/contrib/chronoroute/examples/ns3.44-chron
 [nofault]   flow  9  Johannesburg -> Singapore     6000 / 6000 / 0 / 0 / 0 / 60
 [nofault]   Outcomes: delivered 60000;
 [nofault]   Topology: 601 steps applied, 2282353 Delay writes, 195 link-down and 5 link-up events
-[nofault]   pcap: /home/aeehprrst/chronoroute/results/course-milestone/c5-463-60s-seed1.staging/nofault/capture.pcap, 42000 frames from nodes 2847 2017 1998 2022
+[nofault]   pcap: results/course-milestone/c5-463-60s-seed1.staging/nofault/capture.pcap, 42000 frames from nodes 2847 2017 1998 2022
 [nofault]   Wall time: load 0.79 s, build 0.65 s, run 13.91 s, write 0.45 s, total 15.89 s; peak RSS 194.26 MiB
 [nofault]   chronoroute-leo: PASS
-[fault] /home/aeehprrst/ns-3-dev/build/contrib/chronoroute/examples/ns3.44-chronoroute-leo-default --bundle=/tmp/cr-bundles/c5-463-60s --seed=1 --faultFlow=0 --faultStartMs=20000 --faultDurationMs=20000 --faultRate=200kbps --policy=continue --probeRate=100 --payload=200 --dataRate=1Gbps --queueSize=100p --fault=1 --pcap=1 --outDir=/home/aeehprrst/chronoroute/results/course-milestone/c5-463-60s-seed1.staging/fault
+[fault] ~/ns-3-dev/build/contrib/chronoroute/examples/ns3.44-chronoroute-leo-default --bundle=/tmp/cr-bundles/c5-463-60s --seed=1 --faultFlow=0 --faultStartMs=20000 --faultDurationMs=20000 --faultRate=200kbps --policy=continue --probeRate=100 --payload=200 --dataRate=1Gbps --queueSize=100p --fault=1 --pcap=1 --outDir=results/course-milestone/c5-463-60s-seed1.staging/fault
 [fault] exit 0, wall 16.7 s, peak RSS 194 MiB
 [fault]   chronoroute-leo: bundle /tmp/cr-bundles/c5-463-60s
 [fault]   built 2857 nodes (2847 satellites), 5361 laser links + 205 ground links, 1 link = stock PointToPointChannel, 1Gbps, DropTail 100p [MODELLED]; build 0.70 s
@@ -77,10 +77,10 @@ binary: /home/aeehprrst/ns-3-dev/build/contrib/chronoroute/examples/ns3.44-chron
 [fault]   flow  9  Johannesburg -> Singapore     6000 / 6000 / 0 / 0 / 0 / 60
 [fault]   Outcomes: delivered 59647; drop_queue 353;
 [fault]   Topology: 601 steps applied, 2282353 Delay writes, 195 link-down and 5 link-up events
-[fault]   pcap: /home/aeehprrst/chronoroute/results/course-milestone/c5-463-60s-seed1.staging/fault/capture.pcap, 41117 frames from nodes 2847 2017 1998 2022
+[fault]   pcap: results/course-milestone/c5-463-60s-seed1.staging/fault/capture.pcap, 41117 frames from nodes 2847 2017 1998 2022
 [fault]   Wall time: load 0.80 s, build 0.70 s, run 14.44 s, write 0.44 s, total 16.46 s; peak RSS 194.46 MiB
 [fault]   chronoroute-leo: PASS
-[anim] /home/aeehprrst/ns-3-dev/build/contrib/chronoroute/examples/ns3.44-chronoroute-leo-default --bundle=/tmp/cr-bundles/c5-463-60s --seed=1 --faultFlow=0 --faultStartMs=20000 --faultDurationMs=20000 --faultRate=200kbps --policy=continue --probeRate=100 --payload=200 --dataRate=1Gbps --queueSize=100p --fault=1 --pcap=0 --anim=1 --animMaxSats=200 --animFromMs=18000 --animToMs=24000 --outDir=/home/aeehprrst/chronoroute/results/course-milestone/c5-463-60s-seed1.staging/anim
+[anim] ~/ns-3-dev/build/contrib/chronoroute/examples/ns3.44-chronoroute-leo-default --bundle=/tmp/cr-bundles/c5-463-60s --seed=1 --faultFlow=0 --faultStartMs=20000 --faultDurationMs=20000 --faultRate=200kbps --policy=continue --probeRate=100 --payload=200 --dataRate=1Gbps --queueSize=100p --fault=1 --pcap=0 --anim=1 --animMaxSats=200 --animFromMs=18000 --animToMs=24000 --outDir=results/course-milestone/c5-463-60s-seed1.staging/anim
 [anim] exit 0, wall 1.2 s, peak RSS 79 MiB
 [anim]   chronoroute-leo: bundle /tmp/cr-bundles/c5-463-60s
 [anim]   built 202 nodes (200 satellites), 348 laser links + 26 ground links, 1 link = stock PointToPointChannel, 1Gbps, DropTail 100p [MODELLED]; build 0.05 s
@@ -100,7 +100,7 @@ binary: /home/aeehprrst/ns-3-dev/build/contrib/chronoroute/examples/ns3.44-chron
 [anim]   Topology: 261 steps applied, 62018 Delay writes, 22 link-down and 0 link-up events
 [anim]   Wall time: load 0.88 s, build 0.05 s, run 0.16 s, write 0.01 s, total 1.17 s; peak RSS 79.55 MiB
 [anim]   chronoroute-leo: PASS
-[sensitivity/1Mbps] /home/aeehprrst/ns-3-dev/build/contrib/chronoroute/examples/ns3.44-chronoroute-leo-default --bundle=/tmp/cr-bundles/c5-463-60s --seed=1 --faultFlow=0 --faultStartMs=20000 --faultDurationMs=20000 --faultRate=1Mbps --policy=continue --probeRate=100 --payload=200 --dataRate=1Gbps --queueSize=100p --fault=1 --pcap=0 --outDir=/home/aeehprrst/chronoroute/results/course-milestone/c5-463-60s-seed1.staging/sensitivity/1Mbps
+[sensitivity/1Mbps] ~/ns-3-dev/build/contrib/chronoroute/examples/ns3.44-chronoroute-leo-default --bundle=/tmp/cr-bundles/c5-463-60s --seed=1 --faultFlow=0 --faultStartMs=20000 --faultDurationMs=20000 --faultRate=1Mbps --policy=continue --probeRate=100 --payload=200 --dataRate=1Gbps --queueSize=100p --fault=1 --pcap=0 --outDir=results/course-milestone/c5-463-60s-seed1.staging/sensitivity/1Mbps
 [sensitivity/1Mbps] exit 1, wall 15.7 s, peak RSS 194 MiB
 [sensitivity/1Mbps]   chronoroute-leo: bundle /tmp/cr-bundles/c5-463-60s
 [sensitivity/1Mbps]   built 2857 nodes (2847 satellites), 5361 laser links + 205 ground links, 1 link = stock PointToPointChannel, 1Gbps, DropTail 100p [MODELLED]; build 0.69 s
@@ -131,7 +131,7 @@ binary: /home/aeehprrst/ns-3-dev/build/contrib/chronoroute/examples/ns3.44-chron
 [sensitivity/1Mbps]   Wall time: load 0.82 s, build 0.69 s, run 13.53 s, write 0.43 s, total 15.56 s; peak RSS 194.29 MiB
 [sensitivity/1Mbps]   chronoroute-leo: FAIL
 [sensitivity/1Mbps] expected self-check failure only: ['the fault made probes late']
-[sensitivity/500kbps] /home/aeehprrst/ns-3-dev/build/contrib/chronoroute/examples/ns3.44-chronoroute-leo-default --bundle=/tmp/cr-bundles/c5-463-60s --seed=1 --faultFlow=0 --faultStartMs=20000 --faultDurationMs=20000 --faultRate=500kbps --policy=continue --probeRate=100 --payload=200 --dataRate=1Gbps --queueSize=100p --fault=1 --pcap=0 --outDir=/home/aeehprrst/chronoroute/results/course-milestone/c5-463-60s-seed1.staging/sensitivity/500kbps
+[sensitivity/500kbps] ~/ns-3-dev/build/contrib/chronoroute/examples/ns3.44-chronoroute-leo-default --bundle=/tmp/cr-bundles/c5-463-60s --seed=1 --faultFlow=0 --faultStartMs=20000 --faultDurationMs=20000 --faultRate=500kbps --policy=continue --probeRate=100 --payload=200 --dataRate=1Gbps --queueSize=100p --fault=1 --pcap=0 --outDir=results/course-milestone/c5-463-60s-seed1.staging/sensitivity/500kbps
 [sensitivity/500kbps] exit 1, wall 15.4 s, peak RSS 194 MiB
 [sensitivity/500kbps]   chronoroute-leo: bundle /tmp/cr-bundles/c5-463-60s
 [sensitivity/500kbps]   built 2857 nodes (2847 satellites), 5361 laser links + 205 ground links, 1 link = stock PointToPointChannel, 1Gbps, DropTail 100p [MODELLED]; build 0.63 s
@@ -162,7 +162,7 @@ binary: /home/aeehprrst/ns-3-dev/build/contrib/chronoroute/examples/ns3.44-chron
 [sensitivity/500kbps]   Wall time: load 0.78 s, build 0.63 s, run 13.29 s, write 0.44 s, total 15.22 s; peak RSS 194.10 MiB
 [sensitivity/500kbps]   chronoroute-leo: FAIL
 [sensitivity/500kbps] expected self-check failure only: ['the fault made probes late']
-[sensitivity/250kbps] /home/aeehprrst/ns-3-dev/build/contrib/chronoroute/examples/ns3.44-chronoroute-leo-default --bundle=/tmp/cr-bundles/c5-463-60s --seed=1 --faultFlow=0 --faultStartMs=20000 --faultDurationMs=20000 --faultRate=250kbps --policy=continue --probeRate=100 --payload=200 --dataRate=1Gbps --queueSize=100p --fault=1 --pcap=0 --outDir=/home/aeehprrst/chronoroute/results/course-milestone/c5-463-60s-seed1.staging/sensitivity/250kbps
+[sensitivity/250kbps] ~/ns-3-dev/build/contrib/chronoroute/examples/ns3.44-chronoroute-leo-default --bundle=/tmp/cr-bundles/c5-463-60s --seed=1 --faultFlow=0 --faultStartMs=20000 --faultDurationMs=20000 --faultRate=250kbps --policy=continue --probeRate=100 --payload=200 --dataRate=1Gbps --queueSize=100p --fault=1 --pcap=0 --outDir=results/course-milestone/c5-463-60s-seed1.staging/sensitivity/250kbps
 [sensitivity/250kbps] exit 1, wall 15.3 s, peak RSS 194 MiB
 [sensitivity/250kbps]   chronoroute-leo: bundle /tmp/cr-bundles/c5-463-60s
 [sensitivity/250kbps]   built 2857 nodes (2847 satellites), 5361 laser links + 205 ground links, 1 link = stock PointToPointChannel, 1Gbps, DropTail 100p [MODELLED]; build 0.66 s
@@ -198,8 +198,8 @@ analysis: loading the bundle and the packets
 [sensitivity/1Mbps] detection: crossed 4000, flagged 0 (rate 0.0), lost in its queue 0
 [sensitivity/500kbps] detection: crossed 4000, flagged 0 (rate 0.0), lost in its queue 0
 [sensitivity/250kbps] detection: crossed 4000, flagged 0 (rate 0.0), lost in its queue 0
-[nofault] check_pcap.sh: exit 0; check_pcap: /home/aeehprrst/chronoroute/results/course-milestone/c5-463-60s-seed1.staging/nofault/capture.pcap: 42000 T-CRH frames, 0 invalid, 0 with DEV, 0 late at capture, 0 quoted in ICMPv6 errors (not counted)
-[fault] check_pcap.sh: exit 0; check_pcap: /home/aeehprrst/chronoroute/results/course-milestone/c5-463-60s-seed1.staging/fault/capture.pcap: 41117 T-CRH frames, 0 invalid, 5469 with DEV, 9073 late at capture, 0 quoted in ICMPv6 errors (not counted)
+[nofault] check_pcap.sh: exit 0; check_pcap: results/course-milestone/c5-463-60s-seed1.staging/nofault/capture.pcap: 42000 T-CRH frames, 0 invalid, 0 with DEV, 0 late at capture, 0 quoted in ICMPv6 errors (not counted)
+[fault] check_pcap.sh: exit 0; check_pcap: results/course-milestone/c5-463-60s-seed1.staging/fault/capture.pcap: 41117 T-CRH frames, 0 invalid, 5469 with DEV, 9073 late at capture, 0 quoted in ICMPv6 errors (not counted)
 
 Per-flow summary [traffic, link rate, queues, fault MODELLED; positions REAL; routes DERIVED]:
     run  flow_id           src           dst  sent  delivered     pdr  latency_p50_ms  latency_p99_ms  drop_link_down  drop_iface_down  drop_queue  flagged_frac_before  flagged_frac_during  flagged_frac_after

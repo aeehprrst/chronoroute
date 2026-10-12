@@ -1,5 +1,5 @@
-golden_to_inc: unchanged: /home/aeehprrst/chronoroute/ns3/contrib/chronoroute/test/golden-vectors.inc
-ns3-sync: /home/aeehprrst/ns-3-dev/contrib/chronoroute -> /home/aeehprrst/chronoroute/ns3/contrib/chronoroute (already linked)
+golden_to_inc: unchanged: ns3/contrib/chronoroute/test/golden-vectors.inc
+ns3-sync: ~/ns-3-dev/contrib/chronoroute -> ns3/contrib/chronoroute (already linked)
 ns3-sync: scratch/bottleneck-experiment.cc -> repository (already linked)
 ns3-sync: scratch/crh-experiment.cc -> repository (already linked)
 ns3-sync: scratch/tcrh-experiment-a8.cc -> repository (already linked)
@@ -7,10 +7,10 @@ ns3-sync: scratch/tcrh-experiment.cc -> repository (already linked)
 ns3-sync: plot_results.py -> repository (already linked)
 ns3-sync: plot_tcrh.py -> repository (already linked)
 ns3-sync: ns-3 already knows the chronoroute module
-cd "/home/aeehprrst/ns-3-dev" && ./ns3 build -j8
+cd "~/ns-3-dev" && ./ns3 build -j8
 [0/2] Re-checking globbed directories...
 [1/2] Re-running CMake...
--- Using default output directory /home/aeehprrst/ns-3-dev/build
+-- Using default output directory ~/ns-3-dev/build
 CMake Warning at build-support/3rd-party/colored-messages.cmake:84 (_message):
   [33mTo prevent Windows path injection on WSL, append the following to
   /etc/wsl.conf, then use `wsl --shutdown` to restart the WSL VM:
@@ -101,7 +101,7 @@ Call Stack (most recent call first):
 -- Processing src/zigbee
 -- ---- Summary of ns-3 settings:
 Build profile                 : default
-Build directory               : /home/aeehprrst/ns-3-dev/build
+Build directory               : ~/ns-3-dev/build
 Build with runtime asserts    : [32mON[0m
 Build with runtime logging    : [32mON[0m
 Build version embedding       : OFF (not requested)
@@ -150,66 +150,66 @@ openflow                  visualizer
 
 -- Configuring done (16.5s)
 -- Generating done (0.9s)
--- Build files have been written to: /home/aeehprrst/ns-3-dev/cmake-cache
+-- Build files have been written to: ~/ns-3-dev/cmake-cache
 [0/4] Re-checking globbed directories...
 [1/59] Building CXX object src/config-store/CMakeFiles/config-store.dir/model/xml-config.cc.o
-[2/59] Linking CXX shared library /home/aeehprrst/ns-3-dev/build/lib/libns3.44-config-store-default.so
-[3/59] Linking CXX executable /home/aeehprrst/ns-3-dev/build/src/core/examples/ns3.44-main-random-variable-stream-default
-[4/59] Linking CXX executable /home/aeehprrst/ns-3-dev/build/src/config-store/examples/ns3.44-config-store-save-default
-[5/59] Linking CXX executable /home/aeehprrst/ns-3-dev/build/src/buildings/examples/ns3.44-buildings-pathloss-profiler-default
-[6/59] Linking CXX executable /home/aeehprrst/ns-3-dev/build/src/wifi/examples/ns3.44-wifi-phy-configuration-default
-[7/59] Linking CXX executable /home/aeehprrst/ns-3-dev/build/src/energy/examples/ns3.44-generic-battery-wifiradio-example-default
-[8/59] Linking CXX executable /home/aeehprrst/ns-3-dev/build/src/dsr/examples/ns3.44-dsr-example-default
-[9/59] Linking CXX executable /home/aeehprrst/ns-3-dev/build/src/propagation/examples/ns3.44-main-propagation-loss-default
-[10/59] Linking CXX executable /home/aeehprrst/ns-3-dev/build/src/traffic-control/examples/ns3.44-codel-vs-pfifo-asymmetric-default
-[11/59] Linking CXX executable /home/aeehprrst/ns-3-dev/build/examples/energy/ns3.44-energy-model-example-default
-[12/59] Linking CXX executable /home/aeehprrst/ns-3-dev/build/examples/wireless/ns3.44-wifi-ofdm-vht-validation-default
-[13/59] Linking CXX executable /home/aeehprrst/ns-3-dev/build/examples/energy/ns3.44-energy-model-with-harvesting-example-default
-[14/59] Linking CXX shared library /home/aeehprrst/ns-3-dev/build/lib/libns3.44-lte-default.so
-[15/59] Linking CXX executable /home/aeehprrst/ns-3-dev/build/src/lte/examples/ns3.44-lena-cc-helper-default
-[16/59] Linking CXX executable /home/aeehprrst/ns-3-dev/build/src/lte/examples/ns3.44-lena-cqi-threshold-default
-[17/59] Linking CXX executable /home/aeehprrst/ns-3-dev/build/src/lte/examples/ns3.44-lena-deactivate-bearer-default
-[18/59] Linking CXX executable /home/aeehprrst/ns-3-dev/build/src/lte/examples/ns3.44-lena-dual-stripe-default
-[19/59] Linking CXX executable /home/aeehprrst/ns-3-dev/build/src/lte/examples/ns3.44-lena-distributed-ffr-default
-[20/59] Linking CXX shared library /home/aeehprrst/ns-3-dev/build/lib/libns3.44-netanim-default.so
-[21/59] Linking CXX executable /home/aeehprrst/ns-3-dev/build/src/lte/examples/ns3.44-lena-fading-default
-[22/59] Linking CXX executable /home/aeehprrst/ns-3-dev/build/src/lte/examples/ns3.44-lena-frequency-reuse-default
-[23/59] Linking CXX executable /home/aeehprrst/ns-3-dev/build/src/lte/examples/ns3.44-lena-ipv6-addr-conf-default
-[24/59] Linking CXX executable /home/aeehprrst/ns-3-dev/build/src/lte/examples/ns3.44-lena-intercell-interference-default
-[25/59] Linking CXX executable /home/aeehprrst/ns-3-dev/build/src/lte/examples/ns3.44-lena-ipv6-ue-rh-default
-[26/59] Linking CXX shared library /home/aeehprrst/ns-3-dev/build/lib/libns3.44-lte-test-default.so
-[27/59] Linking CXX executable /home/aeehprrst/ns-3-dev/build/src/lr-wpan/examples/ns3.44-lr-wpan-bootstrap-default
-[28/59] Linking CXX shared library /home/aeehprrst/ns-3-dev/build/lib/libns3.44-netanim-test-default.so
-[29/59] Linking CXX executable /home/aeehprrst/ns-3-dev/build/src/lte/examples/ns3.44-lena-ipv6-ue-ue-default
-[30/59] Linking CXX executable /home/aeehprrst/ns-3-dev/build/src/lte/examples/ns3.44-lena-pathloss-traces-default
-[31/59] Linking CXX executable /home/aeehprrst/ns-3-dev/build/src/lte/examples/ns3.44-lena-profiling-default
-[32/59] Linking CXX executable /home/aeehprrst/ns-3-dev/build/src/lte/examples/ns3.44-lena-radio-link-failure-default
-[33/59] Linking CXX executable /home/aeehprrst/ns-3-dev/build/src/lte/examples/ns3.44-lena-rem-default
-[34/59] Linking CXX executable /home/aeehprrst/ns-3-dev/build/src/lte/examples/ns3.44-lena-rem-sector-antenna-default
-[35/59] Linking CXX executable /home/aeehprrst/ns-3-dev/build/src/lte/examples/ns3.44-lena-rlc-traces-default
-[36/59] Linking CXX executable /home/aeehprrst/ns-3-dev/build/src/lte/examples/ns3.44-lena-simple-default
-[37/59] Linking CXX executable /home/aeehprrst/ns-3-dev/build/src/lte/examples/ns3.44-lena-simple-epc-default
-[38/59] Linking CXX executable /home/aeehprrst/ns-3-dev/build/src/lte/examples/ns3.44-lena-simple-epc-backhaul-default
-[39/59] Linking CXX executable /home/aeehprrst/ns-3-dev/build/src/lte/examples/ns3.44-lena-uplink-power-control-default
-[40/59] Linking CXX executable /home/aeehprrst/ns-3-dev/build/src/lte/examples/ns3.44-lena-x2-handover-default
-[41/59] Linking CXX executable /home/aeehprrst/ns-3-dev/build/src/lte/examples/ns3.44-lena-x2-handover-measures-default
-[42/59] Linking CXX executable /home/aeehprrst/ns-3-dev/build/src/lte/examples/ns3.44-lena-simple-epc-emu-default
-[43/59] Linking CXX executable /home/aeehprrst/ns-3-dev/build/src/netanim/examples/ns3.44-star-animation-default
-[44/59] Linking CXX executable /home/aeehprrst/ns-3-dev/build/src/netanim/examples/ns3.44-grid-animation-default
-[45/59] Linking CXX executable /home/aeehprrst/ns-3-dev/build/src/netanim/examples/ns3.44-dumbbell-animation-default
-[46/59] Linking CXX executable /home/aeehprrst/ns-3-dev/build/src/netanim/examples/ns3.44-colors-link-description-default
-[47/59] Linking CXX executable /home/aeehprrst/ns-3-dev/build/src/netanim/examples/ns3.44-resources-counters-default
-[48/59] Linking CXX executable /home/aeehprrst/ns-3-dev/build/src/spectrum/examples/ns3.44-three-gpp-channel-example-default
-[49/59] Linking CXX executable /home/aeehprrst/ns-3-dev/build/src/spectrum/examples/ns3.44-three-gpp-two-ray-channel-calibration-default
-[50/59] Linking CXX executable /home/aeehprrst/ns-3-dev/build/src/netanim/examples/ns3.44-uan-animation-default
-[51/59] Linking CXX executable /home/aeehprrst/ns-3-dev/build/src/netanim/examples/ns3.44-wireless-animation-default
-[52/59] Linking CXX executable /home/aeehprrst/ns-3-dev/build/examples/matrix-topology/ns3.44-matrix-topology-default
-[53/59] Linking CXX executable /home/aeehprrst/ns-3-dev/build/examples/tcp/ns3.44-star-default
-[54/59] Linking CXX executable /home/aeehprrst/ns-3-dev/build/examples/wireless/ns3.44-mixed-wired-wireless-default
+[2/59] Linking CXX shared library ~/ns-3-dev/build/lib/libns3.44-config-store-default.so
+[3/59] Linking CXX executable ~/ns-3-dev/build/src/core/examples/ns3.44-main-random-variable-stream-default
+[4/59] Linking CXX executable ~/ns-3-dev/build/src/config-store/examples/ns3.44-config-store-save-default
+[5/59] Linking CXX executable ~/ns-3-dev/build/src/buildings/examples/ns3.44-buildings-pathloss-profiler-default
+[6/59] Linking CXX executable ~/ns-3-dev/build/src/wifi/examples/ns3.44-wifi-phy-configuration-default
+[7/59] Linking CXX executable ~/ns-3-dev/build/src/energy/examples/ns3.44-generic-battery-wifiradio-example-default
+[8/59] Linking CXX executable ~/ns-3-dev/build/src/dsr/examples/ns3.44-dsr-example-default
+[9/59] Linking CXX executable ~/ns-3-dev/build/src/propagation/examples/ns3.44-main-propagation-loss-default
+[10/59] Linking CXX executable ~/ns-3-dev/build/src/traffic-control/examples/ns3.44-codel-vs-pfifo-asymmetric-default
+[11/59] Linking CXX executable ~/ns-3-dev/build/examples/energy/ns3.44-energy-model-example-default
+[12/59] Linking CXX executable ~/ns-3-dev/build/examples/wireless/ns3.44-wifi-ofdm-vht-validation-default
+[13/59] Linking CXX executable ~/ns-3-dev/build/examples/energy/ns3.44-energy-model-with-harvesting-example-default
+[14/59] Linking CXX shared library ~/ns-3-dev/build/lib/libns3.44-lte-default.so
+[15/59] Linking CXX executable ~/ns-3-dev/build/src/lte/examples/ns3.44-lena-cc-helper-default
+[16/59] Linking CXX executable ~/ns-3-dev/build/src/lte/examples/ns3.44-lena-cqi-threshold-default
+[17/59] Linking CXX executable ~/ns-3-dev/build/src/lte/examples/ns3.44-lena-deactivate-bearer-default
+[18/59] Linking CXX executable ~/ns-3-dev/build/src/lte/examples/ns3.44-lena-dual-stripe-default
+[19/59] Linking CXX executable ~/ns-3-dev/build/src/lte/examples/ns3.44-lena-distributed-ffr-default
+[20/59] Linking CXX shared library ~/ns-3-dev/build/lib/libns3.44-netanim-default.so
+[21/59] Linking CXX executable ~/ns-3-dev/build/src/lte/examples/ns3.44-lena-fading-default
+[22/59] Linking CXX executable ~/ns-3-dev/build/src/lte/examples/ns3.44-lena-frequency-reuse-default
+[23/59] Linking CXX executable ~/ns-3-dev/build/src/lte/examples/ns3.44-lena-ipv6-addr-conf-default
+[24/59] Linking CXX executable ~/ns-3-dev/build/src/lte/examples/ns3.44-lena-intercell-interference-default
+[25/59] Linking CXX executable ~/ns-3-dev/build/src/lte/examples/ns3.44-lena-ipv6-ue-rh-default
+[26/59] Linking CXX shared library ~/ns-3-dev/build/lib/libns3.44-lte-test-default.so
+[27/59] Linking CXX executable ~/ns-3-dev/build/src/lr-wpan/examples/ns3.44-lr-wpan-bootstrap-default
+[28/59] Linking CXX shared library ~/ns-3-dev/build/lib/libns3.44-netanim-test-default.so
+[29/59] Linking CXX executable ~/ns-3-dev/build/src/lte/examples/ns3.44-lena-ipv6-ue-ue-default
+[30/59] Linking CXX executable ~/ns-3-dev/build/src/lte/examples/ns3.44-lena-pathloss-traces-default
+[31/59] Linking CXX executable ~/ns-3-dev/build/src/lte/examples/ns3.44-lena-profiling-default
+[32/59] Linking CXX executable ~/ns-3-dev/build/src/lte/examples/ns3.44-lena-radio-link-failure-default
+[33/59] Linking CXX executable ~/ns-3-dev/build/src/lte/examples/ns3.44-lena-rem-default
+[34/59] Linking CXX executable ~/ns-3-dev/build/src/lte/examples/ns3.44-lena-rem-sector-antenna-default
+[35/59] Linking CXX executable ~/ns-3-dev/build/src/lte/examples/ns3.44-lena-rlc-traces-default
+[36/59] Linking CXX executable ~/ns-3-dev/build/src/lte/examples/ns3.44-lena-simple-default
+[37/59] Linking CXX executable ~/ns-3-dev/build/src/lte/examples/ns3.44-lena-simple-epc-default
+[38/59] Linking CXX executable ~/ns-3-dev/build/src/lte/examples/ns3.44-lena-simple-epc-backhaul-default
+[39/59] Linking CXX executable ~/ns-3-dev/build/src/lte/examples/ns3.44-lena-uplink-power-control-default
+[40/59] Linking CXX executable ~/ns-3-dev/build/src/lte/examples/ns3.44-lena-x2-handover-default
+[41/59] Linking CXX executable ~/ns-3-dev/build/src/lte/examples/ns3.44-lena-x2-handover-measures-default
+[42/59] Linking CXX executable ~/ns-3-dev/build/src/lte/examples/ns3.44-lena-simple-epc-emu-default
+[43/59] Linking CXX executable ~/ns-3-dev/build/src/netanim/examples/ns3.44-star-animation-default
+[44/59] Linking CXX executable ~/ns-3-dev/build/src/netanim/examples/ns3.44-grid-animation-default
+[45/59] Linking CXX executable ~/ns-3-dev/build/src/netanim/examples/ns3.44-dumbbell-animation-default
+[46/59] Linking CXX executable ~/ns-3-dev/build/src/netanim/examples/ns3.44-colors-link-description-default
+[47/59] Linking CXX executable ~/ns-3-dev/build/src/netanim/examples/ns3.44-resources-counters-default
+[48/59] Linking CXX executable ~/ns-3-dev/build/src/spectrum/examples/ns3.44-three-gpp-channel-example-default
+[49/59] Linking CXX executable ~/ns-3-dev/build/src/spectrum/examples/ns3.44-three-gpp-two-ray-channel-calibration-default
+[50/59] Linking CXX executable ~/ns-3-dev/build/src/netanim/examples/ns3.44-uan-animation-default
+[51/59] Linking CXX executable ~/ns-3-dev/build/src/netanim/examples/ns3.44-wireless-animation-default
+[52/59] Linking CXX executable ~/ns-3-dev/build/examples/matrix-topology/ns3.44-matrix-topology-default
+[53/59] Linking CXX executable ~/ns-3-dev/build/examples/tcp/ns3.44-star-default
+[54/59] Linking CXX executable ~/ns-3-dev/build/examples/wireless/ns3.44-mixed-wired-wireless-default
 [55/59] Building CXX object contrib/chronoroute/examples/CMakeFiles/chronoroute-leo.dir/chronoroute-leo.cc.o
-[56/59] Linking CXX executable /home/aeehprrst/ns-3-dev/build/contrib/chronoroute/examples/ns3.44-chronoroute-leo-default
+[56/59] Linking CXX executable ~/ns-3-dev/build/contrib/chronoroute/examples/ns3.44-chronoroute-leo-default
 Finished executing the following commands:
-/usr/bin/cmake --build /home/aeehprrst/ns-3-dev/cmake-cache -j 8
-cd "/home/aeehprrst/ns-3-dev" && for suite in chronoroute; do ./test.py --no-build --suite "$suite"; done
+/usr/bin/cmake --build ~/ns-3-dev/cmake-cache -j 8
+cd "~/ns-3-dev" && for suite in chronoroute; do ./test.py --no-build --suite "$suite"; done
 [0/1] [32mPASS[0m: TestSuite chronoroute
 1 of 1 tests passed (1 passed, 0 skipped, 0 failed, 0 crashed, 0 valgrind errors)

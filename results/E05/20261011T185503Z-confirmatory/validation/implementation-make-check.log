@@ -1,6 +1,6 @@
 make test
-make[1]: Entering directory '/home/aeehprrst/chronoroute'
-/home/aeehprrst/chronoroute/venv/bin/python -B -m pytest
+make[1]: Entering directory '.'
+venv/bin/python -B -m pytest
 ........................................................................ [  5%]
 ........................................................................ [ 11%]
 ........................................................................ [ 17%]
@@ -20,13 +20,13 @@ make[1]: Entering directory '/home/aeehprrst/chronoroute'
 ........................................................................ [ 97%]
 .....................................                                    [100%]
 1261 passed in 609.34s (0:10:09)
-make[1]: Leaving directory '/home/aeehprrst/chronoroute'
+make[1]: Leaving directory '.'
 make golden
-make[1]: Entering directory '/home/aeehprrst/chronoroute'
-/home/aeehprrst/chronoroute/venv/bin/python -B spec/golden/gen_vectors.py
+make[1]: Entering directory '.'
+venv/bin/python -B spec/golden/gen_vectors.py
 up to date: tcrh_vectors.json
 up to date: crh_vectors.json
-/home/aeehprrst/chronoroute/venv/bin/python -B tools/golden_to_inc.py --check
+venv/bin/python -B tools/golden_to_inc.py --check
 golden_to_inc: up to date: golden-vectors.inc
 golden: spec/golden is reproducible
-make[1]: Leaving directory '/home/aeehprrst/chronoroute'
+make[1]: Leaving directory '.'

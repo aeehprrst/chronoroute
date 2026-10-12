@@ -1,5 +1,5 @@
 {
-  "command": "/home/aeehprrst/chronoroute/venv/bin/python -B experiments/E00/gate.py --out results/E00/20261011T214507Z",
+  "command": "venv/bin/python -B experiments/E00/gate.py --out results/E00/20261011T214507Z",
   "config": {
     "campaign": {
       "cell_id": "C5-C2-full-orbit-and-wire",
@@ -731,50 +731,50 @@
           "c++",
           "-std=c++20",
           "-O2",
-          "/home/aeehprrst/chronoroute/experiments/E00/ns3-wire.cc",
+          "experiments/E00/ns3-wire.cc",
           "-I",
-          "/home/aeehprrst/ns-3-dev/build/include",
+          "~/ns-3-dev/build/include",
           "-L",
-          "/home/aeehprrst/ns-3-dev/build/lib",
-          "-Wl,-rpath,/home/aeehprrst/ns-3-dev/build/lib",
+          "~/ns-3-dev/build/lib",
+          "-Wl,-rpath,~/ns-3-dev/build/lib",
           "-lns3.44-chronoroute-default",
           "-lns3.44-internet-default",
           "-lns3.44-network-default",
           "-lns3.44-core-default",
           "-o",
-          "/home/aeehprrst/chronoroute/results/E00/20261011T214507Z/ns3-wire"
+          "results/E00/20261011T214507Z/ns3-wire"
         ],
-        "cwd": "/home/aeehprrst/chronoroute",
+        "cwd": ".",
         "log": "command-00.log",
         "returncode": 0
       },
       {
         "argv": [
-          "/home/aeehprrst/.local/opt/node/bin/node",
+          "~/.local/opt/node/bin/node",
           "-e",
-          "const e=require(\"/home/aeehprrst/chronoroute/web/node_modules/esbuild/lib/main.js\");e.buildSync({entryPoints:[\"/home/aeehprrst/chronoroute/experiments/E00/browser.ts\"],outfile:\"/home/aeehprrst/chronoroute/results/E00/20261011T214507Z/browser.mjs\",bundle:true,platform:'node',format:'esm',define:{'import.meta.env.BASE_URL':'\"/\"'}})"
+          "const e=require(\"web/node_modules/esbuild/lib/main.js\");e.buildSync({entryPoints:[\"experiments/E00/browser.ts\"],outfile:\"results/E00/20261011T214507Z/browser.mjs\",bundle:true,platform:'node',format:'esm',define:{'import.meta.env.BASE_URL':'\"/\"'}})"
         ],
-        "cwd": "/home/aeehprrst/chronoroute",
+        "cwd": ".",
         "log": "command-01.log",
         "returncode": 0
       },
       {
         "argv": [
-          "/home/aeehprrst/.local/opt/node/bin/node",
-          "/home/aeehprrst/chronoroute/results/E00/20261011T214507Z/browser.mjs",
-          "/home/aeehprrst/chronoroute/results/E00/20261011T214507Z/inputs.json",
-          "/home/aeehprrst/chronoroute/results/E00/20261011T214507Z/browser.json"
+          "~/.local/opt/node/bin/node",
+          "results/E00/20261011T214507Z/browser.mjs",
+          "results/E00/20261011T214507Z/inputs.json",
+          "results/E00/20261011T214507Z/browser.json"
         ],
-        "cwd": "/home/aeehprrst/chronoroute",
+        "cwd": ".",
         "log": "command-02.log",
         "returncode": 0
       },
       {
         "argv": [
-          "/home/aeehprrst/chronoroute/results/E00/20261011T214507Z/ns3-wire",
-          "/home/aeehprrst/chronoroute/results/E00/20261011T214507Z/wire.tsv"
+          "results/E00/20261011T214507Z/ns3-wire",
+          "results/E00/20261011T214507Z/wire.tsv"
         ],
-        "cwd": "/home/aeehprrst/chronoroute",
+        "cwd": ".",
         "log": "command-03.log",
         "returncode": 0
       },
@@ -783,9 +783,9 @@
           "tshark",
           "-n",
           "-r",
-          "/home/aeehprrst/chronoroute/results/E00/20261011T214507Z/wire.pcap",
+          "results/E00/20261011T214507Z/wire.pcap",
           "-X",
-          "lua_script:/home/aeehprrst/chronoroute/tools/wireshark/tcrh.lua",
+          "lua_script:tools/wireshark/tcrh.lua",
           "-o",
           "tcrh.timebase:offset",
           "-o",
@@ -843,7 +843,7 @@
           "-e",
           "@frame"
         ],
-        "cwd": "/home/aeehprrst/chronoroute",
+        "cwd": ".",
         "log": "command-04.log",
         "returncode": 0
       }

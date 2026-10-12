@@ -1,5 +1,5 @@
 {
-  "command": "/home/aeehprrst/chronoroute/venv/bin/python -B /home/aeehprrst/chronoroute/experiments/policy_campaign.py --out results/E04/20261011T185503Z-collected --workers 8 --collect-from results/E04/20261011T175659Z-confirmatory --collect-log /tmp/chronoroute-e04-campaign.log --experiment E04",
+  "command": "venv/bin/python -B experiments/policy_campaign.py --out results/E04/20261011T185503Z-collected --workers 8 --collect-from results/E04/20261011T175659Z-confirmatory --collect-log /tmp/chronoroute-e04-campaign.log --experiment E04",
   "config": {
     "analysis_seed": 91000,
     "bootstrap_resamples": 10000,
@@ -32,43 +32,43 @@
     "complete": true,
     "inputs": [
       {
-        "path": "/home/aeehprrst/chronoroute/results/E01/20261011T154940Z-confirmatory-resumed/manifest.json",
-        "sha256": "8792397240710809e1f897f693b60962c6a54702920767ee8d82437c9c3a735f"
+        "path": "results/E01/20261011T154940Z-confirmatory-resumed/manifest.json",
+        "sha256": "80158cb7b3106183fe646caadc5f41d1667817823e12a4b29890975d78be82b9"
       },
       {
-        "path": "/home/aeehprrst/chronoroute/results/E01/20261011T154940Z-confirmatory-resumed/runtime.json",
+        "path": "results/E01/20261011T154940Z-confirmatory-resumed/runtime.json",
         "sha256": "b876099f08f21e632c0725a862dc4d8246197a8a7ecaba9dd60f4ce40cb97e97"
       },
       {
-        "path": "/home/aeehprrst/chronoroute/results/E01/20261011T130817Z-calibration/manifest.json",
+        "path": "results/E01/20261011T130817Z-calibration/manifest.json",
         "sha256": "8b3aa6900c7f0ead8de9d380a82ffd20d6a94b467a3f8277fefdd347dcf1d093"
       },
       {
-        "path": "/home/aeehprrst/chronoroute/results/E01/20261011T130817Z-calibration/resource_forecast.json",
+        "path": "results/E01/20261011T130817Z-calibration/resource_forecast.json",
         "sha256": "785eeade8db19a8cd3547a00c964c9f2425d1202205c70741eaba12a78dac2f3"
       },
       {
-        "path": "/home/aeehprrst/chronoroute/results/E00/20261011T100448Z/manifest.json",
-        "sha256": "b1f58b7d21c330f4b67b1208c30e8e461a237b57229e1e1f0ed4e03de3cb1dd6"
+        "path": "results/E00/20261011T100448Z/manifest.json",
+        "sha256": "5a8b07c79aa87b57b59087a18eb539612fe0a60c76562e17a6397ff3faa0d49e"
       },
       {
-        "path": "/home/aeehprrst/chronoroute/results/E04/20261011T175659Z-confirmatory-raw/manifest.json",
+        "path": "results/E04/20261011T175659Z-confirmatory-raw/manifest.json",
         "sha256": "91cc60f1864cd34dfe9ea60806652c983d1021b3453ca3f59e8466c9de8dfae6"
       },
       {
-        "path": "/home/aeehprrst/chronoroute/results/E04/20261011T175659Z-confirmatory/planned_jobs.json",
+        "path": "results/E04/20261011T175659Z-confirmatory/planned_jobs.json",
         "sha256": "bf199925a095f8c42a96571ea3b8fce13ec64ad61ad59515960b026d60049cae"
       },
       {
-        "path": "/home/aeehprrst/chronoroute/results/E04/20261011T175659Z-confirmatory/design.json",
+        "path": "results/E04/20261011T175659Z-confirmatory/design.json",
         "sha256": "83620937e358e1c4ba19bc4e00098cb39dbd5c9c0f73e9076fb9b856e42bb232"
       },
       {
-        "path": "/home/aeehprrst/chronoroute/results/E04/20261011T185503Z-collected/previous-attempt.log",
-        "sha256": "302ed0216a95f13292df68e6ecbd6d457e9518348ba37aa9ab7c553c73f60ee2"
+        "path": "results/E04/20261011T185503Z-collected/previous-attempt.log",
+        "sha256": "66fd4883eabbd225e016a89521465d2389fb88616097be4ebfe9f925aa76431b"
       }
     ],
-    "raw_cache": "/home/aeehprrst/chronoroute/results/E04/20261011T175659Z-confirmatory-raw",
+    "raw_cache": "results/E04/20261011T175659Z-confirmatory-raw",
     "synthetic_positions": "C2 elements and positions MODELLED"
   },
   "git_sha": "a18cffb6da450ea4449acf46f455b474fee2dcbf",
@@ -10919,13 +10919,13 @@
     },
     {
       "path": "inputs/producer-manifests.jsonl.gz",
-      "sha256": "415c4d497c9506c6017d9ee1ceae130625b59e8d839eac739899e98cc008925c",
-      "size_bytes": 4376144
+      "sha256": "23059ae5a95e5872fb99b9a39d1d736b8d1091808af83e7aa966740996d0732f",
+      "size_bytes": 4374897
     },
     {
       "path": "inventory.csv",
-      "sha256": "027db1949690224c9a6c6ca660d0dcc570ad978fc6e9ada049771185f893a428",
-      "size_bytes": 1006220
+      "sha256": "9d31d287b9bced18760d9398adba51d314e8bd5f17c20859212baa072e4d9d8f",
+      "size_bytes": 764300
     },
     {
       "path": "paired_contrasts.csv",
@@ -10949,13 +10949,13 @@
     },
     {
       "path": "previous-attempt.log",
-      "sha256": "302ed0216a95f13292df68e6ecbd6d457e9518348ba37aa9ab7c553c73f60ee2",
-      "size_bytes": 8476
+      "sha256": "66fd4883eabbd225e016a89521465d2389fb88616097be4ebfe9f925aa76431b",
+      "size_bytes": 8364
     },
     {
       "path": "recovery.json",
-      "sha256": "86995cf8d890a76a04dff61fbbe9c79b78097fd48701a969d8c55018138a497a",
-      "size_bytes": 374
+      "sha256": "927ce9ebf1104a5aa7e0e2f3305d8876feeea2b253a313896b1f89be4fa75b0c",
+      "size_bytes": 346
     },
     {
       "path": "resource_forecast.json",

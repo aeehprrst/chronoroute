@@ -231,7 +231,7 @@ def score_pilot(out, planned):
                 rows.append({"const": job["const"], "seed": job["seed"], "rule_index": ri, "family": "none",
                              "clean": result["fpr_twin"]["clean"], "fp": result["fpr_twin"]["false_positives"],
                              "tp": 0, "crossed": 0, "detected": 0})
-    write_json(out / "score_inventory.json", observations)
+    write_json(out / "score_inventory.json", provenance.public_paths(observations))
     write_csv(out / "pilot_counts.csv", rows)
     if len(observations) == 36 and all(o["status"] == "ok" for o in observations):
         frozen = {c: select_rule(rows, c) for c in ("C5", "C2")}
@@ -339,7 +339,8 @@ def write_csv(path, rows):
     with open(path, "w", newline="", encoding="utf-8") as fh:
         w = csv.DictWriter(fh, fieldnames=list(rows[0]) if rows else ["status"])
         w.writeheader()
-        w.writerows(rows)
+        # Inventories are public: local paths are written relative to the repository root.
+        w.writerows(provenance.public_paths([dict(r) for r in rows]))
 
 
 def archive_raw(folder):

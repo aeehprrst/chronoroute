@@ -233,13 +233,14 @@ def _write_outputs(out_dir, doc, rows, argv, config):
             return [clean(v) for v in x]
         return x
 
-    tw.write_json(out_dir / "summary.json", clean(doc))
+    # Summaries are public: run folders are written relative to the repository root.
+    tw.write_json(out_dir / "summary.json", provenance.public_paths(clean(doc)))
     cols = ["run", "scheme", "seed", "metric", "flow", "value", "n", "detail"]
     with open(out_dir / "summary.csv", "w", newline="", encoding="utf-8") as fh:
         w = csv.DictWriter(fh, fieldnames=cols)
         w.writeheader()
         for r in rows:
-            w.writerow(r)
+            w.writerow(provenance.public_paths(dict(r)))
     provenance.write_manifest(out_dir, tool="cr eval", tool_version=__version__, command=argv, config=config,
                               seeds=[], outputs=[out_dir / "summary.json", out_dir / "summary.csv"],
                               labels=EVAL_LABELS)

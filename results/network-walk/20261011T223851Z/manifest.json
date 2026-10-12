@@ -1,5 +1,5 @@
 {
-  "command": "/home/aeehprrst/chronoroute/venv/bin/python -B tools/network_walk.py --out results/network-walk/20261011T223851Z",
+  "command": "venv/bin/python -B tools/network_walk.py --out results/network-walk/20261011T223851Z",
   "config": {
     "flow": 0,
     "pick": "first probe of flow 0 flagged late",
@@ -14,11 +14,11 @@
         "chronoroute.cli",
         "trace",
         "from-ns3",
-        "/home/aeehprrst/chronoroute/results/course-milestone/c5-463-10s-small-seed1",
+        "results/course-milestone/c5-463-10s-small-seed1",
         "--variant",
         "fault",
         "--out",
-        "/home/aeehprrst/tmp141fzx2p/fault",
+        "~/tmp141fzx2p/fault",
         "--hex-every",
         "0",
         "--hex-late",
@@ -26,17 +26,17 @@
         "--hex-first",
         "1",
         "--rebuild-bundle",
-        "/home/aeehprrst/tmp141fzx2p/bundle"
+        "~/tmp141fzx2p/bundle"
       ],
       [
         "chronoroute.cli",
         "trace",
         "from-ns3",
-        "/home/aeehprrst/chronoroute/results/course-milestone/c5-463-10s-small-seed1",
+        "results/course-milestone/c5-463-10s-small-seed1",
         "--variant",
         "nofault",
         "--out",
-        "/home/aeehprrst/tmp141fzx2p/nofault",
+        "~/tmp141fzx2p/nofault",
         "--hex-every",
         "1",
         "--hex-late",
@@ -44,13 +44,13 @@
         "--hex-first",
         "1",
         "--bundle",
-        "/home/aeehprrst/tmp141fzx2p/bundle"
+        "~/tmp141fzx2p/bundle"
       ]
     ],
     "inputs": {
       "results/course-milestone/c5-463-10s-small-seed1/detection.json": "9673af12713ddb163e5bf52db398f33cfcacc3fa63fba3bd15c215b28db43651",
       "results/course-milestone/c5-463-10s-small-seed1/fault/packets.csv.gz": "99b664c3d7e1657964f7edaa92cee7705f00892c0792d0b3bb815d96f2c760e1",
-      "results/course-milestone/c5-463-10s-small-seed1/manifest.json": "6ec9f46f4b67e4d28a9dc3e868c41334aefc365a736fe39e261350014d03ef50",
+      "results/course-milestone/c5-463-10s-small-seed1/manifest.json": "06d48d9d6f90ba0385c203311ad7450b7c30a155bc159bba16e158ba7cf69b04",
       "results/course-milestone/c5-463-10s-small-seed1/nofault/packets.csv.gz": "61a1ee41ea0fc1e7f5d00a3065daa17f9b68f5f08267916fdf1198a3b6bba73b"
     }
   },
