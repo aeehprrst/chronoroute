@@ -34,10 +34,10 @@ Where a number comes from (docs/baselines.md has the full table):
          announcement per second, accelerated announcement when a value
          changes by more than a configured threshold (sections 5, 7).
   FB1    50 ms one-way report delay, penalty x{2, 10, inf}, hold {10, 60} s
-         (master plan P3d, E8).
+         (experiment E8).
   CRH state  CRH-FIB (+ station table) and, with a fallback, element sets
          re-uploaded to every satellite every 4 h: the SupGP refresh cadence of
-         the planner's data (master plan section 3); a MODELLED choice, swept by
+         the planner's data; a MODELLED choice, swept by
          setting crh_state.*_s.
   Failure visibility  forwarding.carrier_detect_ms (engine config) for every
          scheme; LS fault_detection "carrier" uses it (docs/baselines.md 2.3).
@@ -71,7 +71,7 @@ LS_PRESETS = {
 
 DEFAULTS = {
     "name": "chronoroute",
-    # ChronoRoute feedback (FB0 none / FB1 report to the ground), master plan P3d
+    # ChronoRoute feedback (FB0 none / FB1 report to the ground)
     "feedback": {"mode": "fb0", "delay_ms": 50, "penalty": 10, "hold_s": 10, "report_bytes": 64,
                  "min_interval_ms": 0},
     # E2E: one end-to-end deadline, checked at the destination, reported to the ground
@@ -92,11 +92,11 @@ DEFAULTS = {
            "bfd": False, "bfd_interval_ms": 100, "bfd_mult": 3, "spf_delay_ms": 50, "lsa_hop_ns": None,
            "carrier_detect_ms": None, "adjacency_ms": 0, "fault_detection": "carrier"},
     # what a ChronoRoute-family satellite (crh data plane) must be sent, besides the schedule
-    # rows that go to the ingress gateway (reviewer must-fix #3): its CRH-FIB with the ground
+    # rows that go to the ingress gateway: its CRH-FIB with the ground
     # station table, and (with a fallback function) the element sets of itself and its laser
     # neighbours. Both re-uploaded every period, each satellite at its own keyed phase. The 4 h
-    # default is the SupGP refresh cadence of the data the planner uses (master plan 3:
-    # "CelesTrak: SupGP (every 4 h)"); sizes as SNAP's upload (56 B header) and state_report.
+    # default is the SupGP refresh cadence of the data the planner uses
+    # ("CelesTrak: SupGP (every 4 h)"); sizes as SNAP's upload (56 B header) and state_report.
     "crh_state": {"count": True, "fib_refresh_s": 14400, "ephemeris_upload_s": 14400,
                   "upload_header_bytes": 56, "fib_entry_bytes": 4, "tle_bytes": 140, "gs_coord_bytes": 12},
     # LS-D extra: RFC 7471-style delay measurement and advertisement

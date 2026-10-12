@@ -3,7 +3,7 @@ Tests for the legacy experiment scripts (sim/legacy/exp1..exp7, common.py,
 run_all.py, run_scaled.py): the numbers must be honest, and every figure
 must come with the data behind it and a provenance manifest.
 
-What is checked (bug numbers from the P1 bug table / reviewer critique):
+What is checked (bug numbers from the Phase 1 bug list):
    #3   exp1 and exp6 score detection COUNTERFACTUALLY: the same packets
         (common random numbers) with and without the fault; a null-fault
         control must give EXACTLY 0 attributed detection. v0 counted every

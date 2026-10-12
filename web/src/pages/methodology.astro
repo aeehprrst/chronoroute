@@ -8,7 +8,6 @@
 import BaseLayout from '../layouts/BaseLayout.astro';
 import LabelChip from '../components/LabelChip.astro';
 import DataBadge from '../components/DataBadge.astro';
-import BuildingState from '../components/BuildingState.astro';
 import { LABELS } from '../lib/labels';
 import { pageHref } from '../lib/paths';
 import { REPO_URL } from '../lib/site';
@@ -548,8 +547,16 @@ const priorWork: Source[] = [
         <h2 id="results-title">Experiment results</h2>
       </div>
       <div class="prose results-now">
-        <h3>What exists now</h3>
         <ul>
+          <li>
+            <strong>Pre-registered experiments.</strong> Six experiments (E0, E1, E2, E4, E5, E16) were registered
+            before they ran and analysed with the registered rules. Each has its own page on the
+            <a href={pageHref('experiments')}>experiments page</a> with the question, the hypothesis, the verdict,
+            charts with confidence intervals, the data and its run manifest (schema
+            <code>chronoroute.manifest/1</code>, in <code>spec/schemas/</code>): the code commit, the configuration
+            and its hash, the random seeds, the orbit snapshot, library versions and the SHA-256 hash of every output
+            file.
+          </li>
           <li>
             <strong>Corrected semester results.</strong> The earlier semester code had known bugs. Its experiments have
             been re-run on the bug-fixed code, each with a provenance manifest, in
@@ -567,24 +574,12 @@ const priorWork: Source[] = [
           </li>
         </ul>
         <p>
-          Their numbers are not repeated on this site, so they cannot drift from the files: read them, with their
-          limitations, in the documents above.
+          The numbers of the semester results and the course milestone are not repeated on this site, so they cannot
+          drift from the files: read them, with their limitations, in the documents above.
         </p>
       </div>
-      <BuildingState heading="The new experiment campaign" phase="results" level={3} id="results-state">
-        <p>
-          Results of the new campaign will appear here once it has run. Each one will come with its provenance: a
-          run manifest (schema <code>chronoroute.manifest/1</code>, in <code>spec/schemas/</code>) recording the code
-          commit, the configuration and its hash, the random seeds, the orbit snapshot, library versions, and the
-          sha256 hash of every output file, with a label for each input.
-        </p>
-        <p>
-          The central measurement is the alarm’s catch rate against its false-alarm rate, scored against paired runs
-          without the fault. No numbers are shown until those runs exist.
-        </p>
-      </BuildingState>
       <p class="small muted after-results">
-        The protocol itself is already pinned by golden test vectors; see the
+        The protocol itself is pinned by golden test vectors; see the
         <a href={pageHref('protocol#golden')}>protocol page</a>. The code is in the
         <a href={REPO_URL} rel="noopener">repository</a>.
       </p>

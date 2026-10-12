@@ -34,8 +34,8 @@
 #      know the module yet is re-configured with --enable-tests and otherwise
 #      its cached settings.
 #
-# It never builds (that is `make ns3-test`, which runs ./ns3 build -j8; WSL has
-# 7.6 GiB of RAM, so keep to 8 jobs or fewer) and never deletes a directory it
+# It never builds (that is `make ns3-test`, which runs ./ns3 build -j8 to
+# limit memory use) and never deletes a directory it
 # did not create.
 
 set -euo pipefail

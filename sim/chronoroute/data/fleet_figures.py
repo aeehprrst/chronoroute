@@ -1,7 +1,7 @@
 """
 fleet_figures.py
 ----------------
-The figures of `cr fleet report` (master plan P2-H): what the report's numbers
+The figures of `cr fleet report`: what the report's numbers
 look like. Four PNG files, each labelled REAL / DERIVED in its title:
 
   fig_shells.png        inclination histogram (0.1 deg bins, REAL elements) and

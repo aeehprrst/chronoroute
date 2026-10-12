@@ -4,7 +4,7 @@ rng.py
 Common random numbers (CRN): every random draw of the engine is a pure
 function of (seed, component, entity, index).
 
-Why: the detection metric of the plan (reviewer must-fix #1) scores a fault
+Why: the detection metric scores a fault
 run against the SAME run with the fault removed. That comparison is only
 fair if both runs use identical random numbers for every packet, hop and
 link. With one shared sequential generator this is impossible: a packet that

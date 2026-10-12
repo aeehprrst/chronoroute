@@ -14,7 +14,7 @@ def test_bare_name_and_defaults():
     assert (s["ls"]["hello_s"], s["ls"]["dead_s"], s["ls"]["min_ls_interval_s"]) == ("1", "3", "0")
     assert s["ls"]["spf_delay_ms"] == 50                       # RFC 8405 INITIAL_SPF_DELAY
     assert s["ls_d"]["window_s"] == 30 and s["ls_d"]["inter_update_s"] == 120   # RFC 7471 section 7
-    assert s["feedback"]["delay_ms"] == 50                     # master plan P3d
+    assert s["feedback"]["delay_ms"] == 50
 
 
 @pytest.mark.parametrize("preset,hello,dead,minls", [("olsr", "2", "6", "0"), ("ospf", "10", "40", "5"),

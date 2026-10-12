@@ -1,6 +1,5 @@
 """
-The offline evaluation layer of the experiments (master plan 5.3 and 5.4,
-reviewer must-fix #1). It reads finished run folders and never re-runs the
+The offline evaluation layer of the experiments. It reads finished run folders and never re-runs the
 simulator, except where a test proves an offline result equal to a direct run.
 
     load.py       read a run folder into flat numpy arrays (packets, paths, per-hop times)

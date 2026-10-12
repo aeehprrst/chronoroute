@@ -2,7 +2,7 @@
 queues.py
 ---------
 One FIFO transmit queue per DIRECTED link (MODELLED: rate, buffer and the
-background traffic are our choices; master plan P3a).
+background traffic are our choices).
 
 The foreground packets (the probes the engine forwards from header bytes)
 go through the queue packet by packet with the Lindley recursion, written

@@ -152,7 +152,7 @@ networks of the topology `S - T1 - T2 - T3 - D` with `X` (no T-CRH) hanging off 
 ```
 tools/ns3-sync.sh                      # regenerate the .inc, link the module and the scratch
                                        # programs, configure if needed
-cd ~/ns-3-dev && ./ns3 build -j8       # never more than 8 jobs: WSL has 7.6 GiB of RAM
+cd ~/ns-3-dev && ./ns3 build -j8       # at most 8 jobs, to limit memory use
 ./test.py --no-build -s chronoroute    # or: ./build/utils/ns3.44-test-runner-default --test-name=chronoroute --verbose
 ```
 

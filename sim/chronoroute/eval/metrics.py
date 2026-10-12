@@ -1,7 +1,7 @@
 """
 metrics.py
 ----------
-The metric definitions of master plan section 5.3 (science report section 6),
+The metric definitions of the experiments,
 computed from one run folder (load.RunData).
 
 PDR (per flow-run)
@@ -38,7 +38,7 @@ Latency stretch
     Queueing is reported separately as latency - L_det. Hop stretch: hops / the
     fewest hops on the same send-time graph.
 
-Packet labels (science report 6.6) and clean-packet FPR
+Packet labels and clean-packet FPR
     fault    the packet met a faulty element while the fault was active:
              it crossed it (link: its transmission onto the link STARTED in
              the fault interval, which is where the engine applies a link
@@ -729,7 +729,7 @@ def blackhole(run, fault):
 def time_to_mitigation(run, fault, *, frac="0.95", bin_ns=100_000_000, sustain_ns=1_000_000_000,
                        flags=None):
     """Onset -> first time from which >= frac of the affected flows' packets avoid the fault,
-    sustained for sustain_ns (master plan 5.3).
+    sustained for sustain_ns.
 
     Affected flows: flows with a packet that touched this fault (crossed it while active, or
     met it as a dead next link). A packet "avoids" the fault when it is delivered without

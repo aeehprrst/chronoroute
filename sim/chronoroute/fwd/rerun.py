@@ -2,7 +2,7 @@
 rerun.py
 --------
 Re-run a finished python-sim run with ONE extra fault on one link (the viewer's
-live mode: key `d` degrades the selected link, key `f` fails it; master plan P4).
+live mode: key `d` degrades the selected link, key `f` fails it).
 
     out = rerun_with_fault(run_dir, flow=0, link=(a, b), start_ns=2_000_000_000, kind="down")
 

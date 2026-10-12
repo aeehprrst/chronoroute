@@ -33,12 +33,12 @@ Which visible satellites are used (the `policy` parameter, MODELLED):
       a little higher, and a link that lasts for minutes is what lets the
       ground plan a whole schedule interval on it.
 
-  "highest_elevation_top_k" (the Sprint A policy, kept as a labelled variant)
+  "highest_elevation_top_k" (the original policy, kept as a labelled variant)
       No hysteresis: at EVERY step the station re-picks its 4 highest
       satellites. A link then disappears as soon as another satellite climbs
       above it, often while it is still 30+ deg up. With a 1 s schedule this
       loses about 2% of the packets at handovers (results/course-milestone,
-      Sprint A run), so it is only useful to show that effect.
+      first run), so it is only useful to show that effect.
 
 A 25 deg mask also guarantees the physical rule for ground links: the line
 of sight leaves the station upwards and rises all the way to the satellite,

@@ -1,7 +1,7 @@
 """
 detection.py
 ------------
-Detection scoring that cannot be fooled by false alarms (reviewer must-fix #1).
+Detection scoring that cannot be fooled by false alarms.
 
 The old metric counted a flag set downstream of the faulty link by a packet
 that crossed it as a detection, even if that packet would have been flagged
@@ -396,7 +396,7 @@ def false_events_per_hour(run, fl, k=1, window_ns=1_000_000_000, mask=None, warm
 def control_plane_detection(fault_run, twin_run, fault, kinds=("adjacency_down", "metric"),
                             window_ns=1_000_000_000):
     """Detection by a link-state control plane: the first node that updated adjacency or metric
-    for the faulty element after onset (science report 6.8), unless the twin's control plane
+    for the faulty element after onset, unless the twin's control plane
     did the same within one window of it."""
     check_twin(fault_run, twin_run, fault)
     el = metrics.fault_element(fault)

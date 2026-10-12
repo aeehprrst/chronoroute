@@ -433,7 +433,7 @@ def test_report_citations_are_resolved_and_verified():
     for number in re.findall(r"RFC (\d+)", references):
         assert f"RFC {number}" in VERIFIED_REFERENCES
     existing = "\n".join((ROOT / name).read_text() for name in (
-        "README.md", "spec/tcrh-v1.md", "docs/baselines.md", "docs/NEXT_STEPS.md",
+        "README.md", "spec/tcrh-v1.md", "docs/baselines.md", "web/src/pages/methodology.astro",
     ))
     for system in ("Hypatia", "STARGLIDER"):
         assert system in existing and system in references

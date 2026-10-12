@@ -1,4 +1,4 @@
-"""Detection scoring (reviewer must-fix #1): counterfactual attribution with common random
+"""Detection scoring: counterfactual attribution with common random
 numbers, the phantom fault (must give exactly 0 even where the naive metric does not), the
 event detector, Kaplan-Meier delays and the event ROC."""
 

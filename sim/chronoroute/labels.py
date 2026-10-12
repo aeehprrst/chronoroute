@@ -1,7 +1,7 @@
 """
 labels.py
 ---------
-The honesty labels (master plan section 2), in ONE table that every
+The honesty labels, in ONE table that every
 producer of a manifest or a data file uses. Before this table each output
 picked its own key names and sometimes its own value for the same thing
 (SGP4 positions were REAL in the bundle and DERIVED in the fleet report),

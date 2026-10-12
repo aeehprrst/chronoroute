@@ -1,6 +1,6 @@
 """Control-byte model: message sizes from the RFC packet layouts, and the analytic count of
-flooded copies checked against a brute-force flood on a real (C1) topology (reviewer
-must-fix #7: an analytic byte-count test instead of a cross-protocol calibration)."""
+flooded copies checked against a brute-force flood on a real (C1) topology (an
+analytic byte-count test instead of a cross-protocol calibration)."""
 
 import copy
 import heapq

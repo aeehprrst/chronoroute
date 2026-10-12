@@ -1,6 +1,6 @@
 """
-The comparison schemes ("baselines") of the ChronoRoute experiments (master
-plan P3f, reviewer must-fix #2 and #3). Every scheme is real code that sends
+The comparison schemes ("baselines") of the ChronoRoute experiments. Every
+scheme is real code that sends
 its packets through the SAME engine queues, links and faults as ChronoRoute
 (chronoroute.fwd), with the same random numbers; what differs is only how a
 scheme decides where a packet goes and what its control plane knows when.

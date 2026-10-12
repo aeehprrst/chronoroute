@@ -1,4 +1,4 @@
-# ChronoRoute in Wireshark (plan phase P6)
+# ChronoRoute in Wireshark
 
 Open any capture that carries ChronoRoute packets and read every T-CRH field by name.
 tshark can also check every frame for you.
@@ -67,7 +67,7 @@ The folders below are what `tshark -G folders` reports on this machine.
 In PowerShell:
 
 ```powershell
-$src = "\\wsl.localhost\ubuntu\home\aeehprrst\chronoroute\tools\wireshark"
+$src = "<repository>\tools\wireshark"   # under WSL, for example \\wsl.localhost\Ubuntu\home\<user>\chronoroute\tools\wireshark
 New-Item -ItemType Directory -Force "$env:APPDATA\Wireshark\plugins", "$env:APPDATA\Wireshark\profiles\ChronoRoute" | Out-Null
 Copy-Item "$src\tcrh.lua" "$env:APPDATA\Wireshark\plugins\"
 Copy-Item "$src\profiles\ChronoRoute\*" "$env:APPDATA\Wireshark\profiles\ChronoRoute\"
@@ -194,7 +194,7 @@ Example: `-o tcrh.timebase:offset -o tcrh.offset_ns:1475675893123456000`. With `
 | `crh_encode_raw.pcap` | CRH-16/32 vectors walked hop by hop (native Wireshark decode). |
 | `tcrh_walk_raw.pcap`, `tcrh_walk_ppp.pcap` | The demo walk (see Quick start). |
 | `frames.json` | Frame number → vector or step name, for each file. |
-| `manifest.json` | Provenance. Labels from the shared table `sim/chronoroute/labels.py`: `tcrh_header_bytes` REAL (the real output of the real encoder, master plan §2 row 17); `pcap_addresses`, `pcap_timestamps`, `walk_link_delays` MODELLED. |
+| `manifest.json` | Provenance. Labels from the shared table `sim/chronoroute/labels.py`: `tcrh_header_bytes` REAL (the real output of the real encoder); `pcap_addresses`, `pcap_timestamps`, `walk_link_delays` MODELLED. |
 
 The address plan is a project convention, labelled MODELLED: SID s → `fd00::s`, hosts in `fd00:0:0:ffff::/64`. The upper layer follows the routing header's Next Header: UDP for 17, TCP for 6, inner IPv6 + UDP for 41, nothing for 59.
 The payload is `CRT1` + packet id (u32) + send time in GPS ns (u64).

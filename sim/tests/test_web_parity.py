@@ -1,4 +1,4 @@
-"""Python side of the website's route parity check (tools/web_parity.py, reviewer must-fix #8).
+"""Python side of the website's route parity check (tools/web_parity.py).
 
 The TypeScript side is web/tests/route-parity.test.ts. Here we check that what the parity
 file claims about Python is true: every pair is exactly what `cr route` computes at the

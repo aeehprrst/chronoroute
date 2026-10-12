@@ -14,20 +14,19 @@ ChronoRoute is not affiliated with SpaceX. "Starlink" names the public orbit dat
 
 ## Status
 
-**Phase 1 ("Foundations") is complete; Sprint A (real data, real IPv6 header, course
-milestone) is complete.** See [`docs/course-milestone.md`](docs/course-milestone.md) for the ns-3
-LEO run on the real Starlink 463 km shell and [`docs/bundle-format.md`](docs/bundle-format.md)
-for the data exchanged between the Python tools and ns-3.
+The protocol, the simulators, the experiments and the website are complete.
 
-Phase 1 goals (done):
-
-- fix the wire format in a normative spec, [`spec/tcrh-v1.md`](spec/tcrh-v1.md), with golden
-  test vectors in `spec/golden/`;
-- fix the known bugs in the semester code (git tag `v0-semester`, now in `sim/legacy/`), each
-  with a regression test written first;
-- start the new Python package `chronoroute` (in `sim/chronoroute/`) with the protocol code
-  and the provenance (manifest) writer;
-- set up the ns-3 module skeleton and CI.
+- **Specification:** [`spec/tcrh-v1.md`](spec/tcrh-v1.md), with golden test vectors in
+  `spec/golden/` that every implementation reproduces byte for byte: the Python reference
+  (`sim/chronoroute/`), the ns-3 module (`ns3/contrib/chronoroute/`), the website's TypeScript
+  engine and the Wireshark dissector (`tools/wireshark/`).
+- **Experiments:** six pre-registered experiments ([`experiments/PREREG.md`](experiments/PREREG.md)):
+  E0 correctness gate, E1 detection of up-but-slow links, E2 header overhead, E4 hard failures,
+  E5 fallback policies and E16 Python vs ns-3 agreement. Their verdicts, charts, data and run
+  manifests are on the [experiments page](https://aeehprrst.github.io/chronoroute/experiments/);
+  the report is [`docs/report/README.md`](docs/report/README.md).
+- **Course milestone:** T-CRH in ns-3 on the real Starlink 463 km shell, with real IPv6 Routing
+  Type 253 packets: [`docs/course-milestone.md`](docs/course-milestone.md).
 
 The figures in `results/legacy-v0/` and `results/legacy-v0-starlink/` come from the semester
 code, which had known bugs. They are kept unchanged so the old and corrected results can be
@@ -44,26 +43,29 @@ why, with the claims to retire.
 | `spec/golden/` | Golden test vectors that every implementation must match |
 | `spec/schemas/` | JSON Schemas, e.g. `manifest.schema.json` for run manifests (the package ships an identical copy in `sim/chronoroute/schemas/`) |
 | `sim/chronoroute/` | The Python package `chronoroute` (protocol code, provenance, CLI `cr`) |
-| `sim/legacy/` | Semester experiments 1-7, kept runnable and being bug-fixed |
+| `sim/legacy/` | Semester experiments 1-7, kept runnable, with the bug fixes |
 | `sim/tests/` | pytest test suite |
 | `ns3/contrib/` | The ns-3 module source (symlinked into `~/ns-3-dev/contrib` by `make ns3-sync`, or copied with `make ns3-sync ARGS=--copy`) |
-| `ns3/scratch/`, `ns3/plots/` | The legacy ns-3 programs (Assessments 6-8, with the Phase 1 fixes) and their plot scripts; `make ns3-sync` links them into `~/ns-3-dev` |
+| `ns3/scratch/`, `ns3/plots/` | The legacy ns-3 programs (Assessments 6-8, with the bug fixes) and their plot scripts; `make ns3-sync` links them into `~/ns-3-dev` |
 | `ns3/run_tcrh_sweep.py` | Regenerates every file in `results/legacy-v0.9/ns3/tcrh_sweep/` (`make ns3-legacy`) |
-| `ns3/legacy/` | The original Assessment 8 sweep CSV, frozen (its only other copy is an unpushed commit in the author's ns-3 tree) |
+| `ns3/legacy/` | The original Assessment 8 sweep CSV, frozen |
 | `ns3/patches/` | The one local change to ns-3.44 itself (the `ns3` script, for Python 3.14) |
-| `tools/` | Helper scripts: `ns3-sync.sh`, `golden_to_inc.py` (golden vectors to C++) |
+| `experiments/` | The pre-registration (`PREREG.md`) and one folder per experiment: configuration, runner and analysis |
+| `pipeline/` | Orbit data: fetching from CelesTrak, validation, and the slim files for the website |
+| `web/` | The public website (Astro), see [`web/README.md`](web/README.md) |
+| `tools/` | Helper scripts: `ns3-sync.sh`, `golden_to_inc.py` (golden vectors to C++), the Wireshark dissector (`tools/wireshark/`), the website parity check and the demonstration script |
 | `data/pinned/` | Frozen orbit snapshots used by experiments; never edit them |
 | `data/starlink.txt` | Older Starlink TLE set (September 2026) used by the legacy code |
 | `results/` | Experiment outputs, each folder with a `manifest.json` |
 | `docs/` | Documentation index, see [`docs/README.md`](docs/README.md) |
 | `Makefile` | Common tasks (`make help` lists them) |
 
-## Quickstart (inside WSL Ubuntu)
+## Quickstart (Linux; developed on Ubuntu)
 
 You need Python 3.12 or newer (the project uses 3.14), `git` and `make`.
 
 ```bash
-cd ~/chronoroute
+git clone https://github.com/aeehprrst/chronoroute && cd chronoroute
 python3 -m venv venv                  # once
 venv/bin/pip install -e ".[test]"     # installs chronoroute + pinned numpy/networkx/sgp4/matplotlib
 make test                             # runs pytest on sim/tests
@@ -88,8 +90,8 @@ take effect without reinstalling. The Makefile uses `venv/bin/python` by default
 | `make ns3-legacy` | Re-run the legacy ns-3 T-CRH slack sweep into `results/legacy-v0.9/ns3/tcrh_sweep/` |
 
 ns-3 lives in a separate tree, `~/ns-3-dev` (ns-3.44, branch `chronoroute`). Override it with
-`make ns3-test NS3_DIR=/path/to/ns-3`. Builds use `-j8` at most because WSL has only 7.6 GiB
-of RAM. The test suite name can be changed with `NS3_SUITES=...`. The ns-3 tests must be
+`make ns3-test NS3_DIR=/path/to/ns-3`. Builds use `-j8` at most to keep memory use
+low. The test suite name can be changed with `NS3_SUITES=...`. The ns-3 tests must be
 enabled: on a tree that was never configured, `make ns3-sync` runs
 `./ns3 configure --enable-tests --enable-examples` (build profile "default"); on an existing
 tree, check that `./ns3 show config` lists tests as ON, or run `./ns3 configure --enable-tests`.
@@ -161,13 +163,13 @@ The rules:
 ## Website
 
 The public site (<https://aeehprrst.github.io/chronoroute/>) is the Astro project in
-[`web/`](web/): live globe, route planner, protocol tools and methodology. Details, rules and
+[`web/`](web/): live globe, route planner, protocol tools, network simulation, experiments and
+methodology. Details, rules and
 the layout are in [`web/README.md`](web/README.md); the format of its data files is in
 [`web/DATA_CONTRACT.md`](web/DATA_CONTRACT.md).
 
 ```bash
-cd ~/chronoroute/web
-export PATH=$HOME/.local/opt/node/bin:$PATH   # Node 24
+cd web                 # needs Node 24 or newer
 npm ci                 # exact dependencies from package-lock.json
 npm run data           # public/data from the Python pipeline (cr export web) + the two parity files
 npm test               # vitest, including the Python <-> TypeScript route parity gate
@@ -182,7 +184,7 @@ npm run build          # static site in web/dist/
   on the published one. `web/public/data/` is generated and never committed.
   `npm run data:offline-fallback` (`web/scripts/dev-data.mjs`) is only for offline development
   and is never used by CI.
-- **Route parity** (reviewer must-fix #8): `tools/web_parity.py` computes 20 canonical city
+- **Route parity:** `tools/web_parity.py` computes 20 canonical city
   pairs with the Python router and exports the satellite and city positions it used, for the
   fixed reference snapshot (`20261010T1358Z-celestrak`) and for the snapshot being published;
   `web/tests/route-parity.test.ts` runs the TypeScript planner on the same positions (for the
@@ -202,11 +204,6 @@ npm run build          # static site in web/dist/
   "resume_after_failure" ticked. A download rejected by validation fails only that run. Nothing
   is deployed after any failure. The site shows the data's age and a "stale" badge after 24
   hours.
-- **Owner checklist:** set Settings -> Pages -> Source to "GitHub Actions" before the first
-  deploy. After the first monthly keepalive run (the 1st of the month, 05:41 UTC), open its log
-  in the Actions tab: it prints the workflow's state before and after re-enabling it. Whether
-  that call resets GitHub's 60-day inactivity timer is not documented by GitHub; if the schedule
-  is ever disabled anyway, the Actions tab says so and one click on "Enable workflow" restores it.
 
 ## Protocol specification
 

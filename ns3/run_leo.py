@@ -84,7 +84,7 @@ from chronoroute.export import ns3_crosscheck as cc  # noqa: E402
 from chronoroute.provenance import RunTimer, write_manifest  # noqa: E402
 
 NS3_DIR = Path(os.environ.get("NS3_DIR", Path.home() / "ns-3-dev"))
-NS3_JOBS = 8          # WSL has 7.6 GiB of RAM: never more than 8 compile jobs
+NS3_JOBS = 8          # at most 8 compile jobs, to limit memory use
 PROGRAM = "chronoroute-leo"
 
 # The milestone bundles as `cr export bundle` arguments (everything except

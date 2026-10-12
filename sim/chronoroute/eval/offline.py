@@ -2,8 +2,8 @@
 offline.py
 ----------
 Re-score the deadline checks of a finished FLAG-AND-CONTINUE run for any
-other deadline rule, without simulating again (master plan E1: "thresholds
-scored offline"; reviewer nice-to-have "score every detector offline").
+other deadline rule, without simulating again: thresholds and detectors
+are scored offline.
 
 Why this is exact. Under policy "continue" a late packet keeps following its
 SIDs: the DEV flag changes two header bits, never the path, the packet size
@@ -23,8 +23,8 @@ delays P_1..P_h (schedule.csv.gz) by the rule:
     mult      B_k = S * (P_1 + ... + P_k)                 (exact fraction; the engine's rule)
     add       B_k = (P_1 + ... + P_k) + k * a_hop + a_const
     quantile  B_k = (P_1 + ... + P_k) + ceil(z_(1-alpha) * sigma * sqrt(k))
-              (sigma: a per-hop delay spread given as a STATIC prior, reviewer
-              must-fix #3 asks to say where sigma comes from; z from stats.normal_ppf)
+              (sigma: a per-hop delay spread given as a STATIC prior, stated
+              where it is used; z from stats.normal_ppf)
 
 Two conditions are checked, not assumed:
   * the run used policy "continue" (else a late packet changes path: refused);

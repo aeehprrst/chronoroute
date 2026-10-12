@@ -1,19 +1,20 @@
 #!/usr/bin/env bash
-# Prepare every file the viva demo needs, plus offline backups, in one folder.
+# Prepare every file a live demonstration needs, plus offline backups, in one folder: the fleet
+# report, an ns-3 run converted for the viewer, Wireshark captures, NetAnim files, a fresh
+# simulator run, and offline pictures and a video.
 #
-#     tools/viva-prepare.sh [OUT]          # default OUT: ~/cr-viva
+#     tools/viva-prepare.sh [OUT]          # default OUT: ~/chronoroute-demo
 #     tools/viva-prepare.sh [OUT] --site   # also build the website for offline use (web/dist)
 #
-# Run it inside WSL from the repository root the day before the viva, and again on the
-# morning if you like (it starts from a clean OUT each time). Nothing here downloads
-# anything: it uses the pinned snapshot and the committed course-milestone results.
-# The steps and what each file is for are in docs/viva/README.md.
+# Run it from the repository root before a demonstration (it starts from a clean OUT each
+# time). Nothing here downloads anything: it uses the pinned snapshot and the committed
+# course-milestone results.
 set -euo pipefail
 
 REPO="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$REPO"
 
-OUT="${HOME}/cr-viva"
+OUT="${HOME}/chronoroute-demo"
 SITE=0
 for arg in "$@"; do
     case "$arg" in
@@ -29,7 +30,7 @@ SNAPSHOT="data/pinned/20261010T1358Z-celestrak"
 SMALL="results/course-milestone/c5-463-10s-small-seed1"
 FULL="results/course-milestone/c5-463-60s-seed1"
 export MPLBACKEND=Agg PYTHONDONTWRITEBYTECODE=1
-# The Intel GPU through WSLg; the viewer falls back to software rendering on its own if needed.
+# Hardware rendering under WSLg; the viewer falls back to software rendering on its own.
 export GALLIUM_DRIVER="${GALLIUM_DRIVER:-d3d12}"
 
 [[ -x "$CR" ]] || { echo "venv/bin/cr not found: create the venv first (see README.md)" >&2; exit 1; }
@@ -81,7 +82,8 @@ cp "$OUT"/fleet/*.png "$OUT/backup/" 2>/dev/null || true
 
 step "7/7 website"
 if [[ "$SITE" == 1 ]]; then
-    export PATH="$HOME/.local/opt/node/bin:$PATH"
+    # Node from a user-local install, if there is one.
+    [[ -d "$HOME/.local/opt/node/bin" ]] && export PATH="$HOME/.local/opt/node/bin:$PATH"
     (cd web && { [[ -f public/data/latest.json ]] || npm run data; } && npm run build >/dev/null)
     echo "built web/dist; serve it offline with:  cd web && npx astro preview --host 127.0.0.1 --port 4321"
 else
@@ -95,6 +97,6 @@ Done. Everything is in $OUT
   From Windows (Wireshark, File > Open):  $WIN\\wireshark\\small-fault.pcap
   Viewer (ns-3 deadline miss):            venv/bin/cr viz globe --trace $OUT/ns3-small-fault
   Viewer (live slowed-link demo):         venv/bin/cr viz globe --trace $OUT/live
-  NetAnim:                                QT_QPA_PLATFORM=xcb ~/netanim/build/netanim  then File > Open $OUT/netanim/anim-60s.xml
+  NetAnim:                                File > Open $OUT/netanim/anim-60s.xml
   Offline backups:                        $OUT/backup  ($WIN\\backup)
 EOF

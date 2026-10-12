@@ -1,5 +1,5 @@
 """
-chronoroute.trace.pcap: the pcap writer (plan phase P6). Pure Python, no tshark.
+chronoroute.trace.pcap: the pcap writer. Pure Python, no tshark.
 
 Everything is checked against an INDEPENDENT minimal pcap/IPv6 reader written
 below, against the golden vectors, and against chronoroute.proto (the

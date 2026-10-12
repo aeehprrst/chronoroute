@@ -1,4 +1,4 @@
-"""The honesty labels (master plan section 2) come from ONE table, chronoroute/labels.py, so the
+"""The honesty labels come from ONE table, chronoroute/labels.py, so the
 same thing carries the same label in every output (review finding: SGP4 positions were REAL in
 the bundle and DERIVED in the fleet report; header bytes REAL in one place, DERIVED in another)."""
 

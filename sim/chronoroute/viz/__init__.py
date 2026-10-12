@@ -1,5 +1,5 @@
 """
-The in-tool viewer (plan phase P4): real satellites over a textured Earth, the
+The in-tool viewer: real satellites over a textured Earth, the
 MODELLED laser links, and one packet hopping along its T-CRH path in slow
 motion, with the deadline check visible at every hop.
 

@@ -42,8 +42,8 @@ const software = [
     <h1>About this project</h1>
     <p class="lede">
       ChronoRoute is a student research project on routing in low-Earth-orbit satellite constellations. It defines
-      T-CRH, an IPv6 routing header that carries a planned path and an arrival deadline for every hop, and will
-      test whether those deadlines can serve as a cheap alarm when the network drifts from its plan.
+      T-CRH, an IPv6 routing header that carries a planned path and an arrival deadline for every hop, and tests
+      whether those deadlines can serve as a cheap alarm when the network drifts from its plan.
     </p>
   </header>
 
@@ -93,16 +93,16 @@ const software = [
             router, checked against Python on every deployment.
           </li>
         </ul>
-        <h3>Results so far</h3>
+        <h3>Results</h3>
         <p>
-          The semester experiments have been re-run on the bug-fixed code, with a provenance manifest for every run:
-          see <a href={`${REPO_URL}/tree/main/results/legacy-v0.9`} rel="noopener"><code>results/legacy-v0.9</code></a>
-          and the <a href={`${REPO_URL}/blob/main/docs/results-changelog.md`} rel="noopener">results changelog</a>,
-          which explains every number that changed and the claims that were retired. The course milestone, an ns-3
-          run on the real Starlink 463 km shell, is written up in
+          The pre-registered experiments, each with its verdict, charts, data and run manifest, are on the
+          <a href={pageHref('experiments')}>experiments page</a>. The course milestone, an ns-3 run on the real
+          Starlink 463 km shell, is written up in
           <a href={`${REPO_URL}/blob/main/docs/course-milestone.md`} rel="noopener"><code>docs/course-milestone.md</code></a>.
-          The results of the new experiment campaign will appear on the <a href={pageHref('methodology#results')}>methodology
-          page</a> once it has run.
+          The earlier semester experiments were re-run on the bug-fixed code, with a provenance manifest for every
+          run: see <a href={`${REPO_URL}/tree/main/results/legacy-v0.9`} rel="noopener"><code>results/legacy-v0.9</code></a>
+          and the <a href={`${REPO_URL}/blob/main/docs/results-changelog.md`} rel="noopener">results changelog</a>,
+          which explains every number that changed and the claims that were retired.
         </p>
         <p>
           All of it is in the <a href={REPO_URL} rel="noopener">ChronoRoute repository on GitHub</a>. Start with the

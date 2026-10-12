@@ -27,7 +27,7 @@ simulation does **not** model.
     that hop (10.9–14.2 ms).
   - **What this does not show.** A queue this long is also visible to the satellite in front
     of the slowed link, from its own device queue. So 99.92 % is not evidence that deadlines
-    beat a local-queue detector; that comparison (reviewer must-fix #2) is still to be run.
+    beat a local-queue detector; that comparison is made in experiment E1.
 - **Cost:** one 60 s run of the full sub-shell takes about 17 s and 194 MiB of memory.
 
 Results: `results/course-milestone/c5-463-60s-seed1/` (main) and

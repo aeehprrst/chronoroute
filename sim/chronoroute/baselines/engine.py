@@ -197,7 +197,7 @@ class SchemeEngine(Engine):
                 # the veto changes a DECISION, so it wraps what the nodes see (Engine.seen)
                 self.seen = _VetoFaults(self.seen)
                 self._link_faults = True
-        # satellite state uploads of the crh data plane (reviewer must-fix #3)
+        # satellite state uploads of the crh data plane
         self.crh_up = CrhStateUploads(self, self.truth, scheme, self.ledger) if self.plane == "crh" else None
         self._count_crh = self.crh_up is not None and scheme["crh_state"]["count"]
         if n == "chronoroute" and scheme["feedback"]["mode"] == "fb1":
@@ -719,7 +719,7 @@ class SchemeEngine(Engine):
         return d
 
     def state_report(self):
-        """What each satellite must hold (never merged with control bytes; reviewer must-fix #3)."""
+        """What each satellite must hold (never merged with control bytes)."""
         tr = self.truth
         n_gs = tr.n - tr.n_sats
         out = {"satellites": tr.n_sats, "ground_stations": n_gs}

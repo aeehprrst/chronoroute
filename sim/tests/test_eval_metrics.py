@@ -1,4 +1,4 @@
-"""Metric definitions (master plan 5.3) on a HAND-MADE run folder whose answers are known:
+"""Metric definitions on a HAND-MADE run folder whose answers are known:
 PDR with loss reasons and the sending window, nearest-rank and effective quantiles (lost =
 inf) with the tail rule, the stretch check and its tolerance, fault exposure in both link
 directions, packet labels and clean FPR, blackhole time and time-to-mitigation."""

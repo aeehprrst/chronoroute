@@ -1,7 +1,7 @@
 """
 feedback.py
 -----------
-The ground side of the feedback schemes (master plan P3d and E8):
+The ground side of the feedback schemes (experiment E8):
 
   FB1   a satellite that finds a packet late reports the suspect link (the
         link the packet arrived on, path[k-1] -> path[k]) to the ground; the

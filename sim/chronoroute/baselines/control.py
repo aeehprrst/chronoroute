@@ -1,8 +1,7 @@
 """
 control.py
 ----------
-Counting control-plane bytes (master plan 5.3 "Control bytes", reviewer
-must-fix #3): every message a scheme's control plane sends is counted, per
+Counting control-plane bytes: every message a scheme's control plane sends is counted, per
 MEDIUM and per message type, and kept apart from the per-packet header bytes
 and from the state a satellite must hold.
 
@@ -38,7 +37,7 @@ header + 20 + TLV header 4 + link-type 8 + link-id 8 + 8 (or 12 for min/max);
 one STAMP probe and its reflection = 2 x (40 + 8 + 44). The byte model is
 OSPFv3-like for every LS preset (an OLSR network would flood TC messages
 with MPR selection and send fewer copies) and is checked by an analytic
-unit test (reviewer must-fix #7: no cross-protocol "calibration").
+unit test (no cross-protocol "calibration").
 """
 
 IPV6 = 40

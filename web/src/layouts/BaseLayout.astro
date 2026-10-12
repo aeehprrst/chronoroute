@@ -31,12 +31,28 @@ interface Props {
 const { title, description, noindex = false, evidenceOnly = false } = Astro.props;
 const fullTitle = title ? `${title} · ${SITE_NAME}` : `${SITE_NAME}: deadline-based source routing for LEO constellations`;
 const canonical = Astro.site ? new URL(Astro.url.pathname, Astro.site).href : undefined;
+// Everything the site needs is served from this site, so the browser is told to load nothing
+// from anywhere else and to send nothing anywhere else. GitHub Pages cannot set headers, so the
+// policy is a meta element; the dev server (live reload) runs without it.
+const CSP = [
+  "default-src 'self'",
+  "script-src 'self' 'unsafe-inline'",
+  "style-src 'self' 'unsafe-inline'",
+  "img-src 'self' data: blob:",
+  "font-src 'self'",
+  "connect-src 'self'",
+  "worker-src 'self' blob:",
+  "object-src 'none'",
+  "base-uri 'self'",
+  "form-action 'none'",
+].join('; ');
 ---
 
 <!doctype html>
 <html lang="en-GB" dir="ltr">
   <head>
     <meta charset="utf-8" />
+    {import.meta.env.PROD && <meta http-equiv="Content-Security-Policy" content={CSP} />}
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>{fullTitle}</title>
     <meta name="description" content={description} />
