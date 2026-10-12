@@ -1,5 +1,5 @@
-golden_to_inc: unchanged: /home/aeehprrst/chronoroute/ns3/contrib/chronoroute/test/golden-vectors.inc
-ns3-sync: /home/aeehprrst/ns-3-dev/contrib/chronoroute -> /home/aeehprrst/chronoroute/ns3/contrib/chronoroute (already linked)
+golden_to_inc: unchanged: ns3/contrib/chronoroute/test/golden-vectors.inc
+ns3-sync: ~/ns-3-dev/contrib/chronoroute -> ns3/contrib/chronoroute (already linked)
 ns3-sync: scratch/bottleneck-experiment.cc -> repository (already linked)
 ns3-sync: scratch/crh-experiment.cc -> repository (already linked)
 ns3-sync: scratch/tcrh-experiment-a8.cc -> repository (already linked)
@@ -7,12 +7,12 @@ ns3-sync: scratch/tcrh-experiment.cc -> repository (already linked)
 ns3-sync: plot_results.py -> repository (already linked)
 ns3-sync: plot_tcrh.py -> repository (already linked)
 ns3-sync: ns-3 already knows the chronoroute module
-cd "/home/aeehprrst/ns-3-dev" && ./ns3 build -j8
+cd "~/ns-3-dev" && ./ns3 build -j8
 [0/2] Re-checking globbed directories...
 [1/3] Building CXX object contrib/chronoroute/examples/CMakeFiles/chronoroute-leo.dir/chronoroute-leo.cc.o
-[2/3] Linking CXX executable /home/aeehprrst/ns-3-dev/build/contrib/chronoroute/examples/ns3.44-chronoroute-leo-default
+[2/3] Linking CXX executable ~/ns-3-dev/build/contrib/chronoroute/examples/ns3.44-chronoroute-leo-default
 Finished executing the following commands:
-/usr/bin/cmake --build /home/aeehprrst/ns-3-dev/cmake-cache -j 8
-cd "/home/aeehprrst/ns-3-dev" && for suite in chronoroute; do ./test.py --no-build --suite "$suite"; done
+/usr/bin/cmake --build ~/ns-3-dev/cmake-cache -j 8
+cd "~/ns-3-dev" && for suite in chronoroute; do ./test.py --no-build --suite "$suite"; done
 [0/1] [32mPASS[0m: TestSuite chronoroute
 1 of 1 tests passed (1 passed, 0 skipped, 0 failed, 0 crashed, 0 valgrind errors)

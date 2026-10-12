@@ -367,7 +367,7 @@ def main(argv=None,*,experiment=None):
             for p in [*(p for p in inputs if p.name=='manifest.json'),*raw_root.glob('runs/*/manifest.json'),*raw_root.glob('runs/*/raw/manifest.json')]:
                 m=provenance.validate_manifest(p)
                 if m['dirty'] is not False:raise ValueError('dirty evidence producer')
-                fh.write(json.dumps(dict(path=str(p),sha256=provenance.file_sha256(p),manifest=m),sort_keys=True)+'\n')
+                fh.write(json.dumps(dict(path=provenance.public_paths(str(p)),sha256=provenance.file_sha256(p),manifest=m),sort_keys=True)+'\n')
         wall=timer.wall_seconds
         write_json(args.out/'runtime.json',dict(label='REAL host observations; MODELLED failed-analysis reserve when recovering',wall_s=wall,workers=args.workers,
             previous_attempt_observed_wall_s=previous_wall,previous_analysis_reserve_s=analysis_reserve,

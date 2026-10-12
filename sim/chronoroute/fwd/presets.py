@@ -3,7 +3,7 @@ presets.py
 ----------
 Ready-made constellations and city pairs for `cr run`.
 
-Synthetic Walker presets (MODELLED constellations, master plan section 5.1):
+Synthetic Walker presets (MODELLED constellations):
 
     C1   dev shell        24 planes x 20 satellites, 550 km, 53 deg, F = 1
     C2   Starlink S1      72 x 22, 550 km, 53 deg, F = 39  (Hypatia "D:550:53:1584/72/39")
@@ -29,8 +29,7 @@ Catalogue numbers of synthetic satellites are 9,000,000 + 1000 p + s:
 outside every real NORAD range, and never written to the SID registry
 (synthetic runs use an in-memory registry).
 
-The 20 fixed science pairs are the city pairs of master plan section 5.4,
-fixed before any results. data/static/cities.csv spells Sao Paulo without the
+The 20 fixed science pairs are city pairs fixed before any results. data/static/cities.csv spells Sao Paulo without the
 accent; that is the only name mapping.
 """
 
@@ -79,7 +78,7 @@ WALKER_PRESETS = MappingProxyType({
     "C2b": WalkerPreset("C2b", 72, 22, 480.0, 53.0, 39, "S1 geometry at 480 km (2026 lowering)"),
 })
 
-# Master plan section 5.4 (fixed before any results): short, medium, long.
+# Fixed before any results: short, medium, long.
 SCIENCE_PAIRS_PLAN = (
     ("Mumbai", "Dubai"), ("Cairo", "Moscow"), ("Reykjavik", "Toronto"),
     ("London", "New York"), ("Singapore", "Sydney"), ("Nairobi", "Frankfurt"),

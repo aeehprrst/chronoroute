@@ -17,7 +17,7 @@ PYTHON   ?= $(CURDIR)/venv/bin/python
 # -B: never write __pycache__ next to the sources.
 PY       := $(PYTHON) -B
 NS3_DIR  ?= $(HOME)/ns-3-dev
-# WSL has only 7.6 GiB of RAM; more than 8 parallel C++ jobs runs it out of memory.
+# More than 8 parallel C++ jobs can run an 8 GB machine out of memory.
 NS3_JOBS ?= 8
 # ns-3 test suite(s) to run; a space-separated list is allowed.
 NS3_SUITES ?= chronoroute

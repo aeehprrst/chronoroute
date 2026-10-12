@@ -1,5 +1,5 @@
 /**
- * The route parity gate (reviewer must-fix #8), shared by tests/route-parity.test.ts (the deploy
+ * The route parity gate, shared by tests/route-parity.test.ts (the deploy
  * gate itself) and tests/parity-gate.test.ts (which checks that the gate fails when it should).
  * Node only.
  *

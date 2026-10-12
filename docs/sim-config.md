@@ -4,7 +4,7 @@
 cr run --config FILE [--seed N] --out DIR
 ```
 
-runs one simulation of ChronoRoute (master plan P3) and writes the run folder described in
+runs one simulation of ChronoRoute and writes the run folder described in
 [`spec/trace-v1.md`](../spec/trace-v1.md): `run.json`, `events.jsonl.gz`, `packets.csv.gz`,
 `schedule.csv.gz`, `summary.json`, optional `capture.pcap`, and `manifest.json`. The exit
 code is 0 when packet conservation holds and no invariant check failed, 1 otherwise, 2 for
@@ -111,7 +111,7 @@ Circular orbits, RAAN `360 p / P`, mean anomaly `360 s / S + 360 F p / T`, catal
 
 | Key | Default | Meaning |
 |---|---|---|
-| `flows` | `science20` | the 20 fixed science pairs of master plan §5.4 (all 20 exist in `cities.csv`; "São Paulo" is spelled "Sao Paulo" there), or a list of flows (below) |
+| `flows` | `science20` | the 20 fixed science pairs (all 20 exist in `cities.csv`; "São Paulo" is spelled "Sao Paulo" there), or a list of flows (below) |
 | `rate_pps` | 100 | packets per second per flow |
 | `payload_bytes` | 200 | UDP payload |
 | `model` | `cbr` | `cbr` (constant rate) or `poisson` (exponential gaps, keyed RNG) |

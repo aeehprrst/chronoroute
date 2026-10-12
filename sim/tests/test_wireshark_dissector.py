@@ -1,5 +1,5 @@
 """
-tools/wireshark/tcrh.lua seen through tshark (plan phase P6).
+tools/wireshark/tcrh.lua seen through tshark.
 
 The pcaps come from chronoroute.trace.pcap (tested on its own in
 test_trace_pcap.py). Every expected value comes from the golden vectors

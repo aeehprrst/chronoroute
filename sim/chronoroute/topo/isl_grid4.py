@@ -41,7 +41,7 @@ geometry); after that only their up/down state changes, at every time step:
     down at that step (geometry.segment_clears);
   * optional laser range limit (Grid4Params.max_range_km): a link longer
     than this is down at that step. The default is None (no limit), because
-    the plan's model (master plan section 2, row 7) limits laser links only
+    the laser-link model limits laser links only
     by the 80 km rule, and we know no published terminal range that we could
     check. Why the knob exists: on the REAL planes an intra-plane link joins
     slot neighbours however far apart they are, so a plane with a gap

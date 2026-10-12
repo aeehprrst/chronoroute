@@ -9,7 +9,7 @@ ChronoRoute (`sim/chronoroute/fwd/`): the same send times and packet ids, the sa
 cuts, ARQ, light-time steps, losses in flight and the same random numbers. What differs is
 only how a scheme picks the next hop and what its control plane knows, and when. Every control
 plane is a **timing model in Python with cited parameters** (labelled `MODELLED`), not a full
-protocol stack (master plan P3f: "full protocol stacks are ns-3's job").
+protocol stack (full protocol stacks are ns-3's job).
 
 ## 1. Running a scheme
 
@@ -67,11 +67,11 @@ errors. Same seed = byte-identical outputs (tested).
 | LS-D threshold θ | {0.1, 0.2, 0.5}, default 0.2 | RFC 7471 §5 "accelerated advertisement thresholds" (no numeric default in the RFC) |
 | LS-D inter-update | 120 s; at most 1 announcement / s | RFC 7471 §7 ("default value should be set to 120 seconds", "minimum announcement periodicity is 1 announcement per second") |
 | LS-D variant | `avg` or `min` | RFC 7471 §4.1.5 average delay; §4.2 min/max; §1: a propagation-delay measurement "SHOULD NOT include queuing delays" |
-| SNAP Δ_up / telemetry | {0.1, 1, 15} s / {1, 10, 60} s | master plan P3f, science report §4 (Hypatia-style per-step tables) |
-| FB1 | 50 ms one way, ×{2, 10, ∞}, hold {10, 60} s | master plan P3d, E8 |
-| LQ threshold q_th | {1, 2, 5} ms | reviewer must-fix #2; science report E9 truth label |
+| SNAP Δ_up / telemetry | {0.1, 1, 15} s / {1, 10, 60} s | Hypatia-style per-step tables |
+| FB1 | 50 ms one way, ×{2, 10, ∞}, hold {10, 60} s | design choice for the feedback schemes (E8) |
+| LQ threshold q_th | {1, 2, 5} ms | design choice; also the E9 truth label |
 | Failure detection (every scheme) | `forwarding.carrier_detect_ms`, default 0 (immediate) | MODELLED: a laser or radio receiver notices loss of signal within its own frame time; one value for every scheme (§2.3), swept as a sensitivity |
-| ChronoRoute CRH-FIB + station table re-upload | every 4 h (`crh_state.fib_refresh_s`) | master plan §3 data cadence "CelesTrak: SupGP (every 4 h)": the planner's data, and so what the ground can re-send, changes every 4 h (MODELLED choice) |
+| ChronoRoute CRH-FIB + station table re-upload | every 4 h (`crh_state.fib_refresh_s`) | data cadence "CelesTrak: SupGP (every 4 h)": the planner's data, and so what the ground can re-send, changes every 4 h (MODELLED choice) |
 | ChronoRoute element-set re-upload (fallback) | every 4 h (`crh_state.ephemeris_upload_s`) | same cadence; each satellite gets its own and its laser partners' element sets (MODELLED) |
 
 ### 2.2 How each control plane is timed
@@ -204,8 +204,8 @@ each ground link (checked against a brute-force flood on C1). SNAP: diff-encoded
 per upload, on the uplink to the nearest satellite with a ground link and on each of the h − 1
 laser hops relaying it on (`snap_table_upload_relay`; h = fewest links from any station at the
 upload instant); telemetry 64 B from each live end of a failed link (downlink + ISL relay hops to
-the nearest station). ChronoRoute / CRH-16 / E2E / LQ (reviewer must-fix #3: "Count the
-FIB/SID-map uploads, ephemeris uploads ..."):
+the nearest station). ChronoRoute / CRH-16 / E2E / LQ (counting the
+FIB/SID-map uploads and ephemeris uploads too):
 * one schedule row per (flow, refresh) to the ingress gateway on the ground network;
 * `crh_fib_refresh`: every satellite is sent its CRH-FIB, one 4 B entry (SID → interface) per
   laser partner and per ground station (any station's ground link can come up), plus, with a
@@ -229,8 +229,7 @@ FIB/SID-map uploads, ephemeris uploads ..."):
 
 Header bytes (`hdr_bytes` per packet) and satellite state (`control.json` → `state`: CRH-FIB,
 station table and fallback ephemeris for ChronoRoute, with the same sizes as the uploads; table
-size for SNAP; LSDB size for LS) are reported separately and never added to control bytes
-(master plan 5.3; reviewer must-fix #3).
+size for SNAP; LSDB size for LS) are reported separately and never added to control bytes.
 
 ## 4. Outputs of a scheme run
 
@@ -248,7 +247,7 @@ For `crh16`, `e2e` and `lq` the trace `hex` field shows the engine's internal T-
 Table schemes have `sl`, `flags` and `hex` null (no routing header). Pcap capture is written only
 for the `chronoroute` scheme.
 
-## 5. Evaluation layer (master plan 5.3, reviewer must-fix #1)
+## 5. Evaluation layer
 
 **PDR (per flow-run).** Delivered / sent among packets sent in `[warm-up, T_end − drain)`; the
 engine only sends in that window, so in-flight packets are never counted as losses; losses are

@@ -15,7 +15,7 @@
 # Deploy gate: every step must pass. web/tests/route-parity.test.ts runs twice, on the fixed
 # reference snapshot (20261010T1358Z) and on the snapshot being deployed (read from the files
 # actually served), and fails only when a path cost differs from Python's by more than 1 ns or
-# a header/packet/pcap byte differs (reviewer must-fix #8); everything else it compares is
+# a header/packet/pcap byte differs; everything else it compares is
 # reported, not blocking. If anything fails, nothing is deployed and the last deployed site
 # stays online.
 #

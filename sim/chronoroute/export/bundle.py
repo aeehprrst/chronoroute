@@ -36,7 +36,7 @@ The exact formats are in docs/bundle-format.md. Design choices:
     reached its final deadline (valid_to + the path's final budget B_h).
     A planned path therefore never loses a link while its packets use it;
     any deviation the network sees is a real surprise (a fault), which is
-    the situation T-CRH is meant to detect. "instant" (the Sprint A rule:
+    the situation T-CRH is meant to detect. "instant" (the original rule:
     links up at the planning instant only) is kept as a labelled variant;
     with it a link can vanish inside the interval and its packets are lost.
     invariants.schedule_stability checks the rule on every schedule row.

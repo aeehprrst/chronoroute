@@ -1,6 +1,6 @@
 /**
- * ROUTE PARITY: the TypeScript route planner against the Python reference (reviewer must-fix
- * #8). This file is the deploy gate of .github/workflows/pages.yml and refresh-data.yml.
+ * ROUTE PARITY: the TypeScript route planner against the Python reference.
+ * This file is the deploy gate of .github/workflows/pages.yml and refresh-data.yml.
  *
  * Two runs (tests/parity-gate.ts explains them and the exact rule):
  *   reference  web/.parity/parity.json: the experiments' pinned snapshot 20261010T1358Z, on the

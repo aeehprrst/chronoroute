@@ -1,7 +1,7 @@
 """
 faults.py
 ---------
-Fault models (MODELLED) and their ground-truth log (master plan P3e).
+Fault models (MODELLED) and their ground-truth log.
 
 Every fault that is applied is written to the log (run.json "faults", one
 entry per fault interval), so detection can always be scored against what
@@ -46,8 +46,7 @@ Kinds (config key `kind`):
                    repeat; airtime of a 200-300 byte probe is ~2 us).
 
 There is deliberately NO "multiply the propagation delay" model: light time
-is fixed by geometry, and the old model that scaled it was unphysical
-(master plan P3e, science report section 0.5).
+is fixed by geometry, and the old model that scaled it was unphysical.
 
 Random draws come from the keyed streams of rng.py (components link_fault,
 node_fault, arq). A renewal process is keyed by its fault IDENTITY (what the

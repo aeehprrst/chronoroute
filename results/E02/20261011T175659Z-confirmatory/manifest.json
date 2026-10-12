@@ -1,5 +1,5 @@
 {
-  "command": "/home/aeehprrst/chronoroute/venv/bin/python -B /home/aeehprrst/chronoroute/experiments/E02/account.py --out results/E02/20261011T175659Z-confirmatory",
+  "command": "venv/bin/python -B experiments/E02/account.py --out results/E02/20261011T175659Z-confirmatory",
   "config": {
     "campaign": {
       "cell_id": "exact-entries-and-course-captures",
@@ -38,20 +38,20 @@
     "complete": true,
     "inputs": [
       {
-        "path": "/home/aeehprrst/chronoroute/results/course-milestone/c5-463-60s-seed1/nofault/capture.pcap.gz",
+        "path": "results/course-milestone/c5-463-60s-seed1/nofault/capture.pcap.gz",
         "sha256": "9840181811508d2e36bce41e9b06e74b486dc2c6f8c5bb7583d1c472e4f74ed0"
       },
       {
-        "path": "/home/aeehprrst/chronoroute/results/course-milestone/c5-463-60s-seed1/manifest.json",
-        "sha256": "07253194f51034dc7744aae07d1d02f226f15b588adf3172a79992fdbe51b957"
+        "path": "results/course-milestone/c5-463-60s-seed1/manifest.json",
+        "sha256": "76559c2e6661968187617fd73f0ec9281efbfff39d585a17082677e82b068596"
       },
       {
-        "path": "/home/aeehprrst/chronoroute/results/course-milestone/c5-463-60s-seed1/fault/capture.pcap.gz",
+        "path": "results/course-milestone/c5-463-60s-seed1/fault/capture.pcap.gz",
         "sha256": "6c16ea7f0258b46406f4aa0f373f28b0c84a4d55cdcb87843d004d8922cd879c"
       },
       {
-        "path": "/home/aeehprrst/chronoroute/results/course-milestone/c5-463-60s-seed1/manifest.json",
-        "sha256": "07253194f51034dc7744aae07d1d02f226f15b588adf3172a79992fdbe51b957"
+        "path": "results/course-milestone/c5-463-60s-seed1/manifest.json",
+        "sha256": "76559c2e6661968187617fd73f0ec9281efbfff39d585a17082677e82b068596"
       }
     ]
   },
@@ -77,8 +77,8 @@
     },
     {
       "path": "capture_frames.csv",
-      "sha256": "c9f440bb3ddcba3c4f7519e5e07186ff32a8c6861aa8065ad8e8403a38533a1a",
-      "size_bytes": 11033372
+      "sha256": "5ef68cdc891ff528dff647ab5d6e0c163b9383802f5f7f9f7e446fce547ffe60",
+      "size_bytes": 8706096
     },
     {
       "path": "capture_summary.csv",

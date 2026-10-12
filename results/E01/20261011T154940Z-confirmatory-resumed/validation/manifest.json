@@ -1,5 +1,5 @@
 {
-  "command": "/home/aeehprrst/chronoroute/venv/bin/python -B - results/E01/20261011T154940Z-confirmatory-resumed",
+  "command": "venv/bin/python -B - results/E01/20261011T154940Z-confirmatory-resumed",
   "config": {
     "scientific_output_unchanged": true,
     "stage": "results-validation"
@@ -11,7 +11,7 @@
     "inputs": [
       {
         "path": "results/E01/20261011T154940Z-confirmatory-resumed/manifest.json",
-        "sha256": "8792397240710809e1f897f693b60962c6a54702920767ee8d82437c9c3a735f"
+        "sha256": "80158cb7b3106183fe646caadc5f41d1667817823e12a4b29890975d78be82b9"
       },
       {
         "path": "results/E01/20261011T154940Z-confirmatory-resumed-raw/manifest.json",
@@ -34,18 +34,18 @@
   "outputs": [
     {
       "path": "campaign.log",
-      "sha256": "d246b582144a9bf496d45bf6dd726744c1e94ca5a297d020b365ab4dbe77930e",
-      "size_bytes": 47670
+      "sha256": "774cf2220b2d8f384ed417d555672c7cfc4b1061a3298488db00d30187207c6c",
+      "size_bytes": 47614
     },
     {
       "path": "implementation-make-check.log",
-      "sha256": "853ee38eb0b5376f5fcfe6739a3bdb0e7a6ca70219b7deaf6c3b262b25e27ff6",
-      "size_bytes": 2075
+      "sha256": "cfcb4f11abfc33071bac10e5e118e9f7a6bef8e94f746c52b50568502dba27f9",
+      "size_bytes": 1887
     },
     {
       "path": "results-make-check.log",
-      "sha256": "ffe9d984aae54b8d1182ead5b341aa73f7b4357da016e70c78974d993d90ce27",
-      "size_bytes": 2075
+      "sha256": "6511030e6248027e3a45c64e32a08b34537550b3ca63e6d93dc93ea7d5f92d66",
+      "size_bytes": 1887
     },
     {
       "path": "validation.json",

@@ -2713,7 +2713,7 @@ sources as well as the corresponding manifested implementation evidence:
 | Producer/collector provenance and local raw-cache limitation | Each `manifest.json`; E1 `inputs/`, E4/E5/E16 `producer-manifests.jsonl.gz`. | Clean hashes preserve recorded provenance, not raw-trace availability or external realism. |
 | RFC, Internet-Draft, Hypatia, STARGLIDER and gray-failure background, including CRH Experimental status | Primary texts linked in the report references (RFC Editor, IETF Datatracker, arXiv, author-hosted paper, DOI). | Verified bibliographic/conceptual evidence, not numerical experiment evidence. |
 | How T-CRH differs from CRH-20, SRTSN, IOAM and TVR | Report section IX and the cited primary texts. | Design comparison only; none of these was implemented or evaluated as a comparator. |
-| CGREB | Named in `docs/NEXT_STEPS.md`; no matching paper or standard identified. | UNVERIFIED; no technical, performance or novelty claim. |
+| CGREB | Named in the project guide; no matching paper or standard identified. | UNVERIFIED; no technical, performance or novelty claim. |
 | Deployment, security, synchronization and external validity remain unestablished | Normative spec and `docs/baselines.md` limitations; scoped E0/E16 evidence and MODELLED manifest labels. | Absence of evidence, not measured failure or a claim that deployment is impossible. |
 
 The narrative interpretations in the abstract, discussion and conclusion are bounded by

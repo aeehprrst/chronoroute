@@ -184,7 +184,7 @@ def register(registry):
     p.add_argument("--gsl-policy", choices=list(gsl_mod.POLICIES), default=gsl_mod.POLICY_STICKY,
                    help="which visible satellites a city uses (MODELLED): sticky_top_k keeps a "
                         "satellite while it is visible (default); highest_elevation_top_k re-picks "
-                        "the 4 highest every step (the Sprint A variant)")
+                        "the 4 highest every step (the original variant)")
     p.add_argument("--plan-links", choices=list(bundle_mod.PLAN_MODES), default=bundle_mod.PLAN_STABLE,
                    help="stable (default): plan each interval on links that stay up until its last "
                         "packet's final deadline; instant: links up at the planning instant only")

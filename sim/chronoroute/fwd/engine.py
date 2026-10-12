@@ -2,7 +2,7 @@
 engine.py
 ---------
 The ChronoRoute simulator v2: a discrete-event, per-packet engine that
-forwards every packet from its T-CRH BYTES (master plan P3a/b).
+forwards every packet from its T-CRH BYTES.
 
 One run, in order of events (all times integer ns after t0, GPS = t0_gps + t):
 

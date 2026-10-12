@@ -89,15 +89,15 @@
 {"completed": 2136, "total": 2160, "wall_s": 2349.7751361440023, "failures": 0}
 {"completed": 2160, "total": 2160, "wall_s": 2371.2586092320053, "failures": 0}
 Traceback (most recent call last):
-  File "/home/aeehprrst/chronoroute/experiments/E04/run.py", line 6, in <module>
+  File "experiments/E04/run.py", line 6, in <module>
     if __name__=='__main__':raise SystemExit(main(experiment='E04'))
                                              ~~~~^^^^^^^^^^^^^^^^^^
-  File "/home/aeehprrst/chronoroute/experiments/policy_campaign.py", line 298, in main
+  File "experiments/policy_campaign.py", line 298, in main
     complete=analysis.write_analysis(args.out,records,args.experiment)
-  File "/home/aeehprrst/chronoroute/experiments/policy_analysis.py", line 167, in write_analysis
+  File "experiments/policy_analysis.py", line 167, in write_analysis
     contrasts=comparisons(records,experiment,n_boot=n_boot);e1.write_csv(out/'paired_contrasts.csv',contrasts)
                                                             ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/aeehprrst/chronoroute/experiments/E01/campaign.py", line 339, in write_csv
+  File "experiments/E01/campaign.py", line 339, in write_csv
     w.writerows(rows)
     ~~~~~~~~~~~^^^^^^
   File "/usr/lib/python3.14/csv.py", line 228, in writerows

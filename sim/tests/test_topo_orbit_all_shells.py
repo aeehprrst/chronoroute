@@ -1,5 +1,5 @@
 """P2 acceptance check, exactly as the plan states it: "ISL invariant: 0 segments below 80 km
-over one orbit (about 95 min) at 1 s steps, for EVERY shell" (master plan P2, acceptance).
+over one orbit (about 95 min) at 1 s steps, for EVERY shell" (acceptance check).
 
 For every shell that `build_fleet_geometry` infers from the pinned SupGP snapshot (broadband
 and DTC), the Grid-4 pairs are chosen at T0 and their up/down state is computed at

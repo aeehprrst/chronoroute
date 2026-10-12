@@ -14,7 +14,7 @@ Bug numbers refer to the P1 bug table in the planning documents:
    #17 the header.py self-test claimed a 10-hop CRH-16 is "28" bytes
 
 plus the common-random-numbers property the counterfactual detection metric
-needs (critique must-fix #1), and the O(log n) schedule lookup.
+needs, and the O(log n) schedule lookup.
 
 Every bug test was run against the v0-semester code first and failed there
 (see the report). The tests use small hand-made networkx graphs, NOT the

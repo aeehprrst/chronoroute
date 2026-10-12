@@ -2,7 +2,7 @@
 """
 web_parity.py
 -------------
-Python side of the website's route parity check (reviewer must-fix #8).
+Python side of the website's route parity check.
 
 The website's route planner (web/src/lib/route/) is a TypeScript port of the
 Python router: Grid-4 laser links + 25 deg ground links on the real fleet,

@@ -38,7 +38,7 @@ def test_report_runs_and_writes_json_with_a_valid_manifest(report_run):
     assert manifest["snapshot"]["id"] == "20261010T1358Z-celestrak"
     assert manifest["labels"]["shells_and_planes"] == "DERIVED"
     assert manifest["labels"]["orbital_elements"] == "REAL"
-    # SGP4 positions: REAL physics + REAL code (master plan section 2, row 2), as in every other output
+    # SGP4 positions: REAL physics + REAL code, as in every other output
     assert manifest["labels"]["satellite_positions_sgp4"] == "REAL"
     assert manifest["seeds"] == []
 

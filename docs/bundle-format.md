@@ -102,7 +102,7 @@ shell is 4,116 km (53.2°/463 km) and up to 5,219 km (70°/572 km)
      is given a new satellite: the highest elevation not yet used, ties to the lower node id.
      At the first step the station takes the 4 highest. A link therefore ends only when its
      satellite sets.
-   * **`highest_elevation_top_k`** (the Sprint A policy, kept as a labelled variant): the 4
+   * **`highest_elevation_top_k`** (the original policy, kept as a labelled variant): the 4
      highest are re-picked at every step, so a link vanishes whenever another satellite climbs
      above it, often while it is still 30° or more up. In the 60 s milestone window this ends 39
      ground links while their satellite is still visible (sticky: 0; 5 links end, all at the
@@ -138,7 +138,7 @@ is recommended. Python's router uses the value at the step itself.
     lengthen it; it settles in a few rounds). Weights are those of the step at `valid_from`.
     A planned path never loses a link while its packets use it, so any deviation the network
     sees is a real surprise (a fault): what T-CRH is meant to detect.
-  * **`instant`** (the Sprint A rule, kept as a labelled variant): the links up at
+  * **`instant`** (the original rule, kept as a labelled variant): the links up at
     `valid_from` only. A link may go down inside the interval and its packets are lost.
   The `schedule_stability` invariant (§2.10) checks every row; with `stable` a broken row
   refuses the bundle.
@@ -146,7 +146,7 @@ is recommended. Python's router uses the value at the step itself.
   | 60 s milestone window | `stable` | `instant` |
   |---|---|---|
   | `sticky_top_k` ground links | 0 of 600 rows lose a link in use | 0 of 600 (by luck of this window) |
-  | `highest_elevation_top_k` | 0 of 600 | 26 of 600 (the Sprint A bundle, byte-identical) |
+  | `highest_elevation_top_k` | 0 of 600 | 26 of 600 (the original bundle, byte-identical) |
 * **Path.** Dijkstra on that graph (`route/dijkstra.py`), with integer ns weights and a binary
   heap. On equal cost the predecessor with the lowest node id wins:
   `pred[v] = min{u : dist[u] + w(u,v) == dist[v]}`. This rule does not depend on the order in
@@ -180,13 +180,13 @@ cr export bundle --snapshot data/pinned/20261010T1358Z-celestrak --shell 53.2deg
 | `--slack` | 1.5 | Multiplicative slack S |
 | `--unit-code` | 1 | T-CRH deadline unit code |
 | `--reverse` | off | Adds every flow's reverse direction after the forward flows (for ACKs) |
-| `--gsl-policy` | `sticky_top_k` | Ground-link assignment (§1.2); `highest_elevation_top_k` is the Sprint A variant |
-| `--plan-links` | `stable` | Links a schedule row may use (§1.4); `instant` is the Sprint A variant |
+| `--gsl-policy` | `sticky_top_k` | Ground-link assignment (§1.2); `highest_elevation_top_k` is the original variant |
+| `--plan-links` | `stable` | Links a schedule row may use (§1.4); `instant` is the original variant |
 | `--isl-max-range-km` | none | Laser range limit (§1.1); without it only the 80 km rule limits a link |
 
 `ns3/run_leo.py --recipe c5-463-60s` (or `c5-463-10s-small`) rebuilds the milestone bundles
 with exactly these commands, so the course results can be reproduced from git alone.
-`--gsl-policy highest_elevation_top_k --plan-links instant` reproduces the Sprint A bundle
+`--gsl-policy highest_elevation_top_k --plan-links instant` reproduces the original bundle
 byte for byte (all six CSV files compared by sha256).
 
 The command refuses to write a bundle that fails an invariant (§2.10). After writing, it

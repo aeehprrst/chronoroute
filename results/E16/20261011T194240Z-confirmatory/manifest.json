@@ -1,5 +1,5 @@
 {
-  "command": "/home/aeehprrst/chronoroute/venv/bin/python -B /home/aeehprrst/chronoroute/experiments/E16/run.py --out results/E16/20261011T194240Z-confirmatory --workers 8",
+  "command": "venv/bin/python -B experiments/E16/run.py --out results/E16/20261011T194240Z-confirmatory --workers 8",
   "config": {
     "alpha": 0.05,
     "analysis": "paired Student-t TOST",
@@ -54,11 +54,11 @@
     "equivalent": true,
     "inputs": [
       {
-        "path": "/home/aeehprrst/chronoroute/results/E05/20261011T185503Z-confirmatory/manifest.json",
-        "sha256": "ab0f2e9ae56c364fa4e91557a3c3ec34f07dfd945effd60dbeca931dc2b7f4d1"
+        "path": "results/E05/20261011T185503Z-confirmatory/manifest.json",
+        "sha256": "c93abef7351d9ff2db99c9b66fc8d047c58b693cea7c989acc1596876826f3a7"
       }
     ],
-    "raw_cache": "/home/aeehprrst/chronoroute/results/E16/20261011T194240Z-confirmatory-raw",
+    "raw_cache": "results/E16/20261011T194240Z-confirmatory-raw",
     "synthetic_positions": "C2 elements and positions MODELLED"
   },
   "git_sha": "22fc9f11c89e2ef94e1a9c3f28f976c473a09f46",
@@ -113,8 +113,8 @@
     },
     {
       "path": "producer-manifests.jsonl.gz",
-      "sha256": "1a525e4dd1457231150d02d9bc146a8cdcb9bd515db87c240ba928bfa1ecf161",
-      "size_bytes": 7599935
+      "sha256": "c652db4e45d5e614f5e16cd608ec34951ad2da580f374995c76300f1c1683a70",
+      "size_bytes": 7585987
     },
     {
       "path": "resource_forecast.json",

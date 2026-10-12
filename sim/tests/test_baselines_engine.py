@@ -397,7 +397,7 @@ def test_common_random_numbers_and_determinism(tmp_path, link):
 
 
 def test_chronoroute_counts_its_satellite_uploads(tmp_path, link):
-    """Reviewer must-fix #3 (major finding: ChronoRoute's uplink was 0 bytes). Every satellite is
+    """ChronoRoute's uplink must not be 0 bytes. Every satellite is
     sent its CRH-FIB + station table every fib_refresh_s and (with a fallback) its own and its
     laser partners' element sets every ephemeris_upload_s, at keyed phases; uplink to the nearest
     satellite with a ground link, then h - 1 laser relay hops. Checked against an independent

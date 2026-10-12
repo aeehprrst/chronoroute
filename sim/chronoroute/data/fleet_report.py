@@ -38,7 +38,7 @@ PLANES_FILE = "planes.json"
 
 # The shared label table (chronoroute/labels.py), so the same thing carries the
 # same label here as in bundles, results and the website: SGP4 positions are
-# REAL physics + REAL code on REAL elements (master plan section 2, row 2).
+# REAL physics + REAL code on REAL elements.
 LABELS = labels_mod.pick("orbital_elements", "catalogue_names_and_ids", "epoch_ages", "satcat_status",
                          "satellite_positions_sgp4", "shells_and_planes", "in_transit_flags",
                          "gp_vs_supgp_disagreement")

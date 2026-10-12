@@ -1,5 +1,5 @@
 """
-The ChronoRoute simulator v2 (master plan P3): a discrete-event, per-packet
+The ChronoRoute simulator v2: a discrete-event, per-packet
 engine that forwards every packet from its T-CRH bytes.
 
     config.py     run configuration (YAML subset / JSON), defaults, checks

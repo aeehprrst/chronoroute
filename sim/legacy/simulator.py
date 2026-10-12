@@ -456,7 +456,7 @@ def pair_runs(base, faulty):
 
 def attributed_deviations(base, faulty):
     """
-    Counterfactual attribution (reviewer critique, must-fix #1).
+    Counterfactual attribution.
 
     base and faulty are two runs with the SAME seed, the second with the
     fault injected. Returns the ids of the packets flagged (DEV set) in the

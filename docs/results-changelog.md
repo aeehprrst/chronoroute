@@ -1,12 +1,11 @@
 # Results changelog: legacy v0 → v0.9 ("corrected")
 
-Date: 2026-10-10, revised 2026-10-11 after the P1 review (see "Revision 2" and "Revision 3"
-below). Phase 1
-("Foundations"), master plan task P1.7.
+Date: 2026-10-10, revised 2026-10-11 after the Phase 1 review (see "Revision 2" and
+"Revision 3" below). Part of Phase 1 ("Foundations") of the project.
 
 This file lists every headline number from the old ChronoRoute results next to the
 number the bug-fixed code gives now, and says *why* it changed. It is written so
-you can defend each change in a viva: what was wrong, what the fix was, and how
+that each change can be checked: what was wrong, what the fix was, and how
 much it moved the answer.
 
 **Short version.** The protocol mechanism still works:
@@ -24,7 +23,7 @@ But several headline claims were artefacts of bugs and have to go:
 See [section 2](#2-what-got-weaker-what-got-stronger) and the
 [claims to retire](#12-claims-to-retire) list.
 
-**Revision 2 (2026-10-11, P1 review).** What changed in this file, and in the code and results
+**Revision 2 (2026-10-11, Phase 1 review).** What changed in this file, and in the code and results
 behind it:
 - **Confidence intervals in Exp 1 and Exp 6 now use the flow as the unit of analysis.** The ten
   seeds of a flow share its geometry (the stale-path rate is identical in all of them), so the
@@ -82,10 +81,10 @@ behind it:
 - All 12 old figures regenerated **byte-identical** to `results/legacy-v0/` and
   `results/legacy-v0-starlink/`: 5 dev and 7 Starlink.
 - So the old printouts quoted below are exactly the numbers behind the frozen PNGs.
-- They also match the handoff (`ChronoRoute_Project_Handoff.md`, cited as "H:line").
-- The "Starlink guide" printout cited by the audit is not on disk. Where the audit
-  (`planning-2026-10-10/03_research_codebase-machine.md`, cited as "A:line") quotes it,
-  the v0 re-run reproduces the same numbers.
+- They also match the semester project notes (not published; cited as "H:line").
+- The "Starlink guide" printout cited by the code audit of the semester version is not on
+  disk. Where that audit (not published; cited as "A:line") quotes it, the v0 re-run
+  reproduces the same numbers.
 
 Quirks of the old run:
 - In v0 the dev `results/` folder held copies of the Starlink Exp 2, 3, 6 and 7 figures
@@ -110,8 +109,8 @@ The test suite was green before the runs (`venv/bin/python -B -m pytest sim/test
 
 ## 1. The bug fixes that move numbers
 
-Bug numbers are from the master plan P1 table (`01_master_plan_draft.md`, "P1.
-Foundations"). Bug #21 comes from reviewer critique #1. Fixes that change no plotted
+Bug numbers are from the Phase 1 bug list of the project plan (not published). Bug #21
+came from a later design review. Fixes that change no plotted
 number (#8, #11, #12, #14, #17, #19) are listed for completeness.
 
 | # | Fix | What it moves |
@@ -128,7 +127,7 @@ number (#8, #11, #12, #14, #17, #19) are listed for completeness.
 | 10 | Seam ISLs include the phasing offset (Starlink seam median 1617 → 519 km) | path lengths and stretch near the seam |
 | 11 | 80 km grazing rule instead of a 5500 km range | none: identical link set on all four presets |
 | 12 | SGP4 errors skip the satellite | none here: 0 satellites skipped (all 10 manifests that propagate) |
-| 13 | `tle.py` keeps the last satellite of 2-line files; altitude above 6378.137 km | TLE validation altitudes ([section 11](#11-physics-and-validation-numbers-quoted-in-the-handoff)) |
+| 13 | `tle.py` keeps the last satellite of 2-line files; altitude above 6378.137 km | TLE validation altitudes ([section 11](#11-physics-and-validation-numbers-quoted-in-the-semester-notes)) |
 | 14 | Strict drop gets its own outcome `DROPPED_DEADLINE_STRICT` | label only |
 | 15 | One `ConstellationConfig`; no stale by-value copies; cache keyed on config | run-order independence (Exp 4/5/6) |
 | 16 | Exp 5 uses the simulator's 40-hop limit (was 60) and counts losses | **Exp 5 delivery and stretch** (big) |
@@ -352,7 +351,7 @@ Files: `results/legacy-v0.9/{dev,starlink}/exp2_header_overhead/`.
 | CRH-16 at 10 hops | 32 B | **24 B** | #5 (fixed part is 4 B, RFC 9631) |
 | CRH-16 at 13 hops | 40 B | **32 B** | #5 |
 | T-CRH at 10 / 13 hops | 48 / 56 B (H:304, H:314) | 48 / 56 B | unchanged; now from `chronoroute.proto.sizes`, byte-identical with ns-3 |
-| Cost of adding time (T-CRH − CRH-16, 10 hops) | "+16 B" (PNG annotation, printout) | **+24 B** | #5 (the handoff already says +24 at H:415-420 and H:377) |
+| Cost of adding time (T-CRH − CRH-16, 10 hops) | "+16 B" (PNG annotation, printout) | **+24 B** | #5 (the semester notes already say +24 at H:415-420 and H:377) |
 | SRv6 SRH at 10 hops | 168 B | 168 B | — |
 | T-CRH + HMAC at 10 hops | 88 B | 88 B | — |
 | T-CRH with gateway encapsulation (+40 B IPv6) | — | **88 B** (new series) | critique #4: inserting at a gateway needs IPv6-in-IPv6 |
@@ -666,7 +665,7 @@ the mean: at S = 1.5 one of the five runs had 1.4 % false alarms.
 
 ---
 
-## 11. Physics and validation numbers quoted in the handoff
+## 11. Physics and validation numbers quoted in the semester notes
 
 | Quantity | Old (H:line) | New | Why |
 |---|---|---|---|
@@ -771,7 +770,7 @@ Each claim has a suggested replacement in plain words.
   - no event-level detector: detection is scored per packet. The plan's "event-level
     detection on matched packets" for bug #3 (an event detector such as k flags at one hop
     within W, false events per hour from the null-fault arm, an event ROC) is deferred to
-    experiment E1 of the new campaign. P1 #3 is closed here by the counterfactual
+    experiment E1 of the new campaign. Bug #3 is closed here by the counterfactual
     per-packet score plus the null-fault control.
 
   Read them as corrected v0 results, not as the new campaign (E1–E16).
@@ -927,3 +926,37 @@ unit cells and with its column (catching a correct value in the wrong cell), tha
 parts appear in order, that ledger labels equal a CSV row's own label, that no p-value of zero
 is displayed, that backticks hold only identifiers, that only the reviewed releases are cited,
 and that every reference is a verified primary source.
+
+## 16. 2026-10-12 result records without local paths
+
+The result records written before 12 October 2026 stored absolute paths of the machine the
+runs were made on: the repository checkout, its virtual environment, the ns-3 build folder
+and temporary folders. The repository and the website are public, so these paths are now
+written the way new runs write them (`chronoroute.provenance.public_paths`): relative to the
+repository root, where every run starts, and `~/...` for folders outside it.
+
+`tools/redact_local_paths.py` made the change and recomputed everything that depends on the
+rewritten bytes, until nothing changed any more:
+
+- the SHA-256 and size of every rewritten file in the repository, wherever another record
+  cites it (manifest outputs and inputs, inventories, producer-manifest archives);
+- `config_sha256` and `run_id` of every manifest whose configuration held a path.
+
+A hash that a record keeps for a file outside the repository (the raw run folders, which
+stay on the machine that made them) still names that original file, so it was not changed;
+only the copy of such a manifest inside a record had its paths, `config_sha256` and `run_id`
+rewritten. Two compiled test programs (`results/E00/*/ns3-wire`) still carry the ns-3 build
+folder inside the binary and were left as they are, because their hashes are part of the
+E0 record.
+
+In all, 4,589 result files were rewritten, and 15,444 file and configuration hashes and
+10,856 run ids changed with them. All 1,540 committed manifests validate afterwards, and every
+input they cite inside the repository matches its recorded hash.
+
+**No measured value changed.** Before writing, the tool compared every rewritten JSON, JSONL
+and CSV file with its original value by value: the only differences are paths, hashes, run
+ids and the sizes of rewritten files. Commits, seeds, every number and every verdict are as
+before. The run folders keep their names, so every reference to a run is unchanged. The
+original records are in the git history (the commit before this change), and the rewrite is
+deterministic: running the tool on that commit, with the same checkout and home folder,
+reproduces the rewritten files byte for byte.

@@ -1,7 +1,7 @@
 """
 stats.py
 --------
-The statistics of the campaign (master plan 5.4), with numpy and the Python
+The statistics of the campaign, with numpy and the Python
 standard library only (scipy is not installed here).
 
   * The unit of analysis is the RUN (one scenario, seed, start time): packets

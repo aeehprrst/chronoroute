@@ -558,8 +558,8 @@ class SnapKnowledge:
 
 class CrhStateUploads:
     """What a ChronoRoute-family satellite (crh data plane) must be SENT, besides the schedule
-    rows the ground hands to the ingress gateway (reviewer must-fix #3: "Count the FIB/SID-map
-    uploads, ephemeris uploads ... split by medium").
+    rows the ground hands to the ingress gateway: the FIB/SID-map uploads and ephemeris
+    uploads, split by medium.
 
     Two periodic uploads to every satellite, each satellite at its own keyed phase in
     [0, period), so a run shorter than the period sees the right fraction of them and two

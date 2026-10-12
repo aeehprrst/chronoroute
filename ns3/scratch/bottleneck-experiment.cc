@@ -89,7 +89,7 @@ main(int argc, char* argv[])
     cmd.Parse(argc, argv);
 
     // TCP configuration. NewReno is the classic, well-understood choice and
-    // makes the sawtooth behaviour easy to explain in a viva.
+    // makes the sawtooth behaviour easy to explain.
     Config::SetDefault("ns3::TcpL4Protocol::SocketType",
                        TypeIdValue(TcpNewReno::GetTypeId()));
     Config::SetDefault("ns3::TcpSocket::SegmentSize", UintegerValue(1448));

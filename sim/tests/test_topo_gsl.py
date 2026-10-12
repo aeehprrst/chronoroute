@@ -1,5 +1,5 @@
 """Tests for chronoroute.topo.gsl: 25 deg mask (ASSUMED); which satellites are used (MODELLED):
-sticky top-4 with hysteresis (default) or top-4 re-picked every step (the Sprint A variant)."""
+sticky top-4 with hysteresis (default) or top-4 re-picked every step (the original variant)."""
 
 import numpy as np
 import pytest
@@ -42,7 +42,7 @@ def test_sticky_keeps_a_visible_satellite_and_refills_only_free_beams():
     visible, sticky = gsl.select_links(elev, ids, gsl.GslParams(25.0, 2))
     assert sticky.T.tolist() == [[True, True, False, False], [True, True, False, False],
                                  [True, False, True, False], [True, False, True, False]]
-    # the Sprint A policy re-picks the two highest at every step instead
+    # the original policy re-picks the two highest at every step instead
     _, per_step = gsl.select_links(elev, ids, gsl.GslParams(25.0, 2, gsl.POLICY_PER_STEP))
     assert per_step.T.tolist() == [[True, True, False, False], [True, False, True, False],
                                    [True, False, True, False], [True, True, False, False]]
