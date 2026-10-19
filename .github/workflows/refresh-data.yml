@@ -124,7 +124,9 @@ jobs:
           import json, os, pathlib, sys
           log = pathlib.Path.home() / "celestrak-pinned" / "fetch_log.jsonl"
           entries = [json.loads(l) for l in log.read_text().splitlines() if l.strip()] if log.is_file() else []
-          bad = {"stopped", "network_error", "bad_response"}
+          # A refusal or an unusable answer from CelesTrak needs a human. A timeout or a dropped
+          # connection got no answer at all, so the next scheduled run (4 h later) simply tries again.
+          bad = {"stopped", "bad_response"}
           if entries and entries[-1].get("outcome") in bad:
               last = entries[-1]
               print(f"Last request {last.get('requested_utc')} for {last.get('source')} ended as "
