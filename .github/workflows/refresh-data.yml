@@ -4,7 +4,8 @@
 #
 # CelesTrak's usage policy is enforced by pipeline/fetch.py (one request per source per update
 # cycle, FORMAT always given, project User-Agent, gzip). This workflow adds:
-#   * fetch.py runs EXACTLY ONCE per run; nothing here ever retries it.
+#   * fetch.py runs AT MOST ONCE per run (not at all when pipeline/fetch_gate.py says wait); nothing here
+#     ever retries it.
 #   * Only SupGP is requested (--sources supgp): the website is built from SupGP alone, so the
 #     GP request (about 4.7 MB per run) would be traffic for nothing. The experiments' GP files
 #     are in the snapshots committed under data/pinned/ (fetched with pipeline/fetch.py outside
@@ -12,16 +13,16 @@
 #   * HTTP 403 "has not updated" is a normal outcome: fetch.py exits 0 without a new folder, the
 #     previous snapshot stays current, and nothing is rebuilt or deployed (the site shows the
 #     data's age itself, with a "stale" badge after 24 hours).
-#   * Any other outcome fails the run, so nothing is deployed and the last deployed site stays
-#     online:
-#       - a failed HTTP request (fetch.py exit 2: a non-200 answer other than that 403, a
-#         redirect, a network error, or a 200 answer that cannot be used) is a STOP until a
-#         human has looked: later scheduled runs refuse to fetch while the newest entry of the
-#         request log is such a failure. To resume, run this workflow by hand with
-#         "resume_after_failure" ticked.
-#       - a download that arrived but failed validation (fetch.py exit 3; kept as
-#         <id>.rejected) fails this run only. It is not a failed request, so the next scheduled
-#         run (4 hours later, well past CelesTrak's 2-hour rule) fetches again.
+#   * What CelesTrak answers never fails a run. A failed request (fetch.py exit 2) or a download
+#     rejected by validation (exit 3, kept as <id>.rejected) is reported as a warning, nothing
+#     new is deployed, and the last deployed site stays online. pipeline/fetch_gate.py then
+#     decides whether the next run asks again: after no answer at all or an HTTP 5xx (a problem
+#     on CelesTrak's side), yes; after any other error answer, only once 24 hours have passed
+#     (or at once when the workflow is run by hand with "fetch_now" ticked). That is at most 6
+#     error answers a day, far below the 50 in 2 hours after which CelesTrak blocks an address.
+#   * The site data is built with web/scripts/build-tested-data.sh, as in pages.yml: the newest
+#     snapshot that passes the data build and every vitest test, falling back to older ones with
+#     a warning. Only a defect that fails every snapshot (a bug in our own code) fails the run.
 #   * Downloads and the request log (fetch_log.jsonl, which fetch.py needs for its 2-hour rule)
 #     are kept between runs in the Actions cache under ~/celestrak-pinned, outside the git work
 #     tree. Only the newest two downloads are kept. If the cache is ever evicted, the newest
@@ -49,8 +50,8 @@ on:
         description: "Rebuild and deploy even if no new snapshot was downloaded"
         type: boolean
         default: false
-      resume_after_failure:
-        description: "A human has checked the last failed fetch; allow fetching again"
+      fetch_now:
+        description: "Ask CelesTrak now, even within 24 hours of an error answer"
         type: boolean
         default: false
 
@@ -115,43 +116,34 @@ jobs:
           key: celestrak-pinned-restore-only
           restore-keys: celestrak-pinned-
 
-      - name: Refuse to fetch after an unacknowledged failure
+      - name: Decide whether to ask CelesTrak this run (after its last answer)
+        id: gate
         env:
-          RESUME: ${{ inputs.resume_after_failure && 'yes' || 'no' }}
+          FETCH_NOW: ${{ inputs.fetch_now && '--now' || '' }}
         run: |
           mkdir -p "$HOME/celestrak-pinned"
-          python - <<'EOF'
-          import json, os, pathlib, sys
-          log = pathlib.Path.home() / "celestrak-pinned" / "fetch_log.jsonl"
-          entries = [json.loads(l) for l in log.read_text().splitlines() if l.strip()] if log.is_file() else []
-          # A refusal or an unusable answer from CelesTrak needs a human. A timeout or a dropped
-          # connection got no answer at all, so the next scheduled run (4 h later) simply tries again.
-          bad = {"stopped", "bad_response"}
-          if entries and entries[-1].get("outcome") in bad:
-              last = entries[-1]
-              print(f"Last request {last.get('requested_utc')} for {last.get('source')} ended as "
-                    f"{last.get('outcome')}: {last.get('detail', '')}")
-              if os.environ["RESUME"] != "yes":
-                  print("Not fetching again until a human has looked (CelesTrak policy: stop on any "
-                        "non-200 answer and never retry). Run this workflow by hand with "
-                        "resume_after_failure ticked to continue.")
-                  sys.exit(1)
-              print("resume_after_failure is set: fetching again.")
-          EOF
+          python -B pipeline/fetch_gate.py --out-root "$HOME/celestrak-pinned" $FETCH_NOW
 
       - name: Fetch from CelesTrak (exactly once, never retried)
         id: fetch
+        if: steps.gate.outputs.fetch == 'true'
         run: |
           root="$HOME/celestrak-pinned"
           before="$(bash web/scripts/newest-snapshot.sh data/pinned "$root")"
-          code=0
-          python -B pipeline/fetch.py --sources supgp --out-root "$root" || code=$?
+          set +e
+          python -B pipeline/fetch.py --sources supgp --out-root "$root" 2>&1 | tee "$RUNNER_TEMP/fetch.out"
+          code="${PIPESTATUS[0]}"
+          set -e
           after="$(bash web/scripts/newest-snapshot.sh data/pinned "$root")"
           echo "fetch.py exit code $code; newest snapshot before: $before, after: $after"
-          echo "snapshot=$after" >> "$GITHUB_OUTPUT"
           if [ "$after" != "$before" ]; then echo "new=true" >> "$GITHUB_OUTPUT"; else echo "new=false" >> "$GITHUB_OUTPUT"; fi
-          # 2 = stopped (failed HTTP request), 3 = download rejected by validation.
-          exit "$code"
+          case "$code" in
+            0) ;;
+            2) why="$(grep -m1 'STOPPED -- ' "$RUNNER_TEMP/fetch.out" | sed -e 's/^.*STOPPED -- //' -e 's/[: ]*$//')"
+               echo "::warning title=CelesTrak did not answer normally::${why}. Nothing new is deployed and the site keeps its current data; the next run decides when to ask again." ;;
+            3) echo "::warning title=CelesTrak download rejected::The download failed validation and was kept as a .rejected folder. Nothing new is deployed and the site keeps its current data." ;;
+            *) exit "$code" ;;   # anything else is a defect in fetch.py itself
+          esac
 
       - name: Keep the newest two downloads, the newest SupGP one, the newest rejected one and the log
         if: always()
@@ -185,14 +177,8 @@ jobs:
             echo "deploy=true" >> "$GITHUB_OUTPUT"
           else
             echo "deploy=false" >> "$GITHUB_OUTPUT"
-            echo "No new snapshot (CelesTrak has not updated, or the 2-hour rule skipped the request): nothing to deploy."
+            echo "No new snapshot (CelesTrak was not asked, has not updated, or did not answer normally): nothing to deploy."
           fi
-
-      - name: Validate the snapshot
-        if: steps.decide.outputs.deploy == 'true'
-        env:
-          SNAPSHOT: ${{ steps.fetch.outputs.snapshot }}
-        run: python -B pipeline/validate.py "$SNAPSHOT"
 
       - name: Set up Node 24
         if: steps.decide.outputs.deploy == 'true'
@@ -202,24 +188,21 @@ jobs:
           cache: npm
           cache-dependency-path: web/package-lock.json
 
-      - name: Build the site data with the Python pipeline
-        if: steps.decide.outputs.deploy == 'true'
-        env:
-          PYTHON: python
-          SNAPSHOT: ${{ steps.fetch.outputs.snapshot }}
-        run: bash web/scripts/build-data.sh "$SNAPSHOT"
-
       - name: Install the website's dependencies
         if: steps.decide.outputs.deploy == 'true'
         working-directory: web
         run: npm ci
 
-      - name: Unit, contract, SGP4 and route parity tests (vitest)
+      # fetch.py has already validated a new download before keeping it, and build-data.sh checks
+      # it again against web/DATA_CONTRACT.md (pipeline/validate.py --web).
+      - name: Build the site data and run every vitest test (newest passing snapshot)
         if: steps.decide.outputs.deploy == 'true'
-        working-directory: web
         env:
+          PYTHON: python
+          MAX_SNAPSHOTS: "3"
+          # Relative to web/, where build-tested-data.sh runs `npm test`.
           PARITY_SUMMARY_OUT: public/data/parity.json
-        run: npm test
+        run: bash web/scripts/build-tested-data.sh data/pinned "$HOME/celestrak-pinned"
 
       - name: Type check and build
         if: steps.decide.outputs.deploy == 'true'

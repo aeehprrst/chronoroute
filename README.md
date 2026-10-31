@@ -199,11 +199,12 @@ npm run build          # static site in web/dist/
   older ones with a warning (`web/scripts/build-tested-data.sh`).
 - **Data refresh** (`.github/workflows/refresh-data.yml`): every 4 hours (minute 17) it runs
   `pipeline/fetch.py --sources supgp` once (the site needs SupGP only), and rebuilds and deploys
-  only when a new snapshot arrived. A request is never retried; after a failed HTTP request,
-  scheduled runs stop fetching until someone re-runs the workflow by hand with
-  "resume_after_failure" ticked. A download rejected by validation fails only that run. Nothing
-  is deployed after any failure. The site shows the data's age and a "stale" badge after 24
-  hours.
+  only when a new snapshot arrived. A request is never retried within a run, and what CelesTrak
+  answers never fails a run: an error answer or a rejected download is a warning, and the site
+  keeps its current data. After no answer or an HTTP 5xx the next run asks again; after any other
+  error answer, runs wait 24 hours (; "fetch_now" in a manual run asks at
+  once). The data is built like pages.yml does, falling back to an older snapshot if the newest
+  fails. The site shows the data's age and a "stale" badge after 24 hours.
 
 ## Protocol specification
 

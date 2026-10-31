@@ -9,6 +9,7 @@ apply the same rules.
 | Script | What it does |
 |---|---|
 | `fetch.py` | Downloads SupGP (primary) and GP (cross-check) Starlink OMM JSON from CelesTrak into a new `data/pinned/<YYYYMMDDTHHMMZ>-celestrak/` folder (raw bytes, response headers, `SHA256SUMS`, `README.md`), following CelesTrak's usage policy exactly (below). Every request is logged in `data/pinned/fetch_log.jsonl`. |
+| `fetch_gate.py` | Decides whether a scheduled run (`.github/workflows/refresh-data.yml`) asks CelesTrak at all, from the newest entry of `fetch_log.jsonl`: after no answer or an HTTP 5xx, ask again at the next run; after any other error answer, wait 24 hours (`--now` asks at once). It always exits 0. |
 | `validate.py` | Checks a pinned folder (object count 10,000-13,000, NORAD ids unique after screening, required fields, EPOCH parsed as UTC, stale/SGP4/duplicate exclusions counted, raw file matches `SHA256SUMS`), or with `--web` a website snapshot against `web/DATA_CONTRACT.md`. |
 | `slim.py` | Writes the website data contract: `<out>/snapshots/<id>/manifest.json` + `omm.min.json` and `<out>/latest.json`. Re-running on the same input gives byte-identical files. |
 | `cities_natural_earth.py` | Rebuilds `data/static/cities.csv` from the public-domain Natural Earth populated-places table (see `data/static/CITIES_SOURCE.md`). |
@@ -24,7 +25,7 @@ apply the same rules.
 | Identify yourself | `User-Agent: ChronoRoute research project (github.com/aeehprrst/chronoroute)`, `Accept-Encoding: gzip` |
 | Record what was received | HTTP `Date` (the fetch time), byte count (wire and decoded), sha256 of the decoded bytes, all response headers |
 
-The tests (`sim/tests/test_data_fetch.py`) never contact CelesTrak: they replace the HTTP call.
+The tests (`sim/tests/test_data_fetch.py`, `sim/tests/test_fetch_gate.py`) never contact CelesTrak: they replace the HTTP call.
 
 ## Exclusion rules (website contract, applied in this order)
 
